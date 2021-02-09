@@ -1,0 +1,225 @@
+//adicionais
+Serial := '|';
+
+//Lista de comandos internos
+and
+
+begin | end;
+
+ClipBoard.
+ClipBoard.CopyFromText( | );
+ClipBoard.Clear;
+ClipBoard.GetFormat;
+ClipBoard.LoadItemFromFile( | );
+ClipBoard.LoadFromItem( | );
+ClipBoard.PasteToText;
+ClipBoard.SaveItemToFile( | , | );
+ClipBoard.SaveToItem;
+
+const
+
+copy( | , | , | );
+
+delete( | , | , | );
+
+dec( | );
+
+File.
+File.Copy( | , | , flc| );
+File.Delete( | , flc| );
+File.DirExists( | );
+File.Exec( | , | , | , flx| );
+File.ExtractFileExt( | );
+File.ExtractFileName( | );
+File.ExtractFilePath( | );
+File.FileExists( | );
+File.FileExpandPath( | );
+File.FileUnExpandPath( | );
+File.GetAttrib( | );
+File.GetAcessTime( | );
+File.GetCreateTime( | );
+File.GetFileSize( | );
+File.GetModifyTime( | );
+File.LoadFromText( | );
+File.MkDir( | );
+File.Move( | , | , flc| );
+File.OpenDialog( | );
+File.Rename( | , | , flc| );
+File.SaveToText( | , | );
+File.Script( | , fls| , | );
+File.Search( | , | );
+File.SetAttrib( | , | );
+File.SetDateTime( | , | , | , | );
+
+for | to | do | 
+for | to | do begin | end;
+for | downto | do | 
+for | downto | do begin | end;
+
+%.AlphaBlend := | ;
+%.AlphaBlendValue := | ;
+%.Close;
+%.Enabled := | ;
+%.Heigth := | ;
+%.Hide;
+%.Left := | ;
+%.Show;
+%.SetFocus;
+%.NoFocus;
+%.Top := | ;
+%.Transparent := | ;
+%.TransparentColor := | ;
+%.Width := | ;
+%.WindowState := | ;
+
+function | ( | ) begin | end;
+function global | ( | ) begin | end;
+
+global
+
+if | then | 
+if | then begin | end;
+if | then | else | 
+if | then begin | end else begin | end;
+
+inc( | );
+
+insert( | , | , | );
+
+Key.
+Key.AllUp;
+Key.CharToKey( | );
+Key.GetPress( | );
+Key.KeyToChar( | );
+Key.SetPress( | , | );
+Key.Macro( | , | );
+
+link | ( | );
+link | ( | , | );
+link | ( | , | , | );
+link | ( | , | , | , | );
+link | ( | , | , | , | , |);
+link global | ( | );
+link global | ( | , | );
+link global | ( | , | , | );
+link global | ( | , | , | , |);
+link global | ( | , | , | , | , |);
+
+Math.
+Math.ArcCos( | );
+Math.ArcSin( | );
+Math.ArcTan( | );
+Math.Cos( | );
+Math.Cosecant( | );
+Math.CoTan( | );
+Math.Bin( | );
+Math.DegToGrad( | );
+Math.DegToRad( | );
+Math.Format( | , | , | );
+Math.GradToDeg( | );
+Math.GradToRad( | );
+Math.Hex( | );
+Math.Hypot( | , | );
+Math.Log( | , | );
+Math.Module( | );
+Math.Random( | );
+Math.RadToDeg( | );
+Math.RadToGrad( | );
+Math.Secant( | );
+Math.Sin( | );
+Math.Tan( | );
+
+mod
+
+Net.
+Net.Client.
+Net.Client.Active := | ;
+Net.Client.Address := | ;
+Net.Client.PassWord := | ;
+Net.Client.Port := | ;
+Net.Client.SendCommand( | );
+Net.Server.
+Net.Server.Active := | ;
+Net.Server.MaxConnect := | ;
+Net.Server.PassWord := | ;
+Net.Server.Port := | ;
+Net.Server.SendMessage( | );
+Net.SetTCPIP( | , | , | , | );
+
+not
+
+or
+
+Process.
+Process.FindFile( | );
+Process.GetFileName( | );
+Process.GetForeground;
+Process.GetPriority( | );
+Process.Kill( | );
+Process.SetPriority( | , | );
+
+read( | , |);
+
+Registry.
+Registry.Delete( hkey| , | , | );
+Registry.Read( hkey| , | , | );
+Registry.Write( hkey| , | , | , | );
+
+repeat | until ( | );
+
+root
+
+Service.
+Service.Create( | , | , | , |);
+Service.Delete( | , | );
+Service.GetConfig( | , | );
+Service.GetDesciption( | , | );
+Service.GetState( | , | );
+Service.SetConfig( | , | , svc| );
+Service.SetDesciption( | , | , | );
+Service.SetState( | , | , svs| );
+
+Sound.
+Sound.GetVolume( sndrv| );
+Sound.Mute( sndrv| );
+Sound.PlaySound( sndrv| , sndc| );
+Sound.SetVolume( sndrv| , | );
+Sound.VolumeStepDown( sndrv| );
+Sound.VolumeStepUp( sndrv| );
+
+System.
+System.AutoClose := | ;
+System.ConsoleClear;
+System.ConsoleDelay := | ;
+System.ConsoleMsg := | ;
+System.DateTimeNow( | );
+System.DirCurrent
+System.Delay( | );
+System.FileListMax :=  | ;
+System.FindWindow( | );
+System.FormatReply( | , | );
+System.GetTextFromPoint;
+System.IconLoader := | ;
+System.LinksUpdate
+System.LockWorkStation;
+System.LoopLimite := | ;
+System.MonitorPower( | );
+System.NoOff := | ;
+System.PrtScreen( | , | , | , | , | );
+System.SendMessage( | , | , stmsm| , | );
+System.SetScreen( | , | , | );
+System.SetSuspendState( | );
+System.ShowMessage( | , stmt| , stmb| , stmb| );
+System.ShutDown( stmsd| );
+
+var | ;
+var global | ;
+var const | ;
+var const global | ;
+
+xor
+
+while | do | 
+while | do begin | end;
+
+write( | );

@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{3BE3825E-6101-4466-A1BE-615F01804DDA}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Binaries\AnaliseLexico\AnaliseLexico.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Libraries\Componet\Package\PGoferComponent.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="AnaliseLexico">
+        <MSBuild Projects="Binaries\AnaliseLexico\AnaliseLexico.dproj"/>
+    </Target>
+    <Target Name="AnaliseLexico:Clean">
+        <MSBuild Projects="Binaries\AnaliseLexico\AnaliseLexico.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AnaliseLexico:Make">
+        <MSBuild Projects="Binaries\AnaliseLexico\AnaliseLexico.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="PGoferComponent">
+        <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj"/>
+    </Target>
+    <Target Name="PGoferComponent:Clean">
+        <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PGoferComponent:Make">
+        <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="AnaliseLexico;PGoferComponent"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="AnaliseLexico:Clean;PGoferComponent:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="AnaliseLexico:Make;PGoferComponent:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
