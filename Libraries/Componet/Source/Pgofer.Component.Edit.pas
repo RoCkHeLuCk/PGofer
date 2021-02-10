@@ -1,4 +1,4 @@
-unit Pgofer.Component.Edit;
+unit PGofer.Component.Edit;
 
 interface
 

@@ -18,6 +18,7 @@ type
       EdtFind: TButtonedEdit;
       PnlFrame: TPanel;
       TrvController: TTreeViewEx;
+    Button1: TButton;
       procedure FormCreate( Sender: TObject );
       procedure TrvControllerGetSelectedIndex( Sender: TObject;
          Node: TTreeNode );

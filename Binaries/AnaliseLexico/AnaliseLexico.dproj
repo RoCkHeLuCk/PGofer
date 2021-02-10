@@ -189,6 +189,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Types.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
@@ -204,7 +205,6 @@
         <DCCReference Include="UnitMain.pas">
             <Form>FrmMain</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas"/>
         <None Include="AnaliseLexico.dpr"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>

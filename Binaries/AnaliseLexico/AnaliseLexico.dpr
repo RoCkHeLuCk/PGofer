@@ -45,6 +45,7 @@ uses
   PGofer.System.Variants in '..\..\Libraries\Lib\System\PGofer.System.Variants.pas',
   PGofer.System.Variants.Frame in '..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas' {PGFrame1: TFrame},
   PGofer.System.VirtualDesktop in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
+  PGofer.Utils in '..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas',
   PGofer.RTTI.Attributes in '..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas',
   PGofer.Types in '..\..\Libraries\Lib\PGUtils\PGofer.Types.pas',
   PGofer.ZLib in '..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas',
@@ -54,8 +55,7 @@ uses
   PGofer.Form.Controller in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas' {FrmController},
   PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
   Vcl.Forms,
-  UnitMain in 'UnitMain.pas' {FrmMain},
-  PGofer.Utils in '..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas';
+  UnitMain in 'UnitMain.pas' {FrmMain};
 
 {$R *.res}
 
@@ -64,7 +64,7 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-    Application.CreateForm(TFrmController, FrmController);
-    TPGForm.Carregar();
+  Application.CreateForm(TFrmController, FrmController);
+  TPGForm.Carregar();
     Application.Run;
 end.
