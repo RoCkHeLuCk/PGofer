@@ -200,15 +200,9 @@ end;
 
 procedure TPGForm.Execute(Gramatica: TGramatica);
 begin
-    Gramatica.TokenList.GetNextToken;
-    if Gramatica.TokenList.Token.Classe = cmdDot then
-    begin
-        Gramatica.TokenList.GetNextToken;
-        PGofer.Types.Executar(Gramatica, Self);
-    end
-    else
-        Self.Show(true);
-
+    inherited Execute(Gramatica);
+    if Gramatica.TokenList.Token.Classe <> cmdDot then
+       Self.Show(true);
     Application.ProcessMessages();
 end;
 

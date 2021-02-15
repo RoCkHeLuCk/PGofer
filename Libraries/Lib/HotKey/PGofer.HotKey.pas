@@ -81,14 +81,9 @@ procedure TPGHotKeys.Execute(Gramatica: TGramatica);
 begin
     if Assigned(Gramatica) then
     begin
-        Gramatica.TokenList.GetNextToken;
-        if Gramatica.TokenList.Token.Classe = cmdDot then
-        begin
-            Gramatica.TokenList.GetNextToken;
-            PGofer.Types.Executar(Gramatica, Self);
-        end
-        else
-            Self.ExecutarNivel1();
+        inherited Execute(Gramatica);
+        if Gramatica.TokenList.Token.Classe <> cmdDot then
+           Self.ExecutarNivel1();
     end
     else
     begin

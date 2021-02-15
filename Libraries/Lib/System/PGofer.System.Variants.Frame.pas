@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PGofer.Item.Frame, Vcl.StdCtrls,
-  Pgofer.Component.Edit, PGofer.Classes, PGofer.System.Variants;
+  Pgofer.Component.Edit, PGofer.Classes, PGofer.System.Variants, Vcl.ExtCtrls,
+  Vcl.ComCtrls;
 
 type
   TPGFrameVariants = class(TPGFrame)

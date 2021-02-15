@@ -5,30 +5,31 @@ interface
 uses
     Vcl.Forms, Vcl.Dialogs, Vcl.Controls, Vcl.StdCtrls, Vcl.Graphics,
     System.SysUtils, System.Classes,
-    PGofer.Classes, PGofer.Links, PGofer.Item.Frame, Pgofer.Component.Edit;
+    PGofer.Classes, PGofer.Links, PGofer.Item.Frame, Pgofer.Component.Edit,
+  Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
     TPGFrameLinks = class(TPGFrame)
-        LblArquivo: TLabel;
-        LblParametro: TLabel;
-        LblDiretorio: TLabel;
-        LblIcone: TLabel;
-        LblEstado: TLabel;
-        LblPrioridade: TLabel;
-        LblOperation: TLabel;
-        EdtArquivo: TEdit;
-        BtnArquivo: TButton;
-        EdtParametro: TEdit;
-        EdtDiretorio: TEdit;
-        BtnDiretorio: TButton;
-        EdtIcone: TEdit;
-        BtnIcone: TButton;
-        EdtIconeIndex: TEdit;
-        CmbEstado: TComboBox;
-        CmbPrioridade: TComboBox;
-        BtnTest: TButton;
-        CmbOperation: TComboBox;
-        OpdLinks: TOpenDialog;
+    LblArquivo: TLabel;
+    LblParametro: TLabel;
+    LblDiretorio: TLabel;
+    LblIcone: TLabel;
+    LblEstado: TLabel;
+    LblPrioridade: TLabel;
+    LblOperation: TLabel;
+    EdtArquivo: TEdit;
+    BtnArquivo: TButton;
+    EdtParametro: TEdit;
+    EdtDiretorio: TEdit;
+    BtnDiretorio: TButton;
+    EdtIcone: TEdit;
+    BtnIcone: TButton;
+    EdtIconeIndex: TEdit;
+    CmbEstado: TComboBox;
+    CmbPrioridade: TComboBox;
+    BtnTest: TButton;
+    CmbOperation: TComboBox;
+    OpdLinks: TOpenDialog;
         procedure EdtArquivoChange(Sender: TObject);
         procedure EdtParametroChange(Sender: TObject);
         procedure EdtDiretorioChange(Sender: TObject);

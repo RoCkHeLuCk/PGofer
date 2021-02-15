@@ -3,32 +3,32 @@ unit PGofer.RTTI.Attributes;
 interface
 
 uses
-   System.RTTI;
+    System.RTTI;
 
 type
-   TPGHelp = class( TCustomAttribute )
-      constructor Create( Mensagem: String ); overload;
-      destructor Destroy( ); override;
-   private
-      FMensagem: string;
-   public
+    TPGHelpAttribute = class(TCustomAttribute)
+        constructor Create(Mensagem: String); overload;
+        destructor Destroy(); override;
+    private
+        FMensagem: string;
+    public
 
-   end;
+    end;
 
 implementation
 
 { TPGHelp }
 
-constructor TPGHelp.Create( Mensagem: String );
+constructor TPGHelpAttribute.Create(Mensagem: String);
 begin
-   inherited Create( );
-   FMensagem := Mensagem;
+    inherited Create();
+    FMensagem := Mensagem;
 end;
 
-destructor TPGHelp.Destroy;
+destructor TPGHelpAttribute.Destroy;
 begin
-   FMensagem := '';
-   inherited Destroy( );
+    FMensagem := '';
+    inherited Destroy();
 end;
 
 end.

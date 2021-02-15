@@ -8,19 +8,19 @@ uses
     System.Classes,
     SynEdit,
     PGofer.Classes, PGofer.HotKey.Hook, PGofer.HotKey, PGofer.Item.Frame,
-    PGofer.Component.Edit;
+    PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
     TPGFrameHotKey = class(TPGFrame)
-        GrbTeclas: TGroupBox;
-        LblDetectar: TLabel;
-        CmbDetectar: TComboBox;
-        CkbInibir: TCheckBox;
-        GrbScript: TGroupBox;
-        EdtScript: TSynEdit;
-        MmoTeclas: TMemo;
-        BtnClear: TButton;
         PpmNull: TPopupMenu;
+    GrbTeclas: TGroupBox;
+    MmoTeclas: TMemo;
+    BtnClear: TButton;
+    LblDetectar: TLabel;
+    CmbDetectar: TComboBox;
+    CkbInibir: TCheckBox;
+    GrbScript: TGroupBox;
+    EdtScript: TSynEdit;
         procedure CkbInibirClick(Sender: TObject);
         procedure CmbDetectarChange(Sender: TObject);
         procedure MmoTeclasEnter(Sender: TObject);

@@ -6,7 +6,6 @@ uses
     PGofer.Sintatico, PGofer.Sintatico.Classes;
 
 type
-
     TPGCopy = class(TPGItemCMD)
     public
         procedure Execute(Gramatica: TGramatica); override;

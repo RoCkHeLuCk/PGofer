@@ -8,10 +8,11 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
   SynEdit, SynMemo,
   PGofer.Classes, PGofer.Item.Frame, Pgofer.Component.Edit,
-  PGofer.System.Functions, PGofer.Form.AutoComplete;
+  PGofer.System.Functions, PGofer.Form.AutoComplete, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
   TPGFrameFunction = class(TPGFrame)
+    GroupBox1: TGroupBox;
     mmoContents: TSynMemo;
     procedure mmoContentsExit(Sender: TObject);
   private

@@ -5,4 +5,4 @@ var global macaco := 'asdf';
 function global soma(a := 10,b);
 begin
     result := a + b;
-end; frmMain
+end;
