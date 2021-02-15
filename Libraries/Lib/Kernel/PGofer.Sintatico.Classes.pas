@@ -3,20 +3,35 @@ unit PGofer.Sintatico.Classes;
 interface
 
 uses
-    System.RTTI,
+    System.Generics.Collections, System.RTTI,
     PGofer.Classes, PGofer.Sintatico;
 
 type
+    TPGAttributeType = (attText, attDocFile, attDocComent, attParam);
+    TPGRttiAttribute = class (TCustomAttribute)
+    private
+        FType: TPGAttributeType;
+        FValue: String;
+    public
+        constructor Create(AttType: TPGAttributeType; Value: String); overload;
+        destructor Destroy(); override;
+        property AttType : TPGAttributeType read FType;
+        property Value : String read FValue;
+    end;
+
     TPGItemCMD = class(TPGItem)
     private
-        procedure RttiCreate(Item: TPGItemCMD);
+        FAttributeList : TObjectList<TPGRttiAttribute>;
+        procedure RttiCreate();
         procedure RttiExecute(Gramatica: TGramatica; Item: TPGItemCMD);
     public
         constructor Create(); overload;
         constructor Create(Name: String); overload;
+        constructor CreateOutAttrib(Name: String); overload;
         destructor Destroy(); override;
         procedure Execute(Gramatica: TGramatica); virtual;
-
+        procedure AttributeAdd(AttType: TPGAttributeType; Value: String);
+        property AttributeList: TObjectList<TPGRttiAttribute> read FAttributeList;
     end;
 
 implementation
@@ -25,23 +40,52 @@ uses
     System.TypInfo,
     PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Types;
 
+{ TPGAttribute }
+
+constructor TPGRttiAttribute.Create(AttType: TPGAttributeType; Value: String);
+begin
+    FType := AttType;
+    FValue := Value;
+end;
+
+destructor TPGRttiAttribute.Destroy();
+begin
+    FType := attText;
+    FValue := '';
+    inherited Destroy();
+end;
+
 { TPGItemCMD }
 
 constructor TPGItemCMD.Create();
 begin
     inherited Create(copy(Self.ClassName, 4, Length(Self.ClassName)));
-    self.RttiCreate(Self);
+    FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
+    self.RttiCreate();
 end;
 
 constructor TPGItemCMD.Create(Name: String);
 begin
     inherited Create(Name);
-    self.RttiCreate(Self);
+    FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
+    self.RttiCreate();
+end;
+
+constructor TPGItemCMD.CreateOutAttrib(Name: String);
+begin
+    inherited Create(Name);
+    FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
 end;
 
 destructor TPGItemCMD.Destroy;
 begin
+    FAttributeList.Free;
     inherited Destroy();
+end;
+
+procedure TPGItemCMD.AttributeAdd(AttType: TPGAttributeType; Value: String);
+begin
+    FAttributeList.Add( TPGRttiAttribute.Create(AttType,Value) );
 end;
 
 procedure TPGItemCMD.Execute(Gramatica: TGramatica);
@@ -54,7 +98,28 @@ begin
     end;
 end;
 
-procedure TPGItemCMD.RttiCreate(Item: TPGItemCMD);
+procedure TPGItemCMD.RttiCreate();
+    procedure AttributesAdd(
+         AtributeList: TArray<TCustomAttribute>;
+         ItemAtt: TPGItemCMD);
+    var
+        RttiAttribute: TCustomAttribute;
+    begin
+        if ItemAtt.FAttributeList.Count = 0 then
+        begin
+            for RttiAttribute in AtributeList do
+            begin
+                if RttiAttribute is TPGRttiAttribute then
+                begin
+                   with TPGRttiAttribute(RttiAttribute) do
+                   begin
+                       ItemAtt.AttributeAdd(FType,FValue);
+                   end;
+                end;
+            end;
+        end;
+    end;
+
     procedure CreateItems(RttiMemberList: TArray<TRttiMember>);
     var
         ItemAux : TPGItemCMD;
@@ -64,8 +129,9 @@ procedure TPGItemCMD.RttiCreate(Item: TPGItemCMD);
         begin
             if (RttiMember.Visibility in [mvPublished]) then
             begin
-                ItemAux := TPGItemCMD.Create(RttiMember.Name);
-                Item.Add(ItemAux);
+                ItemAux := TPGItemCMD.CreateOutAttrib(RttiMember.Name);
+                Self.Add(ItemAux);
+                AttributesAdd(RttiMember.GetAttributes,ItemAux);
             end;
         end;
     end;
@@ -75,7 +141,8 @@ var
     RttiType: TRttiType;
 begin
     RttiContext := TRttiContext.Create();
-    RttiType := RttiContext.GetType(Item.ClassType);
+    RttiType := RttiContext.GetType(Self.ClassType);
+    AttributesAdd(RttiType.GetAttributes,Self);
     CreateItems(TArray<TRttiMember>(RttiType.GetProperties));
     CreateItems(TArray<TRttiMember>(RttiType.GetMethods));
     RttiContext.Free;
@@ -164,6 +231,7 @@ begin
     SetLength(Parametros, 0);
     RttiContext.Free;
 end;
+
 
 initialization
 

@@ -18,7 +18,6 @@ type
         EdtFind: TButtonedEdit;
         PnlFrame: TPanel;
         TrvController: TTreeViewEx;
-        Button1: TButton;
         procedure FormCreate(Sender: TObject);
         procedure TrvControllerGetSelectedIndex(Sender: TObject;
             Node: TTreeNode);
@@ -27,7 +26,7 @@ type
         procedure EdtFindKeyPress(Sender: TObject; var Key: Char);
     private
         { Private declarations }
-        SelectItem: TPGItem;
+        FSelectedItem: TPGItem;
         procedure NodeCreate(Item: TPGItem);
         procedure NodeNotify(Sender: TPGItem; Action: TPGItemNotification);
     public
@@ -126,10 +125,10 @@ begin
     if TrvController.isSelectWork then
     begin
         if Assigned(TrvController.Selected) and
-            (SelectItem <> TPGItem(TrvController.Selected.Data)) then
+            (FSelectedItem <> TPGItem(TrvController.Selected.Data)) then
         begin
             TPGItem(TrvController.Selected.Data).Frame(PnlFrame);
-            SelectItem := TPGItem(TrvController.Selected.Data);
+            FSelectedItem := TPGItem(TrvController.Selected.Data);
             PnlFrame.Caption := '';
         end;
     end

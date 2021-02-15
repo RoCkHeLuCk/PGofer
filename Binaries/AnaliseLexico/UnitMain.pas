@@ -18,20 +18,16 @@ type
         Panel1: TPanel;
         Memo1: TMemo;
         Sintatico1: TMenuItem;
-        Memo2: TMemo;
-        Splitter2: TSplitter;
         Arquivos1: TMenuItem;
         Salvar1: TMenuItem;
         procedure Lexico1Click(Sender: TObject);
         procedure Sintatico1Click(Sender: TObject);
         procedure FormCreate(Sender: TObject);
-        procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure Salvar1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     private
         { Private declarations }
         FFrmAutoComplete : TFrmAutoComplete;
-        procedure Notify(Texto: String);
     public
         { Public declarations }
     end;
@@ -42,26 +38,17 @@ var
 implementation
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms;
+    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms,
+    PGofer.Form.Console;
 
 {$R *.dfm}
-
-procedure TFrmMain.Notify(Texto: String);
-begin
-    Memo2.Lines.Add(Texto);
-end;
-
-procedure TFrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
-begin
-    // SynEdit1.Lines.SaveToFile(paramstr(0)+'.pas');
-end;
 
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
     if (FileExists(paramstr(0) + '.pas')) then
         SynEdit1.Lines.LoadFromFile(paramstr(0) + '.pas');
 
-    TPGItem.OnMsgNotify := Notify;
+    TPGItem.OnMsgNotify := FrmConsole.ConsoleMessage;
     FFrmAutoComplete := TFrmAutoComplete.Create(Self,SynEdit1);
 end;
 
@@ -102,7 +89,6 @@ procedure TFrmMain.Sintatico1Click(Sender: TObject);
 var
     Gramatica: TGramatica;
 begin
-    Memo2.Clear;
     Gramatica := TGramatica.Create('Gramatica', TGramatica.Global, True);
     Gramatica.SetAlgoritimo(SynEdit1.Text);
     Gramatica.Start;

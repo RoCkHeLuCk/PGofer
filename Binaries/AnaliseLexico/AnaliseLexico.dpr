@@ -54,6 +54,7 @@ uses
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Form.Controller in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas' {FrmController},
   PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
+  PGofer.Form.Console in '..\..\Libraries\Form\Console\PGofer.Form.Console.pas' {FrmConsole},
   Vcl.Forms,
   UnitMain in 'UnitMain.pas' {FrmMain};
 
@@ -64,7 +65,6 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-  Application.CreateForm(TFrmController, FrmController);
-  TPGForm.Carregar();
+    TPGForm.Carregar();
     Application.Run;
 end.

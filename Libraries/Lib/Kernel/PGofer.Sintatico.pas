@@ -50,6 +50,7 @@ var
     ReplyFormat: String  = '';
     ReplyPrefix: Boolean = False;
     DirCurrent : String;
+    ConsoleDelay: Cardinal = 2000;
 
 implementation
 

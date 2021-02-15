@@ -14,19 +14,7 @@ type
     TPGItemNotification = (cmCreate, cmDestroy, cmEdit, cmMove);
     TPGItemNotify = procedure(Sender: TPGItem; Action: TPGItemNotification)
         of object;
-    TPGMsgNotify = procedure(Texto: String) of object;
-
-    TPGAttributeType = (attText, attDocFile, attDocComent, attParam);
-    TPGItemAttribute = class
-    private
-        FType: TPGAttributeType;
-        FValue: String;
-    public
-        constructor Create(AttType: TPGAttributeType; Value: String); overload;
-        destructor Destroy(); override;
-        property AttType : TPGAttributeType read FType;
-        property Value : String read FValue;
-    end;
+    TPGMsgNotify = procedure(Texto: String; Show: Boolean = True) of object;
 
     TPGItem = class(TObjectList<TPGItem>)
         constructor Create(Name: String); overload;
@@ -37,7 +25,6 @@ type
         FReadOnly: Boolean;
         FDad: TPGItem;
         FNode: TObject;
-        FAttribute : TArray<TPGItemAttribute>;
         class var FItemNotify: TPGItemNotify;
         class var FMsgNotify: TPGMsgNotify;
         procedure SetName(Name: String);
@@ -51,7 +38,6 @@ type
         property ReadOnly: Boolean read FReadOnly write FReadOnly;
         property Dad: TPGItem read FDad write SetDad;
         property Node: TObject read FNode write FNode;
-        property Attibutes: TArray<TPGItemAttribute> read FAttribute;
         procedure Frame(Parent: TObject); virtual;
         function FindName(Name: String): TPGItem;
         function FindNameList(Name: String; Partial: Boolean): TArray<TPGItem>;
@@ -67,22 +53,6 @@ implementation
 
 uses
     System.SysUtils, PGofer.Item.Frame;
-
-{ TPGAttribute }
-
-constructor TPGItemAttribute.Create(AttType: TPGAttributeType; Value: String);
-begin
-    inherited Create();
-    FType := AttType;
-    FValue := Value;
-end;
-
-destructor TPGItemAttribute.Destroy;
-begin
-    FType := attText;
-    FValue := '';
-    inherited Destroy();
-end;
 
 { TPGItem }
 constructor TPGItem.Create(Name: String);

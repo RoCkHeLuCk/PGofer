@@ -30,7 +30,7 @@ uses
 
 constructor TPGFrame.Create(Item: TPGItem; Parent: TObject);
 var
-    Attribute : TPGItemAttribute;
+    Attribute : TPGRttiAttribute;
 begin
     inherited Create(nil);
     Self.Parent := TWinControl(Parent);
@@ -41,7 +41,7 @@ begin
     EdtName.ParentColor := FItem.ReadOnly;
     if FItem is TPGItemCMD then
     begin
-        for Attribute in TPGItemCMD(FItem).Attibutes do
+        for Attribute in TPGItemCMD(FItem).AttributeList do
         begin
             rceAbout.Lines.Add( Attribute.Value );
         end;

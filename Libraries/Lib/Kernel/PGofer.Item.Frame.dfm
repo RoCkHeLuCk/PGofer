@@ -26,7 +26,6 @@ object PGFrame: TPGFrame
     Caption = 'Sobre'
     Constraints.MinHeight = 100
     TabOrder = 0
-    ExplicitTop = 45
     object rceAbout: TRichEdit
       Left = 2
       Top = 15
@@ -38,6 +37,7 @@ object PGFrame: TPGFrame
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
+      ParentColor = True
       ParentFont = False
       ReadOnly = True
       TabOrder = 0

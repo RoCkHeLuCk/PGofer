@@ -69,15 +69,6 @@ object FrmController: TFrmController
       Height = 36
       Align = alBottom
       TabOrder = 1
-      object Button1: TButton
-        Left = 3
-        Top = 3
-        Width = 32
-        Height = 32
-        Caption = 'N'
-        Enabled = False
-        TabOrder = 0
-      end
     end
     object TrvController: TTreeViewEx
       Left = 1

@@ -35,7 +35,6 @@ type
     end;
 {$TYPEINFO ON}
 {$M+}
-
     TPGNetClient = class(TPGItemCMD)
     private
         FClient: TClientSocket;

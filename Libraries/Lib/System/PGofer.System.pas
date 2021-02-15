@@ -10,10 +10,11 @@ type
     TPGSystem = class(TPGItemCMD)
     private
         FConsoleAutoClose: Boolean;
-        FConsoleDelay: Cardinal;
         FConsoleMessage: Boolean;
         FIconLoader: Boolean;
         FNoOff: Boolean;
+        function GetConsoleDelay() : Cardinal;
+        procedure SetConsoleDelay(Value: Cardinal);
         function GetDirCurrent() : String;
         function GetLoopLimite() : Int64;
         procedure SetLoopLimite(Value: Int64);
@@ -29,7 +30,7 @@ type
         property ConsoleAutoClose: Boolean read FConsoleAutoClose
             write FConsoleAutoClose;
         procedure ConsoleClear();
-        property ConsoleDelay: Cardinal read FConsoleDelay write FConsoleDelay;
+        property ConsoleDelay: Cardinal read GetConsoleDelay write SetConsoleDelay;
         property ConsoleMessage: Boolean read FConsoleMessage
             write FConsoleMessage;
         function DateTimeNow(Format: String): String;
@@ -89,6 +90,11 @@ begin
     Result := SystemGetFindWindow(Valor);
 end;
 
+function TPGSystem.GetConsoleDelay: Cardinal;
+begin
+    Result := PGofer.Sintatico.ConsoleDelay;
+end;
+
 function TPGSystem.GetDirCurrent: String;
 begin
     Result := PGofer.Sintatico.DirCurrent;
@@ -141,6 +147,11 @@ function TPGSystem.SendMessage(ClassName: String; Mss: Cardinal;
 begin
     Result := PGofer.System.Controls.SystemSetSendMessage(ClassName, Mss,
         wPar, lPar);
+end;
+
+procedure TPGSystem.SetConsoleDelay(Value: Cardinal);
+begin
+    PGofer.Sintatico.ConsoleDelay := Value;
 end;
 
 procedure TPGSystem.SetFileListMax(Value: Cardinal);

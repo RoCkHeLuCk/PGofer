@@ -94,8 +94,6 @@ begin
     inherited CreateWindowHandle(Params);
     // sem borda e ajustavel
     SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX); // WS_POPUP or
-    // não ativa
-    SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE);
     // configura a janela para não aparecer na barra e não ativado.
     SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
         WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);

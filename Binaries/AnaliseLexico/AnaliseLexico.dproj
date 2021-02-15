@@ -103,6 +103,8 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <BT_BuildType>Debug</BT_BuildType>
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
@@ -202,6 +204,9 @@
         <DCCReference Include="..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas">
             <Form>FrmAutoComplete</Form>
         </DCCReference>
+        <DCCReference Include="..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
+            <Form>FrmConsole</Form>
+        </DCCReference>
         <DCCReference Include="UnitMain.pas">
             <Form>FrmMain</Form>
         </DCCReference>
@@ -226,6 +231,10 @@
                 <Source>
                     <Source Name="MainSource">AnaliseLexico.dpr</Source>
                 </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\AnaliseLexico.exe" Configuration="Debug" Class="ProjectOutput"/>
