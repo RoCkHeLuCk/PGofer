@@ -2,7 +2,18 @@ hotkey teste(':=0;');
 link meleca('asdf');
 const global coco := 10;
 var global macaco := 'asdf';
-function global soma(a := 10,b);
+//var global teta := 0;
+function global soma(a,b);
 begin
     result := a + b;
 end;
+
+function global permuta(a);
+begin
+    if a > 1 then
+       result := a + permuta(a-1);
+    else
+       result := 1;   
+end;
+
+= soma(5, 5);

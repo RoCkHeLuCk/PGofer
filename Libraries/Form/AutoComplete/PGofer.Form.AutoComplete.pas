@@ -22,7 +22,7 @@ type
         ppmAutoComplete: TPopupMenu;
         mniPriority: TMenuItem;
         trmAutoComplete: TTimer;
-        constructor Create(AOwner: TComponent; EditCtrl: TSynEdit); reintroduce;
+        constructor Create(EditCtrl: TSynEdit); reintroduce;
         destructor Destroy(); override;
         procedure FormActivate(Sender: TObject);
         procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -70,9 +70,9 @@ const
         '<', '>', '(', ')', '[', ']', '!', '@', '#', '%', '^', '$', '&', '?',
         '|', '''', '"', '.'];
 
-constructor TFrmAutoComplete.Create(AOwner: TComponent; EditCtrl: TSynEdit);
+constructor TFrmAutoComplete.Create(EditCtrl: TSynEdit);
 begin
-    inherited Create(AOwner);
+    inherited Create(nil);
     // guarda os eventos do edit
     FEditCtrl := EditCtrl;
     FEditKeyDown := FEditCtrl.OnKeyDown;
@@ -101,7 +101,7 @@ begin
     Application.AddPopupForm(Self);
 end;
 
-destructor TFrmAutoComplete.Destroy;
+destructor TFrmAutoComplete.Destroy();
 begin
     // restaura eventos originais
     FEditCtrl.OnKeyDown := FEditKeyDown;
@@ -309,8 +309,8 @@ var
     N: Integer;
 begin
     if TryStrToInt(InputBox('Prioridade', 'Valor',
-        ltvAutoComplete.ItemFocused.SubItems[1]), N) then
-        SetPriority(N);
+       ltvAutoComplete.ItemFocused.SubItems[1]), N) then
+       SetPriority(N);
 end;
 
 procedure TFrmAutoComplete.ListViewAdd(Caption, Origin: String);
@@ -322,7 +322,6 @@ begin
         ListItem := ltvAutoComplete.Items.Add;
         ListItem.ImageIndex := -1;
         ListItem.Caption := Caption;
-        //ListItem.SubItems.Clear;
         ListItem.SubItems.Add(Origin);
         ListItem.SubItems.Add(FIniFile.ReadString('AutoComplete',
             Origin+'.'+Caption, '0'));
@@ -337,7 +336,6 @@ begin
     ListItem := ltvAutoComplete.Items.Add;
     ListItem.ImageIndex := -1;
     ListItem.Caption := Item.Name;
-    //ListItem.SubItems.Clear;
     if Assigned(Item.Dad) then
         ListItem.SubItems.Add(Item.Dad.Name)
     else
@@ -472,9 +470,7 @@ begin
         if (TokenList.Token.Classe in [cmdDot]) or (Classe in [cmdDot]) then
             Comando := Comando + TokenList.Token.Lexema
         else
-        begin
             Comando := TokenList.Token.Lexema;
-        end;
         Classe := TokenList.Token.Classe;
         TokenList.GetNextToken;
     end;
@@ -490,7 +486,7 @@ begin
     else
     begin
         if (Comando <> '') and
-            (not(Classe in [cmdUnDeclar, cmdNumeric, cmdString, cmdRes_begin]))
+            (not(Classe in [cmdUnDeclar .. cmdNetwork]))
         then
         begin
             ProcurarComandos(Comando);

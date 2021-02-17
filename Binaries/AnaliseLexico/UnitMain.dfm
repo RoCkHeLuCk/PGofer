@@ -58,7 +58,6 @@ object FrmMain: TFrmMain
       'write( -2^3 );')
     WantTabs = True
     FontSmoothing = fsmNone
-    ExplicitHeight = 331
   end
   object Panel1: TPanel
     Left = 460
@@ -68,7 +67,6 @@ object FrmMain: TFrmMain
     Align = alRight
     Caption = 'Panel1'
     TabOrder = 1
-    ExplicitHeight = 331
     object Memo1: TMemo
       Left = 1
       Top = 1
@@ -76,7 +74,6 @@ object FrmMain: TFrmMain
       Height = 275
       Align = alClient
       TabOrder = 0
-      ExplicitHeight = 329
     end
   end
   object MainMenu1: TMainMenu

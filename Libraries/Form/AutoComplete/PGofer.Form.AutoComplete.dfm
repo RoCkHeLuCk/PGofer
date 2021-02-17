@@ -14,7 +14,7 @@ object FrmAutoComplete: TFrmAutoComplete
   FormStyle = fsStayOnTop
   KeyPreview = True
   OldCreateOrder = False
-  Position = poDesigned
+  Position = poDefault
   OnActivate = FormActivate
   OnClose = FormClose
   OnKeyDown = FormKeyDown

@@ -6,7 +6,7 @@ uses
     Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
     System.Classes, Vcl.Graphics,
     Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, SynEdit,
-    Vcl.Menus, System.TypInfo, PGofer.Form.AutoComplete;
+    Vcl.Menus, System.TypInfo, PGofer.Form.AutoComplete, PGofer.Form.Console, PGofer.Form.Controller;
 
 type
     TFrmMain = class(TForm)
@@ -24,9 +24,10 @@ type
         procedure Sintatico1Click(Sender: TObject);
         procedure FormCreate(Sender: TObject);
         procedure Salvar1Click(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
+        procedure FormDestroy(Sender: TObject);
     private
         { Private declarations }
+        FFrmController : TFrmController;
         FFrmAutoComplete : TFrmAutoComplete;
     public
         { Public declarations }
@@ -38,8 +39,7 @@ var
 implementation
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms,
-    PGofer.Form.Console;
+    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms.Controls;
 
 {$R *.dfm}
 
@@ -48,13 +48,19 @@ begin
     if (FileExists(paramstr(0) + '.pas')) then
         SynEdit1.Lines.LoadFromFile(paramstr(0) + '.pas');
 
-    TPGItem.OnMsgNotify := FrmConsole.ConsoleMessage;
-    FFrmAutoComplete := TFrmAutoComplete.Create(Self,SynEdit1);
+    FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1);
+    FFrmController := TFrmController.Create();
+    FFrmController.Show;
+    FrmConsole := TFrmConsole.Create();
+    FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
     FFrmAutoComplete.Free;
+    FFrmController.Free;
+    FrmConsole.Free;
+    FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 end;
 
 procedure TFrmMain.Lexico1Click(Sender: TObject);

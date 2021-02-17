@@ -7,7 +7,6 @@ uses
     PGofer.Classes, PGofer.Lexico;
 
 type
-
     TPGPilha = class(TPGItem)
         constructor Create();
         destructor Destroy(); override;
@@ -55,7 +54,7 @@ var
 implementation
 
 uses
-    PGofer.Sintatico.Controls;
+    PGofer.Sintatico.Controls, PGofer.Form.Console;
 
 { TPilha }
 
@@ -123,11 +122,11 @@ end;
 procedure TGramatica.ErroAdd(Texto: String);
 begin
     FErro := True;
-    if Assigned(TPGItem.OnMsgNotify) then
+    if Assigned(FrmConsole) then
         Synchronize(
             procedure
             begin
-                TPGItem.OnMsgNotify('[' + Self.TokenList.Token.Cordenada.
+                FrmConsole.ConsoleMessage('[' + Self.TokenList.Token.Cordenada.
                     ToString + '] "' + String(Self.TokenList.Token.Lexema) +
                     '" : ' + Texto);
             end);
@@ -135,11 +134,11 @@ end;
 
 procedure TGramatica.MSGsAdd(Texto: String);
 begin
-    if Assigned(TPGItem.OnMsgNotify) then
+    if Assigned(FrmConsole) then
         Synchronize(
             procedure
             begin
-                TPGItem.OnMsgNotify(Texto);
+                FrmConsole.ConsoleMessage(Texto);
             end);
 end;
 

@@ -26,8 +26,7 @@ type
         procedure RttiExecute(Gramatica: TGramatica; Item: TPGItemCMD);
     public
         constructor Create(); overload;
-        constructor Create(Name: String); overload;
-        constructor CreateOutAttrib(Name: String); overload;
+        constructor Create(Name: String; Attrib: Boolean = True); overload;
         destructor Destroy(); override;
         procedure Execute(Gramatica: TGramatica); virtual;
         procedure AttributeAdd(AttType: TPGAttributeType; Value: String);
@@ -64,17 +63,12 @@ begin
     self.RttiCreate();
 end;
 
-constructor TPGItemCMD.Create(Name: String);
+constructor TPGItemCMD.Create(Name: String; Attrib: Boolean = True);
 begin
     inherited Create(Name);
     FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
-    self.RttiCreate();
-end;
-
-constructor TPGItemCMD.CreateOutAttrib(Name: String);
-begin
-    inherited Create(Name);
-    FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
+    if Attrib then
+       self.RttiCreate();
 end;
 
 destructor TPGItemCMD.Destroy;
@@ -129,7 +123,7 @@ procedure TPGItemCMD.RttiCreate();
         begin
             if (RttiMember.Visibility in [mvPublished]) then
             begin
-                ItemAux := TPGItemCMD.CreateOutAttrib(RttiMember.Name);
+                ItemAux := TPGItemCMD.Create(RttiMember.Name, False);
                 Self.Add(ItemAux);
                 AttributesAdd(RttiMember.GetAttributes,ItemAux);
             end;

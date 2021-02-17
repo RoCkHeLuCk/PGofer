@@ -18,7 +18,8 @@ type
         EdtFind: TButtonedEdit;
         PnlFrame: TPanel;
         TrvController: TTreeViewEx;
-        procedure FormCreate(Sender: TObject);
+        constructor Create(); reintroduce;
+        destructor Destroy(); override;
         procedure TrvControllerGetSelectedIndex(Sender: TObject;
             Node: TTreeNode);
         procedure TrvControllerDragOver(Sender, Source: TObject; X, Y: Integer;
@@ -33,8 +34,6 @@ type
         { Public declarations }
     end;
 
-var
-    FrmController: TFrmController;
 
 implementation
 
@@ -43,10 +42,17 @@ implementation
 uses
     PGofer.Forms, PGofer.Sintatico.Classes, PGofer.Sintatico, PGofer.HotKey;
 
-procedure TFrmController.FormCreate(Sender: TObject);
+constructor TFrmController.Create();
 begin
+    inherited Create(nil);
     Self.NodeCreate(TGramatica.Global);
     TPGItem.OnItemNotify := Self.NodeNotify;
+end;
+
+destructor TFrmController.Destroy;
+begin
+
+    inherited Destroy();
 end;
 
 procedure TFrmController.NodeCreate(Item: TPGItem);

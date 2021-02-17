@@ -3,19 +3,18 @@ unit PGofer.Form.Console;
 interface
 
 uses
-    System.Classes, Winapi.Windows,
-    Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
-    SynEdit;
+    Vcl.Forms, Vcl.ExtCtrls, SynEdit, Vcl.Controls, Vcl.Buttons,
+    System.Classes, Winapi.Windows;
 
 type
     TFrmConsole = class(TForm)
         PnlConsole: TPanel;
         PnlArrastar: TPanel;
+        TmrConsole: TTimer;
         BtnFixed: TSpeedButton;
         PnlArrastar2: TPanel;
         EdtConsole: TSynEdit;
-        TmrConsole: TTimer;
-        constructor Create(); reintroduce;
+        constructor Create(AOwner: TComponent); reintroduce;
         destructor Destroy(); override;
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure FormKeyPress(Sender: TObject; var Key: Char);
@@ -25,20 +24,14 @@ type
         procedure PnlArrastarMouseMove(Sender: TObject; Shift: TShiftState;
             X, Y: Integer);
         procedure BtnFixedClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     private
-        { Private declarations }
         FMouseA: TPoint;
     protected
         procedure CreateWindowHandle(const Params: TCreateParams); override;
     public
-        { Public declarations }
         procedure ConsoleClear();
-        procedure ConsoleMessage(Value: String; Show: Boolean = True);
+        procedure ConsoleMessage(Texto: String; ShowConsole: Boolean = True);
     end;
-
-var
-    FrmConsole :  TFrmConsole;
 
 implementation
 
@@ -47,9 +40,10 @@ implementation
 uses
     PGofer.Classes, PGofer.Sintatico, PGofer.Forms.Controls;
 
-constructor TFrmConsole.Create();
+constructor TFrmConsole.Create(AOwner: TComponent);
 begin
-    inherited Create(nil);
+    inherited Create(AOwner);
+    Self.Parent := TWinControl(AOwner);
     // carrega config
     FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 end;
@@ -83,13 +77,6 @@ begin
     // fecha o console
     if Key = #27 then
         Close;
-end;
-
-procedure TFrmConsole.FormShow(Sender: TObject);
-begin
-    Self.TmrConsole.Enabled := False;
-    Self.TmrConsole.Interval := PGofer.Sintatico.ConsoleDelay;
-    Self.TmrConsole.Enabled := (not Self.BtnFixed.Down);
 end;
 
 procedure TFrmConsole.BtnFixedClick(Sender: TObject);
@@ -132,26 +119,25 @@ end;
 
 procedure TFrmConsole.ConsoleClear();
 begin
-    frmConsole.EdtConsole.Clear;
+    Self.EdtConsole.Clear;
 end;
 
-procedure TFrmConsole.ConsoleMessage(Value: String; Show: Boolean);
+procedure TFrmConsole.ConsoleMessage(Texto: String; ShowConsole: Boolean = True);
 begin
-    Self.EdtConsole.Lines.Add(Value);
+    Self.EdtConsole.Lines.Add(Texto);
     Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Capacity;
 
-    if Show then
+    if ShowConsole then
     begin
         // ajusta posicao do console
-        Self.Left := Application.MainForm.Left;
-        Self.Top := Application.MainForm.Top + Application.MainForm.Height;
+        Self.Left := TForm(Self.Parent).Left + 10;
+        Self.Top := TForm(Self.Parent).Top + TForm(Self.Parent).Height;
         FormPositionFixed(Self);
         FormForceShow(Self, False);
+        Self.TmrConsole.Enabled := False;
+        Self.TmrConsole.Interval := PGofer.Sintatico.ConsoleDelay;
+        Self.TmrConsole.Enabled := (not Self.BtnFixed.Down);
     end;
 end;
-
-initialization
-
-finalization
 
 end.

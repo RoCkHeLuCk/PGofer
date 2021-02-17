@@ -12,7 +12,6 @@ object FrmController: TFrmController
   ScreenSnap = True
   ShowHint = True
   Visible = True
-  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter

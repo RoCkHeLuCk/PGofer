@@ -4,6 +4,7 @@ interface
 
 uses
     System.Win.ScktComp, PGofer.Sintatico.Classes;
+
 type
 {$M+}
     TPGNetServer = class(TPGItemCMD)
@@ -69,7 +70,8 @@ implementation
 
 uses
     System.SysUtils,
-    PGofer.Classes,  PGofer.Sintatico, PGofer.Net.Controls;
+    PGofer.Classes,  PGofer.Sintatico, PGofer.Net.Controls,
+    PGofer.Form.Console;
 
 { TPGNetServer }
 
@@ -127,7 +129,7 @@ var
     Texto: String;
 begin
     Texto := 'Client Connect: ' + Socket.RemoteAddress;
-    TPGItemCMD.OnMsgNotify(Texto);
+    FrmConsole.ConsoleMessage(Texto);
 
     if FLog then
         NetLogSrvSocket(Texto);
@@ -135,7 +137,7 @@ begin
     if FServer.Socket.ActiveConnections > FMaxConnect then
     begin
         Texto := 'Client Denided: MaxConnect.';
-        TPGItemCMD.OnMsgNotify(Texto);
+        FrmConsole.ConsoleMessage(Texto);
         if FLog then
             NetLogSrvSocket(Texto);
         Socket.SendText('MaxConnect.');
@@ -151,7 +153,7 @@ var
     Texto: String;
 begin
     Texto := 'Client Disconnect: ' + Socket.RemoteAddress;
-    TPGItemCMD.OnMsgNotify(Texto);
+    FrmConsole.ConsoleMessage(Texto);
     if FLog then
         NetLogSrvSocket(Texto);
 end;
@@ -163,7 +165,7 @@ var
 begin
     Texto := 'Net Error [' + Socket.RemoteAddress + ']: ' +
         NetErrorToStr(ErrorEvent) + ' Code: ' + IntToStr(ErrorCode);
-    TPGItemCMD.OnMsgNotify(Texto);
+    FrmConsole.ConsoleMessage(Texto);
     if FLog then
         NetLogSrvSocket(Texto);
 end;
@@ -179,7 +181,7 @@ begin
     begin
         if (Texto = FPassWord) or (FPassWord = '') then
         begin
-            TPGItemCMD.OnMsgNotify('Client Accepted.');
+            FrmConsole.ConsoleMessage('Client Accepted.');
             Socket.SendText('Client Accepted.');
             Socket.Data := Socket;
             if FLog then
@@ -188,7 +190,7 @@ begin
         end
         else
         begin
-            TPGItemCMD.OnMsgNotify('Client Denided: Invalid Password.');
+            FrmConsole.ConsoleMessage('Client Denided: Invalid Password.');
             Socket.SendText('Invalid Password.');
             Socket.Close;
             if FLog then
@@ -200,7 +202,7 @@ begin
     begin
         if Texto <> '' then
         begin
-            TPGItemCMD.OnMsgNotify('Clinet Send Command, Server Working...');
+            FrmConsole.ConsoleMessage('Clinet Send Command, Server Working...');
             ScriptExec('Script: ' + Socket.RemoteAddress, Texto, nil);
             if FLog then
                 NetLogSrvSocket('Client [' + Socket.RemoteAddress +
@@ -270,20 +272,20 @@ end;
 procedure TPGNetClient.OnClientConnect(Sender: TObject;
     Socket: TCustomWinSocket);
 begin
-    TPGItemCMD.OnMsgNotify('Connect to Server.');
+    FrmConsole.ConsoleMessage('Connect to Server.');
     FClient.Socket.SendText(AnsiString(FPassWord));
 end;
 
 procedure TPGNetClient.OnClientConnecting(Sender: TObject;
     Socket: TCustomWinSocket);
 begin
-    TPGItemCMD.OnMsgNotify('Connecting to Server...');
+    FrmConsole.ConsoleMessage('Connecting to Server...');
 end;
 
 procedure TPGNetClient.OnClientDisconnect(Sender: TObject;
     Socket: TCustomWinSocket);
 begin
-    TPGItemCMD.OnMsgNotify('Disconnect from Server...');
+    FrmConsole.ConsoleMessage('Disconnect from Server...');
 end;
 
 procedure TPGNetClient.OnClientError(Sender: TObject; Socket: TCustomWinSocket;
@@ -293,12 +295,12 @@ var
 begin
     Texto := 'Net Error [' + Socket.RemoteAddress + ']: ' +
         NetErrorToStr(ErrorEvent) + ' Code: ' + IntToStr(ErrorCode);
-    TPGItemCMD.OnMsgNotify(Texto);
+    FrmConsole.ConsoleMessage(Texto);
 end;
 
 procedure TPGNetClient.OnClientRead(Sender: TObject; Socket: TCustomWinSocket);
 begin
-    TPGItemCMD.OnMsgNotify('Message from Server: ' +
+    FrmConsole.ConsoleMessage('Message from Server: ' +
         String(Socket.ReceiveText));
 end;
 

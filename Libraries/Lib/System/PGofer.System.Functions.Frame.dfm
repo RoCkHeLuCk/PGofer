@@ -1,16 +1,15 @@
 inherited PGFrameFunction: TPGFrameFunction
-  Height = 241
-  ExplicitHeight = 241
+  Height = 264
+  ExplicitHeight = 264
   inherited SplitterItem: TSplitter
     Top = 150
+    ExplicitTop = 150
   end
   inherited grbAbout: TGroupBox
     Top = 161
-    Height = 77
-    ExplicitHeight = 94
+    ExplicitTop = 161
     inherited rceAbout: TRichEdit
-      Height = 60
-      ExplicitHeight = 77
+      ExplicitHeight = 60
     end
   end
   inherited pnlItem: TPanel
@@ -53,10 +52,6 @@ inherited PGFrameFunction: TPGFrameFunction
         Gutter.Font.Name = 'Courier New'
         Gutter.Font.Style = []
         FontSmoothing = fsmNone
-        ExplicitLeft = -94
-        ExplicitTop = -35
-        ExplicitWidth = 391
-        ExplicitHeight = 207
       end
     end
   end

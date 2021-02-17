@@ -542,7 +542,7 @@ begin
             '/':
                 begin
                     if ReadCharInSet(['/'], True) then
-                        Comentario([#13])
+                        Comentario([#0,#13])
                     else
                         FLexema.Classe := cmdBar;
                 end;

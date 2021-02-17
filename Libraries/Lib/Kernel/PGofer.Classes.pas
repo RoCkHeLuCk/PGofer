@@ -14,7 +14,6 @@ type
     TPGItemNotification = (cmCreate, cmDestroy, cmEdit, cmMove);
     TPGItemNotify = procedure(Sender: TPGItem; Action: TPGItemNotification)
         of object;
-    TPGMsgNotify = procedure(Texto: String; Show: Boolean = True) of object;
 
     TPGItem = class(TObjectList<TPGItem>)
         constructor Create(Name: String); overload;
@@ -26,7 +25,6 @@ type
         FDad: TPGItem;
         FNode: TObject;
         class var FItemNotify: TPGItemNotify;
-        class var FMsgNotify: TPGMsgNotify;
         procedure SetName(Name: String);
         procedure SetEnabled(Enabled: Boolean);
         procedure SetDad(Dad: TPGItem);
@@ -45,8 +43,6 @@ type
         function Add(Name: String): TPGItem; overload;
         class property OnItemNotify: TPGItemNotify read FItemNotify
             write FItemNotify;
-        class property OnMsgNotify: TPGMsgNotify read FMsgNotify
-            write FMsgNotify;
     end;
 
 implementation
