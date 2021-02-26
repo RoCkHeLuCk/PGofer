@@ -3,7 +3,7 @@ unit PGofer.Net;
 interface
 
 uses
-    PGofer.Sintatico.Classes;
+    PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
 
@@ -13,7 +13,7 @@ type
         FClient: TPGItemCMD;
         FServer: TPGItemCMD;
     public
-        constructor Create();
+        constructor Create(ItemDad: TPGItem);
         destructor Destroy(); override;
         property Client: TPGItemCMD read FClient;
         property Server: TPGItemCMD read FServer;
@@ -30,17 +30,15 @@ var
 implementation
 
 uses
-    PGofer.Classes, PGofer.Sintatico, PGofer.Net.Controls, PGofer.Net.Socket;
+    PGofer.Sintatico, PGofer.Net.Controls, PGofer.Net.Socket;
 
 { TPGNet }
 
-constructor TPGNet.Create;
+constructor TPGNet.Create(ItemDad: TPGItem);
 begin
-    inherited Create();
-    FClient := TPGNetClient.Create();
-    Self.Add(FClient);
-    FServer := TPGNetServer.Create();
-    Self.Add(FServer);
+    inherited Create(ItemDad);
+    FClient := TPGNetClient.Create(Self);
+    FServer := TPGNetServer.Create(Self);
 end;
 
 destructor TPGNet.Destroy;
@@ -62,8 +60,7 @@ begin
 end;
 
 initialization
-    PGNet := TPGNet.Create();
-    TGramatica.Global.FindName('Commands').Add(PGNet);
+    TPGNet.Create(GlobalItemCommand);
 
 finalization
 

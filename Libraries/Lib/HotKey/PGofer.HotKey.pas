@@ -15,19 +15,19 @@ type
         FDetect: Byte;
         FInhibit: Boolean;
         FScript: String;
+        FMirror: TPGHotKeys;
         function GetKeysHex():String;
         procedure SetKeysHex(Value:String);
         procedure ExecutarNivel1();
-//{$HINTS OFF}
-//{$HINTS ON}
     public
-        constructor Create(); overload;
+        constructor Create(ItemDad: TPGItem; Name: String); overload;
         destructor Destroy(); override;
         property Keys: TList<Word> read FKeys;
         function GetKeysName(): String;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
-        class var HotKeyGlobList: TPGItem;
+        procedure Mirroring();
+        class var GlobList: TPGItem;
         class function LocateHotKeys(Keys: TList<Word>): TPGHotKeys;
     published
         property HotKeysHex: String read GetKeysHex write SetKeysHex;
@@ -37,7 +37,7 @@ type
     end;
 {$TYPEINFO ON}
 
-    TPGHotKey = class(TPGItemCMD)
+    TPGHotKeyDec = class(TPGItemCMD)
     public
         procedure Execute(Gramatica: TGramatica); override;
     end;
@@ -51,14 +51,18 @@ uses
 
 { TPGHotKey }
 
-constructor TPGHotKeys.Create();
+constructor TPGHotKeys.Create(ItemDad: TPGItem; Name: String);
 begin
-    inherited Create('hk_newHotKey');
+    inherited Create(ItemDad, Name);
     Self.ReadOnly := False;
     FKeys := TList<Word>.Create;
     FDetect := 0;
     FInhibit := False;
     FScript := '';
+    if ItemDad <> TPGHotKeys.GlobList then
+       FMirror := TPGHotKeys.Create(TPGHotKeys.GlobList, Name)
+    else
+       FMirror := nil;
 end;
 
 destructor TPGHotKeys.Destroy();
@@ -69,6 +73,9 @@ begin
     FKeys.Clear;
     FKeys.Free;
     FKeys := nil;
+    if Assigned(FMirror) then
+       FMirror.Free();
+    FMirror := nil;
     inherited;
 end;
 
@@ -127,15 +134,12 @@ var
     Key: Word;
 begin
     Result := '';
-    if Self.Count > 0 then
+    for Key in FKeys do
     begin
-        for Key in FKeys do
-        begin
-            if Result.IsEmpty then
-               Result := KeyVirtualToStr(Key)
-            else
-               Result := Result + ' + ' + KeyVirtualToStr(Key);
-        end;
+        if Result.IsEmpty then
+           Result := KeyVirtualToStr(Key)
+        else
+           Result := Result + ' + ' + KeyVirtualToStr(Key);
     end;
 end;
 
@@ -151,12 +155,12 @@ begin
     KeysCount := Keys.Count;
     if KeysCount > 0 then
     begin
-        ListCount := TPGHotKeys.HotKeyGlobList.Count;
+        ListCount := TPGHotKeys.GlobList.Count;
         Find := False;
         C := 0;
         while (C < ListCount) and (not Find) do
         begin
-            AuxHotKeys := TPGHotKeys(TPGHotKeys.HotKeyGlobList[C]);
+            AuxHotKeys := TPGHotKeys(TPGHotKeys.GlobList[C]);
             if AuxHotKeys.Enabled then
             begin
                 if KeysCount = AuxHotKeys.Keys.Count then
@@ -177,62 +181,60 @@ begin
     end;
 end;
 
+procedure TPGHotKeys.Mirroring();
+begin
+    FMirror.Enabled := Self.Enabled;
+    FMirror.ReadOnly := Self.ReadOnly;
+    FMirror.FKeys := Self.FKeys;
+    FMirror.FDetect := Self.FDetect;
+    FMirror.FInhibit := Self.FInhibit;
+    FMirror.FScript := Self.FScript;
+end;
+
 { TPGHotKey }
 
-procedure TPGHotKey.Execute(Gramatica: TGramatica);
+procedure TPGHotKeyDec.Execute(Gramatica: TGramatica);
 var
     Titulo: String;
     Quantidade: Byte;
-    Detect: Byte;
-    Inibir: Boolean;
-    HotKeyHex: String;
-    Script: String;
     HotKey: TPGHotKeys;
+    id : TPGItem;
 begin
     Gramatica.TokenList.GetNextToken;
-    if (not Assigned(IdentificadorLocalizar(Gramatica))) then
+    id := IdentificadorLocalizar(Gramatica);
+    if (not Assigned(id)) or (id is TPGHotKeys) then
     begin
         Titulo := Gramatica.TokenList.Token.Lexema;
         Quantidade := LerParamentros(Gramatica, 1, 4);
         if not Gramatica.Erro then
         begin
-            // ?????????? tentar otimizar isso
-            if Quantidade = 4 then
-                Detect := Gramatica.Pilha.Desempilhar(0)
+            if (not Assigned(id)) then
+               HotKey := TPGHotKeys.Create(TPGHotKeys.GlobList, Titulo)
             else
-                Detect := 0;
+               HotKey := TPGHotKeys(Id);
+
+            if Quantidade = 4 then
+               HotKey.Detect := Gramatica.Pilha.Desempilhar(0);
 
             if Quantidade >= 3 then
-                Inibir := Gramatica.Pilha.Desempilhar(False)
-            else
-                Inibir := False;
+               HotKey.Inhibit := Gramatica.Pilha.Desempilhar(False);
 
             if Quantidade >= 2 then
-                HotKeyHex := Gramatica.Pilha.Desempilhar('')
-            else
-                HotKeyHex := '';
+               HotKey.SetKeysHex(Gramatica.Pilha.Desempilhar(''));
 
             if Quantidade >= 1 then
-                Script := Gramatica.Pilha.Desempilhar('');
-
-            HotKey := TPGHotKeys.Create();
-            HotKey.Name := Titulo;
-            HotKey.Script := Script;
-            HotKey.SetKeysHex(HotKeyHex);
-            HotKey.Inhibit := Inibir;
-            HotKey.Detect := Detect;
-            TPGHotKeys.HotKeyGlobList.Add(HotKey);
+                HotKey.Script := Gramatica.Pilha.Desempilhar('');
         end;
     end
     else
-        Gramatica.ErroAdd('Identificador esperado.');
+        Gramatica.ErroAdd('Identificador esperado o já existente.');
 end;
 
 initialization
-    TGramatica.Global.FindName('Commands').Add(TPGHotKey.Create('HotKey'));
-    TPGHotKeys.HotKeyGlobList := TGramatica.Global.Add('HotKeys');
+    TPGHotKeyDec.Create(GlobalItemCommand,'HotKey');
+    TPGHotKeys.GlobList := TPGFolder.Create(GlobalItemTrigger,'HotKey');
+    GlobalCollection.RegisterClass(TPGHotKeys);
 
 finalization
-
 
 end.

@@ -390,21 +390,17 @@ begin
 end;
 
 initialization
-
-with TGramatica.Global.FindName('Commands') do
-begin
-    Add(TPGCopy.Create());
-    Add(TPGDelete.Create());
-    Add(TPGFor.Create());
-    Add(TPGIf.Create());
-    Add(TPGisDef.Create());
-    Add(TPGInsert.Create());
-    Add(TPGRead.Create());
-    Add(TPGRepeat.Create());
-    Add(TPGUndef.Create());
-    Add(TPGWhile.Create());
-    Add(TPGWrite.Create());
-end;
+     TPGCopy.Create(GlobalItemCommand);
+     TPGDelete.Create(GlobalItemCommand);
+     TPGFor.Create(GlobalItemCommand);
+     TPGIf.Create(GlobalItemCommand);
+     TPGisDef.Create(GlobalItemCommand);
+     TPGInsert.Create(GlobalItemCommand);
+     TPGRead.Create(GlobalItemCommand);
+     TPGRepeat.Create(GlobalItemCommand);
+     TPGUndef.Create(GlobalItemCommand);
+     TPGWhile.Create(GlobalItemCommand);
+     TPGWrite.Create(GlobalItemCommand);
 
 finalization
 

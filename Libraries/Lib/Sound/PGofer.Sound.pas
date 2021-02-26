@@ -20,8 +20,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGSound : TPGSound;
 
 implementation
 
@@ -61,8 +59,7 @@ begin
 end;
 
 initialization
-    PGSound := TPGSound.Create();
-    TGramatica.Global.FindName('Commands').Add(PGSound);
+    TPGSound.Create(GlobalItemCommand);
 
 finalization
 

@@ -77,14 +77,25 @@ object FrmMain: TFrmMain
     end
   end
   object MainMenu1: TMainMenu
-    Left = 340
-    Top = 104
+    Left = 248
+    Top = 16
     object Arquivos1: TMenuItem
       Caption = 'Arquivos'
       object Salvar1: TMenuItem
         Caption = 'Salvar'
         ShortCut = 16467
         OnClick = Salvar1Click
+      end
+    end
+    object mniOpcoes: TMenuItem
+      Caption = 'Op'#231#245'es'
+      object Controller1: TMenuItem
+        Caption = 'Controller'
+        OnClick = Controller1Click
+      end
+      object Cluster1: TMenuItem
+        Caption = 'Cluster'
+        OnClick = Cluster1Click
       end
     end
     object Compilar1: TMenuItem

@@ -1,39 +1,40 @@
 inherited PGFrameHotKey: TPGFrameHotKey
-  Width = 409
+  Width = 401
   Height = 388
   Constraints.MinHeight = 250
   OnExit = MmoTeclasExit
-  ExplicitWidth = 409
+  ExplicitWidth = 401
   ExplicitHeight = 388
   inherited SplitterItem: TSplitter
     Top = 280
-    Width = 409
+    Width = 401
     ExplicitTop = 34
     ExplicitWidth = 393
   end
   inherited grbAbout: TGroupBox
     Top = 291
-    Width = 403
+    Width = 395
     Height = 94
-    ExplicitTop = 357
-    ExplicitWidth = 400
-    ExplicitHeight = 103
+    Constraints.MinHeight = 94
+    ExplicitTop = 291
+    ExplicitWidth = 403
+    ExplicitHeight = 94
     inherited rceAbout: TRichEdit
-      Width = 399
+      Width = 391
       Height = 77
-      ExplicitWidth = 396
-      ExplicitHeight = 86
+      ExplicitWidth = 399
+      ExplicitHeight = 77
     end
   end
   inherited pnlItem: TPanel
-    Width = 409
+    Width = 401
     Height = 280
     Constraints.MinHeight = 280
     Constraints.MinWidth = 0
     ExplicitWidth = 409
     ExplicitHeight = 280
     DesignSize = (
-      409
+      401
       280)
     object LblDetectar: TLabel [1]
       Left = 123
@@ -44,21 +45,22 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Caption = 'Detectar:'
     end
     inherited EdtName: TEditEx
-      Width = 340
-      ExplicitWidth = 340
+      Width = 326
+      ExplicitWidth = 334
     end
     object GrbTeclas: TGroupBox
       Left = 5
       Top = 33
-      Width = 398
+      Width = 390
       Height = 72
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Teclas'
       TabOrder = 1
+      ExplicitWidth = 398
       object MmoTeclas: TMemo
         Left = 2
         Top = 15
-        Width = 394
+        Width = 386
         Height = 55
         ParentCustomHint = False
         Align = alClient
@@ -90,6 +92,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
         OnExit = MmoTeclasExit
         OnMouseEnter = MmoTeclasEnter
         OnMouseLeave = MmoTeclasExit
+        ExplicitWidth = 394
       end
     end
     object BtnClear: TButton
@@ -134,17 +137,17 @@ inherited PGFrameHotKey: TPGFrameHotKey
       AlignWithMargins = True
       Left = 5
       Top = 145
-      Width = 398
+      Width = 390
       Height = 131
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Script'
       TabOrder = 5
-      ExplicitHeight = 124
+      ExplicitWidth = 398
       object EdtScript: TSynEdit
         AlignWithMargins = True
         Left = 5
         Top = 18
-        Width = 388
+        Width = 380
         Height = 108
         Hint = 'Programa'#231#227'o que ser'#225' executada'
         Align = alClient
@@ -172,8 +175,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Gutter.ShowLineNumbers = True
         OnChange = EdtScriptChange
         FontSmoothing = fsmNone
-        ExplicitWidth = 379
-        ExplicitHeight = 101
+        ExplicitWidth = 388
       end
     end
   end

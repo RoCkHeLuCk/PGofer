@@ -3,14 +3,14 @@ unit PGofer.Registry.Environment;
 interface
 
 uses
-    PGofer.Sintatico.Classes;
+    PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
 {$M+}
     TPGRegistryEnvironment = class(TPGItemCMD)
     private
     public
-        constructor Create();
+        constructor Create(ItemDad: TPGItem);
     published
         function Delete(Key: String): Boolean;
         function Read(Key: String): String;
@@ -31,9 +31,9 @@ const
         'System\CurrentControlSet\Control\Session Manager\Environment';
 
 
-constructor TPGRegistryEnvironment.Create;
+constructor TPGRegistryEnvironment.Create(ItemDad: TPGItem);
 begin
-    inherited Create('Environment');
+    inherited Create(ItemDad, 'Environment');
 end;
 
 function TPGRegistryEnvironment.Delete(Key: String): Boolean;

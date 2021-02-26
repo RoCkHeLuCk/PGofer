@@ -20,9 +20,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGClipBoard : TPGClipBoard;
-
 implementation
 
 uses
@@ -61,8 +58,7 @@ begin
 end;
 
 initialization
-    PGClipBoard := TPGClipBoard.Create();
-    TGramatica.Global.FindName('Commands').Add(PGClipBoard);
+    TPGClipBoard.Create(GlobalItemCommand);
 
 finalization
 

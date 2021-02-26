@@ -22,22 +22,31 @@ type
     TPGItemCMD = class(TPGItem)
     private
         FAttributeList : TObjectList<TPGRttiAttribute>;
+        constructor Create(ItemDad: TPGItem; Name: String; Attrib: Boolean); overload;
         procedure RttiCreate();
         procedure RttiExecute(Gramatica: TGramatica; Item: TPGItemCMD);
     public
-        constructor Create(); overload;
-        constructor Create(Name: String; Attrib: Boolean = True); overload;
+        constructor Create(ItemDad: TPGItem; Name: String = ''); overload;
         destructor Destroy(); override;
         procedure Execute(Gramatica: TGramatica); virtual;
         procedure AttributeAdd(AttType: TPGAttributeType; Value: String);
         property AttributeList: TObjectList<TPGRttiAttribute> read FAttributeList;
     end;
 
+    TPGFolder = class (TPGItemCMD)
+    private
+        function GetExpanded(): Boolean;
+        procedure SetExpanded(Value: Boolean);
+    public
+        constructor Create(ItemDad: TPGItem; Name: String = ''); overload;
+        property Expanded: Boolean read GetExpanded write SetExpanded;
+    end;
+
 implementation
 
 uses
-    System.TypInfo,
-    PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Types;
+    System.Classes, System.TypInfo,
+    PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls;
 
 { TPGAttribute }
 
@@ -55,23 +64,26 @@ begin
 end;
 
 { TPGItemCMD }
-
-constructor TPGItemCMD.Create();
+constructor TPGItemCMD.Create(ItemDad: TPGItem; Name: String = '');
 begin
-    inherited Create(copy(Self.ClassName, 4, Length(Self.ClassName)));
+    if Name = '' then
+       Name := copy(Self.ClassName, 4, Length(Self.ClassName));
+
+    inherited Create(ItemDad, Name);
     FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
-    self.RttiCreate();
+    Self.RttiCreate();
 end;
 
-constructor TPGItemCMD.Create(Name: String; Attrib: Boolean = True);
+constructor TPGItemCMD.Create(ItemDad: TPGItem; Name: String;
+                              Attrib: Boolean);
 begin
-    inherited Create(Name);
+    inherited Create(ItemDad, Name);
     FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
     if Attrib then
-       self.RttiCreate();
+       Self.RttiCreate();
 end;
 
-destructor TPGItemCMD.Destroy;
+destructor TPGItemCMD.Destroy();
 begin
     FAttributeList.Free;
     inherited Destroy();
@@ -123,8 +135,7 @@ procedure TPGItemCMD.RttiCreate();
         begin
             if (RttiMember.Visibility in [mvPublished]) then
             begin
-                ItemAux := TPGItemCMD.Create(RttiMember.Name, False);
-                Self.Add(ItemAux);
+                ItemAux := TPGItemCMD.Create(Self, RttiMember.Name, False);
                 AttributesAdd(RttiMember.GetAttributes,ItemAux);
             end;
         end;
@@ -137,8 +148,13 @@ begin
     RttiContext := TRttiContext.Create();
     RttiType := RttiContext.GetType(Self.ClassType);
     AttributesAdd(RttiType.GetAttributes,Self);
-    CreateItems(TArray<TRttiMember>(RttiType.GetProperties));
-    CreateItems(TArray<TRttiMember>(RttiType.GetMethods));
+
+    if not Self.CollectDad.OnlyRegister then
+    begin
+        CreateItems(TArray<TRttiMember>(RttiType.GetProperties));
+        CreateItems(TArray<TRttiMember>(RttiType.GetMethods));
+    end;
+
     RttiContext.Free;
 end;
 
@@ -226,8 +242,30 @@ begin
     RttiContext.Free;
 end;
 
+{ TPGFolder }
+
+constructor TPGFolder.Create(ItemDad: TPGItem; Name: String);
+begin
+    inherited;
+    Self.ReadOnly := False;
+end;
+
+function TPGFolder.GetExpanded: Boolean;
+begin
+    if Assigned(Node) then
+       Result := Node.Expanded
+    else
+       Result := False;
+end;
+
+procedure TPGFolder.SetExpanded(Value: Boolean);
+begin
+    if Assigned(Node) then
+       Node.Expanded := Value;
+end;
 
 initialization
+   GlobalCollection.RegisterClass(TPGFolder);
 
 finalization
 

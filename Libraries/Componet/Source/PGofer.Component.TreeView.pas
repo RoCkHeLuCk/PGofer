@@ -8,24 +8,24 @@ uses
 type
     TTreeViewEx = class(TTreeView)
     private
-        { Private declarations }
         FOwnsObjectsData: boolean;
         FAttachMode: TNodeAttachMode;
+        FTargetDrag: TTreeNode;
+        FSelectionsDrag: TArray<TTreeNode>;
     protected
-        { Protected declarations }
         procedure Delete(Node: TTreeNode); override;
         procedure DoEndDrag(Target: TObject; X, Y: Integer); override;
-        procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
-            X, Y: Integer); override;
     public
-        { Public declarations }
+        procedure DragOver(Source: TObject; X, Y: Integer;
+                  State: TDragState; var Accept: Boolean); override;
         procedure DragDrop(Source: TObject; X, Y: Integer); override;
         procedure DeleteSelect();
         function isSelectWork(): boolean;
         procedure FindText(Text: String; OffSet: Integer = -1);
         procedure SuperSelected(Node: TTreeNode);
+        property TargetDrag: TTreeNode read FTargetDrag write FTargetDrag;
+        property SelectionsDrag: TArray<TTreeNode> read FSelectionsDrag;
     published
-        { Published declarations }
         property OwnsObjectsData: boolean read FOwnsObjectsData
             write FOwnsObjectsData default False;
         property AttachMode: TNodeAttachMode read FAttachMode write FAttachMode
@@ -36,6 +36,7 @@ procedure Register;
 
 implementation
 
+
 procedure Register;
 begin
     RegisterComponents('PGofer', [TTreeViewEx]);
@@ -45,7 +46,10 @@ end;
 
 procedure TTreeViewEx.Delete(Node: TTreeNode);
 begin
-    if (FOwnsObjectsData) and Assigned(Node) and Assigned(Node.Data) then
+    if FOwnsObjectsData
+    and Assigned(Node)
+    and Assigned(Node.Data)
+    and Node.Deleting then
     begin
         TObject(Node.Data).Free;
         Node.Data := nil;
@@ -55,46 +59,48 @@ end;
 
 procedure TTreeViewEx.DragDrop(Source: TObject; X, Y: Integer);
 var
-    TargetNode: TTreeNode;
-    SourceNode: array of TTreeNode;
-    Count: Integer;
+    Node: TTreeNode;
     NodeAttach: TNodeAttachMode;
 begin
-    SetLength(SourceNode, Self.SelectionCount);
-    for Count := 0 to Self.SelectionCount - 1 do
-        SourceNode[Count] := Self.Selections[Count];
-
-    TargetNode := Self.GetNodeAt(X, Y);
-    if Assigned(TargetNode) then
+    if Assigned(FTargetDrag) then
         NodeAttach := FAttachMode
     else
         NodeAttach := naAdd;
 
-    for Count := Low(SourceNode) to High(SourceNode) do
-        SourceNode[Count].MoveTo(TargetNode, NodeAttach);
+    for Node in FSelectionsDrag do
+        Node.MoveTo(FTargetDrag, NodeAttach);
 
     inherited;
+end;
+
+procedure TTreeViewEx.DragOver(Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+var
+    C : Integer;
+begin
+    inherited;
+    FTargetDrag := Self.GetNodeAt(X, Y);
+    SetLength(FSelectionsDrag,0);
+    for c := 0 to Self.SelectionCount-1 do
+       FSelectionsDrag := FSelectionsDrag + [Self.Selections[c]];
 end;
 
 procedure TTreeViewEx.DoEndDrag(Target: TObject; X, Y: Integer);
 begin
     Self.Repaint;
-    inherited;
-end;
-
-procedure TTreeViewEx.MouseDown(Button: TMouseButton; Shift: TShiftState;
-    X, Y: Integer);
-begin
-    if (not Self.Dragging) then
-        Self.Selected := Self.GetNodeAt(X, Y);
+    FTargetDrag := nil;
+    SetLength(FSelectionsDrag,0);
     inherited;
 end;
 
 procedure TTreeViewEx.SuperSelected(Node: TTreeNode);
 begin
-    Node.Selected := true;
-    Node.MakeVisible;
-    Node.Focused := true;
+    if Assigned(Node) then
+    begin
+        Node.Selected := true;
+        Node.MakeVisible;
+        Node.Focused := true;
+    end;
 end;
 
 procedure TTreeViewEx.DeleteSelect();
@@ -113,7 +119,7 @@ end;
 
 function TTreeViewEx.isSelectWork(): boolean;
 begin
-    Result := (Assigned(Selected) and Assigned(Selected.Data));
+    Result := (Assigned(Self.Selected) and Assigned(Self.Selected.Data));
 end;
 
 procedure TTreeViewEx.FindText(Text: String; OffSet: Integer = -1);

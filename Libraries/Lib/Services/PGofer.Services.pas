@@ -23,9 +23,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGService : TPGService;
-
 implementation
 
 uses
@@ -77,8 +74,7 @@ begin
 end;
 
 initialization
-    PGService := TPGService.Create();
-    TGramatica.Global.FindName('Commands').Add(PGService);
+    TPGService.Create(GlobalItemCommand);
 
 finalization
 

@@ -43,9 +43,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-   PGFile : TPGFile;
-
 implementation
 
 uses
@@ -192,8 +189,7 @@ begin
 end;
 
 initialization
-    PGFile := TPGFile.create();
-    TGramatica.Global.FindName('Commands').Add(PGFile);
+    TPGFile.Create(GlobalItemCommand);
 
 finalization
 

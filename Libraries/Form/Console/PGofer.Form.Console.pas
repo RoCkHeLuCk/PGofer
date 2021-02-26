@@ -5,9 +5,27 @@ interface
 uses
     System.Classes, Winapi.Windows,
     Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
-    SynEdit;
+    SynEdit, PGofer.Forms;
 
 type
+
+{$M+}
+    TPGFrmConsole = class(TPGForm)
+        constructor Create(AForm: TForm); reintroduce;
+        destructor Destroy(); override;
+    private
+        FDelay: Cardinal;
+        FShowMessage: Boolean;
+        FAutoClose: Boolean;
+        procedure SetAutoClose(Value: Boolean);
+    published
+        property AutoClose: Boolean read FAutoClose write SetAutoClose;
+        procedure Clear();
+        property Delay: Cardinal read FDelay write FDelay;
+        property ShowMessage: Boolean read FShowMessage write FShowMessage;
+    end;
+{$TYPEINFO ON}
+
     TFrmConsole = class(TForm)
         PnlConsole: TPanel;
         PnlArrastar: TPanel;
@@ -15,8 +33,6 @@ type
         PnlArrastar2: TPanel;
         EdtConsole: TSynEdit;
         TmrConsole: TTimer;
-        constructor Create(); reintroduce;
-        destructor Destroy(); override;
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure FormKeyPress(Sender: TObject; var Key: Char);
         procedure TmrConsoleTimer(Sender: TObject);
@@ -25,20 +41,22 @@ type
         procedure PnlArrastarMouseMove(Sender: TObject; Shift: TShiftState;
             X, Y: Integer);
         procedure BtnFixedClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
+        procedure FormShow(Sender: TObject);
+        procedure FormCreate(Sender: TObject);
+        procedure FormDestroy(Sender: TObject);
     private
         { Private declarations }
         FMouseA: TPoint;
+        FItem: TPGFrmConsole;
     protected
         procedure CreateWindowHandle(const Params: TCreateParams); override;
     public
         { Public declarations }
-        procedure ConsoleClear();
-        procedure ConsoleMessage(Value: String; Show: Boolean = True);
+        procedure ConsoleNotifyMessage(Value: String; Show: Boolean);
     end;
 
 var
-    FrmConsole :  TFrmConsole;
+    FrmConsole: TFrmConsole;
 
 implementation
 
@@ -47,12 +65,35 @@ implementation
 uses
     PGofer.Classes, PGofer.Sintatico, PGofer.Forms.Controls;
 
-constructor TFrmConsole.Create();
+{ TPGFrmConsole }
+constructor TPGFrmConsole.Create(AForm: TForm);
 begin
-    inherited Create(nil);
-    // carrega config
-    FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
+    inherited;
+    FDelay := 2000;
+    FShowMessage := True;
+    FAutoClose := True;
 end;
+
+destructor TPGFrmConsole.Destroy;
+begin
+    FDelay := 0;
+    FShowMessage := False;
+    FAutoClose := False;
+    inherited;
+end;
+
+procedure TPGFrmConsole.SetAutoClose(Value: Boolean);
+begin
+    FAutoClose := Value;
+    TFrmConsole(FForm).BtnFixed.Down := (not FAutoClose);
+end;
+
+procedure TPGFrmConsole.Clear;
+begin
+    TFrmConsole(FForm).EdtConsole.Clear;
+end;
+
+{ TFrmConsole }
 
 procedure TFrmConsole.CreateWindowHandle(const Params: TCreateParams);
 begin
@@ -66,16 +107,21 @@ begin
     Application.AddPopupForm(Self);
 end;
 
-destructor TFrmConsole.Destroy;
+procedure TFrmConsole.FormCreate(Sender: TObject);
 begin
-    inherited Destroy();
+    FItem := TPGFrmConsole.Create(Self);
+    PGofer.Sintatico.ConsoleNotify := Self.ConsoleNotifyMessage;
 end;
 
 procedure TFrmConsole.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
     TmrConsole.Enabled := False;
-    // salva config
-    FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
+end;
+
+procedure TFrmConsole.FormDestroy(Sender: TObject);
+begin
+    ConsoleNotify := nil;
+    FItem := nil;
 end;
 
 procedure TFrmConsole.FormKeyPress(Sender: TObject; var Key: Char);
@@ -88,7 +134,8 @@ end;
 procedure TFrmConsole.FormShow(Sender: TObject);
 begin
     Self.TmrConsole.Enabled := False;
-    Self.TmrConsole.Interval := PGofer.Sintatico.ConsoleDelay;
+    Self.TmrConsole.Interval := FItem.Delay;
+    Self.BtnFixed.Down := (not FItem.AutoClose);
     Self.TmrConsole.Enabled := (not Self.BtnFixed.Down);
 end;
 
@@ -96,6 +143,7 @@ procedure TFrmConsole.BtnFixedClick(Sender: TObject);
 begin
     // trava o console
     TmrConsole.Enabled := (not BtnFixed.Down);
+    FItem.AutoClose := TmrConsole.Enabled;
 end;
 
 procedure TFrmConsole.TmrConsoleTimer(Sender: TObject);
@@ -103,9 +151,9 @@ begin
     try
         // fechar se o mouse estiver fora do form
         if (Mouse.CursorPos.X < Left) or (Mouse.CursorPos.Y < Top) or
-           (Mouse.CursorPos.X > Left + Width) or
-           (Mouse.CursorPos.Y > Top + Height) then
-           Close;
+            (Mouse.CursorPos.X > Left + Width) or
+            (Mouse.CursorPos.Y > Top + Height) then
+            Close;
     except
     end;
 end;
@@ -125,17 +173,12 @@ procedure TFrmConsole.PnlArrastarMouseMove(Sender: TObject; Shift: TShiftState;
 begin
     if Shift = [ssLeft] then
     begin
-        Left := Mouse.CursorPos.X - FMouseA.X;
-        Top := Mouse.CursorPos.Y - FMouseA.Y;
+        Self.Left := Mouse.CursorPos.X - FMouseA.X;
+        Self.Top := Mouse.CursorPos.Y - FMouseA.Y;
     end;
 end;
 
-procedure TFrmConsole.ConsoleClear();
-begin
-    frmConsole.EdtConsole.Clear;
-end;
-
-procedure TFrmConsole.ConsoleMessage(Value: String; Show: Boolean);
+procedure TFrmConsole.ConsoleNotifyMessage(Value: String; Show: Boolean);
 begin
     Self.EdtConsole.Lines.Add(Value);
     Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Capacity;
@@ -149,9 +192,5 @@ begin
         FormForceShow(Self, False);
     end;
 end;
-
-initialization
-
-finalization
 
 end.

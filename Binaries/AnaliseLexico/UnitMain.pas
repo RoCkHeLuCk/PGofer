@@ -3,10 +3,14 @@ unit UnitMain;
 interface
 
 uses
-    Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-    System.Classes, Vcl.Graphics,
-    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, SynEdit,
-    Vcl.Menus, System.TypInfo, PGofer.Form.AutoComplete, PGofer.Form.Console, PGofer.Form.Controller;
+    Winapi.Windows, Winapi.Messages,
+    System.SysUtils, System.Variants, System.Classes, System.TypInfo,
+    Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
+    Vcl.StdCtrls, Vcl.Menus,
+    SynEdit,
+    PGofer.Form.AutoComplete,
+    PGofer.Form.Controller,
+    PGofer.Form.Cluster;
 
 type
     TFrmMain = class(TForm)
@@ -20,15 +24,19 @@ type
         Sintatico1: TMenuItem;
         Arquivos1: TMenuItem;
         Salvar1: TMenuItem;
+        mniOpcoes: TMenuItem;
+        Controller1: TMenuItem;
+        Cluster1: TMenuItem;
         procedure Lexico1Click(Sender: TObject);
         procedure Sintatico1Click(Sender: TObject);
         procedure FormCreate(Sender: TObject);
         procedure Salvar1Click(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
+        procedure Controller1Click(Sender: TObject);
+    procedure Cluster1Click(Sender: TObject);
     private
         { Private declarations }
-        FFrmController : TFrmController;
-        FFrmAutoComplete : TFrmAutoComplete;
+        FFrmAutoComplete: TFrmAutoComplete;
     public
         { Public declarations }
     end;
@@ -39,7 +47,8 @@ var
 implementation
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms.Controls;
+    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms,
+    PGofer.Forms.Controls;
 
 {$R *.dfm}
 
@@ -48,19 +57,36 @@ begin
     if (FileExists(paramstr(0) + '.pas')) then
         SynEdit1.Lines.LoadFromFile(paramstr(0) + '.pas');
 
-    FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1);
-    FFrmController := TFrmController.Create();
-    FFrmController.Show;
-    FrmConsole := TFrmConsole.Create();
+    FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1, 'FrmAutoComplete');
     FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
+
+    TPGForm.Create(Self);
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
+    if Assigned(FrmController) then
+        FrmController.Free;
+
+    if Assigned(FrmCluster) then
+        FrmCluster.Free;
+
     FFrmAutoComplete.Free;
-    FFrmController.Free;
-    FrmConsole.Free;
     FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
+end;
+
+procedure TFrmMain.Cluster1Click(Sender: TObject);
+begin
+    if not Assigned(FrmCluster) then
+        FrmCluster := TFrmCluster.Create();
+    FrmCluster.Show;
+end;
+
+procedure TFrmMain.Controller1Click(Sender: TObject);
+begin
+    if not Assigned(FrmController) then
+        FrmController := TFrmController.Create(GlobalCollection);
+    FrmController.Show;
 end;
 
 procedure TFrmMain.Lexico1Click(Sender: TObject);
@@ -95,7 +121,7 @@ procedure TFrmMain.Sintatico1Click(Sender: TObject);
 var
     Gramatica: TGramatica;
 begin
-    Gramatica := TGramatica.Create('Gramatica', TGramatica.Global, True);
+    Gramatica := TGramatica.Create('Gramatica', GlobalCollection, True);
     Gramatica.SetAlgoritimo(SynEdit1.Text);
     Gramatica.Start;
 end;

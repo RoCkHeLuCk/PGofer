@@ -130,7 +130,8 @@ type
 implementation
 
 uses
-    System.TypInfo, PGofer.Classes, PGofer.Math.Controls;
+    System.TypInfo,
+    PGofer.Classes, PGofer.Math.Controls;
 
 { TCordenada }
 
@@ -620,7 +621,7 @@ begin
                 Ignorados();
 
             '{':
-                Comentario(['}']);
+                Comentario([#0,'}']);
 
             '#':
                 Caracter();
@@ -638,9 +639,9 @@ begin
         end; // case
 
         if FLexema.Classe <> cmdIgnore then
-            result.TokenAdd(FLexema.Lexema, FLexema.Classe, FLexema.Cordenada);
+            Result.TokenAdd(FLexema.Lexema, FLexema.Classe, FLexema.Cordenada);
 
-    until (FLexema.Classe in [cmdEOF, cmdUnDeclar]);
+    until (FLexema.Classe in [cmdEOF]);
 end;
 
 function TAutomato.TokenListToStr(TokenList: TTokenList): String;

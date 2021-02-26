@@ -3,7 +3,7 @@ unit PGofer.Registry;
 interface
 
 uses
-    PGofer.Sintatico.Classes;
+    PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
 {$M+}
@@ -11,7 +11,7 @@ type
     private
         FEnvironment : TPGItemCMD;
     public
-        constructor Create();
+        constructor Create(ItemDad: TPGItem);
         destructor Destroy(); override;
         property Environment: TPGItemCMD read FEnvironment;
     published
@@ -22,9 +22,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGRegistry : TPGRegistry;
-
 implementation
 
 uses
@@ -32,11 +29,10 @@ uses
 
 { TPGRegistry }
 
-constructor TPGRegistry.Create;
+constructor TPGRegistry.Create(ItemDad: TPGItem);
 begin
-    inherited Create();
-    FEnvironment := TPGRegistryEnvironment.Create();
-    Self.Add(FEnvironment);
+    inherited Create(ItemDad);
+    FEnvironment := TPGRegistryEnvironment.Create(Self);
 end;
 
 destructor TPGRegistry.Destroy;
@@ -62,8 +58,7 @@ begin
 end;
 
 initialization
-    PGRegistry :=  TPGRegistry.Create();
-    TGramatica.Global.FindName('Commands').Add(PGRegistry);
+    TPGRegistry.Create(GlobalItemCommand);
 
 finalization
 

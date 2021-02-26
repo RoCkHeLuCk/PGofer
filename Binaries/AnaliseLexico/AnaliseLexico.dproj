@@ -195,7 +195,7 @@
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Types.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
         <DCCReference Include="..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas">
@@ -206,6 +206,9 @@
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
             <Form>FrmConsole</Form>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Form\Cluster\PGofer.Form.Cluster.pas">
+            <Form>FrmCluster</Form>
         </DCCReference>
         <DCCReference Include="UnitMain.pas">
             <Form>FrmMain</Form>

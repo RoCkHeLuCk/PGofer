@@ -49,12 +49,13 @@ uses
   PGofer.RTTI.Attributes in '..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas',
   PGofer.Types in '..\..\Libraries\Lib\PGUtils\PGofer.Types.pas',
   PGofer.ZLib in '..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas',
-  Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
+  PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Form.Controller in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas' {FrmController},
   PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
   PGofer.Form.Console in '..\..\Libraries\Form\Console\PGofer.Form.Console.pas' {FrmConsole},
+  PGofer.Form.Cluster in '..\..\Libraries\Form\Cluster\PGofer.Form.Cluster.pas' {FrmCluster},
   Vcl.Forms,
   UnitMain in 'UnitMain.pas' {FrmMain};
 
@@ -65,6 +66,6 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-    TPGForm.Carregar();
+    Application.CreateForm(TFrmConsole, FrmConsole);
     Application.Run;
 end.

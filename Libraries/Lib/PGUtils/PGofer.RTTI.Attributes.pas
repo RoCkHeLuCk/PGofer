@@ -3,7 +3,8 @@ unit PGofer.RTTI.Attributes;
 interface
 
 uses
-    System.RTTI;
+    System.Classes, System.RTTI,
+    PGofer.Classes;
 
 type
     TPGHelpAttribute = class(TCustomAttribute)
@@ -28,7 +29,9 @@ end;
 destructor TPGHelpAttribute.Destroy;
 begin
     FMensagem := '';
-    inherited Destroy();
+    inherited;
 end;
+
+
 
 end.

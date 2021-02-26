@@ -532,9 +532,9 @@ begin
     Result := nil;
     if Assigned(Item) then
     begin
-        if Item = TGramatica.Global then
+        if Item = GlobalCollection then
         begin
-            for Item in TGramatica.Global do
+            for Item in GlobalCollection do
             begin
                 Result := Item.FindName(Name);
                 if Assigned(Result) then
@@ -544,8 +544,8 @@ begin
         else
         begin
             Result := Item.FindName(Name);
-            if not Assigned(Result) and Assigned(Item.Dad) then
-                Result := FindID(Item.Dad, Name);
+            if not Assigned(Result) and Assigned(Item.Parent) then
+                Result := FindID(Item.Parent, Name);
         end;
     end;
 end;

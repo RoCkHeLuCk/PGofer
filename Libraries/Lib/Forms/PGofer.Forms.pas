@@ -3,13 +3,15 @@ unit PGofer.Forms;
 interface
 
 uses
-    Vcl.Forms, PGofer.Sintatico, PGofer.Sintatico.Classes;
+    Vcl.Forms,
+    PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
 
 type
 {$M+}
     TPGForm = class(TPGItemCMD)
+        constructor Create(Form: TForm); reintroduce;
+        destructor Destroy(); override;
     private
-        FForm: TForm;
         function GetAlphaBlend(): Boolean;
         procedure SetAlphaBlend(AlphaBlend: Boolean);
         function GetAlphaBlendValue(): Byte;
@@ -32,12 +34,12 @@ type
         procedure SetWidth(Width: Integer);
         function GetWindowState(): Byte;
         procedure SetWindowState(WindowState: Byte);
+    protected
+        FForm: TForm;
     public
-        constructor Create(Form: TForm);
-        destructor Destroy(); override;
         procedure Frame(Parent: TObject); override;
         procedure Execute(Gramatica: TGramatica); override;
-        class procedure Carregar();
+        class var GlobList: TPGItem;
     published
         property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
         property AlphaBlendValue: Byte read GetAlphaBlendValue
@@ -58,24 +60,25 @@ type
     end;
 {$TYPEINFO ON}
 
+
 implementation
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Types, PGofer.Forms.Controls,
+    PGofer.Lexico, PGofer.Forms.Controls,
     PGofer.Forms.Frame;
 
 { TPGForm }
 
 constructor TPGForm.Create(Form: TForm);
 begin
-    inherited Create(Form.Name);
+    inherited Create(TPGForm.GlobList, Form.Name);
     FForm := Form;
 end;
 
 destructor TPGForm.Destroy();
 begin
     FForm := nil;
-    inherited Destroy();
+    inherited;
 end;
 
 function TPGForm.GetAlphaBlend: Boolean;
@@ -212,22 +215,8 @@ begin
     TPGFrameForms.Create(Self, Parent);
 end;
 
-class procedure TPGForm.Carregar();
-var
-    C: Integer;
-    Forms: TPGItem;
-begin
-    Forms := TGramatica.Global.Add('Forms');
-    for C := 0 to Application.ComponentCount - 1 do
-    begin
-        if Application.Components[C].ClassParent = TForm then
-        begin
-            Forms.Add(TPGForm.Create(TForm(Application.Components[C])));
-        end;
-    end;
-end;
-
 initialization
+    TPGForm.GlobList := TPGFolder.Create(GlobalCollection, 'Forms');
 
 finalization
 

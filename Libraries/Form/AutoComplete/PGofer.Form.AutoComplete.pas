@@ -5,10 +5,9 @@ interface
 uses
     Winapi.Windows,
     System.Classes, System.SysUtils, System.IniFiles,
-    Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus,
+    Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
     SynEdit,
-    PGofer.Component.ListView,
-    PGofer.Classes, PGofer.Lexico, Vcl.ExtCtrls;
+    PGofer.Classes, PGofer.Lexico, PGofer.Forms, PGofer.Component.ListView;
 
 type
     TOnKeyDownUP = procedure(Sender: TObject; var Key: Word; Shift: TShiftState)
@@ -22,7 +21,7 @@ type
         ppmAutoComplete: TPopupMenu;
         mniPriority: TMenuItem;
         trmAutoComplete: TTimer;
-        constructor Create(EditCtrl: TSynEdit); reintroduce;
+        constructor Create(EditCtrl: TSynEdit; AName: String); reintroduce;
         destructor Destroy(); override;
         procedure FormActivate(Sender: TObject);
         procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -33,9 +32,9 @@ type
         procedure FormShow(Sender: TObject);
         procedure mniPriorityClick(Sender: TObject);
         procedure trmAutoCompleteTimer(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure ltvAutoCompleteCompare(Sender: TObject; Item1, Item2: TListItem;
-      Data: Integer; var Compare: Integer);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure ltvAutoCompleteCompare(Sender: TObject;
+            Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
     private
         FIniFile: TIniFile;
         FEditCtrl: TSynEdit;
@@ -70,7 +69,7 @@ const
         '<', '>', '(', ')', '[', ']', '!', '@', '#', '%', '^', '$', '&', '?',
         '|', '''', '"', '.'];
 
-constructor TFrmAutoComplete.Create(EditCtrl: TSynEdit);
+constructor TFrmAutoComplete.Create(EditCtrl: TSynEdit; AName: String);
 begin
     inherited Create(nil);
     // guarda os eventos do edit
@@ -83,8 +82,6 @@ begin
     FEditCtrl.OnKeyPress := Self.FormKeyPress;
     FEditCtrl.OnKeyUp := Self.FormKeyUp;
     // carrega arquivos ini
-    FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + '\Config.ini',
-        ltvAutoComplete);
     FIniFile := TIniFile.Create(PGofer.Sintatico.DirCurrent +
         '\AutoComplete.ini');
 end;
@@ -115,7 +112,7 @@ begin
 
     FIniFile.Free;
 
-    inherited Destroy();
+    inherited;
 end;
 
 procedure TFrmAutoComplete.FormActivate(Sender: TObject);
@@ -129,8 +126,6 @@ end;
 
 procedure TFrmAutoComplete.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-    FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + '\Config.ini',
-        ltvAutoComplete);
     trmAutoComplete.Enabled := False;
 end;
 
@@ -284,18 +279,19 @@ begin
     FormForceShow(Self, False);
 end;
 
-procedure TFrmAutoComplete.ltvAutoCompleteCompare(Sender: TObject; Item1,
-  Item2: TListItem; Data: Integer; var Compare: Integer);
+procedure TFrmAutoComplete.ltvAutoCompleteCompare(Sender: TObject;
+    Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
 var
-    v1, v2 : integer;
+    v1, v2: Integer;
 begin
-    if Assigned(Item1) and Assigned(Item2)
-    and (Item1.SubItems.Count > 1) and (Item2.SubItems.Count > 1) then
+    if Assigned(Item1) and Assigned(Item2) and (Item1.SubItems.Count > 1) and
+        (Item2.SubItems.Count > 1) then
     begin
-        TryStrToInt(Item1.SubItems[1],v1);
-        TryStrToInt(Item2.SubItems[1],v2);
-        Compare := v2-v1;
-    end else
+        TryStrToInt(Item1.SubItems[1], v1);
+        TryStrToInt(Item2.SubItems[1], v2);
+        Compare := v2 - v1;
+    end
+    else
         Compare := 0;
 end;
 
@@ -309,8 +305,8 @@ var
     N: Integer;
 begin
     if TryStrToInt(InputBox('Prioridade', 'Valor',
-       ltvAutoComplete.ItemFocused.SubItems[1]), N) then
-       SetPriority(N);
+        ltvAutoComplete.ItemFocused.SubItems[1]), N) then
+        SetPriority(N);
 end;
 
 procedure TFrmAutoComplete.ListViewAdd(Caption, Origin: String);
@@ -324,7 +320,7 @@ begin
         ListItem.Caption := Caption;
         ListItem.SubItems.Add(Origin);
         ListItem.SubItems.Add(FIniFile.ReadString('AutoComplete',
-            Origin+'.'+Caption, '0'));
+            Origin + '.' + Caption, '0'));
         ListItem.Data := nil;
     end;
 end;
@@ -336,13 +332,12 @@ begin
     ListItem := ltvAutoComplete.Items.Add;
     ListItem.ImageIndex := -1;
     ListItem.Caption := Item.Name;
-    if Assigned(Item.Dad) then
-        ListItem.SubItems.Add(Item.Dad.Name)
+    if Assigned(Item.Parent) then
+        ListItem.SubItems.Add(Item.Parent.Name)
     else
         ListItem.SubItems.Add('');
-    ListItem.SubItems.Add(
-        FIniFile.ReadString('AutoComplete',
-             ListItem.SubItems[0]+'.'+ListItem.Caption, '0'));
+    ListItem.SubItems.Add(FIniFile.ReadString('AutoComplete',
+        ListItem.SubItems[0] + '.' + ListItem.Caption, '0'));
     ListItem.Data := Item;
 end;
 
@@ -352,9 +347,8 @@ var
 begin
     Value := ltvAutoComplete.ItemFocused.SubItems[1].ToInteger();
     inc(Value);
-    FIniFile.WriteInteger('AutoComplete',
-        ltvAutoComplete.ItemFocused.SubItems[0]+'.'
-        +ltvAutoComplete.ItemFocused.Caption, Value);
+    FIniFile.WriteInteger('AutoComplete', ltvAutoComplete.ItemFocused.SubItems
+        [0] + '.' + ltvAutoComplete.ItemFocused.Caption, Value);
     ltvAutoComplete.ItemFocused.SubItems[1] := Value.ToString;
     ltvAutoComplete.Update();
     FIniFile.UpdateFile();
@@ -363,9 +357,8 @@ end;
 procedure TFrmAutoComplete.SetPriority(Value: FixedInt);
 begin
     ltvAutoComplete.ItemFocused.SubItems[1] := IntToStr(Value);
-    FIniFile.WriteInteger('AutoComplete',
-        ltvAutoComplete.ItemFocused.SubItems[0]+'.'
-        +ltvAutoComplete.ItemFocused.Caption, Value);
+    FIniFile.WriteInteger('AutoComplete', ltvAutoComplete.ItemFocused.SubItems
+        [0] + '.' + ltvAutoComplete.ItemFocused.Caption, Value);
     ltvAutoComplete.Update();
     FIniFile.UpdateFile();
 end;
@@ -387,7 +380,7 @@ begin
     l := Length(SubCMD);
     if l = 1 then
     begin
-        for Item in TGramatica.Global do
+        for Item in GlobalCollection do
         begin
             for ItemAux in Item.FindNameList(SubCMD[0], True) do
             begin
@@ -397,7 +390,7 @@ begin
     end
     else
     begin
-        Item := TGramatica.Global;
+        Item := GlobalCollection;
         c := 0;
         repeat
             Item := FindID(Item, SubCMD[c]);
@@ -485,9 +478,7 @@ begin
     end
     else
     begin
-        if (Comando <> '') and
-            (not(Classe in [cmdUnDeclar .. cmdNetwork]))
-        then
+        if (Comando <> '') and (not(Classe in [cmdUnDeclar .. cmdNetwork])) then
         begin
             ProcurarComandos(Comando);
         end;
@@ -499,7 +490,9 @@ begin
         Self.FormShow(nil);
         ltvAutoComplete.SuperSelected(ltvAutoComplete.Items[0]);
         FEditCtrl.SetFocus();
-    end else begin
+    end
+    else
+    begin
         // se nao encontrou fecha
         Self.Close();
     end;

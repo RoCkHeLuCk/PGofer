@@ -22,9 +22,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGKey : TPGKey;
-
 implementation
 
 uses
@@ -68,8 +65,7 @@ begin
 end;
 
 initialization
-    PGKey := TPGKey.Create();
-    TGramatica.Global.FindName('Commands').Add(PGKey);
+    TPGKey.Create(GlobalItemCommand);
 
 finalization
 

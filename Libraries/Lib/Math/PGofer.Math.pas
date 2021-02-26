@@ -168,8 +168,7 @@ begin
 end;
 
 initialization
-    PGMath := TPGMath.Create();
-    TGramatica.Global.FindName('Commands').Add(PGMath);
+    TPGMath.Create(GlobalItemCommand);
 
 finalization
 

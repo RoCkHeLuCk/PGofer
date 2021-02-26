@@ -3,8 +3,9 @@ unit PGofer.Forms.Frame;
 interface
 
 uses
+    System.Classes, System.SysUtils,
     Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls,
-    Vcl.ComCtrls, System.Classes, System.SysUtils,
+    Vcl.ComCtrls,
     PGofer.Classes, PGofer.Forms, PGofer.Item.Frame, Pgofer.Component.Edit;
 
 type

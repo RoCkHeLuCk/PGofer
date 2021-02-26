@@ -13,14 +13,14 @@ uses
 type
     TPGFrameHotKey = class(TPGFrame)
         PpmNull: TPopupMenu;
-    GrbTeclas: TGroupBox;
-    MmoTeclas: TMemo;
-    BtnClear: TButton;
-    LblDetectar: TLabel;
-    CmbDetectar: TComboBox;
-    CkbInibir: TCheckBox;
-    GrbScript: TGroupBox;
-    EdtScript: TSynEdit;
+        GrbTeclas: TGroupBox;
+        MmoTeclas: TMemo;
+        BtnClear: TButton;
+        LblDetectar: TLabel;
+        CmbDetectar: TComboBox;
+        CkbInibir: TCheckBox;
+        GrbScript: TGroupBox;
+        EdtScript: TSynEdit;
         procedure CkbInibirClick(Sender: TObject);
         procedure CmbDetectarChange(Sender: TObject);
         procedure MmoTeclasEnter(Sender: TObject);
@@ -58,8 +58,8 @@ begin
             begin
                 if Key.bDetect in [kd_Down, kd_Wheel] then
                 begin
-                    if not (PGFrameHotKey.FItem.Keys.Contains(Key.wKey)) then
-                       PGFrameHotKey.FItem.Keys.Add(Key.wKey);
+                    if not(PGFrameHotKey.FItem.Keys.Contains(Key.wKey)) then
+                        PGFrameHotKey.FItem.Keys.Add(Key.wKey);
                 end;
             end;
         end;
@@ -82,6 +82,7 @@ end;
 destructor TPGFrameHotKey.Destroy;
 begin
     MmoTeclas.OnExit(Self);
+    FItem.Mirroring();
     FItem := nil;
     inherited Destroy();
 end;

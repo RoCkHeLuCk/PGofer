@@ -3,7 +3,7 @@ unit PGofer.Net.Socket;
 interface
 
 uses
-    System.Win.ScktComp, PGofer.Sintatico.Classes;
+    System.Win.ScktComp, PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
 {$M+}
@@ -13,21 +13,24 @@ type
         FMaxConnect: Word;
         FPassWord: String;
         FLog: Boolean;
+        FConsoleMessage: Boolean;
         function GetPort(): Word;
         procedure SetPort(Port: Word);
         function GetActive(): Boolean;
         procedure SetActive(Active: Boolean);
-
         procedure OnClientConnect(Sender: TObject; Socket: TCustomWinSocket);
         procedure OnClientDisconnect(Sender: TObject; Socket: TCustomWinSocket);
         procedure OnClientError(Sender: TObject; Socket: TCustomWinSocket;
             ErrorEvent: TErrorEvent; var ErrorCode: Integer);
         procedure OnClientRead(Sender: TObject; Socket: TCustomWinSocket);
+        procedure ConsoleSendMSG(Value: String);
     public
-        constructor Create();
+        constructor Create(ItemDad: TPGItem);
         destructor Destroy(); override;
     published
         property Active: Boolean read GetActive write SetActive;
+        property ConsoleMessage: Boolean read FConsoleMessage
+            write FConsoleMessage;
         property Log: Boolean read FLog write FLog;
         property MaxConnect: Word read FMaxConnect write FMaxConnect;
         property PassWord: String read FPassWord write FPassWord;
@@ -36,30 +39,34 @@ type
     end;
 {$TYPEINFO ON}
 {$M+}
+
     TPGNetClient = class(TPGItemCMD)
     private
         FClient: TClientSocket;
         FPassWord: String;
-
+        FConsoleMessage: Boolean;
         function GetPort(): Word;
         procedure SetPort(Port: Word);
         function GetAddress(): String;
         procedure SetAddress(Address: String);
         function GetActive(): Boolean;
         procedure SetActive(Active: Boolean);
-
         procedure OnClientConnect(Sender: TObject; Socket: TCustomWinSocket);
         procedure OnClientConnecting(Sender: TObject; Socket: TCustomWinSocket);
         procedure OnClientDisconnect(Sender: TObject; Socket: TCustomWinSocket);
         procedure OnClientError(Sender: TObject; Socket: TCustomWinSocket;
             ErrorEvent: TErrorEvent; var ErrorCode: Integer);
         procedure OnClientRead(Sender: TObject; Socket: TCustomWinSocket);
+        procedure ConsoleSendMSG(Value: String);
+
     public
-        constructor Create();
+        constructor Create(ItemDad: TPGItem);
         destructor Destroy(); override;
     published
         property Active: Boolean read GetActive write SetActive;
         property Address: String read GetAddress write SetAddress;
+        property ConsoleMessage: Boolean read FConsoleMessage
+            write FConsoleMessage;
         property PassWord: String read FPassWord write FPassWord;
         property Port: Word read GetPort write SetPort;
         function SendCommand(Text: String): Integer;
@@ -70,14 +77,20 @@ implementation
 
 uses
     System.SysUtils,
-    PGofer.Classes,  PGofer.Sintatico, PGofer.Net.Controls,
+    PGofer.Sintatico, PGofer.Net.Controls,
     PGofer.Form.Console;
 
 { TPGNetServer }
 
-constructor TPGNetServer.Create;
+procedure TPGNetServer.ConsoleSendMSG(Value: String);
 begin
-    inherited Create('Server');
+    if Assigned(ConsoleNotify) then
+       Self.ConsoleSendMSG(Value);
+end;
+
+constructor TPGNetServer.Create(ItemDad: TPGItem);
+begin
+    inherited Create(ItemDad, 'Server');
 
     FServer := TServerSocket.Create(nil);
     FServer.OnAccept := Self.OnClientConnect;
@@ -129,7 +142,7 @@ var
     Texto: String;
 begin
     Texto := 'Client Connect: ' + Socket.RemoteAddress;
-    FrmConsole.ConsoleMessage(Texto);
+    Self.ConsoleSendMSG(Texto);
 
     if FLog then
         NetLogSrvSocket(Texto);
@@ -137,7 +150,7 @@ begin
     if FServer.Socket.ActiveConnections > FMaxConnect then
     begin
         Texto := 'Client Denided: MaxConnect.';
-        FrmConsole.ConsoleMessage(Texto);
+        Self.ConsoleSendMSG(Texto);
         if FLog then
             NetLogSrvSocket(Texto);
         Socket.SendText('MaxConnect.');
@@ -153,7 +166,7 @@ var
     Texto: String;
 begin
     Texto := 'Client Disconnect: ' + Socket.RemoteAddress;
-    FrmConsole.ConsoleMessage(Texto);
+    Self.ConsoleSendMSG(Texto);
     if FLog then
         NetLogSrvSocket(Texto);
 end;
@@ -165,7 +178,7 @@ var
 begin
     Texto := 'Net Error [' + Socket.RemoteAddress + ']: ' +
         NetErrorToStr(ErrorEvent) + ' Code: ' + IntToStr(ErrorCode);
-    FrmConsole.ConsoleMessage(Texto);
+    Self.ConsoleSendMSG(Texto);
     if FLog then
         NetLogSrvSocket(Texto);
 end;
@@ -181,7 +194,7 @@ begin
     begin
         if (Texto = FPassWord) or (FPassWord = '') then
         begin
-            FrmConsole.ConsoleMessage('Client Accepted.');
+            Self.ConsoleSendMSG('Client Accepted.');
             Socket.SendText('Client Accepted.');
             Socket.Data := Socket;
             if FLog then
@@ -190,7 +203,7 @@ begin
         end
         else
         begin
-            FrmConsole.ConsoleMessage('Client Denided: Invalid Password.');
+            Self.ConsoleSendMSG('Client Denided: Invalid Password.');
             Socket.SendText('Invalid Password.');
             Socket.Close;
             if FLog then
@@ -202,7 +215,7 @@ begin
     begin
         if Texto <> '' then
         begin
-            FrmConsole.ConsoleMessage('Clinet Send Command, Server Working...');
+            Self.ConsoleSendMSG('Clinet Send Command, Server Working...');
             ScriptExec('Script: ' + Socket.RemoteAddress, Texto, nil);
             if FLog then
                 NetLogSrvSocket('Client [' + Socket.RemoteAddress +
@@ -213,9 +226,15 @@ end;
 
 { TPGNetClient }
 
-constructor TPGNetClient.Create;
+procedure TPGNetClient.ConsoleSendMSG(Value: String);
 begin
-    inherited Create('Client');
+    if Assigned(ConsoleNotify) then
+       Self.ConsoleSendMSG(Value);
+end;
+
+constructor TPGNetClient.Create(ItemDad: TPGItem);
+begin
+    inherited Create(ItemDad, 'Client');
 
     FClient := TClientSocket.Create(nil);
     FClient.OnConnecting := Self.OnClientConnecting;
@@ -272,20 +291,20 @@ end;
 procedure TPGNetClient.OnClientConnect(Sender: TObject;
     Socket: TCustomWinSocket);
 begin
-    FrmConsole.ConsoleMessage('Connect to Server.');
+    Self.ConsoleSendMSG('Connect to Server.');
     FClient.Socket.SendText(AnsiString(FPassWord));
 end;
 
 procedure TPGNetClient.OnClientConnecting(Sender: TObject;
     Socket: TCustomWinSocket);
 begin
-    FrmConsole.ConsoleMessage('Connecting to Server...');
+    Self.ConsoleSendMSG('Connecting to Server...');
 end;
 
 procedure TPGNetClient.OnClientDisconnect(Sender: TObject;
     Socket: TCustomWinSocket);
 begin
-    FrmConsole.ConsoleMessage('Disconnect from Server...');
+    Self.ConsoleSendMSG('Disconnect from Server...');
 end;
 
 procedure TPGNetClient.OnClientError(Sender: TObject; Socket: TCustomWinSocket;
@@ -295,13 +314,12 @@ var
 begin
     Texto := 'Net Error [' + Socket.RemoteAddress + ']: ' +
         NetErrorToStr(ErrorEvent) + ' Code: ' + IntToStr(ErrorCode);
-    FrmConsole.ConsoleMessage(Texto);
+    Self.ConsoleSendMSG(Texto);
 end;
 
 procedure TPGNetClient.OnClientRead(Sender: TObject; Socket: TCustomWinSocket);
 begin
-    FrmConsole.ConsoleMessage('Message from Server: ' +
-        String(Socket.ReceiveText));
+    Self.ConsoleSendMSG('Message from Server: ' + String(Socket.ReceiveText));
 end;
 
 end.

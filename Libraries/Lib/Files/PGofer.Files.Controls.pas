@@ -284,7 +284,7 @@ begin
         Texto := TStringList.Create;
         Texto.LoadFromFile(FileName);
         Gramatica2 := TGramatica.Create('Script: ' + FileName + '.',
-            TGramatica.Global, True);
+            GlobalCollection, True);
         Gramatica2.Start;
         if Esperar then
             Gramatica2.WaitFor;

@@ -72,9 +72,9 @@ object PGFrame: TPGFrame
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
       TabOrder = 0
-      OnExit = EdtNameExit
+      OnChange = EdtNameChange
       RegExamples = reNone
-      RegExpression = '^[A-Za-z_]+\w*$'
+      RegExpression = '.'
     end
   end
 end

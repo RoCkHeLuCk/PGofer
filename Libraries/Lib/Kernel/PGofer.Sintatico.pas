@@ -7,8 +7,10 @@ uses
     PGofer.Classes, PGofer.Lexico;
 
 type
+    TPGConsoleNotify = procedure(Value: String; Show: Boolean) of object;
+
     TPGPilha = class(TPGItem)
-        constructor Create();
+        constructor Create(ItemDad: TPGItem);
         destructor Destroy(); override;
     private
         FPilha: TStack<Variant>;
@@ -18,17 +20,17 @@ type
     end;
 
     TGramatica = class(TThread)
-        constructor Create(Name: String; Pai: TPGItem;
+        constructor Create(Name: String; ItemDad: TPGItem;
             AutoTerminar: Boolean); overload;
         destructor Destroy(); override;
     private
+        FErro: Boolean;
+        FConsoleShowMessage: Boolean;
         FPai: TPGItem;
         FLocal: TPGItem;
         FPilha: TPGPilha;
-        FErro: Boolean;
         FTokenList: TTokenList;
     public
-        class var Global: TPGItem;
         property Pilha: TPGPilha read FPilha;
         property Local: TPGItem read FLocal;
         property TokenList: TTokenList read FTokenList;
@@ -44,27 +46,30 @@ type
     procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
 
 var
+    GlobalCollection: TPGCollectItem;
+    GlobalItemCommand: TPGItem;
+    GlobalItemTrigger: TPGItem;
     LoopLimite: Int64 = 1000000;
     FileListMax: Cardinal = 200;
     ReplyFormat: String  = '';
     ReplyPrefix: Boolean = False;
     DirCurrent : String;
-    ConsoleDelay: Cardinal = 2000;
+    ConsoleNotify : TPGConsoleNotify;
+    ConsoleMessage : Boolean = True;
 
 implementation
-
 uses
-    PGofer.Sintatico.Controls, PGofer.Form.Console;
+    PGofer.Sintatico.Classes, PGofer.Sintatico.Controls;
 
 { TPilha }
 
-constructor TPGPilha.Create;
+constructor TPGPilha.Create(ItemDad: TPGItem);
 begin
-    inherited Create('$Pilha');
+    inherited Create(ItemDad, '$Pilha');
     FPilha := TStack<Variant>.Create;
 end;
 
-destructor TPGPilha.Destroy;
+destructor TPGPilha.Destroy();
 begin
     FPilha.Free;
     FPilha := nil;
@@ -88,19 +93,20 @@ end;
 
 { Gramatica }
 
-constructor TGramatica.Create(Name: String; Pai: TPGItem;
-    AutoTerminar: Boolean);
+constructor TGramatica.Create(Name: String; ItemDad: TPGItem;
+                              AutoTerminar: Boolean);
 begin
     inherited Create(True);
     Self.FreeOnTerminate := AutoTerminar;
     Self.Priority := tpNormal;
-    FPai := Pai;
+    FConsoleShowMessage := ConsoleMessage;
+    FPai := ItemDad;
     if Assigned(FPai) then
-        FLocal := FPai.Add(TPGItem.Create(Name))
+        FLocal := TPGFolder.Create(ItemDad ,Name)
     else
-        FLocal := TGramatica.Global.Add(TPGItem.Create(Name));
+        FLocal := TPGFolder.Create(GlobalCollection, Name);
 
-    FPilha := TPGPilha(FLocal.Add(TPGPilha.Create));
+    FPilha := TPGPilha.Create(FLocal);
     FErro := False;
 end;
 
@@ -113,6 +119,7 @@ begin
     FLocal.Free;
     FLocal := nil;
     FPai := nil;
+    FConsoleShowMessage := False;
     FTokenList.Free;
     FTokenList := nil;
     FErro := False;
@@ -122,23 +129,23 @@ end;
 procedure TGramatica.ErroAdd(Texto: String);
 begin
     FErro := True;
-    if Assigned(FrmConsole) then
+    if Assigned(ConsoleNotify) then
         Synchronize(
             procedure
             begin
-                FrmConsole.ConsoleMessage('[' + Self.TokenList.Token.Cordenada.
+                ConsoleNotify('[' + Self.TokenList.Token.Cordenada.
                     ToString + '] "' + String(Self.TokenList.Token.Lexema) +
-                    '" : ' + Texto);
+                    '" : ' + Texto, FConsoleShowMessage);
             end);
 end;
 
 procedure TGramatica.MSGsAdd(Texto: String);
 begin
-    if Assigned(FrmConsole) then
+    if Assigned(ConsoleNotify) then
         Synchronize(
             procedure
             begin
-                FrmConsole.ConsoleMessage(Texto);
+                ConsoleNotify(Texto, FConsoleShowMessage);
             end);
 end;
 
@@ -169,7 +176,7 @@ var
     Gramatica: TGramatica;
 begin
     if Assigned(Nivel) then
-        Nivel := TGramatica.Global;
+        Nivel := GlobalCollection;
 
     Gramatica := TGramatica.Create(Name, Nivel, True);
     Gramatica.SetAlgoritimo(Texto);
@@ -178,10 +185,12 @@ end;
 
 initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
-    TGramatica.Global := TPGItem.Create('Global');
-    TGramatica.Global.Add('Commands');
+    GlobalCollection := TPGCollectItem.Create('Global', False);
+    GlobalItemCommand :=  TPGFolder.Create(GlobalCollection, 'Commands');
+    GlobalItemTrigger :=  TPGFolder.Create(GlobalCollection, 'Triggers');
 
 finalization
-    TGramatica.Global.Free;
+    GlobalItemCommand.Free;
+    GlobalCollection.Free;
 
 end.

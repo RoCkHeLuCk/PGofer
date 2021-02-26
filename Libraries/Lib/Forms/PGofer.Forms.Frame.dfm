@@ -22,7 +22,6 @@ inherited PGFrameForms: TPGFrameForms
     inherited rceAbout: TRichEdit
       Width = 404
       Height = 92
-      ParentColor = True
       ScrollBars = ssBoth
       WantTabs = True
       ExplicitWidth = 404

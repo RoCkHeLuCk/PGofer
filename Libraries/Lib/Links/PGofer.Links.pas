@@ -9,6 +9,8 @@ type
 
 {$M+}
     TPGLinks = class(TPGItemCMD)
+        constructor Create(ItemDad: TPGItem; Name: String);
+        destructor Destroy(); override;
     private
         FArquivo: String;
         FParametro: String;
@@ -24,10 +26,7 @@ type
         function GetIconExist(): Boolean;
         function ExecutarNivel1(): String;
     public
-        class var LinkGlobList: TPGItem;
-        constructor Create(Nome, Arquivo, Parametro, Diretorio,
-            IconeFile: String; IconeIndex, Estado, Operation, Prioridade: Byte);
-        destructor Destroy(); override;
+        class var GlobList: TPGItem;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
     published
@@ -59,18 +58,17 @@ uses
 
 { TPGLinks }
 
-constructor TPGLinks.Create(Nome, Arquivo, Parametro, Diretorio,
-    IconeFile: String; IconeIndex, Estado, Operation, Prioridade: Byte);
+constructor TPGLinks.Create(ItemDad: TPGItem; Name: String);
 begin
-    inherited Create(Nome);
-    FArquivo := Arquivo;
-    FParametro := Parametro;
-    FDiretorio := Diretorio;
-    FIconeFile := IconeFile;
-    FIconeIndex := IconeIndex;
-    FEstado := Estado;
-    FPrioridade := Prioridade;
-    FOperation := Operation;
+    inherited Create(ItemDad, Name);
+    FArquivo := '';
+    FParametro := '';
+    FDiretorio := '';
+    FIconeFile := '';
+    FIconeIndex := 0;
+    FEstado := 1;
+    FPrioridade := 3;
+    FOperation := 0;
     ReadOnly := False;
 end;
 
@@ -156,70 +154,56 @@ end;
 procedure TPGLinkDec.Execute(Gramatica: TGramatica);
 var
     Titulo: String;
-    Arquivo: String;
-    Parametro: String;
-    Diretorio: String;
-    IconeFile: String;
-    IconeIndex: Word;
-    Estado: Byte;
-    Operation: Byte;
-    Prioridade: Byte;
     Quantidade: Byte;
+    Id: TPGItem;
     Link: TPGLinks;
 begin
     Gramatica.TokenList.GetNextToken;
-    if (not Assigned(IdentificadorLocalizar(Gramatica))) then
+    Id := IdentificadorLocalizar(Gramatica);
+    if (not Assigned(Id)) or (Id is TPGLinks) then
     begin
         Titulo := Gramatica.TokenList.Token.Lexema;
         Quantidade := LerParamentros(Gramatica, 1, 7);
         if not Gramatica.Erro then
         begin
-            // ?????????? tentar otimizar isso
-            if Quantidade = 8 then
-                Prioridade := Gramatica.Pilha.Desempilhar(3)
+            if (not Assigned(Id)) then
+               Link := TPGLinks.Create(TPGLinks.GlobList ,Titulo)
             else
-                Prioridade := 3;
+               Link := TPGLinks(Id);
+
+            if Quantidade = 8 then
+                Link.Prioridade := Gramatica.Pilha.Desempilhar(3);
 
             if Quantidade >= 7 then
-                Operation := Gramatica.Pilha.Desempilhar(0)
-            else
-                Operation := 0;
+                Link.Operation := Gramatica.Pilha.Desempilhar(0);
 
             if Quantidade >= 6 then
-                Estado := Gramatica.Pilha.Desempilhar(1)
-            else
-                Estado := 1;
+                Link.Estado := Gramatica.Pilha.Desempilhar(1);
 
             if Quantidade >= 5 then
-                IconeIndex := Gramatica.Pilha.Desempilhar(0)
-            else
-                IconeIndex := 0;
+                Link.IconeIndex := Gramatica.Pilha.Desempilhar(0);
 
             if Quantidade >= 4 then
-                IconeFile := Gramatica.Pilha.Desempilhar(0);
+                Link.IconeFile := Gramatica.Pilha.Desempilhar(0);
 
             if Quantidade >= 3 then
-                Diretorio := Gramatica.Pilha.Desempilhar('');
+                Link.Diretorio := Gramatica.Pilha.Desempilhar('');
 
             if Quantidade >= 2 then
-                Parametro := Gramatica.Pilha.Desempilhar('');
+                Link.Parametro := Gramatica.Pilha.Desempilhar('');
 
             if Quantidade >= 1 then
-                Arquivo := Gramatica.Pilha.Desempilhar('');
-
-            Link := TPGLinks.Create(Titulo, Arquivo, Parametro, Diretorio,
-                IconeFile, IconeIndex, Estado, Operation, Prioridade);
-
-            TPGLinks.LinkGlobList.Add(Link);
+                Link.Arquivo := Gramatica.Pilha.Desempilhar('');
         end;
     end
     else
-        Gramatica.ErroAdd('Identificador esperado.');
+        Gramatica.ErroAdd('Identificador esperado ou existente.');
 end;
 
 initialization
-    TGramatica.Global.FindName('Commands').Add(TPGLinkDec.Create('Link'));
-    TPGLinks.LinkGlobList := TGramatica.Global.Add('Links');
+    TPGLinkDec.Create(GlobalItemCommand, 'Link');
+    TPGLinks.GlobList := TPGFolder.Create(GlobalCollection, 'Links');
+    GlobalCollection.RegisterClass(TPGLinks);
 
 finalization
 

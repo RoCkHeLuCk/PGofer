@@ -17,6 +17,8 @@ object FrmConsole: TFrmConsole
   OldCreateOrder = False
   Position = poDefault
   OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnKeyPress = FormKeyPress
   OnShow = FormShow
   PixelsPerInch = 96

@@ -3,9 +3,9 @@ unit PGofer.Item.Frame;
 interface
 
 uses
-    Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
     System.Classes,
-    PGofer.Classes, PGofer.Component.Edit, Vcl.ComCtrls, Vcl.ExtCtrls;
+    Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
+    PGofer.Classes, PGofer.Component.Edit;
 
 type
     TPGFrame = class(TFrame)
@@ -15,7 +15,7 @@ type
         LblName: TLabel;
         EdtName: TEditEx;
         SplitterItem: TSplitter;
-        procedure EdtNameExit(Sender: TObject);
+    procedure EdtNameChange(Sender: TObject);
     private
         FItem: TPGItem;
     public
@@ -54,7 +54,7 @@ begin
     inherited Destroy();
 end;
 
-procedure TPGFrame.EdtNameExit(Sender: TObject);
+procedure TPGFrame.EdtNameChange(Sender: TObject);
 begin
     FItem.Name := EdtName.Text;
 end;

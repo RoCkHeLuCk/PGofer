@@ -7,19 +7,22 @@ inherited PGFrameLinks: TPGFrameLinks
   inherited SplitterItem: TSplitter
     Top = 200
     Width = 416
+    ExplicitTop = 200
+    ExplicitWidth = 416
   end
   inherited grbAbout: TGroupBox
     Top = 211
     Width = 410
     Height = 91
-    ExplicitLeft = 23
-    ExplicitTop = 272
-    ExplicitWidth = 213
-    ExplicitHeight = 93
+    Constraints.MinHeight = 91
+    ExplicitTop = 211
+    ExplicitWidth = 410
+    ExplicitHeight = 91
     inherited rceAbout: TRichEdit
       Width = 406
       Height = 74
-      ExplicitHeight = 135
+      ExplicitWidth = 406
+      ExplicitHeight = 74
     end
   end
   inherited pnlItem: TPanel
@@ -82,6 +85,7 @@ inherited PGFrameLinks: TPGFrameLinks
     end
     inherited EdtName: TEditEx
       Width = 341
+      ExplicitWidth = 341
     end
     object EdtArquivo: TEdit
       Left = 70
@@ -93,7 +97,6 @@ inherited PGFrameLinks: TPGFrameLinks
       ParentBiDiMode = False
       TabOrder = 1
       OnChange = EdtArquivoChange
-      ExplicitWidth = 287
     end
     object BtnArquivo: TButton
       Left = 379
@@ -104,7 +107,6 @@ inherited PGFrameLinks: TPGFrameLinks
       Caption = '...'
       TabOrder = 2
       OnClick = BtnArquivoClick
-      ExplicitLeft = 363
     end
     object EdtParametro: TEdit
       Left = 70
@@ -114,7 +116,6 @@ inherited PGFrameLinks: TPGFrameLinks
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       OnChange = EdtParametroChange
-      ExplicitWidth = 326
     end
     object EdtDiretorio: TEdit
       Left = 70
@@ -126,7 +127,6 @@ inherited PGFrameLinks: TPGFrameLinks
       ParentBiDiMode = False
       TabOrder = 4
       OnChange = EdtDiretorioChange
-      ExplicitWidth = 287
     end
     object BtnDiretorio: TButton
       Left = 379
@@ -137,7 +137,6 @@ inherited PGFrameLinks: TPGFrameLinks
       Caption = '...'
       TabOrder = 5
       OnClick = BtnDiretorioClick
-      ExplicitLeft = 363
     end
     object EdtIcone: TEdit
       Left = 70
@@ -149,7 +148,6 @@ inherited PGFrameLinks: TPGFrameLinks
       ParentBiDiMode = False
       TabOrder = 6
       OnChange = EdtIconeChange
-      ExplicitWidth = 252
     end
     object BtnIcone: TButton
       Left = 379
@@ -160,7 +158,6 @@ inherited PGFrameLinks: TPGFrameLinks
       Caption = '...'
       TabOrder = 7
       OnClick = BtnIconeClick
-      ExplicitLeft = 363
     end
     object EdtIconeIndex: TEdit
       Left = 340
@@ -172,7 +169,6 @@ inherited PGFrameLinks: TPGFrameLinks
       TabOrder = 8
       Text = '0'
       OnChange = EdtIconeIndexChange
-      ExplicitLeft = 324
     end
     object CmbEstado: TComboBox
       Left = 70
@@ -218,7 +214,6 @@ inherited PGFrameLinks: TPGFrameLinks
       Caption = 'Test'
       TabOrder = 11
       OnClick = BtnTestClick
-      ExplicitLeft = 269
     end
     object CmbOperation: TComboBox
       Left = 285
@@ -238,7 +233,6 @@ inherited PGFrameLinks: TPGFrameLinks
         'Find'
         'Print'
         'Properties')
-      ExplicitLeft = 269
     end
   end
   object OpdLinks: TOpenDialog

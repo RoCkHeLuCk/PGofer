@@ -3,7 +3,7 @@ unit PGofer.System.Variants;
 interface
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Classes;
+    PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
 
 type
     {$M+}
@@ -12,7 +12,7 @@ type
         FValor: Variant;
     public
         class var GlobList: TPGItem;
-        constructor Create(Name: String; Valor: Variant);
+        constructor Create(ItemDad: TPGItem; Name: String; Valor: Variant); overload;
         destructor Destroy(); override;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
@@ -21,8 +21,8 @@ type
     end;
     {$TYPEINFO ON}
 
-    TPGConst = class(TPGItemCMD)
-    private
+    TPGConstDec = class(TPGItemCMD)
+    protected
         class procedure DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
     public
         procedure Execute(Gramatica: TGramatica); override;
@@ -35,24 +35,21 @@ type
         property Valor: Variant read FValor write FValor;
     end;
 
-    TPGVar = class(TPGItemCMD)
-    private
-        class procedure DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
+    TPGVarDec = class(TPGConstDec)
     public
-        procedure Execute(Gramatica: TGramatica); override;
         class procedure ExecuteEx(Gramatica: TGramatica; Nivel: TPGItem);
     end;
 
 implementation
 
 uses
-    PGofer.Sintatico.Controls, PGofer.System.Variants.Frame;
+    PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.System.Variants.Frame;
 
 { TPGConstante }
 
-constructor TPGConstante.Create(Name: String; Valor: Variant);
+constructor TPGConstante.Create(ItemDad: TPGItem; Name: String; Valor: Variant);
 begin
-    inherited Create(Name);
+    inherited Create(ItemDad, Name);
     FValor := Valor;
 end;
 
@@ -79,7 +76,7 @@ end;
 
 { TPGConst }
 
-class procedure TPGConst.DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
+class procedure TPGConstDec.DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
 var
     Titulo: String;
     ID: TPGItem;
@@ -99,7 +96,7 @@ begin
         else
             Valor := '';
 
-        Nivel.Add(TPGConstante.Create(Titulo, Valor));
+        TPGConstante.Create(Nivel, Titulo, Valor);
 
         if Gramatica.TokenList.Token.Classe = cmdComa then
         begin
@@ -112,14 +109,17 @@ begin
         Gramatica.ErroAdd('Identificador esperado.');
 end;
 
-procedure TPGConst.Execute(Gramatica: TGramatica);
+procedure TPGConstDec.Execute(Gramatica: TGramatica);
 begin
     Gramatica.TokenList.GetNextToken;
     // global
     if Gramatica.TokenList.Token.Classe = cmdRes_global then
     begin
         Gramatica.TokenList.GetNextToken;
-        DeclaraNivel1(Gramatica, TPGConstante.GlobList);
+        if Self is TPGVarDec then
+           DeclaraNivel1(Gramatica, TPGVariavel.GlobList)
+        else
+           DeclaraNivel1(Gramatica, TPGConstante.GlobList);
     end
     else
         DeclaraNivel1(Gramatica, Gramatica.Local);
@@ -138,65 +138,16 @@ end;
 
 { TPGVarDeclare }
 
-class procedure TPGVar.DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
-var
-    Titulo: String;
-    ID: TPGItem;
-    Valor: Variant;
-begin
-    ID := IdentificadorLocalizar(Gramatica);
-    if (not Assigned(ID)) or (ID.ClassParent = TPGVariavel) then
-    begin
-        Titulo := Gramatica.TokenList.Token.Lexema;
-        Gramatica.TokenList.GetNextToken;
-        if Gramatica.TokenList.Token.Classe = cmdAttrib then
-        begin
-            Gramatica.TokenList.GetNextToken;
-            Expressao(Gramatica);
-            Valor := Gramatica.Pilha.Desempilhar('');
-        end
-        else
-            Valor := '';
-
-        Nivel.Add(TPGVariavel.Create(Titulo, Valor));
-
-        if Gramatica.TokenList.Token.Classe = cmdComa then
-        begin
-            Gramatica.TokenList.GetNextToken;
-            DeclaraNivel1(Gramatica, Nivel);
-        end;
-
-    end
-    else
-        Gramatica.ErroAdd('Identificador esperado.');
-end;
-
-procedure TPGVar.Execute(Gramatica: TGramatica);
-begin
-    Gramatica.TokenList.GetNextToken;
-    // global
-    if Gramatica.TokenList.Token.Classe = cmdRes_global then
-    begin
-        Gramatica.TokenList.GetNextToken;
-        DeclaraNivel1(Gramatica, TPGVariavel.GlobList);
-    end
-    else
-        DeclaraNivel1(Gramatica, Gramatica.Local);
-end;
-
-class procedure TPGVar.ExecuteEx(Gramatica: TGramatica; Nivel: TPGItem);
+class procedure TPGVarDec.ExecuteEx(Gramatica: TGramatica; Nivel: TPGItem);
 begin
     DeclaraNivel1(Gramatica, Nivel);
 end;
 
 initialization
-    with TGramatica.Global.FindName('Commands') do
-    begin
-        Add(TPGConst.Create());
-        Add(TPGVar.Create());
-    end;
-    TPGConstante.GlobList := TGramatica.Global.Add('Constantes');
-    TPGVariavel.GlobList := TGramatica.Global.Add('Variables');
+    TPGConstDec.Create(GlobalItemCommand, 'Const');
+    TPGVarDec.Create(GlobalItemCommand, 'Var');
+    TPGConstante.GlobList := TPGFolder.Create(GlobalCollection, 'Constantes');
+    TPGVariavel.GlobList := TPGFolder.Create(GlobalCollection, 'Variables');
 
 finalization
 

@@ -9,12 +9,7 @@ type
 {$M+}
     TPGSystem = class(TPGItemCMD)
     private
-        FConsoleAutoClose: Boolean;
-        FConsoleMessage: Boolean;
-        FIconLoader: Boolean;
         FNoOff: Boolean;
-        function GetConsoleDelay() : Cardinal;
-        procedure SetConsoleDelay(Value: Cardinal);
         function GetDirCurrent() : String;
         function GetLoopLimite() : Int64;
         procedure SetLoopLimite(Value: Int64);
@@ -27,19 +22,12 @@ type
     protected
     public
     published
-        property ConsoleAutoClose: Boolean read FConsoleAutoClose
-            write FConsoleAutoClose;
-        procedure ConsoleClear();
-        property ConsoleDelay: Cardinal read GetConsoleDelay write SetConsoleDelay;
-        property ConsoleMessage: Boolean read FConsoleMessage
-            write FConsoleMessage;
         function DateTimeNow(Format: String): String;
         procedure Delay(Valor: Cardinal);
         property DirCurrent: String read GetDirCurrent;
         property FileListMax: Cardinal read GetFileListMax write SetFileListMax;
         function FindWindow(Valor: String): NativeUInt;
         function GetTextFromPoint(): String;
-        property IconLoader: Boolean read FIconLoader write FIconLoader;
         function LockWorkStation(): Boolean;
         property LoopLimite: Int64 read GetLoopLimite write SetLoopLimite;
         function MonitorPower(OnOff: Boolean): NativeInt;
@@ -59,9 +47,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGSystem : TPGSystem;
-
 implementation
 
 uses
@@ -69,12 +54,6 @@ uses
     PGofer.Sintatico, PGofer.System.Controls;
 
 { TPGSystem }
-
-procedure TPGSystem.ConsoleClear;
-begin
-    // Clear console????????????
-end;
-
 function TPGSystem.DateTimeNow(Format: String): String;
 begin
     Result := SystemGetDateTimeNow(Format);
@@ -88,11 +67,6 @@ end;
 function TPGSystem.FindWindow(Valor: String): NativeUInt;
 begin
     Result := SystemGetFindWindow(Valor);
-end;
-
-function TPGSystem.GetConsoleDelay: Cardinal;
-begin
-    Result := PGofer.Sintatico.ConsoleDelay;
 end;
 
 function TPGSystem.GetDirCurrent: String;
@@ -149,11 +123,6 @@ begin
         wPar, lPar);
 end;
 
-procedure TPGSystem.SetConsoleDelay(Value: Cardinal);
-begin
-    PGofer.Sintatico.ConsoleDelay := Value;
-end;
-
 procedure TPGSystem.SetFileListMax(Value: Cardinal);
 begin
     PGofer.Sintatico.FileListMax := Value;
@@ -203,8 +172,7 @@ begin
 end;
 
 initialization
-    PGSystem := TPGSystem.Create();
-    TGramatica.Global.FindName('Commands').Add(PGSystem);
+    TPGSystem.Create(GlobalItemCommand);
 
 finalization
 

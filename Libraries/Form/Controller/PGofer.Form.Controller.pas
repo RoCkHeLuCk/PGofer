@@ -3,11 +3,9 @@ unit PGofer.Form.Controller;
 interface
 
 uses
-    Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
-    System.Classes, Vcl.Graphics, Winapi.CommCtrl,
-    Vcl.Controls, Vcl.Forms, Vcl.Dialogs, System.ImageList, Vcl.ImgList,
-    Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Menus,
-    PGofer.Classes, PGofer.Component.ListView, PGofer.Component.TreeView;
+    Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
+    Vcl.StdCtrls,
+    PGofer.Classes, PGofer.Component.TreeView, System.Classes, Vcl.Menus;
 
 type
     TFrmController = class(TForm)
@@ -18,99 +16,78 @@ type
         EdtFind: TButtonedEdit;
         PnlFrame: TPanel;
         TrvController: TTreeViewEx;
-        constructor Create(); reintroduce;
+        btnAlphaSort: TButton;
+        ppmAlphaSort: TPopupMenu;
+        mniAZ: TMenuItem;
+        mniZA: TMenuItem;
+        mniAlphaSortFolder: TMenuItem;
+        mniN1: TMenuItem;
+        constructor Create(ACollectItem: TPGCollectItem); reintroduce;
         destructor Destroy(); override;
         procedure TrvControllerGetSelectedIndex(Sender: TObject;
             Node: TTreeNode);
         procedure TrvControllerDragOver(Sender, Source: TObject; X, Y: Integer;
             State: TDragState; var Accept: Boolean);
         procedure EdtFindKeyPress(Sender: TObject; var Key: Char);
+        procedure TrvControllerCompare(Sender: TObject; Node1, Node2: TTreeNode;
+            Data: Integer; var Compare: Integer);
+        procedure TrvControllerDragDrop(Sender, Source: TObject; X, Y: Integer);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure mniAZClick(Sender: TObject);
+        procedure mniZAClick(Sender: TObject);
+        procedure mniAlphaSortFolderClick(Sender: TObject);
     private
-        { Private declarations }
+        FAlphaSort: Boolean;
+        FAlphaSortFolder: Boolean;
+        procedure PanelCleaning();
+    protected
+        FCollectItem: TPGCollectItem;
         FSelectedItem: TPGItem;
-        procedure NodeCreate(Item: TPGItem);
-        procedure NodeNotify(Sender: TPGItem; Action: TPGItemNotification);
     public
-        { Public declarations }
     end;
 
+var
+    FrmController: TFrmController;
 
 implementation
 
 {$R *.dfm}
 
 uses
-    PGofer.Forms, PGofer.Sintatico.Classes, PGofer.Sintatico, PGofer.HotKey;
+    WinApi.Windows,
+    PGofer.Sintatico.Classes, PGofer.Forms;
 
-constructor TFrmController.Create();
+constructor TFrmController.Create(ACollectItem: TPGCollectItem);
 begin
     inherited Create(nil);
-    Self.NodeCreate(TGramatica.Global);
-    TPGItem.OnItemNotify := Self.NodeNotify;
+    FCollectItem := ACollectItem;
+    FCollectItem.TreeViewCreate(TrvController);
+    FAlphaSort := False;
+    FAlphaSortFolder := True;
+    FSelectedItem := nil;
+    TPGForm.Create(Self);
+    FrmController := Self;
 end;
 
-destructor TFrmController.Destroy;
+destructor TFrmController.Destroy();
 begin
-
+    FCollectItem.TreeViewDestroy();
+    FAlphaSort := False;
+    FAlphaSortFolder := False;
+    FSelectedItem := nil;
+    FrmController := nil;
     inherited Destroy();
 end;
 
-procedure TFrmController.NodeCreate(Item: TPGItem);
+procedure TFrmController.PanelCleaning();
 var
-    Node: TTreeNode;
-    c: FixedInt;
+    c: Integer;
 begin
-    if Assigned(Item) then
+    for c := PnlFrame.ControlCount - 1 downto 0 do
     begin
-        if Assigned(Item.Dad) then
-            Node := TTreeNode(Item.Dad.Node)
-        else
-            Node := nil;
-        Item.Node := TrvController.Items.AddChild(Node, Item.Name);
-        TTreeNode(Item.Node).Data := Item;
-        for c := 0 to Item.Count - 1 do
-            NodeCreate(Item[c]);
+        PnlFrame.Controls[c].Free;
     end;
-end;
-
-procedure TFrmController.NodeNotify(Sender: TPGItem; Action: TPGItemNotification);
-var
-    Node: TTreeNode;
-begin
-    case Action of
-        cmCreate:
-        begin
-            if Assigned(Sender.Dad) then
-                Node := TTreeNode(Sender.Dad.Node)
-            else
-                Node := nil;
-            Sender.Node := TrvController.Items.AddChild(Node, Sender.Name);
-            TTreeNode(Sender.Node).Data := Sender;
-        end;
-
-        cmDestroy:
-        begin
-            TTreeNode(Sender.Node).Delete;
-            Sender.Node := nil;
-        end;
-
-        cmEdit:
-        begin
-            TTreeNode(Sender.Node).Text := Sender.Name;
-            TTreeNode(Sender.Node).Enabled := Sender.Enabled;
-        end;
-
-        cmMove:
-        begin
-            if Assigned(Sender.Dad) then
-                Node := TTreeNode(Sender.Dad.Node)
-            else
-                Node := nil;
-
-            TTreeNode(Sender.Node).MoveTo(Node, naAddChild);
-        end;
-
-    end;
+    FSelectedItem := nil;
 end;
 
 procedure TFrmController.EdtFindKeyPress(Sender: TObject; var Key: Char);
@@ -119,10 +96,99 @@ begin
         TrvController.FindText(EdtFind.Text);
 end;
 
+procedure TFrmController.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+    Action := caFree;
+end;
+
+procedure TFrmController.mniAlphaSortFolderClick(Sender: TObject);
+begin
+    FAlphaSortFolder := not FAlphaSortFolder;
+    mniAlphaSortFolder.Checked := FAlphaSortFolder;
+end;
+
+procedure TFrmController.mniAZClick(Sender: TObject);
+begin
+    FAlphaSort := True;
+    TrvController.AlphaSort(True);
+end;
+
+procedure TFrmController.mniZAClick(Sender: TObject);
+begin
+    FAlphaSort := False;
+    TrvController.AlphaSort(True);
+end;
+
+procedure TFrmController.TrvControllerCompare(Sender: TObject;
+    Node1, Node2: TTreeNode; Data: Integer; var Compare: Integer);
+var
+    FolderNode1, FolderNode2: Boolean;
+begin
+    Compare := lstrcmp(PChar(Node1.Text), PChar(Node2.Text));
+
+    if not FAlphaSort then
+        Compare := Compare * -1;
+
+    if FAlphaSortFolder then
+    begin
+        FolderNode1 := Assigned(Node1.Data) and
+            (TPGItem(Node1.Data) is TPGFolder);
+        FolderNode2 := Assigned(Node2.Data) and
+            (TPGItem(Node2.Data) is TPGFolder);
+
+        if FolderNode1 and (not FolderNode2) then
+        begin
+            Compare := -1;
+        end;
+
+        if (not FolderNode1) and (FolderNode2) then
+        begin
+            Compare := 1;
+        end;
+    end;
+
+end;
+
+procedure TFrmController.TrvControllerDragDrop(Sender, Source: TObject;
+    X, Y: Integer);
+var
+    Node: TTreeNode;
+    ItemDad: TPGItem;
+begin
+    if Assigned(TrvController.TargetDrag) then
+        ItemDad := TPGItem(TrvController.TargetDrag.Data)
+    else
+        ItemDad := FCollectItem;
+
+    for Node in TrvController.SelectionsDrag do
+    begin
+        if Assigned(Node.Data) and (TPGItem(Node.Data) is TPGItem) then
+        begin
+            TPGItem(Node.Data).Parent := ItemDad;
+        end;
+    end;
+end;
+
 procedure TFrmController.TrvControllerDragOver(Sender, Source: TObject;
     X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
-    Accept := (Sender = Source);
+    Accept := Sender = Source;
+    if Accept then
+    begin
+        if Assigned(TrvController.TargetDrag) and
+            Assigned(TrvController.TargetDrag.Data) and
+            (TPGItem(TrvController.TargetDrag.Data) is TPGFolder) then
+        begin
+            Accept := True;
+            TrvController.AttachMode := naInsert;
+        end;
+
+        if not Assigned(TrvController.TargetDrag) then
+        begin
+            Accept := True;
+            TrvController.AttachMode := naAdd;
+        end;
+    end;
 end;
 
 procedure TFrmController.TrvControllerGetSelectedIndex(Sender: TObject;
@@ -131,22 +197,22 @@ begin
     if TrvController.isSelectWork then
     begin
         if Assigned(TrvController.Selected) and
-            (FSelectedItem <> TPGItem(TrvController.Selected.Data)) then
+            (TPGItem(TrvController.Selected.Data) is TPGItem) and
+            (TPGItem(TrvController.Selected.Data) <> FSelectedItem) then
         begin
-            TPGItem(TrvController.Selected.Data).Frame(PnlFrame);
+            Self.PanelCleaning();
             FSelectedItem := TPGItem(TrvController.Selected.Data);
+            FSelectedItem.Frame(PnlFrame);
             PnlFrame.Caption := '';
         end;
     end
     else
     begin
-        if PnlFrame.ControlCount > 0 then
-        begin
-            PnlFrame.Controls[0].Free;
-            PnlFrame.Update;
-        end;
+        Self.PanelCleaning();
         PnlFrame.Caption := 'Nenhum item selecionado!';
     end;
+    PnlFrame.Update;
+    PnlFrame.Refresh;
 end;
 
 end.

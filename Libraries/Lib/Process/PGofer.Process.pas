@@ -20,9 +20,6 @@ type
     end;
 {$TYPEINFO ON}
 
-var
-    PGProcess : TPGProcess;
-
 implementation
 
 uses
@@ -61,8 +58,7 @@ begin
 end;
 
 initialization
-    PGProcess := TPGProcess.Create();
-    TGramatica.Global.FindName('Commands').Add(PGProcess);
+    TPGProcess.Create(GlobalItemCommand);
 
 finalization
 
