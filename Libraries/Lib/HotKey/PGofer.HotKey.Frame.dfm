@@ -17,12 +17,12 @@ inherited PGFrameHotKey: TPGFrameHotKey
     Height = 94
     Constraints.MinHeight = 94
     ExplicitTop = 291
-    ExplicitWidth = 403
+    ExplicitWidth = 395
     ExplicitHeight = 94
     inherited rceAbout: TRichEdit
       Width = 391
       Height = 77
-      ExplicitWidth = 399
+      ExplicitWidth = 391
       ExplicitHeight = 77
     end
   end
@@ -31,7 +31,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
     Height = 280
     Constraints.MinHeight = 280
     Constraints.MinWidth = 0
-    ExplicitWidth = 409
+    ExplicitWidth = 401
     ExplicitHeight = 280
     DesignSize = (
       401
@@ -46,7 +46,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
     end
     inherited EdtName: TEditEx
       Width = 326
-      ExplicitWidth = 334
+      ExplicitWidth = 326
     end
     object GrbTeclas: TGroupBox
       Left = 5
@@ -56,7 +56,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Anchors = [akLeft, akTop, akRight]
       Caption = 'Teclas'
       TabOrder = 1
-      ExplicitWidth = 398
       object MmoTeclas: TMemo
         Left = 2
         Top = 15
@@ -92,7 +91,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
         OnExit = MmoTeclasExit
         OnMouseEnter = MmoTeclasEnter
         OnMouseLeave = MmoTeclasExit
-        ExplicitWidth = 394
       end
     end
     object BtnClear: TButton
@@ -142,7 +140,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Script'
       TabOrder = 5
-      ExplicitWidth = 398
       object EdtScript: TSynEdit
         AlignWithMargins = True
         Left = 5
@@ -175,7 +172,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Gutter.ShowLineNumbers = True
         OnChange = EdtScriptChange
         FontSmoothing = fsmNone
-        ExplicitWidth = 388
       end
     end
   end

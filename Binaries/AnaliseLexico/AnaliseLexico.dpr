@@ -66,6 +66,6 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    Application.Run;
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  Application.Run;
 end.

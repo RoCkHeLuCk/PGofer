@@ -55,7 +55,8 @@ implementation
 
 uses
     WinApi.Windows,
-    PGofer.Sintatico.Classes, PGofer.Forms;
+    PGofer.Sintatico.Classes, PGofer.Sintatico,
+    PGofer.Forms, PGofer.Forms.Controls;
 
 constructor TFrmController.Create(ACollectItem: TPGCollectItem);
 begin
@@ -66,11 +67,14 @@ begin
     FAlphaSortFolder := True;
     FSelectedItem := nil;
     TPGForm.Create(Self);
-    FrmController := Self;
+    if Self.ClassType = TFrmController then
+       FrmController := Self;
+    FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 end;
 
 destructor TFrmController.Destroy();
 begin
+    FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
     FCollectItem.TreeViewDestroy();
     FAlphaSort := False;
     FAlphaSortFolder := False;

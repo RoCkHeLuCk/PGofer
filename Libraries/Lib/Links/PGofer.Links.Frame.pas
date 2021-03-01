@@ -43,7 +43,7 @@ type
         procedure BtnDiretorioClick(Sender: TObject);
         procedure BtnIconeClick(Sender: TObject);
     private
-        FItem: TPGLinks;
+        FItem: TPGLinkMain;
     public
         constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
         destructor Destroy(); override;
@@ -115,7 +115,7 @@ end;
 constructor TPGFrameLinks.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
-    FItem := TPGLinks(Item);
+    FItem := TPGLinkMain(Item);
     EdtArquivo.Text := FItem.Arquivo;
     EdtParametro.Text := FItem.Parametro;
     EdtDiretorio.Text := FItem.Diretorio;

@@ -61,6 +61,10 @@ begin
     FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 
     TPGForm.Create(Self);
+    FrmCluster := TFrmCluster.Create();
+    FrmController := TFrmController.Create(GlobalCollection);
+    FrmCluster.Show;
+    FrmController.Show;
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);

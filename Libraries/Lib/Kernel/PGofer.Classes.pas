@@ -21,10 +21,11 @@ type
         FReadOnly: Boolean;
         FParent: TPGItem;
         FNode: TTreeNode;
-        procedure SetName(Name: String);
         procedure SetEnabled(Value: Boolean);
         procedure SetParent(AParent: TPGItem);
         function GetCollectDad(): TPGCollectItem;
+    protected
+        procedure SetName(Name: String); virtual;
     public
         property Name: String read FName write SetName;
         property Enabled: Boolean read FEnabled write SetEnabled;

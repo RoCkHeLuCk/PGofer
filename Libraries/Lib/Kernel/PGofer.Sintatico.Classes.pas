@@ -42,6 +42,29 @@ type
         property Expanded: Boolean read GetExpanded write SetExpanded;
     end;
 
+    TPGItemMirror = class;
+
+    TPGItemOriginal = class (TPGItemCMD)
+    private
+        FMirror : TPGItemMirror;
+    protected
+        procedure SetName(Name: String); override;
+    public
+        constructor Create(ItemDad: TPGItem; Name: String;
+                           Mirror: TPGItemMirror); overload;
+        destructor Destroy(); override;
+    end;
+
+    TPGItemMirror = class (TPGItem)
+    protected
+        FOriginal : TPGItemOriginal;
+    public
+        constructor Create(ItemDad: TPGItem; Name: String;
+                           Original : TPGItemOriginal); overload;
+        destructor Destroy(); override;
+    end;
+
+
 implementation
 
 uses
@@ -263,6 +286,47 @@ begin
     if Assigned(Node) then
        Node.Expanded := Value;
 end;
+
+{ TPGItemMirror }
+
+constructor TPGItemOriginal.Create(ItemDad: TPGItem; Name: String;
+                                   Mirror: TPGItemMirror);
+begin
+    inherited Create(ItemDad, Name);
+    FMirror := Mirror;
+end;
+
+destructor TPGItemOriginal.Destroy();
+begin
+    if Assigned(FMirror) then
+       FMirror.Free();
+    FMirror := nil;
+    inherited;
+end;
+
+procedure TPGItemOriginal.SetName(Name: String);
+begin
+    inherited;
+    if Assigned(FMirror) then
+       FMirror.Name := Name;
+end;
+
+{ TPGItemMirror }
+
+constructor TPGItemMirror.Create(ItemDad: TPGItem; Name: String;
+                                 Original : TPGItemOriginal);
+begin
+    inherited Create(ItemDad, Name);
+    FOriginal := Original;
+end;
+
+destructor TPGItemMirror.Destroy();
+begin
+    FOriginal.FMirror := nil;
+    FOriginal.Free;
+    inherited;
+end;
+
 
 initialization
    GlobalCollection.RegisterClass(TPGFolder);

@@ -3,12 +3,13 @@ unit PGofer.HotKey.Frame;
 interface
 
 uses
-    Vcl.Forms, Vcl.StdCtrls, Vcl.Controls, Vcl.Menus,
-    Winapi.Windows,
+    Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Controls, Vcl.ExtCtrls,
+    Vcl.ComCtrls,
     System.Classes,
+    Winapi.Windows,
     SynEdit,
     PGofer.Classes, PGofer.HotKey.Hook, PGofer.HotKey, PGofer.Item.Frame,
-    PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
+    PGofer.Component.Edit;
 
 type
     TPGFrameHotKey = class(TPGFrame)
@@ -28,7 +29,7 @@ type
         procedure BtnClearClick(Sender: TObject);
         procedure EdtScriptChange(Sender: TObject);
     private
-        FItem: TPGHotKeys;
+        FItem: TPGHotKeyMain;
         class function LowLevelProc(Code: Integer; wParam: wParam;
             lParam: lParam): NativeInt; stdcall; static;
     public
@@ -72,7 +73,7 @@ end;
 constructor TPGFrameHotKey.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
-    FItem := TPGHotKeys(Item);
+    FItem := TPGHotKeyMain(Item);
     CmbDetectar.ItemIndex := Byte(FItem.Detect);
     CkbInibir.Checked := FItem.Inhibit;
     EdtScript.Text := FItem.Script;
@@ -82,7 +83,6 @@ end;
 destructor TPGFrameHotKey.Destroy;
 begin
     MmoTeclas.OnExit(Self);
-    FItem.Mirroring();
     FItem := nil;
     inherited Destroy();
 end;

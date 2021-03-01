@@ -6,11 +6,10 @@ uses
     PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
 
 type
+    TPGLinkMirror = class;
 
 {$M+}
-    TPGLinks = class(TPGItemCMD)
-        constructor Create(ItemDad: TPGItem; Name: String);
-        destructor Destroy(); override;
+    TPGLinkMain = class(TPGItemOriginal)
     private
         FArquivo: String;
         FParametro: String;
@@ -26,6 +25,8 @@ type
         function GetIconExist(): Boolean;
         function ExecutarNivel1(): String;
     public
+        constructor Create(Name: String; Mirror: TPGItemMirror);
+        destructor Destroy(); override;
         class var GlobList: TPGItem;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
@@ -44,10 +45,47 @@ type
     end;
 {$TYPEINFO ON}
 
-    TPGLinkDec = class(TPGItemCMD)
+    TPGLinkDeclare = class(TPGItemCMD)
     public
         procedure Execute(Gramatica: TGramatica); override;
     end;
+
+{$M+}
+    TPGLinkMirror = class(TPGItemMirror)
+    private
+        function GetFileName(): String;
+        procedure SetFileName(Value: String);
+        function GetParameter(): String;
+        procedure SetParameter(Value: String);
+        function GetPath(): String;
+        procedure SetPath(Value: String);
+        function GetIconFile(): String;
+        procedure SetIcoFile(Value: String);
+        function GetIconIndex(): Byte;
+        procedure SetIconIndex(Value: Byte);
+        function GetState(): Byte;
+        procedure SetState(Value: Byte);
+        function GetPriority(): Byte;
+        procedure SetPriority(Value: Byte);
+        function GetOperation(): Byte;
+        procedure SetOperation(Value: Byte);
+    protected
+        FOriginal : TPGLinkMain;
+    public
+        constructor Create(ItemDad: TPGItem; Name: String);
+        procedure Frame(Parent: TObject); override;
+    published
+        property Arquivo: String read GetFileName write SetFileName;
+        property Parametro: String read GetParameter write SetParameter;
+        property Diretorio: String read GetPath write SetPath;
+        property IconeFile: String read GetIconFile write SetIcoFile;
+        property IconeIndex: Byte read GetIconIndex write SetIconIndex;
+        property Estado: Byte read GetState write SetState;
+        property Prioridade: Byte read GetPriority write SetPriority;
+        property Operation: Byte read GetOperation write SetOperation;
+    end;
+{$TYPEINFO ON}
+
 
 implementation
 
@@ -58,9 +96,9 @@ uses
 
 { TPGLinks }
 
-constructor TPGLinks.Create(ItemDad: TPGItem; Name: String);
+constructor TPGLinkMain.Create(Name: String; Mirror: TPGItemMirror);
 begin
-    inherited Create(ItemDad, Name);
+    inherited Create(TPGLinkMain.GlobList, Name, Mirror);
     FArquivo := '';
     FParametro := '';
     FDiretorio := '';
@@ -72,7 +110,7 @@ begin
     ReadOnly := False;
 end;
 
-destructor TPGLinks.Destroy;
+destructor TPGLinkMain.Destroy;
 begin
     FArquivo := '';
     FParametro := '';
@@ -85,7 +123,7 @@ begin
     inherited;
 end;
 
-procedure TPGLinks.SetIco(FileName: String);
+procedure TPGLinkMain.SetIco(FileName: String);
 begin
     FIconeFile := FileName;
     {
@@ -106,29 +144,29 @@ begin
 
 end;
 
-function TPGLinks.ExecutarNivel1(): String;
+function TPGLinkMain.ExecutarNivel1(): String;
 begin
     Result := FileExec(FArquivo, FParametro, FDiretorio, FEstado, FOperation,
         FPrioridade);
 end;
 
-procedure TPGLinks.Frame(Parent: TObject);
+procedure TPGLinkMain.Frame(Parent: TObject);
 begin
     inherited Frame(Parent);
     TPGFrameLinks.Create(Self, Parent);
 end;
 
-function TPGLinks.GetDirExist: Boolean;
+function TPGLinkMain.GetDirExist: Boolean;
 begin
     Result := DirectoryExists(FileExpandPath(FDiretorio));
 end;
 
-function TPGLinks.GetFileExist: Boolean;
+function TPGLinkMain.GetFileExist: Boolean;
 begin
     Result := FileExists(FileExpandPath(FArquivo));
 end;
 
-function TPGLinks.GetIconExist: Boolean;
+function TPGLinkMain.GetIconExist: Boolean;
 begin
     if FIconeFile <> '' then
         Result := FileExists(FileExpandPath(FIconeFile))
@@ -136,7 +174,7 @@ begin
         Result := True;
 end;
 
-procedure TPGLinks.Execute(Gramatica: TGramatica);
+procedure TPGLinkMain.Execute(Gramatica: TGramatica);
 begin
     if Assigned(Gramatica) then
     begin
@@ -151,25 +189,25 @@ begin
 end;
 
 { TPGLinkDec }
-procedure TPGLinkDec.Execute(Gramatica: TGramatica);
+procedure TPGLinkDeclare.Execute(Gramatica: TGramatica);
 var
     Titulo: String;
     Quantidade: Byte;
     Id: TPGItem;
-    Link: TPGLinks;
+    Link: TPGLinkMain;
 begin
     Gramatica.TokenList.GetNextToken;
     Id := IdentificadorLocalizar(Gramatica);
-    if (not Assigned(Id)) or (Id is TPGLinks) then
+    if (not Assigned(Id)) or (Id is TPGLinkMain) then
     begin
         Titulo := Gramatica.TokenList.Token.Lexema;
         Quantidade := LerParamentros(Gramatica, 1, 7);
         if not Gramatica.Erro then
         begin
             if (not Assigned(Id)) then
-               Link := TPGLinks.Create(TPGLinks.GlobList ,Titulo)
+               Link := TPGLinkMain.Create(Titulo, nil)
             else
-               Link := TPGLinks(Id);
+               Link := TPGLinkMain(Id);
 
             if Quantidade = 8 then
                 Link.Prioridade := Gramatica.Pilha.Desempilhar(3);
@@ -201,9 +239,9 @@ begin
 end;
 
 initialization
-    TPGLinkDec.Create(GlobalItemCommand, 'Link');
-    TPGLinks.GlobList := TPGFolder.Create(GlobalCollection, 'Links');
-    GlobalCollection.RegisterClass(TPGLinks);
+    TPGLinkDeclare.Create(GlobalItemCommand, 'Link');
+    TPGLinkMain.GlobList := TPGFolder.Create(GlobalCollection, 'Links');
+    GlobalCollection.RegisterClass(TPGLinkMain);
 
 finalization
 
