@@ -19,7 +19,6 @@ type
         procedure SetRegExample(Value: TRegExample);
         procedure SetRegExp(Value: String);
     protected
-        { Protected declarations }
         procedure KeyPress(var Key: Char); override;
     public
         { Public declarations }
@@ -36,6 +35,9 @@ procedure Register;
 
 implementation
 
+uses
+   Winapi.Windows;
+
 procedure Register;
 begin
     RegisterComponents('PGofer', [TEditEx]);
@@ -44,27 +46,35 @@ end;
 { TPGEditNumeric }
 
 procedure TEditEx.KeyPress(var Key: Char);
+var
+    NewText : String;
+    SelStart, SelLength: Integer;
 begin
     case Key of
-        #8:
-            begin
+        #8,
+        #46:
+        begin
 
-            end;
+        end;
 
         #13:
-            begin
-                if Assigned(Self.OnExit) then
-                    Self.OnExit(Self);
-            end;
-
+        begin
+            if Assigned(Self.OnExit) then
+                Self.OnExit(Self);
+        end;
     else
         if FExpression = '' then
             FExpression := '/w';
 
-        if not FRegExp.IsMatch(Self.Text + Key) then
+        NewText := Self.Text;
+        SelStart := Self.GetSelStart+1;
+        SelLength := Self.GetSelLength;
+        if SelLength > 0 then
+           Delete(NewText,SelStart, SelLength);
+        Insert(Key, NewText, SelStart);
+        if not FRegExp.IsMatch(NewText) then
             Key := #0;
     end;
-
     inherited;
 end;
 

@@ -83,7 +83,6 @@ end;
 
 procedure TPGFuncao.Frame(Parent: TObject);
 begin
-    inherited Frame(Parent);
     TPGFrameFunction.Create(Self, Parent);
 end;
 

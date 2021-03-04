@@ -3,10 +3,10 @@ unit PGofer.HotKey.Frame;
 interface
 
 uses
-    Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Controls, Vcl.ExtCtrls,
-    Vcl.ComCtrls,
     System.Classes,
     Winapi.Windows,
+    Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Controls, Vcl.ExtCtrls,
+    Vcl.ComCtrls, Vcl.Graphics,
     SynEdit,
     PGofer.Classes, PGofer.HotKey.Hook, PGofer.HotKey, PGofer.Item.Frame,
     PGofer.Component.Edit;
@@ -27,11 +27,15 @@ type
         procedure MmoTeclasEnter(Sender: TObject);
         procedure MmoTeclasExit(Sender: TObject);
         procedure BtnClearClick(Sender: TObject);
-        procedure EdtScriptChange(Sender: TObject);
+    procedure EdtNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     private
-        FItem: TPGHotKeyMain;
+        FItem: TPGHotKey;
+        {$HINTS OFF}
         class function LowLevelProc(Code: Integer; wParam: wParam;
             lParam: lParam): NativeInt; stdcall; static;
+        {$HINTS ON}
     public
         constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
         destructor Destroy(); override;
@@ -73,7 +77,7 @@ end;
 constructor TPGFrameHotKey.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
-    FItem := TPGHotKeyMain(Item);
+    FItem := TPGHotKey(Item);
     CmbDetectar.ItemIndex := Byte(FItem.Detect);
     CkbInibir.Checked := FItem.Inhibit;
     EdtScript.Text := FItem.Script;
@@ -87,7 +91,20 @@ begin
     inherited Destroy();
 end;
 
-procedure TPGFrameHotKey.EdtScriptChange(Sender: TObject);
+procedure TPGFrameHotKey.EdtNameKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+    if FItem.isItemExist(EdtName.Text) then
+    begin
+        EdtName.Color := clRed;
+    end else begin
+        EdtName.Color := clWindow;
+        inherited;
+    end;
+end;
+
+procedure TPGFrameHotKey.EdtScriptKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 begin
     FItem.Script := EdtScript.Text;
 end;

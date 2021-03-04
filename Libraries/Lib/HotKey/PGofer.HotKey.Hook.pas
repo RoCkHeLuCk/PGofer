@@ -85,7 +85,7 @@ end;
 class function THookProc.LowLevelProc(Code: Integer; wParam: wParam;
     lParam: lParam): LRESULT;
 var
-    AuxHotKey: TPGHotKeyMain;
+    AuxHotKey: TPGHotKey;
     Inibir: Boolean;
 begin
     Inibir := False;
@@ -102,7 +102,7 @@ begin
                     FShootKeys.Add(FKey.wKey);
             end;
 
-            AuxHotKey := TPGHotKeyMain.LocateHotKeys(FShootKeys);
+            AuxHotKey := TPGHotKey.LocateHotKeys(FShootKeys);
             if Assigned(AuxHotKey) and
                 ((FKey.bDetect = kd_Wheel) or
                 (AuxHotKey.Detect = Byte(FKey.bDetect))) then

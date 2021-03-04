@@ -140,16 +140,7 @@ end;
 // ----------------------------------------------------------------------------//
 procedure FormPositionFixed(Form: TForm);
 begin
-    // verifica posiçoes na tela
-    if (Form.Left < Screen.WorkAreaLeft) then
-        Form.Left := 0
-    else if (Form.Left > Screen.WorkAreaWidth - Form.Width) then
-        Form.Left := Screen.WorkAreaWidth - Form.Width;
-
-    if (Form.Top < Screen.WorkAreaTop) then
-        Form.Top := 0
-    else if (Form.Top > Screen.WorkAreaHeight - Form.Height) then
-        Form.Top := Screen.WorkAreaHeight - Form.Height;
+    Form.MakeFullyVisible(Form.Monitor);
 end;
 
 // ----------------------------------------------------------------------------//

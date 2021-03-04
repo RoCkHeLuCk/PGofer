@@ -46,7 +46,7 @@ type
     procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
 
 var
-    GlobalCollection: TPGCollectItem;
+    GlobalCollection: TPGItemCollect;
     GlobalItemCommand: TPGItem;
     GlobalItemTrigger: TPGItem;
     LoopLimite: Int64 = 1000000;
@@ -54,6 +54,7 @@ var
     ReplyFormat: String  = '';
     ReplyPrefix: Boolean = False;
     DirCurrent : String;
+    IniConfigFile: String;
     ConsoleNotify : TPGConsoleNotify;
     ConsoleMessage : Boolean = True;
 
@@ -185,12 +186,12 @@ end;
 
 initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
-    GlobalCollection := TPGCollectItem.Create('Global', False);
+    IniConfigFile := DirCurrent+'\Config.ini';
+    GlobalCollection := TPGItemCollect.Create('Global', False);
     GlobalItemCommand :=  TPGFolder.Create(GlobalCollection, 'Commands');
     GlobalItemTrigger :=  TPGFolder.Create(GlobalCollection, 'Triggers');
 
 finalization
-    GlobalItemCommand.Free;
     GlobalCollection.Free;
 
 end.

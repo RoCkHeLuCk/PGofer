@@ -157,7 +157,7 @@
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas">
-            <Form>PGFrameLinks</Form>
+            <Form>PGLinkFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.ThreadLoadImage.pas"/>
@@ -207,8 +207,8 @@
         <DCCReference Include="..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
             <Form>FrmConsole</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Form\Cluster\PGofer.Form.Cluster.pas">
-            <Form>FrmCluster</Form>
+        <DCCReference Include="..\..\Libraries\Form\Controller\PGofer.Form.Controller.Flock.pas">
+            <Form>FrmFlock</Form>
         </DCCReference>
         <DCCReference Include="UnitMain.pas">
             <Form>FrmMain</Form>

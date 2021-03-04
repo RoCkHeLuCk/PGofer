@@ -1,4 +1,4 @@
-unit PGofer.Form.Cluster;
+unit PGofer.Form.Controller.Flock;
 
 interface
 
@@ -9,13 +9,13 @@ uses
     PGofer.Form.Controller, Vcl.ComCtrls, Pgofer.Component.TreeView;
 
 type
-    TFrmCluster = class(TFrmController)
+    TFrmFlock = class(TFrmController)
         btnCreate: TButton;
         ppmCreate: TPopupMenu;
         btnDelete: TButton;
-        constructor Create(); reintroduce;
+        constructor Create(ACollectItem: TPGItemCollect); reintroduce;
         destructor Destroy(); override;
-        procedure onCreatePopupClick(Sender: TObject);
+        procedure onCreateItemPopUpClick(Sender: TObject);
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure btnDeleteClick(Sender: TObject);
     private
@@ -23,9 +23,6 @@ type
         procedure CreatePopups();
     public
     end;
-
-var
-    FrmCluster: TFrmCluster;
 
 implementation
 
@@ -35,64 +32,55 @@ uses
     PGofer.Sintatico.Classes, PGofer.Sintatico;
 
 {$R *.dfm}
-{ TFrmCluster }
 
-constructor TFrmCluster.Create();
+{ TFrmFlock }
+
+constructor TFrmFlock.Create(ACollectItem: TPGItemCollect);
 begin
-    FCollectItem := TPGCollectItem.Create('Cluster', True);
-    FCollectItem.RegisterClasses(GlobalCollection.ClassList);
-
-    FFileName := PGofer.Sintatico.DirCurrent + 'bla.xml';
+    FFileName := PGofer.Sintatico.DirCurrent+'\'+ACollectItem.Name+'.xml';
     if FileExists(FFileName) then
-        FCollectItem.XMLLoadFromFile(FFileName);
-
-    inherited Create(FCollectItem);
+        ACollectItem.XMLLoadFromFile(FFileName);
+    inherited Create(ACollectItem);
     CreatePopups();
-    FrmCluster := Self;
 end;
 
-destructor TFrmCluster.Destroy();
+destructor TFrmFlock.Destroy();
 begin
+    FCollectItem.XMLSaveToFile(FFileName);
+    FFileName := '';
     inherited;
-    FCollectItem.Free();
-    FCollectItem := nil;
-    FrmCluster := nil;
 end;
 
-procedure TFrmCluster.FormClose(Sender: TObject; var Action: TCloseAction);
+procedure TFrmFlock.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-    inherited;
     FCollectItem.XMLSaveToFile(FFileName);
 end;
 
-procedure TFrmCluster.CreatePopups();
+procedure TFrmFlock.CreatePopups();
 var
     PopUpItem: TMenuItem;
-    ClassItem: TClass;
+    C : Integer;
 begin
-    for ClassItem in FCollectItem.ClassList do
+    for C := 0 to FCollectItem.RegClassList.Count -1 do
     begin
         PopUpItem := TMenuItem.Create(ppmCreate);
         ppmCreate.Items.Add(PopUpItem);
-        PopUpItem.Caption := copy(ClassItem.ClassName, 4,
-            Length(ClassItem.ClassName));
-        PopUpItem.Tag := Integer(ClassItem);
-        PopUpItem.OnClick := onCreatePopupClick;
+        PopUpItem.Caption := FCollectItem.RegClassList.GetNameIndex(C);
+        PopUpItem.Tag := C;
+        PopUpItem.OnClick := onCreateItemPopUpClick;
     end;
 end;
 
-procedure TFrmCluster.onCreatePopupClick(Sender: TObject);
+procedure TFrmFlock.onCreateItemPopUpClick(Sender: TObject);
 var
     IClass: TClass;
+    IName: String;
     RttiContext: TRttiContext;
     RttiType: TRttiType;
     Value: TValue;
 begin
-    inherited;
-    if not(Sender is TMenuItem) then
-        Exit;
-
-    IClass := TClass(TMenuItem(Sender).Tag);
+    IClass := FCollectItem.RegClassList.GetClassIndex(TComponent(Sender).Tag);
+    IName := FCollectItem.RegClassList.GetNameIndex(TComponent(Sender).Tag);
 
     if not Assigned(FSelectedItem) then
     begin
@@ -107,22 +95,21 @@ begin
     end;
 
     RttiContext := TRttiContext.Create();
-    RttiType := RttiContext.GetType(IClass);
+    RttiType := RttiContext.GetType( IClass );
     Value := RttiType.GetMethod('Create').Invoke(IClass,
-                      [FSelectedItem, '']);
+                           [FSelectedItem,IName]);
     TrvController.SuperSelected(TPGItem(Value.AsObject).Node);
 end;
 
-procedure TFrmCluster.btnDeleteClick(Sender: TObject);
+procedure TFrmFlock.btnDeleteClick(Sender: TObject);
 begin
     if Vcl.Dialogs.MessageDlg(
            'Excluir os itens selecionados?',
-                   mtConfirmation,
-                  [mbYes, mbNo], 0, mbNo) = mrYes then
+           mtConfirmation,
+           [mbYes, mbNo], 0, mbNo) = mrYes then
     begin
         TrvController.DeleteSelect();
     end;
-    inherited;
 end;
 
 end.

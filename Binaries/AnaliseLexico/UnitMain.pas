@@ -10,7 +10,7 @@ uses
     SynEdit,
     PGofer.Form.AutoComplete,
     PGofer.Form.Controller,
-    PGofer.Form.Cluster;
+    PGofer.Form.Controller.Flock;
 
 type
     TFrmMain = class(TForm)
@@ -25,20 +25,23 @@ type
         Arquivos1: TMenuItem;
         Salvar1: TMenuItem;
         mniOpcoes: TMenuItem;
-        Controller1: TMenuItem;
-        Cluster1: TMenuItem;
+        Globals1: TMenuItem;
+        Hotkeys1: TMenuItem;
+        Links1: TMenuItem;
         procedure Lexico1Click(Sender: TObject);
         procedure Sintatico1Click(Sender: TObject);
         procedure FormCreate(Sender: TObject);
         procedure Salvar1Click(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
-        procedure Controller1Click(Sender: TObject);
-    procedure Cluster1Click(Sender: TObject);
+        procedure Globals1Click(Sender: TObject);
+        procedure Hotkeys1Click(Sender: TObject);
+        procedure Links1Click(Sender: TObject);
     private
-        { Private declarations }
         FFrmAutoComplete: TFrmAutoComplete;
+        FFrmGlobal: TFrmController;
+        FFrmHotKeys: TFrmFlock;
+        FFrmLinks: TFrmFlock;
     public
-        { Public declarations }
     end;
 
 var
@@ -48,6 +51,7 @@ implementation
 
 uses
     PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms,
+    PGofer.Links, PGofer.Hotkey,
     PGofer.Forms.Controls;
 
 {$R *.dfm}
@@ -61,36 +65,41 @@ begin
     FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 
     TPGForm.Create(Self);
-    FrmCluster := TFrmCluster.Create();
-    FrmController := TFrmController.Create(GlobalCollection);
-    FrmCluster.Show;
-    FrmController.Show;
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
-    if Assigned(FrmController) then
-        FrmController.Free;
+    FFrmAutoComplete.Free();
 
-    if Assigned(FrmCluster) then
-        FrmCluster.Free;
+    if Assigned(FFrmHotKeys) then
+        FFrmHotKeys.Free();
+    if Assigned(FFrmLinks) then
+        FFrmLinks.Free();
+    if Assigned(FFrmGlobal) then
+        FFrmGlobal.Free();
 
-    FFrmAutoComplete.Free;
     FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 end;
 
-procedure TFrmMain.Cluster1Click(Sender: TObject);
+procedure TFrmMain.Globals1Click(Sender: TObject);
 begin
-    if not Assigned(FrmCluster) then
-        FrmCluster := TFrmCluster.Create();
-    FrmCluster.Show;
+    if not Assigned(FFrmGlobal) then
+        FFrmGlobal := TFrmController.Create(GlobalCollection);
+    FFrmGlobal.Show;
 end;
 
-procedure TFrmMain.Controller1Click(Sender: TObject);
+procedure TFrmMain.Hotkeys1Click(Sender: TObject);
 begin
-    if not Assigned(FrmController) then
-        FrmController := TFrmController.Create(GlobalCollection);
-    FrmController.Show;
+    if not Assigned(FFrmHotKeys) then
+        FFrmHotKeys := TFrmFlock.Create(TPGHotKey.FlockCollection);
+    FFrmHotKeys.Show;
+end;
+
+procedure TFrmMain.Links1Click(Sender: TObject);
+begin
+    if not Assigned(FFrmLinks) then
+        FFrmLinks := TFrmFlock.Create(TPGLink.FlockCollection);
+    FFrmLinks.Show;
 end;
 
 procedure TFrmMain.Lexico1Click(Sender: TObject);

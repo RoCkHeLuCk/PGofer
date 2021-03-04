@@ -9,7 +9,7 @@ uses
     Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
-    TPGFrameLinks = class(TPGFrame)
+    TPGLinkFrame = class(TPGFrame)
         LblArquivo: TLabel;
         LblParametro: TLabel;
         LblDiretorio: TLabel;
@@ -42,15 +42,16 @@ type
         procedure BtnArquivoClick(Sender: TObject);
         procedure BtnDiretorioClick(Sender: TObject);
         procedure BtnIconeClick(Sender: TObject);
+    procedure EdtNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     private
-        FItem: TPGLinkMain;
+        FItem: TPGLink;
     public
         constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
         destructor Destroy(); override;
     end;
 
 var
-    PGFrameLinks: TPGFrame;
+    PGLinkFrame: TPGFrame;
 
 implementation
 
@@ -59,7 +60,7 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
-procedure TPGFrameLinks.BtnArquivoClick(Sender: TObject);
+procedure TPGLinkFrame.BtnArquivoClick(Sender: TObject);
 begin
     OpdLinks.Title := 'Arquivo';
     OpdLinks.Filter := 'Todos Arquivos(*.*)|*.*';
@@ -76,12 +77,12 @@ begin
     end;
 end;
 
-procedure TPGFrameLinks.BtnDiretorioClick(Sender: TObject);
+procedure TPGLinkFrame.BtnDiretorioClick(Sender: TObject);
 begin
     EdtDiretorio.Text := FileDirDialog(EdtDiretorio.Text);
 end;
 
-procedure TPGFrameLinks.BtnIconeClick(Sender: TObject);
+procedure TPGLinkFrame.BtnIconeClick(Sender: TObject);
 begin
     OpdLinks.Title := 'Icone';
     OpdLinks.Filter :=
@@ -92,30 +93,30 @@ begin
         EdtIcone.Text := FileUnExpandPath(OpdLinks.FileName);
 end;
 
-procedure TPGFrameLinks.BtnTestClick(Sender: TObject);
+procedure TPGLinkFrame.BtnTestClick(Sender: TObject);
 begin
     FItem.Execute(nil);
 end;
 
-procedure TPGFrameLinks.CmbEstadoChange(Sender: TObject);
+procedure TPGLinkFrame.CmbEstadoChange(Sender: TObject);
 begin
     FItem.Estado := CmbEstado.ItemIndex;
 end;
 
-procedure TPGFrameLinks.CmbOperationChange(Sender: TObject);
+procedure TPGLinkFrame.CmbOperationChange(Sender: TObject);
 begin
     FItem.Operation := CmbOperation.ItemIndex;
 end;
 
-procedure TPGFrameLinks.CmbPrioridadeChange(Sender: TObject);
+procedure TPGLinkFrame.CmbPrioridadeChange(Sender: TObject);
 begin
     FItem.Prioridade := CmbPrioridade.ItemIndex;
 end;
 
-constructor TPGFrameLinks.Create(Item: TPGItem; Parent: TObject);
+constructor TPGLinkFrame.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
-    FItem := TPGLinkMain(Item);
+    FItem := TPGLink(Item);
     EdtArquivo.Text := FItem.Arquivo;
     EdtParametro.Text := FItem.Parametro;
     EdtDiretorio.Text := FItem.Diretorio;
@@ -126,13 +127,13 @@ begin
     CmbOperation.ItemIndex := FItem.Operation;
 end;
 
-destructor TPGFrameLinks.Destroy;
+destructor TPGLinkFrame.Destroy;
 begin
     FItem := nil;
     inherited Destroy();
 end;
 
-procedure TPGFrameLinks.EdtArquivoChange(Sender: TObject);
+procedure TPGLinkFrame.EdtArquivoChange(Sender: TObject);
 begin
     FItem.Arquivo := EdtArquivo.Text;
     if FItem.isFileExist then
@@ -141,7 +142,7 @@ begin
         EdtArquivo.Color := clRed;
 end;
 
-procedure TPGFrameLinks.EdtDiretorioChange(Sender: TObject);
+procedure TPGLinkFrame.EdtDiretorioChange(Sender: TObject);
 begin
     FItem.Diretorio := EdtDiretorio.Text;
     if FItem.isDirExist then
@@ -150,7 +151,7 @@ begin
         EdtDiretorio.Color := clRed;
 end;
 
-procedure TPGFrameLinks.EdtIconeChange(Sender: TObject);
+procedure TPGLinkFrame.EdtIconeChange(Sender: TObject);
 begin
     FItem.IconeFile := EdtIcone.Text;
     if FItem.isIconExist then
@@ -159,13 +160,25 @@ begin
         EdtIcone.Color := clRed;
 end;
 
-procedure TPGFrameLinks.EdtIconeIndexChange(Sender: TObject);
+procedure TPGLinkFrame.EdtIconeIndexChange(Sender: TObject);
 begin
     if EdtIconeIndex.Text <> '' then
         FItem.IconeIndex := StrToInt(EdtIconeIndex.Text);
 end;
 
-procedure TPGFrameLinks.EdtParametroChange(Sender: TObject);
+procedure TPGLinkFrame.EdtNameKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+    if FItem.isItemExist(EdtName.Text) then
+    begin
+        EdtName.Color := clRed;
+    end else begin
+        EdtName.Color := clWindow;
+        inherited;
+    end;
+end;
+
+procedure TPGLinkFrame.EdtParametroChange(Sender: TObject);
 begin
     FItem.Parametro := EdtParametro.Text;
 end;

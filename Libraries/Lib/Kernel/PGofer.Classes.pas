@@ -4,13 +4,14 @@ interface
 
 uses
     System.Classes,
-    System.Generics.Collections, Vcl.Comctrls;
+    System.Generics.Collections,
+    Vcl.Comctrls;
 
 const
     LowString = Low(String);
 
 type
-    TPGCollectItem = class;
+    TPGItemCollect = class;
 
     TPGItem = class(TObjectList<TPGItem>)
         constructor Create(AParent: TPGItem; Name: String); overload;
@@ -21,37 +22,54 @@ type
         FReadOnly: Boolean;
         FParent: TPGItem;
         FNode: TTreeNode;
-        procedure SetEnabled(Value: Boolean);
         procedure SetParent(AParent: TPGItem);
-        function GetCollectDad(): TPGCollectItem;
+        function GetCollectDad(): TPGItemCollect;
     protected
         procedure SetName(Name: String); virtual;
+        procedure SetEnabled(Value: Boolean); virtual;
+        procedure SetReadOnly(Value: Boolean); virtual;
     public
         property Name: String read FName write SetName;
         property Enabled: Boolean read FEnabled write SetEnabled;
-        property ReadOnly: Boolean read FReadOnly write FReadOnly;
+        property ReadOnly: Boolean read FReadOnly write SetReadOnly;
         property Parent: TPGItem read FParent write SetParent;
         property Node: TTreeNode read FNode write FNode;
-        property CollectDad: TPGCollectItem read GetCollectDad;
+        property CollectDad: TPGItemCollect read GetCollectDad;
         procedure Frame(Parent: TObject); virtual;
         function FindName(Name: String): TPGItem;
         function FindNameList(Name: String; Partial: Boolean): TArray<TPGItem>;
     end;
 
-    TPGCollectItem = class(TPGItem)
+    TClassList = class
+    private
+        FNameList: TList<String>;
+        FClassList: TList<TClass>;
+    public
+        constructor Create(); overload;
+        destructor Destroy(); override;
+        procedure Assing(ClassDictionary: TClassList);
+        procedure Add(Name: String; Value: TClass);
+        function Count(): Integer;
+        function GetNameIndex(Index: Integer): String;
+        function GetClassIndex(Index: Integer): TClass;
+        function TryGetValue(Name: String; out Value: TClass): Boolean;
+        function TryGetName(Value: TClass; out Name: String): Boolean;
+    end;
+
+    TPGItemCollect = class(TPGItem)
         constructor Create(AName: String;
                            AOnlyRegister: Boolean = False); overload;
         destructor Destroy(); override;
     private
-        FClassList: TList<TClass>;
+        FClassList: TClassList;
         FTreeView: TTreeView;
         FOnlyRegister: Boolean;
     public
-        property ClassList: TList<TClass> read FClassList;
         property OnlyRegister: Boolean read FOnlyRegister;
-        procedure RegisterClass(AClass: TClass);
-        procedure RegisterClasses(AClasses: TList<TClass>);
-        function GetRegisterClass(AClassName: String): TClass;
+        property RegClassList: TClassList read FClassList;
+        procedure RegisterClass(AName:String; AClass: TClass);
+        procedure AssingClasses(AItemCollect: TPGItemCollect);
+        function GetRegClassName(AName: String): TClass;
         procedure TreeViewCreate(ATreeView: TTreeView);
         procedure TreeViewDestroy();
         procedure XMLSaveToFile(FileName: String);
@@ -65,7 +83,7 @@ implementation
 uses
     System.SysUtils, System.RTTI, System.TypInfo,
     XML.XMLDoc, XML.XMLIntf,
-    PGofer.Item.Frame;
+    PGofer.Item.Frame, PGofer.Sintatico.Classes;
 
 { TPGItem }
 
@@ -86,16 +104,15 @@ begin
                     .Items.AddChild(AParent.FNode, FName);
             FNode.Data := Self;
         end else begin
-            if (AParent is TPGCollectItem)
-            and(Assigned(TPGCollectItem(AParent).FTreeView)) then
+            if (AParent is TPGItemCollect)
+            and(Assigned(TPGItemCollect(AParent).FTreeView)) then
             begin
-                FNode := TPGCollectItem(AParent).FTreeView
+                FNode := TPGItemCollect(AParent).FTreeView
                         .Items.AddChild(nil, FName);
                 FNode.Data := Self;
             end;
         end;
     end;
-
 end;
 
 destructor TPGItem.Destroy();
@@ -151,6 +168,11 @@ begin
     end;
 end;
 
+procedure TPGItem.SetReadOnly(Value: Boolean);
+begin
+    FReadOnly := Value;
+end;
+
 procedure TPGItem.SetName(Name: String);
 begin
     FName := Name;
@@ -165,12 +187,12 @@ begin
     TPGFrame.Create(Self, Parent);
 end;
 
-function TPGItem.GetCollectDad: TPGCollectItem;
+function TPGItem.GetCollectDad: TPGItemCollect;
 begin
     if Assigned(Self.Parent) then
        Result := Self.Parent.CollectDad
-    else if Self is TPGCollectItem then
-       Result := TPGCollectItem(Self)
+    else if Self is TPGItemCollect then
+       Result := TPGItemCollect(Self)
     else
        Result := nil;
 end;
@@ -207,57 +229,42 @@ end;
 
 { TPGCollectItem }
 
-constructor TPGCollectItem.Create(AName: String;
+constructor TPGItemCollect.Create(AName: String;
                                   AOnlyRegister: Boolean = False);
 begin
     inherited Create(nil, AName);
-    FClassList := TList<TClass>.Create();
+    FClassList := TClassList.Create();
     FOnlyRegister := AOnlyRegister;
 end;
 
-destructor TPGCollectItem.Destroy();
+destructor TPGItemCollect.Destroy();
 begin
     FClassList.Free;
     inherited;
 end;
 
-procedure TPGCollectItem.RegisterClass(AClass: TClass);
+procedure TPGItemCollect.RegisterClass(AName:String; AClass: TClass);
 begin
-    FClassList.Add(AClass);
+    FClassList.Add(AName, AClass);
 end;
 
-procedure TPGCollectItem.RegisterClasses(AClasses: TList<TClass>);
+procedure TPGItemCollect.AssingClasses(AItemCollect: TPGItemCollect);
 begin
-    FClassList.AddRange(AClasses);
+    Self.FClassList.Assing(AItemCollect.FClassList);
 end;
 
-function TPGCollectItem.GetRegisterClass(AClassName: String): TClass;
-var
-    C, L : integer;
+function TPGItemCollect.GetRegClassName(AName: String): TClass;
 begin
-    C := 0;
-    L := FClassList.Count-1;
-
-    while (C < L) and (FClassList[C].ClassName <> AClassName) do
-      Inc(C);
-
-    if (FClassList[C].ClassName = AClassName) then
-       Result := FClassList[C]
-    else
-       Result := nil;
+    FClassList.TryGetValue(AName, Result);
 end;
 
-procedure TPGCollectItem.TreeViewCreate(ATreeView: TTreeView);
+procedure TPGItemCollect.TreeViewCreate(ATreeView: TTreeView);
 
     procedure NodeCreate(Item: TPGItem);
     var
         Node: TTreeNode;
         ItemChild: TPGItem;
     begin
-        //if FOnlyRegister
-        //and (not Self.FClassList.Contains(Item.ClassType)) then
-        //   exit;
-
         if Assigned(Item.Parent) then
             Node := Item.Parent.Node
         else
@@ -276,7 +283,7 @@ begin
         NodeCreate(Item);
 end;
 
-procedure TPGCollectItem.TreeViewDestroy;
+procedure TPGItemCollect.TreeViewDestroy;
     procedure NodeDestroy(Item: TPGItem);
     var
         ItemChild: TPGItem;
@@ -298,7 +305,7 @@ begin
     FTreeView := nil;
 end;
 
-procedure TPGCollectItem.XMLSaveToFile(FileName: String);
+procedure TPGItemCollect.XMLSaveToFile(FileName: String);
 var
     Stream: TStream;
 begin
@@ -310,7 +317,7 @@ begin
     end;
 end;
 
-procedure TPGCollectItem.XMLSaveToStream(Stream: TStream);
+procedure TPGItemCollect.XMLSaveToStream(Stream: TStream);
 
     procedure CreateNode(Item: TPGItem; XMLNodeDad: IXMLNode);
     var
@@ -320,16 +327,24 @@ procedure TPGCollectItem.XMLSaveToStream(Stream: TStream);
         XMLNodeProperty: IXMLNode;
         XMLNode: IXMLNode;
         ItemChild: TPGItem;
+        ItemOriginal: TPGItem;
+        ClassName: String;
     begin
-        if not FClassList.Contains(Item.ClassType) then
+        if not FClassList.TryGetName(Item.ClassType, ClassName) then
            Exit;
 
-        XMLNode := XMLNodeDad.AddChild( Item.ClassName );
-        XMLNode.Attributes['Name'] := Item.Name;
-        XMLNode.Attributes['Enabled'] := Item.Enabled;
+        if Item is TPGItemMirror then
+           ItemOriginal := TPGItemMirror(Item).ItemOriginal
+        else
+           ItemOriginal := Item;
+
+        XMLNode := XMLNodeDad.AddChild( ClassName );
+        XMLNode.Attributes['Name'] := ItemOriginal.Name;
+        XMLNode.Attributes['Enabled'] := ItemOriginal.Enabled;
+        XMLNode.Attributes['ReadOnly'] := ItemOriginal.ReadOnly;
 
         RttiContext := TRttiContext.Create();
-        RttiType := RttiContext.GetType( Item.ClassType );
+        RttiType := RttiContext.GetType( ItemOriginal.ClassType );
 
         for RttiProperty in RttiType.GetProperties do
         begin
@@ -339,9 +354,11 @@ procedure TPGCollectItem.XMLSaveToStream(Stream: TStream);
                 XMLNodeProperty := XMLNode.AddChild(RttiProperty.Name);
                 XMLNodeProperty.Attributes['Type'] :=
                      RttiProperty.PropertyType.ToString;
-                XMLNodeProperty.Text := RttiProperty.GetValue(Item).ToString;
+                XMLNodeProperty.Text := RttiProperty.GetValue(ItemOriginal).ToString;
             end;
         end;
+
+        RttiContext.Free;
 
         for ItemChild in Item do
             CreateNode(ItemChild, XMLNode);
@@ -366,7 +383,7 @@ begin
     XMLDocument.Active := False;
 end;
 
-procedure TPGCollectItem.XMLLoadFromFile(FileName: String);
+procedure TPGItemCollect.XMLLoadFromFile(FileName: String);
 var
     Stream: TStream;
 begin
@@ -378,7 +395,7 @@ begin
     end;
 end;
 
-procedure TPGCollectItem.XMLLoadFromStream(Stream: TStream);
+procedure TPGItemCollect.XMLLoadFromStream(Stream: TStream);
 
     procedure CreateItem(ItemDad: TPGItem; XMLNode: IXMLNode);
     var
@@ -390,10 +407,10 @@ procedure TPGCollectItem.XMLLoadFromStream(Stream: TStream);
         ClassRegister : TClass;
         Value: TValue;
         Item : TPGItem;
+        ItemOriginal : TPGItem;
         Name : String;
     begin
-        ClassRegister := Self.GetRegisterClass(XMLNode.NodeName);
-        if (not Assigned(ClassRegister))
+        if (not FClassList.TryGetValue(XMLNode.NodeName, ClassRegister))
         or (not XMLNode.HasAttribute('Name')) then
            Exit;
 
@@ -404,8 +421,21 @@ procedure TPGCollectItem.XMLLoadFromStream(Stream: TStream);
                               [ItemDad, Name]);
         Item := TPGItem(Value.AsObject);
 
+        if Item is TPGItemMirror then
+        begin
+           ItemOriginal := TPGItemMirror(Item).ItemOriginal;
+           RttiContext.Free;
+           RttiContext := TRttiContext.Create();
+           RttiType := RttiContext.GetType(ItemOriginal.ClassType);
+        end else
+           ItemOriginal := Item;
+
         if XMLNode.HasAttribute('Enabled') then
-           Item.Enabled := XMLNode.Attributes['Enabled'];
+           ItemOriginal.Enabled := XMLNode.Attributes['Enabled'];
+
+        if XMLNode.HasAttribute('ReadOnly') then
+           ItemOriginal.ReadOnly := XMLNode.Attributes['ReadOnly'];
+
 
         for RttiProperty in RttiType.GetProperties do
         begin
@@ -419,22 +449,22 @@ procedure TPGCollectItem.XMLLoadFromStream(Stream: TStream);
                        case RttiProperty.PropertyType.TypeKind of
                            tkInteger :
                                RttiProperty.SetValue(
-                                   Item,
+                                   ItemOriginal,
                                    StrToIntDef(XMLNodeProperty.Text,0));
                            tkEnumeration :
                                RttiProperty.SetValue(
-                                   Item,
+                                   ItemOriginal,
                                    StrToBoolDef(XMLNodeProperty.Text,False));
                            tkFloat :
                                RttiProperty.SetValue(
-                                   Item,
+                                   ItemOriginal,
                                    StrToFloatDef(XMLNodeProperty.Text,0));
                            tkString,
                            tkLString,
                            tkWString,
                            tkUString :
                                RttiProperty.SetValue(
-                                   Item,
+                                   ItemOriginal,
                                    XMLNodeProperty.Text);
                        end;
                     except
@@ -446,6 +476,8 @@ procedure TPGCollectItem.XMLLoadFromStream(Stream: TStream);
                 end;
             end;
         end;
+
+        RttiContext.Free;
 
         XMLNodeChild := XMLNode.ChildNodes.First();
         while Assigned(XMLNodeChild) do
@@ -461,19 +493,86 @@ var
 begin
     Self.Clear;
     XMLDocument := NewXMLDocument;
-    XMLDocument.LoadFromStream(Stream);
-    XMLDocument.Active := true;
-    XMLNode := XMLDocument.ChildNodes.FindNode(Self.Name);
-    if Assigned(XMLNode) then
-    begin
-        XMLNode := XMLNode.ChildNodes.First;
-        while Assigned(XMLNode) do
+    try
+        XMLDocument.LoadFromStream(Stream);
+        XMLDocument.Active := true;
+        XMLNode := XMLDocument.ChildNodes.FindNode(Self.Name);
+        if Assigned(XMLNode) then
         begin
-            CreateItem(Self, XMLNode);
-            XMLNode := XMLNode.NextSibling;
+            XMLNode := XMLNode.ChildNodes.First;
+            while Assigned(XMLNode) do
+            begin
+                CreateItem(Self, XMLNode);
+                XMLNode := XMLNode.NextSibling;
+            end;
         end;
+        XMLDocument.Active := False;
+    except
     end;
-    XMLDocument.Active := False;
+end;
+
+
+{ TClassList }
+
+function TClassList.Count(): Integer;
+begin
+    Result := Self.FNameList.Count;
+end;
+
+constructor TClassList.Create();
+begin
+    inherited;
+    Self.FNameList := TList<String>.Create();
+    Self.FClassList := TList<TClass>.Create();
+end;
+
+destructor TClassList.Destroy();
+begin
+    Self.FNameList.Free();
+    Self.FClassList.Free();
+    inherited;
+end;
+
+function TClassList.GetClassIndex(Index: Integer): TClass;
+begin
+    Result := Self.FClassList[Index];
+end;
+
+function TClassList.GetNameIndex(Index: Integer): String;
+begin
+    Result := Self.FNameList[Index];
+end;
+
+procedure TClassList.Add(Name: String; Value: TClass);
+begin
+    Self.FNameList.Add(Name);
+    Self.FClassList.Add(Value);
+end;
+
+procedure TClassList.Assing(ClassDictionary: TClassList);
+begin
+    Self.FNameList.AddRange(ClassDictionary.FNameList.ToArray);
+    Self.FClassList.AddRange(ClassDictionary.FClassList.ToArray);
+end;
+
+function TClassList.TryGetName(Value: TClass; out Name: String): Boolean;
+begin
+    if Self.FClassList.Contains(Value) then
+    begin
+       Name := Self.FNameList[Self.FClassList.IndexOf(Value)];
+       Result := True;
+    end else
+       Result := False;
+end;
+
+function TClassList.TryGetValue(Name: String; out Value: TClass): Boolean;
+begin
+    if Self.FNameList.Contains(Name) then
+    begin
+       Value := Self.FClassList[Self.FNameList.IndexOf(Name)];
+       Result := True;
+    end else
+       Result := False;
 end;
 
 initialization

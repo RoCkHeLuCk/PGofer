@@ -1,4 +1,4 @@
-inherited PGFrameLinks: TPGFrameLinks
+inherited PGLinkFrame: TPGLinkFrame
   Width = 416
   Height = 305
   Constraints.MinHeight = 200

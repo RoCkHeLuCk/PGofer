@@ -70,7 +70,6 @@ end;
 
 procedure TPGConstante.Frame(Parent: TObject);
 begin
-    inherited Frame(Parent);
     TPGFrameVariants.Create(Self, Parent);
 end;
 

@@ -89,13 +89,17 @@ object FrmMain: TFrmMain
     end
     object mniOpcoes: TMenuItem
       Caption = 'Op'#231#245'es'
-      object Controller1: TMenuItem
-        Caption = 'Controller'
-        OnClick = Controller1Click
+      object Globals1: TMenuItem
+        Caption = 'Globals'
+        OnClick = Globals1Click
       end
-      object Cluster1: TMenuItem
-        Caption = 'Cluster'
-        OnClick = Cluster1Click
+      object Hotkeys1: TMenuItem
+        Caption = 'Hotkeys'
+        OnClick = Hotkeys1Click
+      end
+      object Links1: TMenuItem
+        Caption = 'Links'
+        OnClick = Links1Click
       end
     end
     object Compilar1: TMenuItem

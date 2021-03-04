@@ -15,7 +15,7 @@ type
         LblName: TLabel;
         EdtName: TEditEx;
         SplitterItem: TSplitter;
-    procedure EdtNameChange(Sender: TObject);
+    procedure EdtNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     private
         FItem: TPGItem;
     public
@@ -54,7 +54,8 @@ begin
     inherited Destroy();
 end;
 
-procedure TPGFrame.EdtNameChange(Sender: TObject);
+procedure TPGFrame.EdtNameKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 begin
     FItem.Name := EdtName.Text;
 end;

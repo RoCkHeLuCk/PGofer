@@ -28,15 +28,17 @@ function FileGetCreateTime(FileName: string): string;
 function FileGetModifyTime(FileName: string): string;
 function FileGetAcessTime(FileName: string): string;
 function FileExtractOnlyFileName(const FileName: string): string;
+{$WARN SYMBOL_PLATFORM ON}
 
 implementation
 
 uses
+    {$WARN UNIT_PLATFORM OFF}
     Vcl.Forms, Vcl.ComCtrls, Vcl.FileCtrl, Vcl.Dialogs,
     WinApi.ShellApi, WinApi.ShlwApi,
     System.SysUtils, System.Classes,
     PGofer.Sintatico;
-
+    {$WARN UNIT_PLATFORM ON}
 function DateTimeToFileTime(DateTime: TDateTime): PFileTime;
 var
     FileTime: TFileTime;
@@ -370,6 +372,7 @@ function FileGetCreateTime(FileName: string): string;
 var
     SearchRec: TSearchRec;
 begin
+    {$WARN SYMBOL_PLATFORM OFF}
     if FindFirst(FileExpandPath(FileName), faAnyFile, SearchRec) = 0 then
     begin
         Result := DateTimeToStr
@@ -378,12 +381,14 @@ begin
     end
     else
         Result := '';
+    {$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileGetModifyTime(FileName: string): string;
 var
     SearchRec: TSearchRec;
 begin
+    {$WARN SYMBOL_PLATFORM OFF}
     if FindFirst(FileExpandPath(FileName), faAnyFile, SearchRec) = 0 then
     begin
         Result := DateTimeToStr
@@ -392,12 +397,14 @@ begin
     end
     else
         Result := '';
+    {$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileGetAcessTime(FileName: string): string;
 var
     SearchRec: TSearchRec;
 begin
+    {$WARN SYMBOL_PLATFORM OFF}
     if FindFirst(FileExpandPath(FileName), faAnyFile, SearchRec) = 0 then
     begin
         Result := DateTimeToStr
@@ -406,6 +413,7 @@ begin
     end
     else
         Result := '';
+    {$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileExtractOnlyFileName(const FileName: string): string;

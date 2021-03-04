@@ -8,10 +8,9 @@ uses
     PGofer.HotKey.Hook;
 
 type
-    TPGHotKeyMirror = class;
 
 {$M+}
-    TPGHotKeyMain = class(TPGItemOriginal)
+    TPGHotKey = class(TPGItemOriginal)
     private
         FKeys: TList<Word>;
         FDetect: Byte;
@@ -24,11 +23,13 @@ type
         constructor Create(Name: String; Mirror: TPGItemMirror); overload;
         destructor Destroy(); override;
         class var GlobList: TPGItem;
+        class var FlockCollection: TPGItemCollect;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
         property Keys: TList<Word> read FKeys;
         function GetKeysName(): String;
-        class function LocateHotKeys(Keys: TList<Word>): TPGHotKeyMain;
+        class function LocateHotKeys(Keys: TList<Word>): TPGHotKey;
+        function isItemExist(AName: String): Boolean; override;
     published
         property HotKeysHex: String read GetKeysHex write SetKeysHex;
         property Detect: Byte read FDetect write FDetect;
@@ -42,28 +43,11 @@ type
         procedure Execute(Gramatica: TGramatica); override;
     end;
 
-{$M+}
     TPGHotKeyMirror = class(TPGItemMirror)
-    protected
-        FOriginal : TPGHotKeyMain;
     public
-        constructor Create(ItemDad: TPGItem; Name: String); overload;
+        constructor Create(ItemDad: TPGItem; AName: String); overload;
         procedure Frame(Parent: TObject); override;
-        function GetKeysHex(): String;
-        procedure SetKeysHex(Value: String);
-        function GetDetect(): Byte;
-        procedure SetDetect(Value: Byte);
-        function GetInhibit(): Boolean;
-        procedure SetInhibit(Value: Boolean);
-        function GetScript(): String;
-        procedure SetScript(Value: String);
-    published
-        property HotKeysHex: String read GetKeysHex write SetKeysHex;
-        property Detect: Byte read GetDetect write SetDetect;
-        property Inhibit: Boolean read GetInhibit write SetInhibit;
-        property Script: String read GetScript write SetScript;
     end;
-{$TYPEINFO ON}
 
 
 implementation
@@ -75,9 +59,9 @@ uses
 
 { TPGHotKeyMain }
 
-constructor TPGHotKeyMain.Create(Name: String; Mirror: TPGItemMirror);
+constructor TPGHotKey.Create(Name: String; Mirror: TPGItemMirror);
 begin
-    inherited Create(TPGHotKeyMain.GlobList, Name, Mirror);
+    inherited Create(TPGHotKey.GlobList, Name, Mirror);
     Self.ReadOnly := False;
     FKeys := TList<Word>.Create;
     FDetect := 0;
@@ -85,7 +69,7 @@ begin
     FScript := '';
 end;
 
-destructor TPGHotKeyMain.Destroy();
+destructor TPGHotKey.Destroy();
 begin
     FDetect := 0;
     FInhibit := False;
@@ -96,12 +80,12 @@ begin
     inherited;
 end;
 
-procedure TPGHotKeyMain.ExecutarNivel1();
+procedure TPGHotKey.ExecutarNivel1();
 begin
     ScriptExec('HotKey: ' + Self.Name, Self.Script, nil);
 end;
 
-procedure TPGHotKeyMain.Execute(Gramatica: TGramatica);
+procedure TPGHotKey.Execute(Gramatica: TGramatica);
 begin
     if Assigned(Gramatica) then
     begin
@@ -115,13 +99,12 @@ begin
     end;
 end;
 
-procedure TPGHotKeyMain.Frame(Parent: TObject);
+procedure TPGHotKey.Frame(Parent: TObject);
 begin
-    inherited Frame(Parent);
     TPGFrameHotKey.Create(Self, Parent);
 end;
 
-function TPGHotKeyMain.GetKeysHex(): String;
+function TPGHotKey.GetKeysHex(): String;
 var
     Key: Word;
 begin
@@ -130,7 +113,7 @@ begin
         Result := Result + IntToHex(Key, 3);
 end;
 
-procedure TPGHotKeyMain.SetKeysHex(Value: String);
+procedure TPGHotKey.SetKeysHex(Value: String);
 var
     c: SmallInt;
     Key: Word;
@@ -146,7 +129,7 @@ begin
     end;
 end;
 
-function TPGHotKeyMain.GetKeysName(): String;
+function TPGHotKey.GetKeysName(): String;
 var
     Key: Word;
 begin
@@ -160,11 +143,19 @@ begin
     end;
 end;
 
-class function TPGHotKeyMain.LocateHotKeys(Keys: TList<Word>): TPGHotKeyMain;
+function TPGHotKey.isItemExist(AName: String): Boolean;
+var
+    Item : TPGItem;
+begin
+    Item := TPGHotKey.GlobList.FindName(AName);
+    Result := (Assigned(Item) and (Item <> Self));
+end;
+
+class function TPGHotKey.LocateHotKeys(Keys: TList<Word>): TPGHotKey;
 var
     KeysCount: SmallInt;
     ListCount: SmallInt;
-    AuxHotKeys: TPGHotKeyMain;
+    AuxHotKeys: TPGHotKey;
     C, D: SmallInt;
     Find: Boolean;
 begin
@@ -172,12 +163,12 @@ begin
     KeysCount := Keys.Count;
     if KeysCount > 0 then
     begin
-        ListCount := TPGHotKeyMain.GlobList.Count;
+        ListCount := TPGHotKey.GlobList.Count;
         Find := False;
         C := 0;
         while (C < ListCount) and (not Find) do
         begin
-            AuxHotKeys := TPGHotKeyMain(TPGHotKeyMain.GlobList[C]);
+            AuxHotKeys := TPGHotKey(TPGHotKey.GlobList[C]);
             if AuxHotKeys.Enabled then
             begin
                 if KeysCount = AuxHotKeys.Keys.Count then
@@ -204,21 +195,21 @@ procedure TPGHotKeyDeclare.Execute(Gramatica: TGramatica);
 var
     Titulo: String;
     Quantidade: Byte;
-    HotKey: TPGHotKeyMain;
+    HotKey: TPGHotKey;
     id : TPGItem;
 begin
     Gramatica.TokenList.GetNextToken;
     id := IdentificadorLocalizar(Gramatica);
-    if (not Assigned(id)) or (id is TPGHotKeyMain) then
+    if (not Assigned(id)) or (id is TPGHotKey) then
     begin
         Titulo := Gramatica.TokenList.Token.Lexema;
         Quantidade := LerParamentros(Gramatica, 1, 4);
         if not Gramatica.Erro then
         begin
             if (not Assigned(id)) then
-               HotKey := TPGHotKeyMain.Create(Titulo, nil)
+               HotKey := TPGHotKey.Create(Titulo, nil)
             else
-               HotKey := TPGHotKeyMain(Id);
+               HotKey := TPGHotKey(Id);
 
             if Quantidade = 4 then
                HotKey.Detect := Gramatica.Pilha.Desempilhar(0);
@@ -239,63 +230,35 @@ end;
 
 { TPGHotKeysMirror }
 
-constructor TPGHotKeyMirror.Create(ItemDad: TPGItem; Name: String);
+constructor TPGHotKeyMirror.Create(ItemDad: TPGItem; AName: String);
+var
+    C : Word;
+    NewName: String;
 begin
-    inherited Create(ItemDad, Name, TPGHotKeyMain.Create(Name, Self));
+    C := 0;
+    NewName := AName;
+    while Assigned(TPGHotKey.GlobList.FindName(NewName)) do
+    begin
+        Inc(C);
+        NewName := AName+IntToStr(C);
+    end;
+    inherited Create(ItemDad, TPGHotKey.Create(NewName, Self));
     Self.ReadOnly := False;
 end;
 
 procedure TPGHotKeyMirror.Frame(Parent: TObject);
 begin
-    inherited Frame(Parent);
-    TPGFrameHotKey.Create(Self.FOriginal, Parent);
-end;
-
-function TPGHotKeyMirror.GetDetect: Byte;
-begin
-    Result := FOriginal.Detect;
-end;
-
-function TPGHotKeyMirror.GetInhibit: Boolean;
-begin
-    Result := FOriginal.Inhibit;
-end;
-
-function TPGHotKeyMirror.GetKeysHex: String;
-begin
-    Result := FOriginal.GetKeysHex;
-end;
-
-function TPGHotKeyMirror.GetScript: String;
-begin
-    Result := FOriginal.Script;
-end;
-
-procedure TPGHotKeyMirror.SetDetect(Value: Byte);
-begin
-    FOriginal.Detect := Value;
-end;
-
-procedure TPGHotKeyMirror.SetInhibit(Value: Boolean);
-begin
-    FOriginal.Inhibit := Value;
-end;
-
-procedure TPGHotKeyMirror.SetKeysHex(Value: String);
-begin
-    FOriginal.SetKeysHex(Value);
-end;
-
-procedure TPGHotKeyMirror.SetScript(Value: String);
-begin
-    FOriginal.Script := Value;
+    TPGFrameHotKey.Create(Self.ItemOriginal, Parent);
 end;
 
 initialization
     TPGHotKeyDeclare.Create(GlobalItemCommand,'HotKey');
-    TPGHotKeyMain.GlobList := TPGFolder.Create(GlobalItemTrigger,'HotKey');
-    GlobalCollection.RegisterClass(TPGHotKeyMirror);
+    TPGHotKey.GlobList := TPGFolder.Create(GlobalItemTrigger,'HK');
+    TPGHotKey.FlockCollection := TPGItemCollect.Create('HotKeys', True);
+    TPGHotKey.FlockCollection.RegisterClass('Folder',TPGFolder);
+    TPGHotKey.FlockCollection.RegisterClass('HotKeys',TPGHotKeyMirror);
 
 finalization
+    TPGHotKey.FlockCollection.Free();
 
 end.

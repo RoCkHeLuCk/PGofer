@@ -19,7 +19,7 @@ uses
   PGofer.Key in '..\..\Libraries\Lib\Key\PGofer.Key.pas',
   PGofer.Key.Controls in '..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas',
   PGofer.Links in '..\..\Libraries\Lib\Links\PGofer.Links.pas',
-  PGofer.Links.Frame in '..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas' {PGFrameLinks: TFrame},
+  PGofer.Links.Frame in '..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas' {PGLinkFrame: TFrame},
   PGofer.Links.ThreadLoadImage in '..\..\Libraries\Lib\Links\PGofer.Links.ThreadLoadImage.pas',
   PGofer.Math in '..\..\Libraries\Lib\Math\PGofer.Math.pas',
   PGofer.Math.Controls in '..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas',
@@ -55,7 +55,7 @@ uses
   PGofer.Form.Controller in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas' {FrmController},
   PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
   PGofer.Form.Console in '..\..\Libraries\Form\Console\PGofer.Form.Console.pas' {FrmConsole},
-  PGofer.Form.Cluster in '..\..\Libraries\Form\Cluster\PGofer.Form.Cluster.pas' {FrmCluster},
+  PGofer.Form.Controller.Flock in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.Flock.pas' {FrmFlock},
   Vcl.Forms,
   UnitMain in 'UnitMain.pas' {FrmMain};
 
@@ -66,6 +66,6 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  Application.Run;
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    Application.Run;
 end.

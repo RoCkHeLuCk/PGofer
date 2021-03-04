@@ -3,9 +3,10 @@ unit PGofer.Form.Controller;
 interface
 
 uses
+    System.Classes, System.IniFiles,
     Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-    Vcl.StdCtrls,
-    PGofer.Classes, PGofer.Component.TreeView, System.Classes, Vcl.Menus;
+    Vcl.StdCtrls, Vcl.Menus,
+    PGofer.Classes, PGofer.Component.TreeView;
 
 type
     TFrmController = class(TForm)
@@ -22,7 +23,7 @@ type
         mniZA: TMenuItem;
         mniAlphaSortFolder: TMenuItem;
         mniN1: TMenuItem;
-        constructor Create(ACollectItem: TPGCollectItem); reintroduce;
+        constructor Create(ACollectItem: TPGItemCollect); reintroduce;
         destructor Destroy(); override;
         procedure TrvControllerGetSelectedIndex(Sender: TObject;
             Node: TTreeNode);
@@ -37,17 +38,18 @@ type
         procedure mniZAClick(Sender: TObject);
         procedure mniAlphaSortFolderClick(Sender: TObject);
     private
+        FIniFile: TIniFile;
         FAlphaSort: Boolean;
         FAlphaSortFolder: Boolean;
         procedure PanelCleaning();
     protected
-        FCollectItem: TPGCollectItem;
+        FCollectItem: TPGItemCollect;
         FSelectedItem: TPGItem;
+        FItemForm: TPGItem;
+        procedure IniConfigSave(); virtual;
+        procedure IniConfigLoad(); virtual;
     public
     end;
-
-var
-    FrmController: TFrmController;
 
 implementation
 
@@ -58,28 +60,31 @@ uses
     PGofer.Sintatico.Classes, PGofer.Sintatico,
     PGofer.Forms, PGofer.Forms.Controls;
 
-constructor TFrmController.Create(ACollectItem: TPGCollectItem);
+constructor TFrmController.Create(ACollectItem: TPGItemCollect);
 begin
     inherited Create(nil);
+    FIniFile := TIniFile.Create(PGofer.Sintatico.IniConfigFile);
     FCollectItem := ACollectItem;
     FCollectItem.TreeViewCreate(TrvController);
-    FAlphaSort := False;
+    FAlphaSort := True;
     FAlphaSortFolder := True;
     FSelectedItem := nil;
-    TPGForm.Create(Self);
-    if Self.ClassType = TFrmController then
-       FrmController := Self;
-    FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
+    Self.Name := 'Frm'+FCollectItem.Name;
+    FItemForm := TPGForm.Create(Self);
+    IniConfigLoad();
+    TrvController.AlphaSort(True);
 end;
 
 destructor TFrmController.Destroy();
 begin
-    FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
+    IniConfigSave();
+    FIniFile.Free;
     FCollectItem.TreeViewDestroy();
     FAlphaSort := False;
     FAlphaSortFolder := False;
     FSelectedItem := nil;
-    FrmController := nil;
+    FItemForm.Free;
+    FItemForm := nil;
     inherited Destroy();
 end;
 
@@ -102,25 +107,70 @@ end;
 
 procedure TFrmController.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-    Action := caFree;
+    IniConfigSave();
+end;
+
+procedure TFrmController.IniConfigLoad();
+begin
+    Self.Left := FIniFile.ReadInteger(Self.Name, 'Left', Self.Left);
+    Self.Top := FIniFile.ReadInteger(Self.Name, 'Top', Self.Top);
+    Self.Width := FIniFile.ReadInteger(Self.Name, 'Width', Self.Width);
+    Self.Height := FIniFile.ReadInteger(Self.Name, 'Height', Self.Height);
+    Self.PnlTreeView.Width :=
+        FIniFile.ReadInteger(Self.Name,'TreeViewWidth',
+                             Self.TrvController.Width);
+    Self.FAlphaSort :=
+        FIniFile.ReadBool(Self.Name,'AlphaSort',Self.FAlphaSort);
+    Self.FAlphaSortFolder :=
+        FIniFile.ReadBool(Self.Name,'AlphaSortFolder', FAlphaSortFolder);
+    Self.mniAlphaSortFolder.Checked := FAlphaSortFolder;
+    FormPositionFixed(Self);
+    if FIniFile.ReadBool(Self.Name, 'Maximized', False) then
+        Self.WindowState := wsMaximized;
+end;
+
+procedure TFrmController.IniConfigSave();
+begin
+    FormPositionFixed(Self);
+    if Self.WindowState <> wsMaximized then
+    begin
+        FIniFile.WriteInteger(Self.Name, 'Left', Self.Left);
+        FIniFile.WriteInteger(Self.Name, 'Top', Self.Top);
+        FIniFile.WriteInteger(Self.Name, 'Width', Self.Width);
+        FIniFile.WriteInteger(Self.Name, 'Height', Self.Height);
+        FIniFile.WriteBool(Self.Name, 'Maximized', False);
+    end
+    else
+        FIniFile.WriteBool(Self.Name, 'Maximized', True);
+
+    FIniFile.WriteInteger(Self.Name,'TreeViewWidth',Self.TrvController.Width);
+    FIniFile.WriteBool(Self.Name,'AlphaSort',Self.FAlphaSort);
+    FIniFile.WriteBool(Self.Name,'AlphaSortFolder', Self.FAlphaSortFolder);
+
+    FIniFile.UpdateFile;
 end;
 
 procedure TFrmController.mniAlphaSortFolderClick(Sender: TObject);
 begin
     FAlphaSortFolder := not FAlphaSortFolder;
     mniAlphaSortFolder.Checked := FAlphaSortFolder;
+    TrvController.AlphaSort(True);
 end;
 
 procedure TFrmController.mniAZClick(Sender: TObject);
 begin
     FAlphaSort := True;
     TrvController.AlphaSort(True);
+    btnAlphaSort.OnClick := mniZAClick;
+    btnAlphaSort.Caption := 'ZA';
 end;
 
 procedure TFrmController.mniZAClick(Sender: TObject);
 begin
     FAlphaSort := False;
     TrvController.AlphaSort(True);
+    btnAlphaSort.OnClick := mniAZClick;
+    btnAlphaSort.Caption := 'AZ';
 end;
 
 procedure TFrmController.TrvControllerCompare(Sender: TObject;
@@ -201,8 +251,8 @@ begin
     if TrvController.isSelectWork then
     begin
         if Assigned(TrvController.Selected) and
-            (TPGItem(TrvController.Selected.Data) is TPGItem) and
-            (TPGItem(TrvController.Selected.Data) <> FSelectedItem) then
+          (TPGItem(TrvController.Selected.Data) is TPGItem) and
+          (TPGItem(TrvController.Selected.Data) <> FSelectedItem) then
         begin
             Self.PanelCleaning();
             FSelectedItem := TPGItem(TrvController.Selected.Data);

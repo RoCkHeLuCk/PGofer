@@ -31,6 +31,7 @@ type
         procedure Execute(Gramatica: TGramatica); virtual;
         procedure AttributeAdd(AttType: TPGAttributeType; Value: String);
         property AttributeList: TObjectList<TPGRttiAttribute> read FAttributeList;
+        function isItemExist(AName:String): Boolean; virtual;
     end;
 
     TPGFolder = class (TPGItemCMD)
@@ -46,29 +47,32 @@ type
 
     TPGItemOriginal = class (TPGItemCMD)
     private
-        FMirror : TPGItemMirror;
+        FItemMirror : TPGItemMirror;
     protected
         procedure SetName(Name: String); override;
     public
         constructor Create(ItemDad: TPGItem; Name: String;
-                           Mirror: TPGItemMirror); overload;
+                           ItemMirror: TPGItemMirror); overload;
         destructor Destroy(); override;
+        property ItemMirror: TPGItemMirror read FItemMirror;
     end;
 
     TPGItemMirror = class (TPGItem)
-    protected
-        FOriginal : TPGItemOriginal;
+    private
+        FItemOriginal : TPGItemOriginal;
     public
-        constructor Create(ItemDad: TPGItem; Name: String;
-                           Original : TPGItemOriginal); overload;
+        constructor Create(ItemDad: TPGItem;
+                           ItemOriginal : TPGItemOriginal); overload;
         destructor Destroy(); override;
+        property ItemOriginal: TPGItemOriginal read FItemOriginal;
+        class function TranscendName(AName: String): String;
     end;
 
 
 implementation
 
 uses
-    System.Classes, System.TypInfo,
+    System.Classes, System.SysUtils, System.TypInfo,
     PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls;
 
 { TPGAttribute }
@@ -125,6 +129,14 @@ begin
         Gramatica.TokenList.GetNextToken;
         Self.RttiExecute(Gramatica, Self);
     end;
+end;
+
+function TPGItemCMD.isItemExist(AName: String): Boolean;
+var
+    Item : TPGItem;
+begin
+    Item := FindID(GlobalCollection, AName);
+    Result := (Assigned(Item) and (Item <> Self));
 end;
 
 procedure TPGItemCMD.RttiCreate();
@@ -290,46 +302,59 @@ end;
 { TPGItemMirror }
 
 constructor TPGItemOriginal.Create(ItemDad: TPGItem; Name: String;
-                                   Mirror: TPGItemMirror);
+                                   ItemMirror: TPGItemMirror);
 begin
     inherited Create(ItemDad, Name);
-    FMirror := Mirror;
+    FItemMirror := ItemMirror;
 end;
 
 destructor TPGItemOriginal.Destroy();
 begin
-    if Assigned(FMirror) then
-       FMirror.Free();
-    FMirror := nil;
+    if Assigned(FItemMirror) then
+       FItemMirror.Free();
+    FItemMirror := nil;
     inherited;
 end;
 
 procedure TPGItemOriginal.SetName(Name: String);
 begin
     inherited;
-    if Assigned(FMirror) then
-       FMirror.Name := Name;
+    if Assigned(FItemMirror) then
+       FItemMirror.Name := Name;
 end;
 
 { TPGItemMirror }
 
-constructor TPGItemMirror.Create(ItemDad: TPGItem; Name: String;
-                                 Original : TPGItemOriginal);
+constructor TPGItemMirror.Create(ItemDad: TPGItem;
+                                 ItemOriginal : TPGItemOriginal);
 begin
-    inherited Create(ItemDad, Name);
-    FOriginal := Original;
+    inherited Create(ItemDad, ItemOriginal.Name);
+    FItemOriginal := ItemOriginal;
 end;
 
 destructor TPGItemMirror.Destroy();
 begin
-    FOriginal.FMirror := nil;
-    FOriginal.Free;
+    FItemOriginal.FItemMirror := nil;
+    FItemOriginal.Free;
     inherited;
 end;
 
 
+class function TPGItemMirror.TranscendName(AName: String): String;
+var
+    C : Word;
+begin
+    C := 0;
+    Result := AName;
+    while Assigned(FindID(GlobalCollection, Result)) do
+    begin
+        Inc(C);
+        Result := AName + IntToStr(C);
+    end;
+end;
+
 initialization
-   GlobalCollection.RegisterClass(TPGFolder);
+   GlobalCollection.RegisterClass('Folder',TPGFolder);
 
 finalization
 

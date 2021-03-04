@@ -154,6 +154,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Font.Name = 'Courier New'
         Font.Style = []
         TabOrder = 0
+        OnKeyUp = EdtScriptKeyUp
         CodeFolding.GutterShapeSize = 11
         CodeFolding.CollapsedLineColor = clGrayText
         CodeFolding.FolderBarLinesColor = clGrayText
@@ -170,7 +171,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Gutter.Font.Style = []
         Gutter.LeftOffset = 1
         Gutter.ShowLineNumbers = True
-        OnChange = EdtScriptChange
         FontSmoothing = fsmNone
       end
     end

@@ -1,5 +1,5 @@
-inherited FrmCluster: TFrmCluster
-  Caption = 'FrmCluster'
+inherited FrmFlock: TFrmFlock
+  Caption = 'FrmFlock'
   PixelsPerInch = 96
   TextHeight = 13
   inherited PnlTreeView: TPanel
@@ -7,15 +7,16 @@ inherited FrmCluster: TFrmCluster
       object btnCreate: TButton
         Left = 46
         Top = 2
-        Width = 61
+        Width = 69
         Height = 32
         Caption = 'Create'
         DropDownMenu = ppmCreate
         Style = bsSplitButton
         TabOrder = 1
+        OnClick = onCreateItemPopUpClick
       end
       object btnDelete: TButton
-        Left = 108
+        Left = 116
         Top = 3
         Width = 61
         Height = 31

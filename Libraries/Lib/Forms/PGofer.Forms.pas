@@ -17,7 +17,7 @@ type
         function GetAlphaBlendValue(): Byte;
         procedure SetAlphaBlendValue(AlphaBlendValue: Byte);
         function GetEnabled(): Boolean;
-        procedure SetEnabled(Enabled: Boolean);
+        procedure SetFormEnabled(Value: Boolean);
         function GetHeigth(): Integer;
         procedure SetHeigth(Heigth: Integer);
         function GetLeft(): Integer;
@@ -45,7 +45,7 @@ type
         property AlphaBlendValue: Byte read GetAlphaBlendValue
             write SetAlphaBlendValue;
         procedure Close();
-        property Enabled: Boolean read GetEnabled write SetEnabled;
+        property Enabled: Boolean read GetEnabled write SetFormEnabled;
         property Heigth: Integer read GetHeigth write SetHeigth;
         property Left: Integer read GetLeft write SetLeft;
         property Name;
@@ -111,9 +111,9 @@ begin
     Result := FForm.Enabled;
 end;
 
-procedure TPGForm.SetEnabled(Enabled: Boolean);
+procedure TPGForm.SetFormEnabled(Value: Boolean);
 begin
-    FForm.Enabled := Enabled;
+    FForm.Enabled := Value;
 end;
 
 procedure TPGForm.SetHeigth(Heigth: Integer);
@@ -211,7 +211,6 @@ end;
 
 procedure TPGForm.Frame(Parent: TObject);
 begin
-    inherited Frame(Parent);
     TPGFrameForms.Create(Self, Parent);
 end;
 
