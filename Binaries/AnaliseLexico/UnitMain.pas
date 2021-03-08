@@ -61,7 +61,7 @@ begin
     if (FileExists(paramstr(0) + '.pas')) then
         SynEdit1.Lines.LoadFromFile(paramstr(0) + '.pas');
 
-    FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1, 'FrmAutoComplete');
+    FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1);
     FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
 
     TPGForm.Create(Self);

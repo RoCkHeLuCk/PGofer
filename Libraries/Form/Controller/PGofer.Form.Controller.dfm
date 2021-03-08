@@ -3,8 +3,8 @@ object FrmController: TFrmController
   Top = 386
   BorderStyle = bsSizeToolWin
   Caption = 'Controller'
-  ClientHeight = 302
-  ClientWidth = 689
+  ClientHeight = 296
+  ClientWidth = 563
   Color = clBtnFace
   DoubleBuffered = True
   ParentFont = True
@@ -14,13 +14,14 @@ object FrmController: TFrmController
   ShowHint = True
   Visible = True
   OnClose = FormClose
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 327
     Top = 0
     Width = 5
-    Height = 302
+    Height = 296
     Beveled = True
     ExplicitLeft = 241
     ExplicitHeight = 536
@@ -29,7 +30,7 @@ object FrmController: TFrmController
     Left = 0
     Top = 0
     Width = 327
-    Height = 302
+    Height = 296
     Align = alLeft
     TabOrder = 0
     object PnlFind: TPanel
@@ -65,7 +66,7 @@ object FrmController: TFrmController
     end
     object PnlButton: TPanel
       Left = 1
-      Top = 265
+      Top = 259
       Width = 325
       Height = 36
       Align = alBottom
@@ -84,12 +85,34 @@ object FrmController: TFrmController
         WordWrap = True
         OnClick = mniAZClick
       end
+      object btnCreate: TButton
+        Left = 46
+        Top = 2
+        Width = 69
+        Height = 32
+        Caption = 'Create'
+        PopupMenu = ppmCreate
+        Style = bsSplitButton
+        TabOrder = 1
+        Visible = False
+        OnClick = onCreateItemPopUpClick
+      end
+      object btnDelete: TButton
+        Left = 116
+        Top = 3
+        Width = 61
+        Height = 31
+        Caption = 'Delete'
+        TabOrder = 2
+        Visible = False
+        OnClick = btnDeleteClick
+      end
     end
     object TrvController: TTreeViewEx
       Left = 1
       Top = 29
       Width = 325
-      Height = 236
+      Height = 230
       Align = alClient
       HideSelection = False
       Indent = 19
@@ -110,8 +133,8 @@ object FrmController: TFrmController
   object PnlFrame: TPanel
     Left = 332
     Top = 0
-    Width = 357
-    Height = 302
+    Width = 231
+    Height = 296
     Align = alClient
     Caption = 'Nenhum item selecionado!'
     DoubleBuffered = True
@@ -119,8 +142,8 @@ object FrmController: TFrmController
     TabOrder = 1
   end
   object ppmAlphaSort: TPopupMenu
-    Left = 28
-    Top = 160
+    Left = 20
+    Top = 172
     object mniAZ: TMenuItem
       Caption = 'AZ'
       OnClick = mniAZClick
@@ -137,5 +160,9 @@ object FrmController: TFrmController
       Checked = True
       OnClick = mniAlphaSortFolderClick
     end
+  end
+  object ppmCreate: TPopupMenu
+    Left = 88
+    Top = 172
   end
 end

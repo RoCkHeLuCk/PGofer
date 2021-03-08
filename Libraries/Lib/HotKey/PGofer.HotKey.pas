@@ -23,7 +23,6 @@ type
         constructor Create(Name: String; Mirror: TPGItemMirror); overload;
         destructor Destroy(); override;
         class var GlobList: TPGItem;
-        class var FlockCollection: TPGItemCollect;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
         property Keys: TList<Word> read FKeys;

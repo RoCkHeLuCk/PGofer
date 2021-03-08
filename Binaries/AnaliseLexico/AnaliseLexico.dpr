@@ -1,6 +1,7 @@
 program AnaliseLexico;
 uses
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
+  PGofer.Collection in '..\..\Libraries\Lib\Kernel\PGofer.Collection.pas',
   PGofer.Item.Frame in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGFrame: TFrame},
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
@@ -55,7 +56,6 @@ uses
   PGofer.Form.Controller in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas' {FrmController},
   PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
   PGofer.Form.Console in '..\..\Libraries\Form\Console\PGofer.Form.Console.pas' {FrmConsole},
-  PGofer.Form.Controller.Flock in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.Flock.pas' {FrmFlock},
   Vcl.Forms,
   UnitMain in 'UnitMain.pas' {FrmMain};
 
@@ -66,6 +66,6 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    Application.Run;
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  Application.Run;
 end.

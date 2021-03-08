@@ -129,6 +129,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Collection.pas"/>
         <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
             <Form>PGFrame</Form>
             <DesignClass>TFrame</DesignClass>
@@ -206,9 +207,6 @@
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
             <Form>FrmConsole</Form>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Form\Controller\PGofer.Form.Controller.Flock.pas">
-            <Form>FrmFlock</Form>
         </DCCReference>
         <DCCReference Include="UnitMain.pas">
             <Form>FrmMain</Form>

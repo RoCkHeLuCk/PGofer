@@ -79,6 +79,14 @@ object FrmPGofer: TFrmPGofer
       Font.Style = []
       TabOrder = 0
       OnKeyDown = EdtCommandKeyDown
+      CodeFolding.GutterShapeSize = 11
+      CodeFolding.CollapsedLineColor = clGrayText
+      CodeFolding.FolderBarLinesColor = clGrayText
+      CodeFolding.IndentGuidesColor = clGray
+      CodeFolding.IndentGuides = True
+      CodeFolding.ShowCollapsedLine = False
+      CodeFolding.ShowHintMark = True
+      UseCodeFolding = False
       Gutter.Font.Charset = DEFAULT_CHARSET
       Gutter.Font.Color = clWindowText
       Gutter.Font.Height = -11
@@ -127,7 +135,7 @@ object FrmPGofer: TFrmPGofer
     Left = 79
     Top = 4
     Bitmap = {
-      494C01010200B401B40110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010200B801B80110001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000001000000001002000000000000010
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

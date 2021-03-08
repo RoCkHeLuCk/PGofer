@@ -184,7 +184,7 @@ begin
     RttiType := RttiContext.GetType(Self.ClassType);
     AttributesAdd(RttiType.GetAttributes,Self);
 
-    if not Self.CollectDad.OnlyRegister then
+    if Self.CollectDad = GlobalCollection then
     begin
         CreateItems(TArray<TRttiMember>(RttiType.GetProperties));
         CreateItems(TArray<TRttiMember>(RttiType.GetMethods));

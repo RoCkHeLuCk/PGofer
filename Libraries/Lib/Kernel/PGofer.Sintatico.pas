@@ -4,7 +4,7 @@ interface
 
 uses
     System.SysUtils, System.Classes, System.Generics.Collections,
-    PGofer.Classes, PGofer.Lexico;
+    PGofer.Classes, PGofer.Collection, PGofer.Lexico;
 
 type
     TPGConsoleNotify = procedure(Value: String; Show: Boolean) of object;
@@ -46,6 +46,7 @@ type
     procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
 
 var
+    GlobalFlockList: TArray<TPGItemCollect>;
     GlobalCollection: TPGItemCollect;
     GlobalItemCommand: TPGItem;
     GlobalItemTrigger: TPGItem;
@@ -187,7 +188,7 @@ end;
 initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
     IniConfigFile := DirCurrent+'\Config.ini';
-    GlobalCollection := TPGItemCollect.Create('Global', False);
+    GlobalCollection := TPGItemCollect.Create('Global');
     GlobalItemCommand :=  TPGFolder.Create(GlobalCollection, 'Commands');
     GlobalItemTrigger :=  TPGFolder.Create(GlobalCollection, 'Triggers');
 

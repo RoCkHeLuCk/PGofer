@@ -39,7 +39,7 @@ begin
     inherited Create(Item, Parent);
     FItem := TPGFuncao(Item);
     mmoContents.Text := FItem.Contents;
-    frmAutoComplete := TFrmAutoComplete.Create(mmoContents, 'FrmAutoCompleteFunction');
+    frmAutoComplete := TFrmAutoComplete.Create(mmoContents);
 end;
 
 destructor TPGFrameFunction.Destroy;

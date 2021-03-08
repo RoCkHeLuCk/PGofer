@@ -4,9 +4,13 @@ object FrmConsole: TFrmConsole
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'Console'
-  ClientHeight = 125
-  ClientWidth = 176
+  ClientHeight = 80
+  ClientWidth = 200
   Color = clBtnFace
+  Constraints.MinHeight = 30
+  Constraints.MinWidth = 200
+  DefaultMonitor = dmDesktop
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -26,27 +30,30 @@ object FrmConsole: TFrmConsole
   object PnlConsole: TPanel
     Left = 0
     Top = 0
-    Width = 176
-    Height = 125
+    Width = 200
+    Height = 80
     Align = alClient
     BevelInner = bvRaised
     TabOrder = 0
+    ExplicitWidth = 176
+    ExplicitHeight = 125
     object PnlArrastar: TPanel
       Left = 2
       Top = 2
-      Width = 172
+      Width = 196
       Height = 12
       Align = alTop
       BevelOuter = bvNone
       TabOrder = 0
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
+      ExplicitWidth = 172
       DesignSize = (
-        172
+        196
         12)
       object BtnFixed: TSpeedButton
         AlignWithMargins = True
-        Left = 155
+        Left = 179
         Top = 0
         Width = 15
         Height = 13
@@ -105,19 +112,20 @@ object FrmConsole: TFrmConsole
       object PnlArrastar2: TPanel
         Left = 3
         Top = 3
-        Width = 149
+        Width = 173
         Height = 6
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
+        ExplicitWidth = 149
       end
     end
     object EdtConsole: TSynEdit
       Left = 2
       Top = 14
-      Width = 172
-      Height = 109
+      Width = 196
+      Height = 64
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
@@ -148,13 +156,15 @@ object FrmConsole: TFrmConsole
       ScrollBars = ssVertical
       WantTabs = True
       FontSmoothing = fsmNone
+      ExplicitWidth = 172
+      ExplicitHeight = 109
     end
   end
   object TmrConsole: TTimer
     Enabled = False
     Interval = 2000
     OnTimer = TmrConsoleTimer
-    Left = 44
-    Top = 40
+    Left = 48
+    Top = 20
   end
 end
