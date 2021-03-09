@@ -6,7 +6,7 @@ uses
     PGofer.Sintatico.Classes;
 
 type
-    // Arrumar o Deg, RAD, GRA do Math
+    //????????? Arrumar o Deg, RAD, GRA do Math
 
 {$M+}
     TPGMath = class(TPGItemCMD)
@@ -24,7 +24,7 @@ type
         function DegToGrad(Valor: Extended): Extended;
         function DegToRad(Valor: Extended): Extended;
         function Format(Prefix: Boolean; Format: String;
-            Valor: Extended): String;
+          Valor: Extended): String;
         function GradToDeg(Valor: Extended): Extended;
         function GradToRad(Valor: Extended): Extended;
         function Hex(Valor: UInt64): String;
@@ -41,7 +41,7 @@ type
 {$TYPEINFO ON}
 
 var
-    PGMath : TPGMath;
+    PGMath: TPGMath;
 
 implementation
 
@@ -102,7 +102,7 @@ begin
 end;
 
 function TPGMath.Format(Prefix: Boolean; Format: String;
-    Valor: Extended): String;
+  Valor: Extended): String;
 begin
     Result := PGofer.Math.Controls.FormatConvert(Prefix, Format, Valor);
 end;

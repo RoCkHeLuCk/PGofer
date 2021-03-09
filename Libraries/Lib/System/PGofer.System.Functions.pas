@@ -3,27 +3,28 @@ unit PGofer.System.Functions;
 interface
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Classes;
+    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
+    PGofer.Sintatico.Classes;
 
 type
 
-    {$M+}
-    TPGFuncao = class(TPGItemCMD)
+{$M+}
+    TPGFunction = class(TPGItemCMD)
     private
         FTokenList: TTokenList;
-        function getContent():String;
-        procedure setContent(Content:String);
+        function getContent(): String;
+        procedure setContent(Content: String);
     public
         class var GlobList: TPGItem;
         destructor Destroy(); override;
         procedure Execute(Gramatica: TGramatica); override;
         procedure Frame(Parent: TObject); override;
     published
-        property Contents : String read getContent write setContent;
+        property Contents: String read getContent write setContent;
     end;
-    {$TYPEINFO ON}
+{$TYPEINFO ON}
 
-    TPGFunction = class(TPGItemCMD)
+    TPGFunctionDeclare = class(TPGItemCMD)
     private
         procedure DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
     public
@@ -33,38 +34,40 @@ type
 implementation
 
 uses
-    PGofer.Sintatico.Controls, PGofer.System.Variants, PGofer.System.Functions.Frame;
+    PGofer.Sintatico.Controls, PGofer.System.Variants,
+    PGofer.System.Functions.Frame;
 
 { TPGFunção }
 
-destructor TPGFuncao.Destroy();
+destructor TPGFunction.Destroy();
 begin
     FTokenList.Free;
     FTokenList := nil;
     inherited Destroy();
 end;
 
-procedure TPGFuncao.Execute(Gramatica: TGramatica);
+procedure TPGFunction.Execute(Gramatica: TGramatica);
 var
     C: FixedInt;
     Gramatica2: TGramatica;
     VarTitulo: String;
     VarValor: Variant;
 begin
-    C := LerParamentros(Gramatica, 0, Self.Count-1);
+    C := LerParamentros(Gramatica, 0, Self.Count - 1);
     if not Gramatica.Erro then
     begin
         Gramatica2 := TGramatica.Create('$Função: ' + Self.Name,
-            Gramatica.Local, False);
+          Gramatica.Local, False);
 
         while C > 0 do
         begin
             VarTitulo := Self[C].Name;
-            VarValor := Gramatica.Pilha.Desempilhar(TPGConstante(Self[C]).Valor);
-            TPGVariavel.Create(Gramatica2.Local, VarTitulo, VarValor);
+            VarValor := Gramatica.Pilha.Desempilhar
+              (TPGConstant(Self[C]).Valor);
+            TPGVariable.Create(Gramatica2.Local, VarTitulo, VarValor);
             Dec(C);
         end;
-        TPGVariavel.Create(Gramatica2.Local, 'Result', '');
+        TPGVariable.Create(Gramatica2.Local, 'Result', '');
         Gramatica2.SetTokens(Self.FTokenList);
 
         Gramatica2.Start;
@@ -73,7 +76,7 @@ begin
 
         if not Gramatica.Erro then
         begin
-            VarValor := TPGVariavel(Gramatica2.Local.FindName('Result')).Valor;
+            VarValor := TPGVariable(Gramatica2.Local.FindName('Result')).Valor;
             Gramatica.Pilha.Empilhar(VarValor);
         end;
 
@@ -81,12 +84,12 @@ begin
     end;
 end;
 
-procedure TPGFuncao.Frame(Parent: TObject);
+procedure TPGFunction.Frame(Parent: TObject);
 begin
     TPGFrameFunction.Create(Self, Parent);
 end;
 
-function TPGFuncao.getContent: String;
+function TPGFunction.getContent: String;
 var
     Automato: TAutomato;
 begin
@@ -95,7 +98,7 @@ begin
     Automato.Free;
 end;
 
-procedure TPGFuncao.setContent(Content: String);
+procedure TPGFunction.setContent(Content: String);
 var
     Automato: TAutomato;
 begin
@@ -107,20 +110,21 @@ end;
 
 { TPGFunction }
 
-procedure TPGFunction.DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
+procedure TPGFunctionDeclare.DeclaraNivel1(Gramatica: TGramatica; Nivel: TPGItem);
 var
-    Função: TPGFuncao;
+    Função: TPGFunction;
 begin
     IdentificadorLocalizar(Gramatica);
     if (Gramatica.TokenList.Token.Classe = cmdID) then
     begin
-        Função := TPGFuncao.Create(Nivel, String(Gramatica.TokenList.Token.Lexema));
+        Função := TPGFunction.Create(Nivel,
+          String(Gramatica.TokenList.Token.Lexema));
         Gramatica.TokenList.GetNextToken;
         if Gramatica.TokenList.Token.Classe = cmdLPar then
         begin
             Gramatica.TokenList.GetNextToken;
             if Gramatica.TokenList.Token.Classe = cmdID then
-                TPGVarDec.ExecuteEx(Gramatica, Função);
+                TPGVariableDeclare.ExecuteEx(Gramatica, Função);
 
             if (not Gramatica.Erro) then
             begin
@@ -134,8 +138,8 @@ begin
                         if (not Gramatica.Erro) then
                         begin
                             Função.FTokenList :=
-                                TTokenList
-                                (NativeInt(Gramatica.Pilha.Desempilhar(0)));
+                              TTokenList
+                              (NativeInt(Gramatica.Pilha.Desempilhar(0)));
                             exit;
                         end;
                     end
@@ -154,22 +158,22 @@ begin
         Gramatica.ErroAdd('Identificador esperado.');
 end;
 
-procedure TPGFunction.Execute(Gramatica: TGramatica);
+procedure TPGFunctionDeclare.Execute(Gramatica: TGramatica);
 begin
     // declara global ou local
     Gramatica.TokenList.GetNextToken;
     if Gramatica.TokenList.Token.Classe = cmdRes_global then
     begin
         Gramatica.TokenList.GetNextToken;
-        DeclaraNivel1(Gramatica, TPGFuncao.GlobList);
+        DeclaraNivel1(Gramatica, TPGFunction.GlobList);
     end
     else
         DeclaraNivel1(Gramatica, Gramatica.Local);
 end;
 
 initialization
-    TPGFunction.Create(GlobalItemCommand);
-    TPGFuncao.GlobList := TPGFolder.Create(GlobalCollection, 'Functions');
+    TPGFunctionDeclare.Create(GlobalItemCommand);
+    TPGFunction.GlobList := TPGFolder.Create(GlobalCollection, 'Functions');
 
 finalization
 

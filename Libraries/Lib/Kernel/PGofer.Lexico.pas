@@ -6,28 +6,28 @@ uses
     System.SysUtils, System.Generics.Collections;
 
 const
-    cIgnore  = [#9, #10, #11, #13, ' '];
+    cIgnore = [#9, #10, #11, #13, ' '];
     cNumeric = ['0' .. '9'];
-    cBinary  = ['0', '1'];
+    cBinary = ['0', '1'];
     cHexadec = ['0' .. '9', 'A' .. 'F', 'a' .. 'f'];
     cPrefix = ['y', 'z', 'a', 'f', 'p', 'n', 'u', 'm', 'k', 'M', 'G', 'T', 'P',
-        'E', 'Z', 'Y'];
+      'E', 'Z', 'Y'];
     cAlphabet = ['A' .. 'Z', 'a' .. 'z', 'À' .. 'ÿ'];
 
 type
     TLexicoClass = (cmdUnDeclar, cmdIgnore, cmdComment, cmdNumeric, cmdString,
-        cmdStream, cmdDot, cmd2Dot, cmdDotComa, cmdComa, cmdEqual, cmdMore,
-        cmdMinor, cmdAdd, cmdSub, cmdMult, cmdBar, cmdCtrBar, cmdLPar, cmdRPar,
-        cmdLBrack, cmdRBrack, cmdExclam, cmdArroba, cmdSharp, cmdPercent,
-        cmdTone, cmdAnd, cmdQuery, cmdPipe, cmdDolar, cmdAttrib, cmdMoreEqual,
-        cmdMinorEqual, cmdDifferent, cmdDriver, cmdNetwork,
+      cmdStream, cmdDot, cmd2Dot, cmdDotComa, cmdComa, cmdEqual, cmdMore,
+      cmdMinor, cmdAdd, cmdSub, cmdMult, cmdBar, cmdCtrBar, cmdLPar, cmdRPar,
+      cmdLBrack, cmdRBrack, cmdExclam, cmdArroba, cmdSharp, cmdPercent, cmdTone,
+      cmdAnd, cmdQuery, cmdPipe, cmdDolar, cmdAttrib, cmdMoreEqual,
+      cmdMinorEqual, cmdDifferent, cmdDriver, cmdNetwork,
 
-        cmdID,
+      cmdID,
 
-        cmdRes_and, cmdRes_begin, cmdRes_case, cmdRes_do, cmdRes_downto,
-        cmdRes_else, cmdRes_end, cmdRes_global, cmdRes_mod, cmdRes_not,
-        cmdRes_null, cmdRes_of, cmdRes_or, cmdRes_root, cmdRes_then, cmdRes_to,
-        cmdRes_until, cmdRes_xor, cmdEOF);
+      cmdRes_and, cmdRes_begin, cmdRes_case, cmdRes_do, cmdRes_downto,
+      cmdRes_else, cmdRes_end, cmdRes_global, cmdRes_mod, cmdRes_not,
+      cmdRes_null, cmdRes_of, cmdRes_or, cmdRes_root, cmdRes_then, cmdRes_to,
+      cmdRes_until, cmdRes_xor, cmdEOF);
 
     TCordenada = record
     private
@@ -45,7 +45,7 @@ type
 
     TToken = class
         constructor Create(Lexema: Variant; Classe: TLexicoClass;
-            Cordenada: TCordenada);
+          Cordenada: TCordenada);
         destructor Destroy(); override;
     private
         FLexema: Variant;
@@ -74,7 +74,7 @@ type
         property Position: FixedInt read FTokenPosition write FTokenPosition;
         procedure Assign(TokenList: TTokenList);
         procedure TokenAdd(Lexema: Variant; Classe: TLexicoClass;
-            Cordenada: TCordenada);
+          Cordenada: TCordenada);
         procedure GetNextToken();
     end;
 
@@ -109,9 +109,9 @@ type
 
         procedure IncCabeça(AddLexico: Boolean);
         function ReadCharInSet(Caracteres: TSysCharSet;
-            AddLexico: Boolean): Boolean;
+          AddLexico: Boolean): Boolean;
         function ReadCharOutSet(Caracteres: TSysCharSet;
-            AddLexico: Boolean): Boolean;
+          AddLexico: Boolean): Boolean;
         procedure Ignorados();
         procedure Comentario(Caracteres: TSysCharSet);
         procedure Caracter();
@@ -122,10 +122,10 @@ type
         procedure Fim();
     public
         function TokenListCreate(Algoritimo: String): TTokenList;
-        function TokenListToStr( TokenList: TTokenList ) : String;
+        function TokenListToStr(TokenList: TTokenList): String;
     end;
 
-    function CreateCordenada(): TCordenada;
+function CreateCordenada(): TCordenada;
 
 implementation
 
@@ -165,7 +165,7 @@ end;
 { TToken }
 
 constructor TToken.Create(Lexema: Variant; Classe: TLexicoClass;
-    Cordenada: TCordenada);
+  Cordenada: TCordenada);
 begin
     inherited Create();
     FLexema := Lexema;
@@ -222,7 +222,7 @@ begin
     for c := 0 to TokenList.FTokenList.Count - 1 do
     begin
         TokenAux := TToken.Create(TokenList.FTokenList[c].Lexema,
-            TokenList.FTokenList[c].Classe, TokenList.FTokenList[c].Cordenada);
+          TokenList.FTokenList[c].Classe, TokenList.FTokenList[c].Cordenada);
         Self.FTokenList.Add(TokenAux);
     end;
     FTokenPosition := 0;
@@ -243,7 +243,7 @@ begin
 end;
 
 procedure TTokenList.TokenAdd(Lexema: Variant; Classe: TLexicoClass;
-    Cordenada: TCordenada);
+  Cordenada: TCordenada);
 begin
     Self.FTokenList.Add(TToken.Create(Lexema, Classe, Cordenada));
     if Classe = cmdUnDeclar then
@@ -309,7 +309,7 @@ begin
 end;
 
 function TAutomato.ReadCharInSet(Caracteres: TSysCharSet;
-    AddLexico: Boolean): Boolean;
+  AddLexico: Boolean): Boolean;
 begin
     result := (CharInSet(FFita.Cabeça, Caracteres));
     if result then
@@ -317,7 +317,7 @@ begin
 end;
 
 function TAutomato.ReadCharOutSet(Caracteres: TSysCharSet;
-    AddLexico: Boolean): Boolean;
+  AddLexico: Boolean): Boolean;
 begin
     result := (not CharInSet(FFita.Cabeça, Caracteres));
     if result then
@@ -367,7 +367,7 @@ begin
                     IncCabeça(False);
                     while ReadCharInSet(cBinary, True) do;
                     if (FLexema.Lexema <> '') and
-                        (TryBinToInt64(FLexema.Lexema, iAux)) then
+                      (TryBinToInt64(FLexema.Lexema, iAux)) then
                     begin
                         FLexema.Lexema := iAux;
                         FLexema.Classe := cmdNumeric;
@@ -381,7 +381,7 @@ begin
                     FLexema.Lexema := '$';
                     while ReadCharInSet(cHexadec, True) do;
                     if (FLexema.Lexema <> '') and
-                        (TryStrToInt64(FLexema.Lexema, iAux)) then
+                      (TryStrToInt64(FLexema.Lexema, iAux)) then
                     begin
                         FLexema.Lexema := iAux;
                         FLexema.Classe := cmdNumeric;
@@ -543,7 +543,7 @@ begin
             '/':
                 begin
                     if ReadCharInSet(['/'], True) then
-                        Comentario([#0,#13])
+                        Comentario([#0, #13])
                     else
                         FLexema.Classe := cmdBar;
                 end;
@@ -621,7 +621,7 @@ begin
                 Ignorados();
 
             '{':
-                Comentario([#0,'}']);
+                Comentario([#0, '}']);
 
             '#':
                 Caracter();
@@ -639,7 +639,7 @@ begin
         end; // case
 
         if FLexema.Classe <> cmdIgnore then
-            Result.TokenAdd(FLexema.Lexema, FLexema.Classe, FLexema.Cordenada);
+            result.TokenAdd(FLexema.Lexema, FLexema.Classe, FLexema.Cordenada);
 
     until (FLexema.Classe in [cmdEOF]);
 end;
@@ -648,18 +648,13 @@ function TAutomato.TokenListToStr(TokenList: TTokenList): String;
 begin
     TokenList.Position := 0;
     repeat
-        Result := Result + ' ' + String(TokenList.Token.Lexema);
+        result := result + ' ' + String(TokenList.Token.Lexema);
         case TokenList.Token.Classe of
-            cmdDotComa,
-            cmdRes_begin,
-            cmdRes_do,
-            cmdRes_downto,
-            cmdRes_else,
-            cmdRes_end,
-            cmdRes_then :
-            begin
-                Result := Result + #10#13;
-            end;
+            cmdDotComa, cmdRes_begin, cmdRes_do, cmdRes_downto, cmdRes_else,
+              cmdRes_end, cmdRes_then:
+                begin
+                    result := result + #10#13;
+                end;
         end;
 
         TokenList.GetNextToken;

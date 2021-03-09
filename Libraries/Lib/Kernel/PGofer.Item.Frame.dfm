@@ -73,7 +73,7 @@ object PGFrame: TPGFrame
       AutoSize = False
       TabOrder = 0
       OnKeyUp = EdtNameKeyUp
-      RegExamples = reID
+      RegExamples = reNone
       RegExpression = '^[A-Za-z_]+\w*$'
     end
   end

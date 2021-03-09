@@ -3,8 +3,8 @@ unit PGofer.Services.Controls;
 interface
 
 function ServiceQueryConfig3(hService: THandle; dwInfoLevel: Cardinal;
-    lpBuffer: Pointer; cbBufSize: Cardinal; var pcbBytesNeeded: Cardinal)
-    : LongBool; stdcall; external 'advapi32.dll' name 'QueryServiceConfig2W';
+  lpBuffer: Pointer; cbBufSize: Cardinal; var pcbBytesNeeded: Cardinal)
+  : LongBool; stdcall; external 'advapi32.dll' name 'QueryServiceConfig2W';
 
 function ServiceStatusToAccess(Status: Cardinal): String;
 function ServiceStatusToDrive(Status: Cardinal): Integer;
@@ -17,7 +17,7 @@ function ServiceSetConfig(Machine, Service: String; Config: Byte): Boolean;
 function ServiceGetConfig(Machine, Service: String): Cardinal;
 function ServiceDelete(Machine, Service: String): Boolean;
 function ServiceCreate(Machine, Service, DisplayName, PathFile: String)
-    : Cardinal;
+  : Cardinal;
 function ServiceGetDesciption(Machine, Service: String): String;
 function ServiceSetDesciption(Machine, Service, Description: String): Boolean;
 
@@ -42,7 +42,7 @@ begin
     then
         Result := Result + '"Configuração pela Rede" ';
     if (Status and SERVICE_ACCEPT_HARDWAREPROFILECHANGE =
-        SERVICE_ACCEPT_HARDWAREPROFILECHANGE) then
+      SERVICE_ACCEPT_HARDWAREPROFILECHANGE) then
         Result := Result + '"Configuração pelo Hardware" ';
     if (Status and SERVICE_ACCEPT_POWEREVENT = SERVICE_ACCEPT_POWEREVENT) then
         Result := Result + '"Acordar o PC" ';
@@ -161,21 +161,21 @@ begin
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_START or SERVICE_STOP or SERVICE_PAUSE_CONTINUE or
-            SERVICE_QUERY_STATUS);
+          SERVICE_START or SERVICE_STOP or SERVICE_PAUSE_CONTINUE or
+          SERVICE_QUERY_STATUS);
         if (sc_Service > 0) then
         begin
             case (Control) of
                 1:
                     Result := ControlService(sc_Service, SERVICE_CONTROL_STOP,
-                        ss_Status);
+                      ss_Status);
                 4:
                     begin
                         QueryServiceStatus(sc_Service, ss_Status);
                         if ss_Status.dwCurrentState = SERVICE_PAUSED then
                         begin
                             Result := ControlService(sc_Service,
-                                SERVICE_CONTROL_CONTINUE, ss_Status);
+                              SERVICE_CONTROL_CONTINUE, ss_Status);
                         end
                         else
                         begin
@@ -185,7 +185,7 @@ begin
                     end;
                 7:
                     Result := ControlService(sc_Service, SERVICE_CONTROL_PAUSE,
-                        ss_Status);
+                      ss_Status);
             end; // case control
             CloseServiceHandle(sc_Service);
         end; // if service
@@ -205,7 +205,7 @@ begin
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_QUERY_STATUS);
+          SERVICE_QUERY_STATUS);
         if (sc_Service > 0) then
         begin
             if QueryServiceStatus(sc_Service, ss_Status) then
@@ -223,17 +223,17 @@ begin
     Result := False;
     // abre a maquina
     sc_Machie := OpenSCManager(PWideChar(Machine), nil,
-        SC_MANAGER_MODIFY_BOOT_CONFIG);
+      SC_MANAGER_MODIFY_BOOT_CONFIG);
     if (sc_Machie > 0) then
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_CHANGE_CONFIG or SERVICE_QUERY_STATUS);
+          SERVICE_CHANGE_CONFIG or SERVICE_QUERY_STATUS);
         if (sc_Service > 0) then
         begin
             // configura
             Result := ChangeServiceConfig(sc_Service, SERVICE_NO_CHANGE, Config,
-                SERVICE_ERROR_NORMAL, nil, nil, nil, nil, nil, nil, nil);
+              SERVICE_ERROR_NORMAL, nil, nil, nil, nil, nil, nil, nil);
             CloseServiceHandle(sc_Service);
         end; // if service
         CloseServiceHandle(sc_Machie);
@@ -254,7 +254,7 @@ begin
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_QUERY_STATUS);
+          SERVICE_QUERY_STATUS);
         if (sc_Service > 0) then
         begin
             sConfig := nil;
@@ -265,7 +265,7 @@ begin
                 begin
                     GetMem(sConfig, nBytesNeeded);
                     if QueryServiceConfig(sc_Service, sConfig, nBytesNeeded,
-                        nBytesNeeded) then
+                      nBytesNeeded) then
                     begin
                         pConfig := PQueryServiceConfigA(sConfig);
                         Result := pConfig.dwStartType;
@@ -289,7 +289,7 @@ begin
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_ALL_ACCESS);
+          SERVICE_ALL_ACCESS);
         if (sc_Service > 0) then
         begin
             // Deleta;
@@ -301,7 +301,7 @@ begin
 end;
 
 function ServiceCreate(Machine, Service, DisplayName, PathFile: String)
-    : Cardinal;
+  : Cardinal;
 var
     sc_Machie: SC_Handle;
 begin
@@ -312,9 +312,9 @@ begin
     begin
         // cria
         Result := CreateService(sc_Machie, PWideChar(Service),
-            PWideChar(DisplayName), SERVICE_ALL_ACCESS, SERVICE_WIN32,
-            SERVICE_DISABLED, SERVICE_ERROR_NORMAL, PWideChar(PathFile), nil,
-            nil, nil, nil, nil);
+          PWideChar(DisplayName), SERVICE_ALL_ACCESS, SERVICE_WIN32,
+          SERVICE_DISABLED, SERVICE_ERROR_NORMAL, PWideChar(PathFile), nil, nil,
+          nil, nil, nil);
         CloseServiceHandle(sc_Machie);
     end; // if servidor
 end;
@@ -334,16 +334,16 @@ begin
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_ALL_ACCESS);
+          SERVICE_ALL_ACCESS);
         if (sc_Service > 0) then
         begin
             if (not ServiceQueryConfig3(sc_Service, 1, nil, 0, dwNeeded)) and
-                (GetLastError = ERROR_INSUFFICIENT_BUFFER) then
+              (GetLastError = ERROR_INSUFFICIENT_BUFFER) then
             begin
                 try
                     GetMem(Buffer, dwNeeded);
                     if ServiceQueryConfig3(sc_Service, 1, Buffer, dwNeeded,
-                        dwNeeded) then
+                      dwNeeded) then
                         Result := Buffer^.lpDescription;
                 finally
                     FreeMem(Buffer, dwNeeded);
@@ -367,12 +367,12 @@ begin
     begin
         // abre o serviço
         sc_Service := OpenService(sc_Machie, PWideChar(Service),
-            SERVICE_ALL_ACCESS);
+          SERVICE_ALL_ACCESS);
         if (sc_Service > 0) then
         begin
             Sc_Buffer.lpDescription := PWideChar(Description);
             Result := ChangeServiceConfig2(sc_Service,
-                SERVICE_CONFIG_DESCRIPTION, @Sc_Buffer);
+              SERVICE_CONFIG_DESCRIPTION, @Sc_Buffer);
             CloseServiceHandle(sc_Service);
         end; // if service
         CloseServiceHandle(sc_Machie);

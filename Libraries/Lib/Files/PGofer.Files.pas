@@ -16,7 +16,7 @@ type
         function Delete(FileFrom: String; Flags: Word): Integer;
         function DirExists(Directory: String): Boolean;
         function Exec(FileName, Parametro, Diretorio: String;
-            ShowControl: Integer; Operation: Byte; Prioridade: Byte): String;
+          ShowControl: Integer; Operation: Byte; Prioridade: Byte): String;
         function ExtractDir(FileName: String): String;
         function ExtractExt(FileName: String): String;
         function ExtractName(FileName: String): String;
@@ -39,7 +39,7 @@ type
         function Search(FileName, DirList: String): String;
         function SetAttrib(FileName: String; Flags: Integer): Boolean;
         function SetDateTime(FileName: String;
-            CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
+          CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
     end;
 {$TYPEINFO ON}
 
@@ -67,10 +67,10 @@ begin
 end;
 
 function TPGFile.Exec(FileName, Parametro, Diretorio: String;
-    ShowControl: Integer; Operation: Byte; Prioridade: Byte): String;
+  ShowControl: Integer; Operation: Byte; Prioridade: Byte): String;
 begin
     Result := FileExec(FileName, Parametro, Diretorio, ShowControl, Operation,
-        Prioridade);
+      Prioridade);
 end;
 
 function TPGFile.ExtractDir(FileName: String): String;
@@ -183,7 +183,7 @@ begin
 end;
 
 function TPGFile.SetDateTime(FileName: String;
-    CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
+  CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
 begin
     Result := FileSetDateTime(FileName, CreateTime, ModifyTime, AcessTime);
 end;

@@ -61,7 +61,7 @@ implementation
 uses
     System.SysUtils,
     PGofer.Lexico, PGofer.Sintatico.Controls,
-    PGofer.Files.Controls, PGofer.Types, PGofer.Links.Frame;
+    PGofer.Files.Controls, PGofer.Links.Frame;
 
 { TPGLinks }
 
@@ -116,7 +116,7 @@ end;
 function TPGLink.ExecutarNivel1(): String;
 begin
     Result := FileExec(FArquivo, FParametro, FDiretorio, FEstado, FOperation,
-        FPrioridade);
+      FPrioridade);
 end;
 
 procedure TPGLink.Frame(Parent: TObject);
@@ -174,9 +174,9 @@ begin
         if not Gramatica.Erro then
         begin
             if (not Assigned(Id)) then
-               Link := TPGLink.Create(Titulo, nil)
+                Link := TPGLink.Create(Titulo, nil)
             else
-               Link := TPGLink(Id);
+                Link := TPGLink(Id);
 
             if Quantidade = 8 then
                 Link.Prioridade := Gramatica.Pilha.Desempilhar(3);
@@ -223,10 +223,11 @@ end;
 initialization
     TPGLinkDeclare.Create(GlobalItemCommand, 'Link');
     TPGLink.GlobList := TPGFolder.Create(GlobalCollection, 'Links');
-    TPGLink.FlockCollection := TPGItemCollect.Create('Links', True);
-    TPGLink.FlockCollection.RegisterClass('Folder',TPGFolder);
-    TPGLink.FlockCollection.RegisterClass('Link',TPGLinkMirror);
+    TPGLink.FlockCollection := TPGItemCollect.Create('Links');
+    TPGLink.FlockCollection.RegisterClass('Folder', TPGFolder);
+    TPGLink.FlockCollection.RegisterClass('Link', TPGLinkMirror);
+    GlobalFlockList.Add(TPGLink.FlockCollection);
 
 finalization
-    TPGLink.FlockCollection.Free();
+
 end.

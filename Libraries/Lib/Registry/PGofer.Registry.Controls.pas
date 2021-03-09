@@ -5,7 +5,7 @@ interface
 function RegistryDelete(RootKey: NativeUInt; OpenKey, Key: String): Boolean;
 function RegistryRead(RootKey: NativeUInt; OpenKey, Key: String): String;
 function RegistryWrite(RootKey: NativeUInt;
-    OpenKey, Key, Value: String): Boolean;
+  OpenKey, Key, Value: String): Boolean;
 
 implementation
 
@@ -54,7 +54,7 @@ begin
 end;
 
 function RegistryWrite(RootKey: NativeUInt;
-    OpenKey, Key, Value: String): Boolean;
+  OpenKey, Key, Value: String): Boolean;
 var
     Reg: TRegistry;
 begin

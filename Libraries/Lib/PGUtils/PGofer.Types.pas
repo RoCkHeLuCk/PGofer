@@ -5,8 +5,8 @@ interface
 uses
     System.SysUtils, System.Rtti, System.TypInfo;
 
-    function ConvertVatiantToValue(Valor: Variant; TypeKind: TTypeKind): TValue;
-    function ConvertValueToVatiant(Valor: TValue; TypeKind: TTypeKind): Variant;
+function ConvertVatiantToValue(Valor: Variant; TypeKind: TTypeKind): TValue;
+function ConvertValueToVatiant(Valor: TValue; TypeKind: TTypeKind): Variant;
 
 implementation
 

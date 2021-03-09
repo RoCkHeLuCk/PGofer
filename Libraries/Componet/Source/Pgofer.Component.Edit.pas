@@ -8,7 +8,7 @@ uses
 
 type
     TRegExample = (reNone, reAll, reWord, reUnsignedInt, reSignedInt,
-        reUnsignedFloat, reSignedFloat, reLetter, reID);
+      reUnsignedFloat, reSignedFloat, reLetter, reID);
 
     TEditEx = class(TEdit)
     private
@@ -25,7 +25,7 @@ type
     published
         { Published declarations }
         property RegExamples: TRegExample read FRegExample write SetRegExample
-            default reAll;
+          default reAll;
         property RegExpression: string read FExpression write SetRegExp;
         property Text;
         property OnKeyPress;
@@ -36,7 +36,7 @@ procedure Register;
 implementation
 
 uses
-   Winapi.Windows;
+    Winapi.Windows;
 
 procedure Register;
 begin
@@ -47,30 +47,29 @@ end;
 
 procedure TEditEx.KeyPress(var Key: Char);
 var
-    NewText : String;
+    NewText: String;
     SelStart, SelLength: Integer;
 begin
     case Key of
-        #8,
-        #46:
-        begin
+        #8, #46:
+            begin
 
-        end;
+            end;
 
         #13:
-        begin
-            if Assigned(Self.OnExit) then
-                Self.OnExit(Self);
-        end;
+            begin
+                if Assigned(Self.OnExit) then
+                    Self.OnExit(Self);
+            end;
     else
         if FExpression = '' then
             FExpression := '/w';
 
         NewText := Self.Text;
-        SelStart := Self.GetSelStart+1;
+        SelStart := Self.GetSelStart + 1;
         SelLength := Self.GetSelLength;
         if SelLength > 0 then
-           Delete(NewText,SelStart, SelLength);
+            Delete(NewText, SelStart, SelLength);
         Insert(Key, NewText, SelStart);
         if not FRegExp.IsMatch(NewText) then
             Key := #0;
@@ -96,7 +95,7 @@ begin
             FExpression := '^-?\d*\,?\d*$';
         reLetter:
             FExpression := '^[A-Za-z]*$';
-        reId:
+        reID:
             FExpression := '^[A-Za-z_]+\w*$';
     end;
     FRegExp.Create(FExpression);

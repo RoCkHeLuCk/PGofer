@@ -3,38 +3,37 @@ unit PGofer.System.Variants.Frame;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PGofer.Item.Frame, Vcl.StdCtrls,
-  Pgofer.Component.Edit, PGofer.Classes, PGofer.System.Variants, Vcl.ExtCtrls,
-  Vcl.ComCtrls;
+    System.Classes,
+    Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls,
+    PGofer.Classes, PGofer.Item.Frame,
+    PGofer.System.Variants, PGofer.Component.Edit;
 
 type
-  TPGFrameVariants = class(TPGFrame)
-    LblValue: TLabel;
-    edtValue: TEdit;
-    procedure edtValueChange(Sender: TObject);
-  private
-    { Private declarations }
-    FItem : TPGVariavel;
-  public
-    { Public declarations }
-    constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
-    destructor Destroy(); override;
-  end;
+    TPGFrameVariants = class(TPGFrame)
+        LblValue: TLabel;
+        edtValue: TEdit;
+        procedure edtValueChange(Sender: TObject);
+    private
+        { Private declarations }
+        FItem: TPGVariable;
+    public
+        { Public declarations }
+        constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
+        destructor Destroy(); override;
+    end;
 
 var
-  PGFrameVariants: TPGFrame;
+    PGFrameVariants: TPGFrame;
 
 implementation
 
 {$R *.dfm}
-
 { TPGFrameVariants }
 
 constructor TPGFrameVariants.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
-    FItem := TPGVariavel(Item);
+    FItem := TPGVariable(Item);
     edtValue.Text := FItem.Valor;
 end;
 

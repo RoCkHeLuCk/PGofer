@@ -75,20 +75,20 @@ begin
                     begin
                         d := 1;
                         while (d < Clipboard.AsText.Length) and
-                            (CharInSet(Clipboard.AsText[d], [#0 .. #32])) do
+                          (CharInSet(Clipboard.AsText[d], [#0 .. #32])) do
                             inc(d);
 
                         e := d;
                         inc(e);
                         while (e < Clipboard.AsText.Length) and
-                            (not CharInSet(Clipboard.AsText[e], [#0 .. #31])) do
+                          (not CharInSet(Clipboard.AsText[e], [#0 .. #31])) do
                             inc(e);
                         Texto := 'Text: ' + Copy(Clipboard.AsText, d, e - d);
                     end;
 
                 CF_BITMAP, CF_METAFILEPICT, CF_ENHMETAFILE, CF_DSPBITMAP,
-                    CF_DSPMETAFILEPICT, CF_DSPENHMETAFILE, CF_DIB, CF_TIFF,
-                    CF_PALETTE, CF_DIBV5:
+                  CF_DSPMETAFILEPICT, CF_DSPENHMETAFILE, CF_DIB, CF_TIFF,
+                  CF_PALETTE, CF_DIBV5:
                     Texto := 'Picture';
 
                 CF_SYLK:
@@ -108,7 +108,7 @@ begin
             else
                 Continuar := True;
                 if GetClipboardFormatName(Clipboard.Formats[c], FmtName,
-                    SizeOf(FmtName)) <> 0 then
+                  SizeOf(FmtName)) <> 0 then
                     Texto := FmtName;
             end;
 

@@ -4,7 +4,7 @@ interface
 
 uses
     System.SysUtils, System.Classes, System.Generics.Collections,
-    PGofer.Classes, PGofer.Collection, PGofer.Lexico;
+    PGofer.Classes, PGofer.Lexico;
 
 type
     TPGConsoleNotify = procedure(Value: String; Show: Boolean) of object;
@@ -21,7 +21,7 @@ type
 
     TGramatica = class(TThread)
         constructor Create(Name: String; ItemDad: TPGItem;
-            AutoTerminar: Boolean); overload;
+          AutoTerminar: Boolean); overload;
         destructor Destroy(); override;
     private
         FErro: Boolean;
@@ -43,23 +43,28 @@ type
         procedure Execute; override;
     end;
 
-    procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
+procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
 
 var
-    GlobalFlockList: TArray<TPGItemCollect>;
+    GlobalFlockList: TObjectList<TPGItemCollect>;
+    DirCurrent: String;
+    IniConfigFile: String;
+    LogFile: String;
+    AutoCompleteFile: String;
+
     GlobalCollection: TPGItemCollect;
     GlobalItemCommand: TPGItem;
     GlobalItemTrigger: TPGItem;
     LoopLimite: Int64 = 1000000;
     FileListMax: Cardinal = 200;
-    ReplyFormat: String  = '';
+    ReplyFormat: String = '';
     ReplyPrefix: Boolean = False;
-    DirCurrent : String;
-    IniConfigFile: String;
-    ConsoleNotify : TPGConsoleNotify;
-    ConsoleMessage : Boolean = True;
+    ConsoleNotify: TPGConsoleNotify;
+    ConsoleMessage: Boolean = True;
+    LogMaxSize: Integer = 10000;
 
 implementation
+
 uses
     PGofer.Sintatico.Classes, PGofer.Sintatico.Controls;
 
@@ -96,7 +101,7 @@ end;
 { Gramatica }
 
 constructor TGramatica.Create(Name: String; ItemDad: TPGItem;
-                              AutoTerminar: Boolean);
+  AutoTerminar: Boolean);
 begin
     inherited Create(True);
     Self.FreeOnTerminate := AutoTerminar;
@@ -104,7 +109,7 @@ begin
     FConsoleShowMessage := ConsoleMessage;
     FPai := ItemDad;
     if Assigned(FPai) then
-        FLocal := TPGFolder.Create(ItemDad ,Name)
+        FLocal := TPGFolder.Create(ItemDad, Name)
     else
         FLocal := TPGFolder.Create(GlobalCollection, Name);
 
@@ -135,9 +140,9 @@ begin
         Synchronize(
             procedure
             begin
-                ConsoleNotify('[' + Self.TokenList.Token.Cordenada.
-                    ToString + '] "' + String(Self.TokenList.Token.Lexema) +
-                    '" : ' + Texto, FConsoleShowMessage);
+                ConsoleNotify('[' + Self.TokenList.Token.Cordenada.ToString +
+                  '] "' + String(Self.TokenList.Token.Lexema) + '" : ' + Texto,
+                  FConsoleShowMessage);
             end);
 end;
 
@@ -187,12 +192,18 @@ end;
 
 initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
-    IniConfigFile := DirCurrent+'\Config.ini';
+    IniConfigFile := DirCurrent + 'Config.ini';
+    LogFile := DirCurrent + 'PGofer.log';
+    AutoCompleteFile := DirCurrent + 'AutoComplete.ini';
+    GlobalFlockList := TObjectList<TPGItemCollect>.Create(True);
+
     GlobalCollection := TPGItemCollect.Create('Global');
-    GlobalItemCommand :=  TPGFolder.Create(GlobalCollection, 'Commands');
-    GlobalItemTrigger :=  TPGFolder.Create(GlobalCollection, 'Triggers');
+    GlobalFlockList.Add(GlobalCollection);
+    GlobalItemCommand := TPGFolder.Create(GlobalCollection, 'Commands');
+    GlobalItemTrigger := TPGFolder.Create(GlobalCollection, 'Triggers');
 
 finalization
-    GlobalCollection.Free;
+    GlobalFlockList.Free;
+
 
 end.

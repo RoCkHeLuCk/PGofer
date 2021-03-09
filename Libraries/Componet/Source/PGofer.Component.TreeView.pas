@@ -16,8 +16,8 @@ type
         procedure Delete(Node: TTreeNode); override;
         procedure DoEndDrag(Target: TObject; X, Y: Integer); override;
     public
-        procedure DragOver(Source: TObject; X, Y: Integer;
-                  State: TDragState; var Accept: Boolean); override;
+        procedure DragOver(Source: TObject; X, Y: Integer; State: TDragState;
+          var Accept: boolean); override;
         procedure DragDrop(Source: TObject; X, Y: Integer); override;
         procedure DeleteSelect();
         function isSelectWork(): boolean;
@@ -27,15 +27,14 @@ type
         property SelectionsDrag: TArray<TTreeNode> read FSelectionsDrag;
     published
         property OwnsObjectsData: boolean read FOwnsObjectsData
-            write FOwnsObjectsData default False;
+          write FOwnsObjectsData default False;
         property AttachMode: TNodeAttachMode read FAttachMode write FAttachMode
-            default naInsert;
+          default naInsert;
     end;
 
 procedure Register;
 
 implementation
-
 
 procedure Register;
 begin
@@ -46,10 +45,8 @@ end;
 
 procedure TTreeViewEx.Delete(Node: TTreeNode);
 begin
-    if FOwnsObjectsData
-    and Assigned(Node)
-    and Assigned(Node.Data)
-    and Node.Deleting then
+    if FOwnsObjectsData and Assigned(Node) and Assigned(Node.Data) and Node.Deleting
+    then
     begin
         TObject(Node.Data).Free;
         Node.Data := nil;
@@ -74,22 +71,22 @@ begin
 end;
 
 procedure TTreeViewEx.DragOver(Source: TObject; X, Y: Integer;
-  State: TDragState; var Accept: Boolean);
+  State: TDragState; var Accept: boolean);
 var
-    C : Integer;
+    C: Integer;
 begin
     inherited;
     FTargetDrag := Self.GetNodeAt(X, Y);
-    SetLength(FSelectionsDrag,0);
-    for c := 0 to Self.SelectionCount-1 do
-       FSelectionsDrag := FSelectionsDrag + [Self.Selections[c]];
+    SetLength(FSelectionsDrag, 0);
+    for C := 0 to Self.SelectionCount - 1 do
+        FSelectionsDrag := FSelectionsDrag + [Self.Selections[C]];
 end;
 
 procedure TTreeViewEx.DoEndDrag(Target: TObject; X, Y: Integer);
 begin
     Self.Repaint;
     FTargetDrag := nil;
-    SetLength(FSelectionsDrag,0);
+    SetLength(FSelectionsDrag, 0);
     inherited;
 end;
 

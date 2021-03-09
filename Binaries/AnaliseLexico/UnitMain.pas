@@ -8,12 +8,10 @@ uses
     Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
     Vcl.StdCtrls, Vcl.Menus,
     SynEdit,
-    PGofer.Form.AutoComplete,
-    PGofer.Form.Controller,
-    PGofer.Form.Controller.Flock;
+    PGofer.Forms, PGofer.Form.AutoComplete;
 
 type
-    TFrmMain = class(TForm)
+    TFrmMain = class(TFormEx)
         SynEdit1: TSynEdit;
         Splitter1: TSplitter;
         MainMenu1: TMainMenu;
@@ -25,22 +23,14 @@ type
         Arquivos1: TMenuItem;
         Salvar1: TMenuItem;
         mniOpcoes: TMenuItem;
-        Globals1: TMenuItem;
-        Hotkeys1: TMenuItem;
-        Links1: TMenuItem;
         procedure Lexico1Click(Sender: TObject);
         procedure Sintatico1Click(Sender: TObject);
         procedure FormCreate(Sender: TObject);
         procedure Salvar1Click(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
-        procedure Globals1Click(Sender: TObject);
-        procedure Hotkeys1Click(Sender: TObject);
-        procedure Links1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     private
         FFrmAutoComplete: TFrmAutoComplete;
-        FFrmGlobal: TFrmController;
-        FFrmHotKeys: TFrmFlock;
-        FFrmLinks: TFrmFlock;
     public
     end;
 
@@ -50,56 +40,32 @@ var
 implementation
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Forms,
+    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
     PGofer.Links, PGofer.Hotkey,
     PGofer.Forms.Controls;
 
 {$R *.dfm}
 
+procedure TFrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+    inherited;
+    //
+end;
+
 procedure TFrmMain.FormCreate(Sender: TObject);
 begin
+    inherited;
     if (FileExists(paramstr(0) + '.pas')) then
         SynEdit1.Lines.LoadFromFile(paramstr(0) + '.pas');
 
     FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1);
-    FormIniLoadFromFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
-
     TPGForm.Create(Self);
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
 begin
     FFrmAutoComplete.Free();
-
-    if Assigned(FFrmHotKeys) then
-        FFrmHotKeys.Free();
-    if Assigned(FFrmLinks) then
-        FFrmLinks.Free();
-    if Assigned(FFrmGlobal) then
-        FFrmGlobal.Free();
-
-    FormIniSaveToFile(Self, PGofer.Sintatico.DirCurrent + 'Config.ini');
-end;
-
-procedure TFrmMain.Globals1Click(Sender: TObject);
-begin
-    if not Assigned(FFrmGlobal) then
-        FFrmGlobal := TFrmController.Create(GlobalCollection);
-    FFrmGlobal.Show;
-end;
-
-procedure TFrmMain.Hotkeys1Click(Sender: TObject);
-begin
-    if not Assigned(FFrmHotKeys) then
-        FFrmHotKeys := TFrmFlock.Create(TPGHotKey.FlockCollection);
-    FFrmHotKeys.Show;
-end;
-
-procedure TFrmMain.Links1Click(Sender: TObject);
-begin
-    if not Assigned(FFrmLinks) then
-        FFrmLinks := TFrmFlock.Create(TPGLink.FlockCollection);
-    FFrmLinks.Show;
+    inherited;
 end;
 
 procedure TFrmMain.Lexico1Click(Sender: TObject);
@@ -116,7 +82,7 @@ begin
     repeat
         Memo1.Lines.Add('Lexema: ' + String(TokenList.Token.Lexema));
         Memo1.Lines.Add('Classe: ' + GetEnumName(TypeInfo(TLexicoClass),
-            Integer(TokenList.Token.Classe)));
+          Integer(TokenList.Token.Classe)));
         Memo1.Lines.Add('');
         TokenList.GetNextToken;
     until (TokenList.Token.Classe in [cmdUnDeclar, cmdEOF]);

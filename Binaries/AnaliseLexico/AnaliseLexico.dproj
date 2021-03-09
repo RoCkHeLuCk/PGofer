@@ -129,7 +129,6 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Collection.pas"/>
         <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
             <Form>PGFrame</Form>
             <DesignClass>TFrame</DesignClass>
@@ -180,20 +179,19 @@
         <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.DevApi.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas">
-            <Form>PGFrameFunction</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Statements.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas">
             <Form>PGFrame1</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas">
+            <Form>PGFrameFunction</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Types.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas"/>

@@ -3,6 +3,7 @@ unit PGofer.Forms;
 interface
 
 uses
+    System.Classes, System.IniFiles,
     Vcl.Forms,
     PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
 
@@ -43,7 +44,7 @@ type
     published
         property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
         property AlphaBlendValue: Byte read GetAlphaBlendValue
-            write SetAlphaBlendValue;
+          write SetAlphaBlendValue;
         procedure Close();
         property Enabled: Boolean read GetEnabled write SetFormEnabled;
         property Heigth: Integer read GetHeigth write SetHeigth;
@@ -53,13 +54,24 @@ type
         property Top: Integer read GetTop write SetTop;
         property Transparent: Boolean read GetTransparent write SetTransparent;
         property TransparentColor: Integer read GetTransparentColor
-            write SetTransparentColor;
+          write SetTransparentColor;
         property Visible: Boolean read GetVisible write SetVisible;
         property Width: Integer read GetWidth write SetWidth;
         property WindowState: Byte read GetWindowState write SetWindowState;
     end;
 {$TYPEINFO ON}
 
+    TFormEx = class(TForm)
+    private
+    protected
+        FIniFile: TIniFile;
+        procedure IniConfigSave(); virtual;
+        procedure IniConfigLoad(); virtual;
+    public
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure FormCreate(Sender: TObject);
+        procedure FormDestroy(Sender: TObject);
+    end;
 
 implementation
 
@@ -81,7 +93,7 @@ begin
     inherited;
 end;
 
-function TPGForm.GetAlphaBlend: Boolean;
+function TPGForm.GetAlphaBlend(): Boolean;
 begin
     Result := FForm.AlphaBlend;
 end;
@@ -91,7 +103,7 @@ begin
     FForm.AlphaBlend := AlphaBlend;
 end;
 
-function TPGForm.GetAlphaBlendValue: Byte;
+function TPGForm.GetAlphaBlendValue(): Byte;
 begin
     Result := FForm.AlphaBlendValue;
 end;
@@ -121,7 +133,7 @@ begin
     FForm.Height := Heigth;
 end;
 
-function TPGForm.GetHeigth: Integer;
+function TPGForm.GetHeigth(): Integer;
 begin
     Result := FForm.Height;
 end;
@@ -131,7 +143,7 @@ begin
     FForm.Left := Left;
 end;
 
-function TPGForm.GetLeft: Integer;
+function TPGForm.GetLeft(): Integer;
 begin
     Result := FForm.Left;
 end;
@@ -146,7 +158,7 @@ begin
     FForm.Top := Top;
 end;
 
-function TPGForm.GetTop: Integer;
+function TPGForm.GetTop(): Integer;
 begin
     Result := FForm.Top;
 end;
@@ -156,7 +168,7 @@ begin
     FForm.TransparentColor := Transparent;
 end;
 
-function TPGForm.GetTransparent: Boolean;
+function TPGForm.GetTransparent(): Boolean;
 begin
     Result := FForm.TransparentColor;
 end;
@@ -166,7 +178,7 @@ begin
     FForm.TransparentColorValue := TransparentColor;
 end;
 
-function TPGForm.GetTransparentColor: Integer;
+function TPGForm.GetTransparentColor(): Integer;
 begin
     Result := FForm.TransparentColorValue;
 end;
@@ -176,7 +188,7 @@ begin
     FForm.Visible := Visible;
 end;
 
-function TPGForm.GetVisible: Boolean;
+function TPGForm.GetVisible(): Boolean;
 begin
     Result := FForm.Visible;
 end;
@@ -186,7 +198,7 @@ begin
     FForm.Width := Width;
 end;
 
-function TPGForm.GetWidth: Integer;
+function TPGForm.GetWidth(): Integer;
 begin
     Result := FForm.Width;
 end;
@@ -196,7 +208,7 @@ begin
     FForm.WindowState := TWindowState(WindowState);
 end;
 
-function TPGForm.GetWindowState: Byte;
+function TPGForm.GetWindowState(): Byte;
 begin
     Result := Byte(FForm.WindowState);
 end;
@@ -205,13 +217,59 @@ procedure TPGForm.Execute(Gramatica: TGramatica);
 begin
     inherited Execute(Gramatica);
     if Gramatica.TokenList.Token.Classe <> cmdDot then
-       Self.Show(true);
+        Self.Show(true);
     Application.ProcessMessages();
 end;
 
 procedure TPGForm.Frame(Parent: TObject);
 begin
     TPGFrameForms.Create(Self, Parent);
+end;
+
+{ TFormEx }
+
+procedure TFormEx.FormCreate(Sender: TObject);
+begin
+    FIniFile := TIniFile.Create(PGofer.Sintatico.IniConfigFile);
+    Self.IniConfigLoad();
+end;
+
+procedure TFormEx.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+    Self.IniConfigSave();
+end;
+
+procedure TFormEx.FormDestroy(Sender: TObject);
+begin
+    Self.IniConfigSave();
+    FIniFile.Free;
+end;
+
+procedure TFormEx.IniConfigLoad();
+begin
+    Self.Left := FIniFile.ReadInteger(Self.Name, 'Left', Self.Left);
+    Self.Top := FIniFile.ReadInteger(Self.Name, 'Top', Self.Top);
+    Self.Width := FIniFile.ReadInteger(Self.Name, 'Width', Self.Width);
+    Self.Height := FIniFile.ReadInteger(Self.Name, 'Height', Self.Height);
+    Self.MakeFullyVisible(Self.Monitor);
+    if FIniFile.ReadBool(Self.Name, 'Maximized', False) then
+        Self.WindowState := wsMaximized;
+end;
+
+procedure TFormEx.IniConfigSave();
+begin
+    Self.MakeFullyVisible(Self.Monitor);
+    if Self.WindowState <> wsMaximized then
+    begin
+        FIniFile.WriteInteger(Self.Name, 'Left', Self.Left);
+        FIniFile.WriteInteger(Self.Name, 'Top', Self.Top);
+        FIniFile.WriteInteger(Self.Name, 'Width', Self.Width);
+        FIniFile.WriteInteger(Self.Name, 'Height', Self.Height);
+        FIniFile.WriteBool(Self.Name, 'Maximized', False);
+    end
+    else
+        FIniFile.WriteBool(Self.Name, 'Maximized', true);
+    FIniFile.UpdateFile;
 end;
 
 initialization

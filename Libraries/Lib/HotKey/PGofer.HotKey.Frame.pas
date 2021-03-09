@@ -5,10 +5,10 @@ interface
 uses
     System.Classes,
     Winapi.Windows,
-    Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Controls, Vcl.ExtCtrls,
-    Vcl.ComCtrls, Vcl.Graphics,
+    Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
+    Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
     SynEdit,
-    PGofer.Classes, PGofer.HotKey.Hook, PGofer.HotKey, PGofer.Item.Frame,
+    PGofer.Classes, PGofer.HotKey, PGofer.Item.Frame,
     PGofer.Component.Edit;
 
 type
@@ -27,15 +27,16 @@ type
         procedure MmoTeclasEnter(Sender: TObject);
         procedure MmoTeclasExit(Sender: TObject);
         procedure BtnClearClick(Sender: TObject);
-    procedure EdtNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+        procedure EdtNameKeyUp(Sender: TObject; var Key: Word;
+          Shift: TShiftState);
+        procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
+          Shift: TShiftState);
     private
         FItem: TPGHotKey;
-        {$HINTS OFF}
+{$HINTS OFF}
         class function LowLevelProc(Code: Integer; wParam: wParam;
-            lParam: lParam): NativeInt; stdcall; static;
-        {$HINTS ON}
+          lParam: lParam): NativeInt; stdcall; static;
+{$HINTS ON}
     public
         constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
         destructor Destroy(); override;
@@ -46,11 +47,14 @@ var
 
 implementation
 
+uses
+    PGofer.HotKey.Hook;
+
 {$R *.dfm}
 { TPGFrameHotKey }
 
 class function TPGFrameHotKey.LowLevelProc(Code: Integer; wParam: wParam;
-    lParam: lParam): NativeInt;
+  lParam: lParam): NativeInt;
 var
     Key: TKey;
 begin
@@ -97,7 +101,9 @@ begin
     if FItem.isItemExist(EdtName.Text) then
     begin
         EdtName.Color := clRed;
-    end else begin
+    end
+    else
+    begin
         EdtName.Color := clWindow;
         inherited;
     end;
@@ -128,16 +134,16 @@ end;
 procedure TPGFrameHotKey.MmoTeclasEnter(Sender: TObject);
 begin
     PGFrameHotKey := Self;
-    {$IFNDEF DEBUG}
-        THookProc.EnableHoot(TPGFrameHotKey.LowLevelProc);
-    {$ENDIF}
+{$IFNDEF DEBUG}
+    THookProc.EnableHoot(TPGFrameHotKey.LowLevelProc);
+{$ENDIF}
 end;
 
 procedure TPGFrameHotKey.MmoTeclasExit(Sender: TObject);
 begin
-    {$IFNDEF DEBUG}
-        THookProc.EnableHoot();
-    {$ENDIF}
+{$IFNDEF DEBUG}
+    THookProc.EnableHoot();
+{$ENDIF}
 end;
 
 end.

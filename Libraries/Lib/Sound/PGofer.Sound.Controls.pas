@@ -6,7 +6,7 @@ uses
     PGofer.Sound.DevApi;
 
 function SoundCreateInstance(SoundDriver: Cardinal;
-    Var endpointVolume: IAudioEndpointVolume): Boolean;
+  Var endpointVolume: IAudioEndpointVolume): Boolean;
 function SoundPlayFile(FileName: String; Flag: Cardinal): Boolean;
 function SoundSetMute(SoundDriver: Cardinal): Integer;
 function SoundVolumeStepUp(SoundDriver: Cardinal): Integer;
@@ -20,18 +20,18 @@ uses
     WinApi.MMSystem, WinApi.ActiveX, System.SysUtils;
 
 function SoundCreateInstance(SoundDriver: Cardinal;
-    Var endpointVolume: IAudioEndpointVolume): Boolean;
+  Var endpointVolume: IAudioEndpointVolume): Boolean;
 var
     deviceEnumerator: IMMDeviceEnumerator;
     defaultDevice: IMMDevice;
 begin
     try
         CoCreateInstance(CLASS_IMMDeviceEnumerator, nil, CLSCTX_INPROC_SERVER,
-            IID_IMMDeviceEnumerator, deviceEnumerator);
+          IID_IMMDeviceEnumerator, deviceEnumerator);
         deviceEnumerator.GetDefaultAudioEndpoint(eRender, SoundDriver,
-            defaultDevice);
+          defaultDevice);
         defaultDevice.Activate(IID_IAudioEndpointVolume, CLSCTX_INPROC_SERVER,
-            nil, endpointVolume);
+          nil, endpointVolume);
         Result := (endpointVolume <> nil);
     except
         Result := False;

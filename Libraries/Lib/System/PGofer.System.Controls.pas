@@ -4,18 +4,17 @@ interface
 
 function SystemShutDown(Off: Cardinal): Boolean;
 function SystemSetSuspendState(hibernate, forcecritical, disablewakeevent
-    : Boolean): Boolean; stdcall;
-    external 'powrprof.dll' name 'SetSuspendState';
+  : Boolean): Boolean; stdcall; external 'powrprof.dll' name 'SetSuspendState';
 function SystemSetScreen(Height, Width, Monitor: Integer): Boolean;
 function SystemSetSendMessage(ClassName: String; Mss: Cardinal;
-    wPar, lPar: Integer): Integer;
+  wPar, lPar: Integer): Integer;
 function SystemPrtScreen(Height, Width, Top, Left: Integer;
-    FileName: String): Integer;
+  FileName: String): Integer;
 function SystemGetFindWindow(ClassName: String): NativeInt;
 function SystemGetDateTimeNow(Format: String): String;
 function SystemGetWindowsTextFromPoint(): String;
 function SystemShowDialogMessage(Text: String;
-    Tipo, Botoes, Botao: Word): Integer;
+  Tipo, Botoes, Botao: Word): Integer;
 function SystemMonitorPower(OnOff: Boolean): NativeInt;
 // QueryPerformanceCounter(StartTime);
 // QueryPerformanceFrequency(Frequency);
@@ -34,12 +33,12 @@ var
 begin
     OpenProcessToken(GetCurrentProcess, TOKEN_ADJUST_PRIVILEGES, HToken);
     LookUpPrivilegeValue(nil, 'SeShutdownPrivilege',
-        TokenPriv.Privileges[0].Luid);
+      TokenPriv.Privileges[0].Luid);
     TokenPriv.PrivilegeCount := 1;
     TokenPriv.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
     H := 0;
     AdjustTokenPrivileges(HToken, False, TokenPriv, 0,
-        PTokenPrivileges(nil)^, H);
+      PTokenPrivileges(nil)^, H);
     CloseHandle(HToken);
     Result := ExitWindowsEx(Off, 0);
 end;
@@ -55,12 +54,12 @@ begin
         lpDevMode.dmPelsWidth := Width;
         lpDevMode.dmPelsHeight := Height;
         Result := (ChangeDisplaySettings(lpDevMode, Monitor)
-            = DISP_CHANGE_SUCCESSFUL);
+          = DISP_CHANGE_SUCCESSFUL);
     end; // enum
 end;
 
 function SystemSetSendMessage(ClassName: String; Mss: Cardinal;
-    wPar, lPar: Integer): Integer;
+  wPar, lPar: Integer): Integer;
 var
     Prc: HWND;
     C: PWideChar;
@@ -77,7 +76,7 @@ begin
 end;
 
 function SystemPrtScreen(Height, Width, Top, Left: Integer;
-    FileName: String): Integer;
+  FileName: String): Integer;
 var
     B: TBitmap;
     S: NativeInt;
@@ -90,7 +89,7 @@ begin
     S := GetDC(0);
     BitBlt(B.Canvas.Handle, 0, 0, Width, Height, S, Left, Top, SRCCOPY);
     F := FileName + 'ScreenShot(' + FormatDateTime('YYYY-MM-DD - HH-NN-SS',
-        Date + Time) + ').bmp';
+      Date + Time) + ').bmp';
     B.SaveToFile(F);
     Result := ReleaseDC(0, S);
     B.Free;
@@ -135,7 +134,7 @@ begin
 end;
 
 function SystemShowDialogMessage(Text: String;
-    Tipo, Botoes, Botao: Word): Integer;
+  Tipo, Botoes, Botao: Word): Integer;
 begin
     { ??????????????
       Butao :=  TMsgDlgBtn( Trunc( Sqrt( Gramatica.Pilha.Desempilhar(0) )-1 ) );
@@ -144,7 +143,7 @@ begin
     }
     try
         Result := MessageDlg(Text, TMsgDlgType(Tipo), TMsgDlgButtons(Botoes), 0,
-            TMsgDlgBtn(Botao));
+          TMsgDlgBtn(Botao));
     except
         Result := 9;
     end;

@@ -3,8 +3,7 @@ unit PGofer.Links.ThreadLoadImage;
 interface
 
 uses
-    System.Sysutils, System.Classes, Vcl.Controls, Vcl.ComCtrls, Vcl.Graphics,
-    Winapi.ShellAPI;
+    System.SysUtils, System.Classes, Vcl.Graphics;
 
 type
     TThreadLoadImage = class(TThread)
@@ -22,6 +21,8 @@ type
 implementation
 
 uses
+
+    Vcl.Controls, Winapi.ShellAPI,
     PGofer.Files.Controls;
 
 { TThreadLoadImage }
@@ -47,7 +48,7 @@ begin
         begin
             FIcone := TIcon.Create;
             FIcone.Handle := ExtractAssociatedIcon(1,
-                PWideChar(IconFileName), FIndex);
+              PWideChar(IconFileName), FIndex);
             if FIcone.Handle = 0 then
             begin
                 FIcone.Free;

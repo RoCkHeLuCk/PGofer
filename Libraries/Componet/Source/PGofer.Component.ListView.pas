@@ -11,7 +11,7 @@ type
     private
         { Private declarations }
         FOwnsObjectsData: Boolean;
-        FColumnAlphaSort : Boolean;
+        FColumnAlphaSort: Boolean;
         FSort: Boolean;
     protected
         { Protected declarations }
@@ -19,7 +19,7 @@ type
         procedure DoEndDrag(Target: TObject; X, Y: Integer); override;
         procedure Delete(Item: TListItem); override;
         procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
-            X, Y: Integer); override;
+          X, Y: Integer); override;
     public
         { Public declarations }
         procedure DragDrop(Source: TObject; X, Y: Integer); override;
@@ -31,9 +31,9 @@ type
     published
         { Published declarations }
         property OwnsObjectsData: Boolean read FOwnsObjectsData
-            write FOwnsObjectsData default false;
+          write FOwnsObjectsData default false;
         property ColumnAlphaSort: Boolean read FColumnAlphaSort
-            write FColumnAlphaSort default false;
+          write FColumnAlphaSort default false;
     end;
 
 procedure Register;
@@ -55,7 +55,7 @@ procedure TListViewEx.ColClick(Column: TListColumn);
             Result := lstrcmp(PChar(Item1.Caption), PChar(Item2.Caption))
         else
             Result := lstrcmp(PChar(Item1.SubItems[lParam]),
-                PChar(Item2.SubItems[lParam]));
+              PChar(Item2.SubItems[lParam]));
     end;
 
     function ZASort(Item1, Item2: TListItem; lParam: Integer): Integer; stdcall;
@@ -64,7 +64,7 @@ procedure TListViewEx.ColClick(Column: TListColumn);
             Result := lstrcmp(PChar(Item1.Caption), PChar(Item2.Caption)) * -1
         else
             Result := lstrcmp(PChar(Item1.SubItems[lParam]),
-                PChar(Item2.SubItems[lParam])) * -1;
+              PChar(Item2.SubItems[lParam])) * -1;
     end;
 
 begin
@@ -136,7 +136,7 @@ begin
 end;
 
 procedure TListViewEx.MouseDown(Button: TMouseButton; Shift: TShiftState;
-    X, Y: Integer);
+  X, Y: Integer);
 begin
     if (not Self.Dragging) then
         Self.Selected := Self.GetItemAt(X, Y);
@@ -152,7 +152,7 @@ end;
 
 procedure TListViewEx.SuperSelected();
 begin
-    Self.SuperSelected( Self.Selected );
+    Self.SuperSelected(Self.Selected);
 end;
 
 procedure TListViewEx.DeleteSelect();
@@ -188,8 +188,7 @@ begin
     while (Count < Items.Count) do
     begin
         if (Pos(LowerCase(Text), LowerCase(Items[Count].Caption)) > 0) or
-            (Pos(LowerCase(Text), LowerCase(Items[Count].SubItems.Text)) > 0)
-        then
+          (Pos(LowerCase(Text), LowerCase(Items[Count].SubItems.Text)) > 0) then
         begin
             SuperSelected(Items[Count]);
             Exit;
@@ -201,8 +200,7 @@ begin
     while (Count < OffSet) do
     begin
         if (Pos(LowerCase(Text), LowerCase(Items[Count].Caption)) > 0) or
-            (Pos(LowerCase(Text), LowerCase(Items[Count].SubItems.Text)) > 0)
-        then
+          (Pos(LowerCase(Text), LowerCase(Items[Count].SubItems.Text)) > 0) then
         begin
             SuperSelected(Items[Count]);
             Exit;

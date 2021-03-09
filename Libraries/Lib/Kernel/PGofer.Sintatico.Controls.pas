@@ -6,9 +6,9 @@ uses PGofer.Classes, PGofer.Sintatico;
 
 // -------------------------------Estruturas-----------------------------------//
 function LerParamentros(Gramatica: TGramatica;
-    const QuantMin, QuantMax: Byte): Byte;
+  const QuantMin, QuantMax: Byte): Byte;
 procedure EncontrarFim(Gramatica: TGramatica; BeginEnd: Boolean;
-    EmpilharTokenList: Boolean);
+  EmpilharTokenList: Boolean);
 // --------------------------------ATRIBUIÇÃO----------------------------------//
 function AtribuicaoNivel1(Gramatica: TGramatica): Boolean;
 function Atribuicao(Gramatica: TGramatica; Valor: Variant): Variant;
@@ -38,7 +38,7 @@ uses
     PGofer.Lexico, PGofer.Sintatico.Classes, PGofer.Math.Controls;
 
 function LerParamentros(Gramatica: TGramatica;
-    const QuantMin, QuantMax: Byte): Byte;
+  const QuantMin, QuantMax: Byte): Byte;
 var
     c: Byte;
 begin
@@ -49,7 +49,7 @@ begin
         Gramatica.TokenList.GetNextToken;
         c := 0;
         while (c < QuantMax) and (Gramatica.TokenList.Token.Classe <> cmdRPar)
-            and (not Gramatica.Erro) do
+          and (not Gramatica.Erro) do
         begin
             Expressao(Gramatica);
             if (Gramatica.TokenList.Token.Classe = cmdComa) then
@@ -78,7 +78,7 @@ begin
 end;
 
 procedure EncontrarFim(Gramatica: TGramatica; BeginEnd: Boolean;
-    EmpilharTokenList: Boolean);
+  EmpilharTokenList: Boolean);
 var
     BeginCount: Word;
     TokenList: TTokenList;
@@ -109,13 +109,13 @@ begin
 
                 if (EmpilharTokenList) and (BeginCount <> 0) then
                     TokenList.TokenAdd(Gramatica.TokenList.Token.Lexema,
-                        Gramatica.TokenList.Token.Classe,
-                        Gramatica.TokenList.Token.Cordenada);
+                      Gramatica.TokenList.Token.Classe,
+                      Gramatica.TokenList.Token.Cordenada);
                 if (BeginCount <> 0) then
                     Gramatica.TokenList.GetNextToken;
 
             until (Gramatica.TokenList.Token.Classe in [cmdEOF, cmdRes_end]) and
-                (BeginCount = 0);
+              (BeginCount = 0);
 
             if (Gramatica.TokenList.Token.Classe <> cmdRes_end) then
             begin
@@ -133,8 +133,8 @@ begin
         begin
             if EmpilharTokenList then
                 TokenList.TokenAdd(Gramatica.TokenList.Token.Lexema,
-                    Gramatica.TokenList.Token.Classe,
-                    Gramatica.TokenList.Token.Cordenada);
+                  Gramatica.TokenList.Token.Classe,
+                  Gramatica.TokenList.Token.Cordenada);
             Gramatica.TokenList.GetNextToken;
         end;
     end;
@@ -206,7 +206,7 @@ begin
     begin
         Gramatica.TokenList.GetNextToken;
         if not(Gramatica.TokenList.Token.Classe in [cmdEOF, cmdRes_end,
-            cmdRes_until]) then
+          cmdRes_until]) then
             Sentencas(Gramatica);
     end
     else
@@ -266,13 +266,8 @@ begin
     begin
         Valor := Gramatica.Pilha.Desempilhar('');
         if TryStrToFloat(Valor, Numero) then
-            Gramatica.MSGsAdd(
-                FormatConvert(
-                     PGofer.Sintatico.ReplyPrefix,
-                     PGofer.Sintatico.ReplyFormat,
-                     Numero
-                )
-            )
+            Gramatica.MSGsAdd(FormatConvert(PGofer.Sintatico.ReplyPrefix,
+              PGofer.Sintatico.ReplyFormat, Numero))
         else
             Gramatica.MSGsAdd(Valor);
     end;
@@ -309,7 +304,7 @@ var
     B1, B2: Boolean;
 begin
     if (Gramatica.TokenList.Token.Classe in [cmdAdd, cmdSub, cmdRes_and,
-        cmdRes_or, cmdRes_xor]) then
+      cmdRes_or, cmdRes_xor]) then
     begin
         // carrega e continua analizando
         Operador := Gramatica.TokenList.Token.Classe;
@@ -324,7 +319,7 @@ begin
         begin
             // converte para numero
             if TryStrToFloat(S1, N1, FormatSettings) and
-                TryStrToFloat(S2, N2, FormatSettings) then
+              TryStrToFloat(S2, N2, FormatSettings) then
             begin
                 // executa a operação matematica
                 case Operador of
@@ -419,7 +414,7 @@ var
     N1, N2: Extended;
 begin
     if (Gramatica.TokenList.Token.Classe in [cmdTone, cmdRes_root, cmdEqual,
-        cmdMore, cmdMinor, cmdMoreEqual, cmdMinorEqual, cmdDifferent]) then
+      cmdMore, cmdMinor, cmdMoreEqual, cmdMinorEqual, cmdDifferent]) then
     begin
         // carrega e continua analizando
         Operador := Gramatica.TokenList.Token.Classe;
@@ -430,7 +425,7 @@ begin
         S1 := Gramatica.Pilha.Desempilhar('');
         // tenta converter para numero
         if TryStrToFloat(S1, N1, FormatSettings) and
-            TryStrToFloat(S2, N2, FormatSettings) then
+          TryStrToFloat(S2, N2, FormatSettings) then
         begin
             // calcula a operação matematica
             case Operador of
@@ -508,7 +503,7 @@ begin
                 Expressao(Gramatica);
                 // fecha parentes.
                 if Gramatica.TokenList.Token.Classe
-                    in [cmdRPar, cmdEOF, cmdDotComa] then
+                  in [cmdRPar, cmdEOF, cmdDotComa] then
                     Gramatica.TokenList.GetNextToken
                 else
                     Gramatica.ErroAdd('")" Esperado.');
@@ -519,7 +514,7 @@ begin
                 Gramatica.TokenList.GetNextToken;
                 Expressao(Gramatica);
                 Gramatica.Pilha.Empilhar
-                    (not Gramatica.Pilha.Desempilhar(False));
+                  (not Gramatica.Pilha.Desempilhar(False));
             end;
     else
         Gramatica.ErroAdd('Expressão Invalida.');

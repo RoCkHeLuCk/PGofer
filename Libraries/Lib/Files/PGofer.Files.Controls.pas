@@ -12,9 +12,9 @@ function FileLimitPathExist(Path: string): String;
 function FileExpandPath(const PathName: string): string;
 function FileUnExpandPath(const PathName: string): string;
 function FileExec(Arquivo, Parametro, Diretorio: String; ShowControl: Integer;
-    Operation: Byte; Prioridade: Byte): String;
+  Operation: Byte; Prioridade: Byte): String;
 function FileControl(FileName, FileAlter: string;
-    Const Func, Flags: Cardinal): Integer;
+  Const Func, Flags: Cardinal): Integer;
 function FileGetSize(FileName: string): Int64;
 function FileLoadFromText(FileName: string): string;
 function FileSaveToText(FileName, Value: string): Boolean;
@@ -23,7 +23,7 @@ function FileListDir(MaskName: string; ExcludeExt: Boolean = False): string;
 function FileOpenDialog(const Dir: string): string;
 function FileDirDialog(Dir: string): string;
 function FileSetDateTime(FileName: string;
-    CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
+  CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
 function FileGetCreateTime(FileName: string): string;
 function FileGetModifyTime(FileName: string): string;
 function FileGetAcessTime(FileName: string): string;
@@ -33,12 +33,13 @@ function FileExtractOnlyFileName(const FileName: string): string;
 implementation
 
 uses
-    {$WARN UNIT_PLATFORM OFF}
-    Vcl.Forms, Vcl.ComCtrls, Vcl.FileCtrl, Vcl.Dialogs,
+{$WARN UNIT_PLATFORM OFF}
+    Vcl.Forms,  Vcl.FileCtrl, Vcl.Dialogs,
     WinApi.ShellApi, WinApi.ShlwApi,
     System.SysUtils, System.Classes,
     PGofer.Sintatico;
-    {$WARN UNIT_PLATFORM ON}
+{$WARN UNIT_PLATFORM ON}
+
 function DateTimeToFileTime(DateTime: TDateTime): PFileTime;
 var
     FileTime: TFileTime;
@@ -50,9 +51,9 @@ begin
     begin
         DecodeDate(DateTime, LST.wYear, LST.wMonth, LST.wDay);
         DecodeTime(DateTime, LST.wHour, LST.wMinute, LST.wSecond,
-            LST.wMilliSeconds);
+          LST.wMilliSeconds);
         if SystemTimeToFileTime(LST, LFT) and LocalFileTimeToFileTime(LFT,
-            FileTime) then
+          FileTime) then
         begin
             New(Result);
             Result^ := FileTime;
@@ -66,8 +67,8 @@ var
 begin
     FileTimeToSystemTime(FileTime, TimeSystem);
     Result := EncodeDate(TimeSystem.wYear, TimeSystem.wMonth, TimeSystem.wDay) +
-        EncodeTime(TimeSystem.wHour, TimeSystem.wMinute, TimeSystem.wSecond,
-        TimeSystem.wMilliSeconds);
+      EncodeTime(TimeSystem.wHour, TimeSystem.wMinute, TimeSystem.wSecond,
+      TimeSystem.wMilliSeconds);
 end;
 
 function FileLimitPathExist(Path: String): String;
@@ -186,7 +187,7 @@ begin
 end;
 
 function FileExec(Arquivo, Parametro, Diretorio: String; ShowControl: Integer;
-    Operation: Byte; Prioridade: Byte): String;
+  Operation: Byte; Prioridade: Byte): String;
 var
     ShellExecuteInfoW: TShellExecuteInfo;
 begin
@@ -207,16 +208,13 @@ begin
     begin
         SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(Prioridade));
 
-
-
-
     end;
 
     Result := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);
 end;
 
 function FileControl(FileName, FileAlter: String;
-    Const Func, Flags: Cardinal): Integer;
+  Const Func, Flags: Cardinal): Integer;
 var
     Arquivos: TSHFileOpStruct;
 begin
@@ -286,7 +284,7 @@ begin
         Texto := TStringList.Create;
         Texto.LoadFromFile(FileName);
         Gramatica2 := TGramatica.Create('Script: ' + FileName + '.',
-            GlobalCollection, True);
+          GlobalCollection, True);
         Gramatica2.Start;
         if Esperar then
             Gramatica2.WaitFor;
@@ -343,7 +341,7 @@ begin
 end;
 
 function FileSetDateTime(FileName: string;
-    CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
+  CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
 var
     FileHandle: Integer;
     ftCreateTime, ftModifyTime, ftAcessTime: PFileTime;
@@ -352,12 +350,12 @@ begin
     ftModifyTime := DateTimeToFileTime(ModifyTime);
     ftAcessTime := DateTimeToFileTime(AcessTime);
     FileHandle := FileOpen(FileExpandPath(FileName), fmOpenReadWrite or
-        fmShareExclusive);
+      fmShareExclusive);
 
     if FileHandle <> 0 then
     begin
         Result := SetFileTime(FileHandle, ftCreateTime, ftAcessTime,
-            ftModifyTime);
+          ftModifyTime);
         FileClose(FileHandle);
     end
     else
@@ -372,48 +370,48 @@ function FileGetCreateTime(FileName: string): string;
 var
     SearchRec: TSearchRec;
 begin
-    {$WARN SYMBOL_PLATFORM OFF}
+{$WARN SYMBOL_PLATFORM OFF}
     if FindFirst(FileExpandPath(FileName), faAnyFile, SearchRec) = 0 then
     begin
         Result := DateTimeToStr
-            (FileTimeToDateTime(SearchRec.FindData.ftCreationTime));
+          (FileTimeToDateTime(SearchRec.FindData.ftCreationTime));
         FindClose(SearchRec);
     end
     else
         Result := '';
-    {$WARN SYMBOL_PLATFORM ON}
+{$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileGetModifyTime(FileName: string): string;
 var
     SearchRec: TSearchRec;
 begin
-    {$WARN SYMBOL_PLATFORM OFF}
+{$WARN SYMBOL_PLATFORM OFF}
     if FindFirst(FileExpandPath(FileName), faAnyFile, SearchRec) = 0 then
     begin
         Result := DateTimeToStr
-            (FileTimeToDateTime(SearchRec.FindData.ftLastWriteTime));
+          (FileTimeToDateTime(SearchRec.FindData.ftLastWriteTime));
         FindClose(SearchRec);
     end
     else
         Result := '';
-    {$WARN SYMBOL_PLATFORM ON}
+{$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileGetAcessTime(FileName: string): string;
 var
     SearchRec: TSearchRec;
 begin
-    {$WARN SYMBOL_PLATFORM OFF}
+{$WARN SYMBOL_PLATFORM OFF}
     if FindFirst(FileExpandPath(FileName), faAnyFile, SearchRec) = 0 then
     begin
         Result := DateTimeToStr
-            (FileTimeToDateTime(SearchRec.FindData.ftLastAccessTime));
+          (FileTimeToDateTime(SearchRec.FindData.ftLastAccessTime));
         FindClose(SearchRec);
     end
     else
         Result := '';
-    {$WARN SYMBOL_PLATFORM ON}
+{$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileExtractOnlyFileName(const FileName: string): string;

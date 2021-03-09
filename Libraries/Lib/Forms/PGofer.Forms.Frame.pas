@@ -3,38 +3,38 @@ unit PGofer.Forms.Frame;
 interface
 
 uses
-    System.Classes, System.SysUtils,
-    Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls,
-    Vcl.ComCtrls,
-    PGofer.Classes, PGofer.Forms, PGofer.Item.Frame, Pgofer.Component.Edit;
+    System.Classes,
+    Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
+    Vcl.Dialogs,
+    PGofer.Classes, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame;
 
 type
     TPGFrameForms = class(TPGFrame)
-    LblAlphaBlendValue: TLabel;
-    LblHeigth: TLabel;
-    LblLeft: TLabel;
-    LblTop: TLabel;
-    LblTransparentColor: TLabel;
-    LblWidth: TLabel;
-    LblWindowState: TLabel;
-    CkbAlphaBlend: TCheckBox;
-    UpdAlphaBlendValue: TUpDown;
-    CkbEnabled: TCheckBox;
-    CkbTransparent: TCheckBox;
-    PnlTransparentColor: TPanel;
-    CkbVisible: TCheckBox;
-    CmbWindowState: TComboBox;
-    BtnClose: TButton;
-    BtnShow: TButton;
-    EdtAlphaBlendValue: TEditEx;
-    EdtHeigth: TEditEx;
-    EdtTop: TEditEx;
-    EdtWidth: TEditEx;
-    EdtLeft: TEditEx;
-    cldTrasparentColor: TColorDialog;
+        LblAlphaBlendValue: TLabel;
+        LblHeigth: TLabel;
+        LblLeft: TLabel;
+        LblTop: TLabel;
+        LblTransparentColor: TLabel;
+        LblWidth: TLabel;
+        LblWindowState: TLabel;
+        CkbAlphaBlend: TCheckBox;
+        UpdAlphaBlendValue: TUpDown;
+        CkbEnabled: TCheckBox;
+        CkbTransparent: TCheckBox;
+        PnlTransparentColor: TPanel;
+        CkbVisible: TCheckBox;
+        CmbWindowState: TComboBox;
+        BtnClose: TButton;
+        BtnShow: TButton;
+        EdtAlphaBlendValue: TEditEx;
+        EdtHeigth: TEditEx;
+        EdtTop: TEditEx;
+        EdtWidth: TEditEx;
+        EdtLeft: TEditEx;
+        cldTrasparentColor: TColorDialog;
         procedure CkbAlphaBlendClick(Sender: TObject);
         procedure UpdAlphaBlendValueChanging(Sender: TObject;
-            var AllowChange: Boolean);
+          var AllowChange: Boolean);
         procedure EdtAlphaBlendValueExit(Sender: TObject);
         procedure CkbEnabledClick(Sender: TObject);
         procedure EdtHeigthExit(Sender: TObject);
@@ -58,6 +58,9 @@ var
     PGFrameForms: TPGFrameForms;
 
 implementation
+
+uses
+    System.SysUtils;
 
 {$R *.dfm}
 { TPGFrame1 }
@@ -156,7 +159,7 @@ begin
 end;
 
 procedure TPGFrameForms.UpdAlphaBlendValueChanging(Sender: TObject;
-    var AllowChange: Boolean);
+  var AllowChange: Boolean);
 begin
     EdtAlphaBlendValueExit(Sender);
 end;

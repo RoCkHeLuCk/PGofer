@@ -3,10 +3,10 @@ unit PGofer.Links.Frame;
 interface
 
 uses
+    System.Classes,
     Vcl.Forms, Vcl.Dialogs, Vcl.Controls, Vcl.StdCtrls, Vcl.Graphics,
-    System.SysUtils, System.Classes,
-    PGofer.Classes, PGofer.Links, PGofer.Item.Frame, PGofer.Component.Edit,
-    Vcl.ExtCtrls, Vcl.ComCtrls;
+    Vcl.ExtCtrls, Vcl.ComCtrls,
+    PGofer.Classes, PGofer.Links, PGofer.Item.Frame, PGofer.Component.Edit;
 
 type
     TPGLinkFrame = class(TPGFrame)
@@ -42,7 +42,8 @@ type
         procedure BtnArquivoClick(Sender: TObject);
         procedure BtnDiretorioClick(Sender: TObject);
         procedure BtnIconeClick(Sender: TObject);
-    procedure EdtNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+        procedure EdtNameKeyUp(Sender: TObject; var Key: Word;
+          Shift: TShiftState);
     private
         FItem: TPGLink;
     public
@@ -56,7 +57,7 @@ var
 implementation
 
 uses
-    PGofer.Files.Controls;
+    System.SysUtils, PGofer.Files.Controls;
 {$R *.dfm}
 { TPGFrame1 }
 
@@ -72,7 +73,7 @@ begin
         EdtArquivo.Text := FileUnExpandPath(OpdLinks.FileName);
         EdtArquivo.OnChange(nil);
         EdtDiretorio.Text := FileUnExpandPath
-            (ExtractFilePath(OpdLinks.FileName));
+          (ExtractFilePath(OpdLinks.FileName));
         EdtIcone.Text := EdtArquivo.Text;
     end;
 end;
@@ -86,7 +87,7 @@ procedure TPGLinkFrame.BtnIconeClick(Sender: TObject);
 begin
     OpdLinks.Title := 'Icone';
     OpdLinks.Filter :=
-        'Todos Icones(*.jpg;*.bmp;*.ico;*.exe;*.dll)|*.jpg;*.bmp;*.ico;*.exe;*.dll|Todos Arquivos(*.*)|*.*';
+      'Todos Icones(*.jpg;*.bmp;*.ico;*.exe;*.dll)|*.jpg;*.bmp;*.ico;*.exe;*.dll|Todos Arquivos(*.*)|*.*';
     OpdLinks.InitialDir := FileLimitPathExist(EdtIcone.Text);
     OpdLinks.FileName := ExtractFileName(EdtIcone.Text);
     if OpdLinks.Execute then
@@ -172,7 +173,9 @@ begin
     if FItem.isItemExist(EdtName.Text) then
     begin
         EdtName.Color := clRed;
-    end else begin
+    end
+    else
+    begin
         EdtName.Color := clWindow;
         inherited;
     end;

@@ -6,7 +6,7 @@ function BoolToStr(const Valor: Boolean): String; overload;
 function TryBinToInt64(Const S: string; Var Value: Int64): Boolean;
 function IntToBin(Valor: Int64): String;
 function FormatConvert(const Prefixo: Boolean; const Formato: String;
-    Valor: Extended): String;
+  Valor: Extended): String;
 function Module(const Valor: Extended): Extended;
 function TryPower(Base, Expoente: Extended; out Resposta: Extended): Boolean;
 
@@ -53,7 +53,7 @@ begin
 end;
 
 function FormatConvert(const Prefixo: Boolean; const Formato: String;
-    Valor: Extended): String;
+  Valor: Extended): String;
 var
     pre, teste: Extended;
     c: Int8;

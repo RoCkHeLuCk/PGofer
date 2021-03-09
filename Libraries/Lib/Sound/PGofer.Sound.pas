@@ -20,7 +20,6 @@ type
     end;
 {$TYPEINFO ON}
 
-
 implementation
 
 uses

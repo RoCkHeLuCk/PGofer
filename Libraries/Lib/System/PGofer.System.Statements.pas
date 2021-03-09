@@ -109,7 +109,7 @@ end;
 procedure TPGFor.Execute(Gramatica: TGramatica);
 var
     ID: TPGItem;
-    Variavel: TPGVariavel;
+    Variavel: TPGVariable;
     VarInicio, VarLimite: Int64;
     LoopContador: Int64;
     Decrecente: Boolean;
@@ -118,21 +118,20 @@ begin
     Gramatica.TokenList.GetNextToken;
     ID := IdentificadorLocalizar(Gramatica);
 
-    if (ID.ClassType = TPGVariavel) then
+    if (ID.ClassType = TPGVariable) then
     begin
-        Variavel := TPGVariavel(ID);
+        Variavel := TPGVariable(ID);
         Variavel.Execute(Gramatica);
         VarInicio := Variavel.Valor;
         if (not Gramatica.Erro) and
-            (Gramatica.TokenList.Token.Classe in [cmdRes_downto, cmdRes_to])
-        then
+          (Gramatica.TokenList.Token.Classe in [cmdRes_downto, cmdRes_to]) then
         begin
             Decrecente := (Gramatica.TokenList.Token.Classe = cmdRes_downto);
             Gramatica.TokenList.GetNextToken;
             Expressao(Gramatica);
             VarLimite := Gramatica.Pilha.Desempilhar(0);
             if (not Gramatica.Erro) and
-                (Gramatica.TokenList.Token.Classe = cmdRes_do) then
+              (Gramatica.TokenList.Token.Classe = cmdRes_do) then
             begin
                 Gramatica.TokenList.GetNextToken;
                 PositionIni := Gramatica.TokenList.Position;
@@ -140,8 +139,8 @@ begin
                 begin
                     LoopContador := 0;
                     while (not Gramatica.Erro) and (LoopContador < LoopLimite)
-                        and (((not Decrecente) and (VarInicio <= VarLimite)) or
-                        ((Decrecente) and (VarInicio >= VarLimite))) do
+                      and (((not Decrecente) and (VarInicio <= VarLimite)) or
+                      ((Decrecente) and (VarInicio >= VarLimite))) do
                     begin
                         Gramatica.TokenList.Position := PositionIni;
                         Comandos(Gramatica);
@@ -163,8 +162,7 @@ begin
                 end
                 else
                     EncontrarFim(Gramatica,
-                        (Gramatica.TokenList.Token.Classe =
-                        cmdRes_begin), false);
+                      (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
             end
             else
                 Gramatica.ErroAdd('"Do" esperado.');
@@ -194,7 +192,7 @@ begin
             Comandos(Gramatica)
         else
             EncontrarFim(Gramatica,
-                (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
+              (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
     end
     else
         Gramatica.ErroAdd('"Then" Esperado.');
@@ -208,13 +206,13 @@ begin
             Comandos(Gramatica)
         else
             EncontrarFim(Gramatica,
-                (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
+              (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
     end;
 end;
 
 { TPGisDef }
 
-procedure TPGisDef.Execute(Gramatica: TGramatica);
+procedure TPGIsDef.Execute(Gramatica: TGramatica);
 var
     Nome: String;
 begin
@@ -228,8 +226,7 @@ begin
         else
         begin
             Nome := Gramatica.Pilha.Desempilhar('');
-            Gramatica.Pilha.Empilhar(
-               Assigned( FindID(Gramatica.Local, Nome)));
+            Gramatica.Pilha.Empilhar(Assigned(FindID(Gramatica.Local, Nome)));
             Gramatica.TokenList.GetNextToken;
         end;
     end
@@ -323,17 +320,17 @@ begin
             Item := FindID(Gramatica.Local, Nome);
             if Assigned(Item) then
             begin
-               Item.Free;
-               Gramatica.Pilha.Empilhar( True );
-            end else
-               Gramatica.Pilha.Empilhar( False );
+                Item.Free;
+                Gramatica.Pilha.Empilhar(True);
+            end
+            else
+                Gramatica.Pilha.Empilhar(false);
             Gramatica.TokenList.GetNextToken;
         end;
     end
     else
         Gramatica.ErroAdd('"(" Esperado.');
 end;
-
 
 { TPGWhile }
 
@@ -348,7 +345,7 @@ begin
     LoopContador := 0;
     Continuar := True;
     while (Continuar) and (not Gramatica.Erro) and
-        (LoopContador < LoopLimite) do
+      (LoopContador < LoopLimite) do
     begin
         Gramatica.TokenList.Position := PositionIni;
         // Expressao
@@ -364,8 +361,7 @@ begin
                     Comandos(Gramatica)
                 else
                     EncontrarFim(Gramatica,
-                        (Gramatica.TokenList.Token.Classe =
-                        cmdRes_begin), false);
+                      (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
             end
             else
                 Gramatica.ErroAdd('"Do" esperado.');
@@ -390,17 +386,17 @@ begin
 end;
 
 initialization
-     TPGCopy.Create(GlobalItemCommand);
-     TPGDelete.Create(GlobalItemCommand);
-     TPGFor.Create(GlobalItemCommand);
-     TPGIf.Create(GlobalItemCommand);
-     TPGisDef.Create(GlobalItemCommand);
-     TPGInsert.Create(GlobalItemCommand);
-     TPGRead.Create(GlobalItemCommand);
-     TPGRepeat.Create(GlobalItemCommand);
-     TPGUndef.Create(GlobalItemCommand);
-     TPGWhile.Create(GlobalItemCommand);
-     TPGWrite.Create(GlobalItemCommand);
+    TPGCopy.Create(GlobalItemCommand);
+    TPGDelete.Create(GlobalItemCommand);
+    TPGFor.Create(GlobalItemCommand);
+    TPGIf.Create(GlobalItemCommand);
+    TPGIsDef.Create(GlobalItemCommand);
+    TPGInsert.Create(GlobalItemCommand);
+    TPGRead.Create(GlobalItemCommand);
+    TPGRepeat.Create(GlobalItemCommand);
+    TPGUnDef.Create(GlobalItemCommand);
+    TPGWhile.Create(GlobalItemCommand);
+    TPGWrite.Create(GlobalItemCommand);
 
 finalization
 

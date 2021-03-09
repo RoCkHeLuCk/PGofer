@@ -12,7 +12,7 @@ type
     public
     published
         function Created(Maquina, Servico, DisplayName, PathFile: String)
-            : Cardinal;
+          : Cardinal;
         function Delete(Maquina, Servico: String): Boolean;
         function GetConfig(Maquina, Servico: String): Byte;
         function GetDesciption(Maquina, Servico: String): String;
@@ -31,7 +31,7 @@ uses
 { TPGService }
 
 function TPGService.Created(Maquina, Servico, DisplayName, PathFile: String)
-    : Cardinal;
+  : Cardinal;
 begin
     Result := ServiceCreate(Maquina, Servico, DisplayName, PathFile);
 end;
@@ -57,13 +57,13 @@ begin
 end;
 
 function TPGService.SetConfig(Maquina, Servico: String; Controle: Byte)
-    : Boolean;
+  : Boolean;
 begin
     Result := ServiceSetConfig(Maquina, Servico, Controle);
 end;
 
 function TPGService.SetDesciption(Maquina, Servico, Desciption: String)
-    : Boolean;
+  : Boolean;
 begin
     Result := ServiceSetDesciption(Maquina, Servico, Desciption);
 end;

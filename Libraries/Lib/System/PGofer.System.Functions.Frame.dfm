@@ -8,9 +8,6 @@ inherited PGFrameFunction: TPGFrameFunction
   inherited grbAbout: TGroupBox
     Top = 161
     ExplicitTop = 161
-    inherited rceAbout: TRichEdit
-      ExplicitHeight = 60
-    end
   end
   inherited pnlItem: TPanel
     Height = 150

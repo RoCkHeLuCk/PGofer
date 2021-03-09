@@ -30,14 +30,14 @@ begin
         while C < cProcesses do
         begin
             hProcess := OpenProcess(PROCESS_QUERY_INFORMATION or
-                PROCESS_VM_READ, false, PID[C]);
+              PROCESS_VM_READ, false, PID[C]);
             if (hProcess <> 0) then
             begin
                 if EnumProcessModules(hProcess, @hModul, SizeOf(hModul),
-                    cbNeeded) then
+                  cbNeeded) then
                 begin
                     GetModuleFilenameEx(hProcess, hModul, aModule,
-                        SizeOf(aModule));
+                      SizeOf(aModule));
                     if SameText(ExtractFileName(aModule), FileName) then
                     begin
                         Result := PID[C];
@@ -58,13 +58,13 @@ var
     cbNeeded: Cardinal;
 begin
     hProcess := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_READ,
-        false, PID);
+      false, PID);
     if (hProcess <> 0) then
     begin
         if EnumProcessModules(hProcess, @hModul, SizeOf(hModul), cbNeeded) then
         begin
             if GetModuleFilenameEx(hProcess, hModul, aModule, SizeOf(aModule)
-                ) <> 0 then
+              ) <> 0 then
                 Result := ExtractFileName(aModule);
         end;
     end;
@@ -76,7 +76,7 @@ var
 begin
     Result := false;
     hProcess := OpenProcess(PROCESS_TERMINATE or PROCESS_QUERY_INFORMATION,
-        false, PID);
+      false, PID);
     if hProcess <> 0 then
     begin
         if TerminateProcess(hProcess, 0) then
@@ -91,7 +91,7 @@ var
 begin
     Result := false;
     hProcess := OpenProcess(PROCESS_SET_INFORMATION or
-        PROCESS_QUERY_INFORMATION, false, PID);
+      PROCESS_QUERY_INFORMATION, false, PID);
     if hProcess <> 0 then
     begin
         if SetPriorityClass(hProcess, Priority) then
@@ -106,7 +106,7 @@ var
 begin
     Result := 0;
     hProcess := OpenProcess(PROCESS_QUERY_INFORMATION or PROCESS_VM_WRITE,
-        false, PID);
+      false, PID);
     if hProcess <> 0 then
     begin
         Result := GetPriorityClass(hProcess);

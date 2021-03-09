@@ -8,7 +8,7 @@ uses
 type
     TThreadService = class(TThread)
         constructor Create(const Host: String; const Item: TListItem;
-            const Config: Cardinal);
+          const Config: Cardinal);
     private
         { Private declarations }
         HostA: String;
@@ -27,7 +27,7 @@ uses PGofer.Services, PGofer.Services.Controls;
 { TThreadLoadImage }
 // ----------------------------------------------------------------------------//
 constructor TThreadService.Create(const Host: String; const Item: TListItem;
-    const Config: Cardinal);
+  const Config: Cardinal);
 begin
     // cria thread
     inherited Create(true);

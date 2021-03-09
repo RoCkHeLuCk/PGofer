@@ -3,14 +3,13 @@ unit PGofer.Registry.Environment;
 interface
 
 uses
-    PGofer.Classes, PGofer.Sintatico.Classes;
+    PGofer.Sintatico.Classes;
 
 type
 {$M+}
     TPGRegistryEnvironment = class(TPGItemCMD)
     private
     public
-        constructor Create(ItemDad: TPGItem);
     published
         function Delete(Key: String): Boolean;
         function Read(Key: String): String;
@@ -20,27 +19,21 @@ type
     end;
 {$TYPEINFO ON}
 
-
 implementation
+
 uses
-   Winapi.Windows, Winapi.Messages, PGofer.Registry.Controls;
+    Winapi.Windows, Winapi.Messages, PGofer.Registry.Controls;
 
 { Registry Environment }
 const
     REG_ENVIRONMENT_LOCATION =
-        'System\CurrentControlSet\Control\Session Manager\Environment';
-
-
-constructor TPGRegistryEnvironment.Create(ItemDad: TPGItem);
-begin
-    inherited Create(ItemDad, 'Environment');
-end;
+      'System\CurrentControlSet\Control\Session Manager\Environment';
 
 function TPGRegistryEnvironment.Delete(Key: String): Boolean;
 begin
     if Key <> '' then
         Result := RegistryDelete(HKEY_LOCAL_MACHINE,
-            REG_ENVIRONMENT_LOCATION, Key)
+          REG_ENVIRONMENT_LOCATION, Key)
     else
         Result := False;
 end;
@@ -53,39 +46,39 @@ end;
 function TPGRegistryEnvironment.Write(Key, Value: String): Boolean;
 begin
     Result := RegistryWrite(HKEY_LOCAL_MACHINE, REG_ENVIRONMENT_LOCATION,
-        Key, Value);
+      Key, Value);
 
     // SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
     // LPARAM(PChar('Environment')));
     SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-        LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, nil);
+      LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, nil);
 end;
 
 function TPGRegistryEnvironment.Add(Key, Value: String): Boolean;
 var
-    Content : String;
+    Content: String;
 begin
     Content := Self.Read(Key);
     if Pos(Value, Content) = -1 then
-       Result := Self.Write(Key, Content  + Value)
+        Result := Self.Write(Key, Content + Value)
     else
-       Result := false;
+        Result := False;
 end;
 
 function TPGRegistryEnvironment.Remove(Key, Value: String): Boolean;
 var
-    Content : String;
-    I : Integer;
+    Content: String;
+    I: Integer;
 begin
     Content := Self.Read(Key);
     I := Pos(Value, Content);
     if I <> -1 then
     begin
-       System.Delete(Content, I, Length(Value));
-       Result := Self.Write(Key, Content);
-    end else
-       Result := false;
+        System.Delete(Content, I, Length(Value));
+        Result := Self.Write(Key, Content);
+    end
+    else
+        Result := False;
 end;
-
 
 end.

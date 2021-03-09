@@ -19,13 +19,13 @@ type
         property Server: TPGItemCMD read FServer;
     published
         function SetTCPIP(NetworkCard, IPAddress, Mask,
-            GateWay: String): Integer;
+          GateWay: String): Integer;
         function GetTCPIP(NetworkCard: String): String;
     end;
 {$TYPEINFO ON}
 
 var
-    PGNet : TPGNet;
+    PGNet: TPGNet;
 
 implementation
 
@@ -48,7 +48,8 @@ begin
     inherited Destroy();
 end;
 
-function TPGNet.SetTCPIP(NetworkCard, IPAddress, Mask, GateWay: String) : Integer;
+function TPGNet.SetTCPIP(NetworkCard, IPAddress, Mask, GateWay: String)
+  : Integer;
 begin
     Result := NetSetTCPIP(NetworkCard, IPAddress, Mask, GateWay);
 end;

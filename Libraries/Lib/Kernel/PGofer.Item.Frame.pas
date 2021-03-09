@@ -15,7 +15,8 @@ type
         LblName: TLabel;
         EdtName: TEditEx;
         SplitterItem: TSplitter;
-    procedure EdtNameKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+        procedure EdtNameKeyUp(Sender: TObject; var Key: Word;
+          Shift: TShiftState);
     private
         FItem: TPGItem;
     public
@@ -24,13 +25,15 @@ type
     end;
 
 implementation
+
 {$R *.dfm}
+
 uses
     PGofer.Sintatico.Classes;
 
 constructor TPGFrame.Create(Item: TPGItem; Parent: TObject);
 var
-    Attribute : TPGRttiAttribute;
+    Attribute: TPGRttiAttribute;
 begin
     inherited Create(nil);
     Self.Parent := TWinControl(Parent);
@@ -43,7 +46,7 @@ begin
     begin
         for Attribute in TPGItemCMD(FItem).AttributeList do
         begin
-            rceAbout.Lines.Add( Attribute.Value );
+            rceAbout.Lines.Add(Attribute.Value);
         end;
     end;
 end;

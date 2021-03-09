@@ -17,7 +17,7 @@ type
         iExInfo: Integer;
     end;
 
-    KBDLLHOOKSTRUCT  = tagKBDLLHOOKSTRUCT;
+    KBDLLHOOKSTRUCT = tagKBDLLHOOKSTRUCT;
     PKBDLLHOOKSTRUCT = ^KBDLLHOOKSTRUCT;
 
     tagMSLLHOOKSTRUCT = record
@@ -32,7 +32,7 @@ type
     PMSLLHOOKSTRUCT = ^TMSLLHOOKSTRUCT;
 
     TLowLevelProc = function(Code: Integer; wParam: wParam; lParam: lParam)
-        : LRESULT; stdcall;
+      : LRESULT; stdcall;
 
     TKey = record
         wKey: Word;
@@ -46,10 +46,10 @@ type
         class var FKey: TKey;
         class var FShootKeys: TList<Word>;
         class function LowLevelProc(Code: Integer; wParam: wParam;
-            lParam: lParam): LRESULT; stdcall; static;
+          lParam: lParam): LRESULT; stdcall; static;
     public
         class procedure CalcVirtualKey(wParam: wParam; lParam: lParam;
-            var Key: TKey);
+          var Key: TKey);
         class procedure EnableHoot(LLProc: TLowLevelProc = nil);
         class procedure DisableHoot();
     end;
@@ -83,7 +83,7 @@ begin
 end;
 
 class function THookProc.LowLevelProc(Code: Integer; wParam: wParam;
-    lParam: lParam): LRESULT;
+  lParam: lParam): LRESULT;
 var
     AuxHotKey: TPGHotKey;
     Inibir: Boolean;
@@ -104,8 +104,8 @@ begin
 
             AuxHotKey := TPGHotKey.LocateHotKeys(FShootKeys);
             if Assigned(AuxHotKey) and
-                ((FKey.bDetect = kd_Wheel) or
-                (AuxHotKey.Detect = Byte(FKey.bDetect))) then
+              ((FKey.bDetect = kd_Wheel) or
+              (AuxHotKey.Detect = Byte(FKey.bDetect))) then
             begin
                 AuxHotKey.Execute(nil);
                 Inibir := AuxHotKey.Inhibit;
@@ -123,7 +123,7 @@ begin
 end;
 
 class procedure THookProc.CalcVirtualKey(wParam: wParam; lParam: lParam;
-    var Key: TKey);
+  var Key: TKey);
 begin
     Key.wKey := 0;
     Key.bDetect := kd_Down;
@@ -190,7 +190,7 @@ end;
 initialization
     THookProc.FShootKeys := TList<Word>.Create();
     {$IFNDEF DEBUG}
-        THookProc.EnableHoot();
+    THookProc.EnableHoot();
     {$ENDIF}
 
 finalization

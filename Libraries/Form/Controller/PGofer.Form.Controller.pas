@@ -3,13 +3,13 @@ unit PGofer.Form.Controller;
 interface
 
 uses
-    System.Classes, System.IniFiles,
+    System.Classes,
     Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
     Vcl.StdCtrls, Vcl.Menus,
-    PGofer.Classes, PGofer.Collection, PGofer.Component.TreeView;
+    PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView;
 
 type
-    TFrmController = class(TForm)
+    TFrmController = class(TFormEx)
         PnlTreeView: TPanel;
         PnlFind: TPanel;
         PnlButton: TPanel;
@@ -31,12 +31,12 @@ type
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure FormShow(Sender: TObject);
         procedure TrvControllerGetSelectedIndex(Sender: TObject;
-            Node: TTreeNode);
+          Node: TTreeNode);
         procedure TrvControllerDragOver(Sender, Source: TObject; X, Y: Integer;
-            State: TDragState; var Accept: Boolean);
+          State: TDragState; var Accept: Boolean);
         procedure EdtFindKeyPress(Sender: TObject; var Key: Char);
         procedure TrvControllerCompare(Sender: TObject; Node1, Node2: TTreeNode;
-            Data: Integer; var Compare: Integer);
+          Data: Integer; var Compare: Integer);
         procedure TrvControllerDragDrop(Sender, Source: TObject; X, Y: Integer);
         procedure mniAZClick(Sender: TObject);
         procedure mniZAClick(Sender: TObject);
@@ -44,7 +44,6 @@ type
         procedure onCreateItemPopUpClick(Sender: TObject);
         procedure btnDeleteClick(Sender: TObject);
     private
-        FIniFile: TIniFile;
         FAlphaSort: Boolean;
         FAlphaSortFolder: Boolean;
         procedure PanelCleaning();
@@ -52,9 +51,8 @@ type
     protected
         FCollectItem: TPGItemCollect;
         FSelectedItem: TPGItem;
-        FItemForm: TPGItem;
-        procedure IniConfigSave(); virtual;
-        procedure IniConfigLoad(); virtual;
+        procedure IniConfigSave(); reintroduce;
+        procedure IniConfigLoad(); reintroduce;
     public
     end;
 
@@ -63,44 +61,30 @@ implementation
 {$R *.dfm}
 
 uses
-    System.RTTI,
+    System.RTTI, System.UITypes,
     WinApi.Windows,
-    Vcl.Dialogs,
-    PGofer.Sintatico.Classes, PGofer.Sintatico,
-    PGofer.Forms, PGofer.Forms.Controls;
+    Vcl.Dialogs, PGofer.Sintatico.Classes;
 
 constructor TFrmController.Create(ACollectItem: TPGItemCollect);
 begin
     inherited Create(nil);
-    FIniFile := TIniFile.Create(PGofer.Sintatico.IniConfigFile);
     FCollectItem := ACollectItem;
     FAlphaSort := True;
     FAlphaSortFolder := True;
     FSelectedItem := nil;
     Self.Name := 'Frm' + FCollectItem.Name;
-    FItemForm := TPGForm.Create(Self);
-    IniConfigLoad();
-    {
-      FFileName := PGofer.Sintatico.DirCurrent+'\'+ACollectItem.Name+'.xml';
-      if FileExists(FFileName) then
-      ACollectItem.XMLLoadFromFile(FFileName);
-      inherited Create(ACollectItem);
-      CreatePopups();
-    }
+    TPGForm.Create(Self);
+    CreatePopups();
 end;
 
 destructor TFrmController.Destroy();
 begin
-    // FCollectItem.XMLSaveToFile(FFileName);
-    IniConfigSave();
-    FIniFile.Free();
-    FCollectItem.TreeViewDestroy();
+    FCollectItem.UpdateToFile();
+    FCollectItem.TreeViewDetach();
     FAlphaSort := False;
     FAlphaSortFolder := False;
     FSelectedItem := nil;
-    FItemForm.Free();
-    FItemForm := nil;
-    inherited Destroy();
+    inherited;
 end;
 
 procedure TFrmController.PanelCleaning();
@@ -122,54 +106,35 @@ end;
 
 procedure TFrmController.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-    IniConfigSave();
-    // FCollectItem.XMLSaveToFile(FFileName);
-    FCollectItem.TreeViewDestroy();
+    inherited;
+    FCollectItem.UpdateToFile();
+    FCollectItem.TreeViewDetach();
 end;
 
 procedure TFrmController.FormShow(Sender: TObject);
 begin
-    FCollectItem.TreeViewCreate();
+    FCollectItem.TreeViewAttach();
     TrvController.AlphaSort(True);
 end;
 
 procedure TFrmController.IniConfigLoad();
 begin
-    Self.Left := FIniFile.ReadInteger(Self.Name, 'Left', Self.Left);
-    Self.Top := FIniFile.ReadInteger(Self.Name, 'Top', Self.Top);
-    Self.Width := FIniFile.ReadInteger(Self.Name, 'Width', Self.Width);
-    Self.Height := FIniFile.ReadInteger(Self.Name, 'Height', Self.Height);
-    FormPositionFixed(Self);
-    if FIniFile.ReadBool(Self.Name, 'Maximized', False) then
-        Self.WindowState := wsMaximized;
-
+    inherited;
     Self.PnlTreeView.Width := FIniFile.ReadInteger(Self.Name, 'TreeViewWidth',
-        Self.TrvController.Width);
+      Self.TrvController.Width);
     Self.FAlphaSort := FIniFile.ReadBool(Self.Name, 'AlphaSort',
-        Self.FAlphaSort);
+      Self.FAlphaSort);
     Self.FAlphaSortFolder := FIniFile.ReadBool(Self.Name, 'AlphaSortFolder',
-        FAlphaSortFolder);
+      FAlphaSortFolder);
     Self.mniAlphaSortFolder.Checked := FAlphaSortFolder;
 end;
 
 procedure TFrmController.IniConfigSave();
 begin
-    FormPositionFixed(Self);
-    if Self.WindowState <> wsMaximized then
-    begin
-        FIniFile.WriteInteger(Self.Name, 'Left', Self.Left);
-        FIniFile.WriteInteger(Self.Name, 'Top', Self.Top);
-        FIniFile.WriteInteger(Self.Name, 'Width', Self.Width);
-        FIniFile.WriteInteger(Self.Name, 'Height', Self.Height);
-        FIniFile.WriteBool(Self.Name, 'Maximized', False);
-    end
-    else
-        FIniFile.WriteBool(Self.Name, 'Maximized', True);
-
+    inherited;
     FIniFile.WriteInteger(Self.Name, 'TreeViewWidth', Self.TrvController.Width);
     FIniFile.WriteBool(Self.Name, 'AlphaSort', Self.FAlphaSort);
     FIniFile.WriteBool(Self.Name, 'AlphaSortFolder', Self.FAlphaSortFolder);
-
     FIniFile.UpdateFile;
 end;
 
@@ -197,7 +162,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerCompare(Sender: TObject;
-    Node1, Node2: TTreeNode; Data: Integer; var Compare: Integer);
+  Node1, Node2: TTreeNode; Data: Integer; var Compare: Integer);
 var
     FolderNode1, FolderNode2: Boolean;
 begin
@@ -209,9 +174,9 @@ begin
     if FAlphaSortFolder then
     begin
         FolderNode1 := Assigned(Node1.Data) and
-            (TPGItem(Node1.Data) is TPGFolder);
+          (TPGItem(Node1.Data) is TPGFolder);
         FolderNode2 := Assigned(Node2.Data) and
-            (TPGItem(Node2.Data) is TPGFolder);
+          (TPGItem(Node2.Data) is TPGFolder);
 
         if FolderNode1 and (not FolderNode2) then
         begin
@@ -227,7 +192,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerDragDrop(Sender, Source: TObject;
-    X, Y: Integer);
+  X, Y: Integer);
 var
     Node: TTreeNode;
     ItemDad: TPGItem;
@@ -247,14 +212,14 @@ begin
 end;
 
 procedure TFrmController.TrvControllerDragOver(Sender, Source: TObject;
-    X, Y: Integer; State: TDragState; var Accept: Boolean);
+  X, Y: Integer; State: TDragState; var Accept: Boolean);
 begin
     Accept := Sender = Source;
     if Accept then
     begin
         if Assigned(TrvController.TargetDrag) and
-            Assigned(TrvController.TargetDrag.Data) and
-            (TPGItem(TrvController.TargetDrag.Data) is TPGFolder) then
+          Assigned(TrvController.TargetDrag.Data) and
+          (TPGItem(TrvController.TargetDrag.Data) is TPGFolder) then
         begin
             Accept := True;
             TrvController.AttachMode := naInsert;
@@ -269,13 +234,13 @@ begin
 end;
 
 procedure TFrmController.TrvControllerGetSelectedIndex(Sender: TObject;
-    Node: TTreeNode);
+  Node: TTreeNode);
 begin
     if TrvController.isSelectWork then
     begin
         if Assigned(TrvController.Selected) and
-            (TPGItem(TrvController.Selected.Data) is TPGItem) and
-            (TPGItem(TrvController.Selected.Data) <> FSelectedItem) then
+          (TPGItem(TrvController.Selected.Data) is TPGItem) and
+          (TPGItem(TrvController.Selected.Data) <> FSelectedItem) then
         begin
             Self.PanelCleaning();
             FSelectedItem := TPGItem(TrvController.Selected.Data);
@@ -297,11 +262,11 @@ var
     PopUpItem: TMenuItem;
     c, l: Integer;
 begin
-    l := FCollectItem.RegClassList.Count-1;
+    l := FCollectItem.RegClassList.Count - 1;
     if l > 0 then
     begin
-        btnCreate.Visible := true;
-        btnDelete.Visible := true;
+        btnCreate.Visible := True;
+        btnDelete.Visible := True;
         for c := 0 to l do
         begin
             PopUpItem := TMenuItem.Create(ppmCreate);
@@ -339,14 +304,14 @@ begin
     RttiContext := TRttiContext.Create();
     RttiType := RttiContext.GetType(IClass);
     Value := RttiType.GetMethod('Create')
-        .Invoke(IClass, [FSelectedItem, IName]);
+      .Invoke(IClass, [FSelectedItem, IName]);
     TrvController.SuperSelected(TPGItem(Value.AsObject).Node);
 end;
 
 procedure TFrmController.btnDeleteClick(Sender: TObject);
 begin
     if Vcl.Dialogs.MessageDlg('Excluir os itens selecionados?', mtConfirmation,
-        [mbYes, mbNo], 0, mbNo) = mrYes then
+      [mbYes, mbNo], 0, mbNo) = mrYes then
     begin
         TrvController.DeleteSelect();
     end;

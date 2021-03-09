@@ -5,17 +5,17 @@ interface
 uses
     System.Win.ScktComp;
 
-    function NetErrorToStr(Error: TErrorEvent): String;
-    procedure NetSendMessage(Texto: String; Socket: TCustomWinSocket);
-    function NetSetTCPIP(NetworkCard, IPAddress, Mask, GateWay: String): Integer;
-    procedure NetLogSrvSocket(Text: String);
+function NetErrorToStr(Error: TErrorEvent): String;
+procedure NetSendMessage(Texto: String; Socket: TCustomWinSocket);
+function NetSetTCPIP(NetworkCard, IPAddress, Mask, GateWay: String): Integer;
+procedure NetLogSrvSocket(Text: String);
 
 implementation
 
 uses
     System.Variants, System.Win.ComObj, System.Classes, System.SysUtils,
     Winapi.ActiveX,
-    PGofer.Sintatico, PGofer.Sintatico.Controls;
+    PGofer.Sintatico,  PGofer.Sintatico.Controls;
 
 function NetErrorToStr(Error: TErrorEvent): String;
 begin
@@ -71,10 +71,10 @@ begin
     Result := 0;
     FSWbemLocator := CreateOleObject('WbemScripting.SWbemLocator');
     FWMIService := FSWbemLocator.ConnectServer('localhost',
-        'root\CIMV2', '', '');
+      'root\CIMV2', '', '');
     FWbemObjectSet := FWMIService.ExecQuery
-        ('SELECT * FROM Win32_NetworkAdapterConfiguration Where Description = "'
-        + NetworkCard + '"', 'WQL', wbemFlagForwardOnly);
+      ('SELECT * FROM Win32_NetworkAdapterConfiguration Where Description = "' +
+      NetworkCard + '"', 'WQL', wbemFlagForwardOnly);
     oEnum := IUnknown(FWbemObjectSet._NewEnum) as IEnumvariant;
 
     while oEnum.Next(1, FWbemObject, iValue) = 0 do
@@ -89,7 +89,7 @@ begin
                 vDefaultIPGateway := ArrayToVarArray([GateWay]);
                 vGatewayCostMetric := ArrayToVarArray(['1']);
                 Result := FWbemObject.SetGateways(vDefaultIPGateway,
-                    vGatewayCostMetric);
+                  vGatewayCostMetric);
             end;
 
             VarClear(vIPAddress);
@@ -109,10 +109,12 @@ var
     Arquivo: TStringList;
 begin
     Arquivo := TStringList.Create;
-    if FileExists(PGofer.Sintatico.DirCurrent + '\Logs\ServerSocker.log') then
-        Arquivo.LoadFromFile(PGofer.Sintatico.DirCurrent + '\Logs\ServerSocker.log');
+    if FileExists(PGofer.Sintatico.LogFile) then
+        Arquivo.LoadFromFile(PGofer.Sintatico.LogFile);
     Arquivo.Add(Text);
-    Arquivo.SaveToFile(PGofer.Sintatico.DirCurrent + '\Logs\ServerSocker.log');
+    while (Arquivo.Count > PGofer.Sintatico.LogMaxSize) do
+       Arquivo.Delete(0);
+    Arquivo.SaveToFile(PGofer.Sintatico.LogFile);
     Arquivo.Free;
 end;
 

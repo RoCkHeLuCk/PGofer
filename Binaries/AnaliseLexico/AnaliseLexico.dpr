@@ -1,7 +1,7 @@
 program AnaliseLexico;
+
 uses
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
-  PGofer.Collection in '..\..\Libraries\Lib\Kernel\PGofer.Collection.pas',
   PGofer.Item.Frame in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGFrame: TFrame},
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
@@ -40,14 +40,13 @@ uses
   PGofer.Sound.DevApi in '..\..\Libraries\Lib\Sound\PGofer.Sound.DevApi.pas',
   PGofer.System in '..\..\Libraries\Lib\System\PGofer.System.pas',
   PGofer.System.Controls in '..\..\Libraries\Lib\System\PGofer.System.Controls.pas',
-  PGofer.System.Functions in '..\..\Libraries\Lib\System\PGofer.System.Functions.pas',
-  PGofer.System.Functions.Frame in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFrameFunction: TFrame},
   PGofer.System.Statements in '..\..\Libraries\Lib\System\PGofer.System.Statements.pas',
   PGofer.System.Variants in '..\..\Libraries\Lib\System\PGofer.System.Variants.pas',
   PGofer.System.Variants.Frame in '..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas' {PGFrame1: TFrame},
+  PGofer.System.Functions in '..\..\Libraries\Lib\System\PGofer.System.Functions.pas',
+  PGofer.System.Functions.Frame in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFrameFunction: TFrame},
   PGofer.System.VirtualDesktop in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
   PGofer.Utils in '..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas',
-  PGofer.RTTI.Attributes in '..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas',
   PGofer.Types in '..\..\Libraries\Lib\PGUtils\PGofer.Types.pas',
   PGofer.ZLib in '..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas',
   PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
@@ -66,6 +65,6 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmMain, FrmMain);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  Application.Run;
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    Application.Run;
 end.

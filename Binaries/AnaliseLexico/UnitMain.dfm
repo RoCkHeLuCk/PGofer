@@ -13,6 +13,7 @@ object FrmMain: TFrmMain
   Menu = MainMenu1
   OldCreateOrder = False
   Position = poDesigned
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -89,18 +90,6 @@ object FrmMain: TFrmMain
     end
     object mniOpcoes: TMenuItem
       Caption = 'Op'#231#245'es'
-      object Globals1: TMenuItem
-        Caption = 'Globals'
-        OnClick = Globals1Click
-      end
-      object Hotkeys1: TMenuItem
-        Caption = 'Hotkeys'
-        OnClick = Hotkeys1Click
-      end
-      object Links1: TMenuItem
-        Caption = 'Links'
-        OnClick = Links1Click
-      end
     end
     object Compilar1: TMenuItem
       Caption = 'Compilar'

@@ -35,8 +35,6 @@ object FrmConsole: TFrmConsole
     Align = alClient
     BevelInner = bvRaised
     TabOrder = 0
-    ExplicitWidth = 176
-    ExplicitHeight = 125
     object PnlArrastar: TPanel
       Left = 2
       Top = 2
@@ -47,7 +45,6 @@ object FrmConsole: TFrmConsole
       TabOrder = 0
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
-      ExplicitWidth = 172
       DesignSize = (
         196
         12)
@@ -118,7 +115,6 @@ object FrmConsole: TFrmConsole
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
-        ExplicitWidth = 149
       end
     end
     object EdtConsole: TSynEdit
@@ -156,8 +152,6 @@ object FrmConsole: TFrmConsole
       ScrollBars = ssVertical
       WantTabs = True
       FontSmoothing = fsmNone
-      ExplicitWidth = 172
-      ExplicitHeight = 109
     end
   end
   object TmrConsole: TTimer

@@ -10,14 +10,14 @@ type
     TPGSystem = class(TPGItemCMD)
     private
         FNoOff: Boolean;
-        function GetDirCurrent() : String;
-        function GetLoopLimite() : Int64;
+        function GetDirCurrent(): String;
+        function GetLoopLimite(): Int64;
         procedure SetLoopLimite(Value: Int64);
-        function GetReplyFormat() : String;
+        function GetReplyFormat(): String;
         procedure SetReplyFormat(Value: String);
-        function GetReplyPrefix() : Boolean;
+        function GetReplyPrefix(): Boolean;
         procedure SetReplyPrefix(Value: Boolean);
-        function GetFileListMax() : Cardinal;
+        function GetFileListMax(): Cardinal;
         procedure SetFileListMax(Value: Cardinal);
     protected
     public
@@ -33,13 +33,13 @@ type
         function MonitorPower(OnOff: Boolean): NativeInt;
         property NoOff: Boolean read FNoOff write FNoOff;
         function PrtScreen(Height, Width, Top, Left: Integer;
-            FileName: String): Integer;
+          FileName: String): Integer;
         function SendMessage(ClassName: String; Mss: Cardinal;
-            wPar, lPar: Integer): Integer;
+          wPar, lPar: Integer): Integer;
         function SetScreen(Height, Width, Monitor: Integer): Boolean;
         function SetSuspendState(Enabled: Boolean): Boolean;
         function ShowDialogMessage(Texto: String;
-            Tipo, Botoes, Botao: Word): Integer;
+          Tipo, Botoes, Botao: Word): Integer;
         procedure ShowMessage(Texto: String);
         function ShutDown(Valor: Cardinal): Boolean;
         property ReplyFormat: String read GetReplyFormat write SetReplyFormat;
@@ -110,17 +110,17 @@ begin
 end;
 
 function TPGSystem.PrtScreen(Height, Width, Top, Left: Integer;
-    FileName: String): Integer;
+  FileName: String): Integer;
 begin
     Result := PGofer.System.Controls.SystemPrtScreen(Height, Width, Top, Left,
-        FileName);
+      FileName);
 end;
 
 function TPGSystem.SendMessage(ClassName: String; Mss: Cardinal;
-    wPar, lPar: Integer): Integer;
+  wPar, lPar: Integer): Integer;
 begin
     Result := PGofer.System.Controls.SystemSetSendMessage(ClassName, Mss,
-        wPar, lPar);
+      wPar, lPar);
 end;
 
 procedure TPGSystem.SetFileListMax(Value: Cardinal);
@@ -151,14 +151,14 @@ end;
 function TPGSystem.SetSuspendState(Enabled: Boolean): Boolean;
 begin
     Result := PGofer.System.Controls.SystemSetSuspendState(Enabled,
-        True, False);
+      True, False);
 end;
 
 function TPGSystem.ShowDialogMessage(Texto: String;
-    Tipo, Botoes, Botao: Word): Integer;
+  Tipo, Botoes, Botao: Word): Integer;
 begin
     Result := PGofer.System.Controls.SystemShowDialogMessage(Texto, Tipo,
-        Botoes, Botao);
+      Botoes, Botao);
 end;
 
 procedure TPGSystem.ShowMessage(Texto: String);

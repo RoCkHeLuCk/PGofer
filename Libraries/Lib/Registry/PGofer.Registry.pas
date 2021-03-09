@@ -9,7 +9,7 @@ type
 {$M+}
     TPGRegistry = class(TPGItemCMD)
     private
-        FEnvironment : TPGItemCMD;
+        FEnvironment: TPGItemCMD;
     public
         constructor Create(ItemDad: TPGItem);
         destructor Destroy(); override;
@@ -18,7 +18,7 @@ type
         function Delete(RootKey: NativeUInt; OpenKey, Key: String): Boolean;
         function Read(RootKey: NativeUInt; OpenKey, Key: String): String;
         function Write(RootKey: NativeUInt;
-            OpenKey, Key, Value: String): Boolean;
+          OpenKey, Key, Value: String): Boolean;
     end;
 {$TYPEINFO ON}
 
@@ -32,7 +32,7 @@ uses
 constructor TPGRegistry.Create(ItemDad: TPGItem);
 begin
     inherited Create(ItemDad);
-    FEnvironment := TPGRegistryEnvironment.Create(Self);
+    FEnvironment := TPGRegistryEnvironment.Create(Self, 'Environment');
 end;
 
 destructor TPGRegistry.Destroy;
@@ -52,7 +52,7 @@ begin
 end;
 
 function TPGRegistry.Write(RootKey: NativeUInt;
-    OpenKey, Key, Value: String): Boolean;
+  OpenKey, Key, Value: String): Boolean;
 begin
     Result := RegistryWrite(RootKey, OpenKey, Key, Value);
 end;

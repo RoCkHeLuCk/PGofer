@@ -5,33 +5,28 @@ interface
 uses
     Vcl.Forms, Vcl.ComCtrls,
     WinApi.Windows, WinApi.Messages,
-    System.IniFiles, System.SysUtils, System.Classes;
+    System.SysUtils, System.Classes;
 
 const
-    WM_SETFOCUS     = WM_SETFOCUS;
-    WM_PG_HIDE      = WM_USER + 1;
-    WM_PG_NOFOCUS   = WM_USER + 2;
-    WM_PG_SETFOCUS  = WM_USER + 3;
-    WM_PG_CLOSE     = WM_USER + 4;
-    WM_PG_SCRIPT    = WM_USER + 5;
-    WM_PG_LINKUPD   = WM_USER + 6;
+    WM_SETFOCUS = WM_SETFOCUS;
+    WM_PG_HIDE = WM_USER + 1;
+    WM_PG_NOFOCUS = WM_USER + 2;
+    WM_PG_SETFOCUS = WM_USER + 3;
+    WM_PG_CLOSE = WM_USER + 4;
+    WM_PG_SCRIPT = WM_USER + 5;
+    WM_PG_LINKUPD = WM_USER + 6;
     WM_PG_HOTHEYUPD = WM_USER + 7;
 
 function FormAfterInitialize(H: THandle; DefaultWM: Cardinal): Boolean;
 function FormBeforeInitialize(Classe: PWideChar; DefaultWM: Cardinal): Boolean;
 procedure FormForceShow(Form: TForm; Focus: Boolean);
 procedure FormPositionFixed(Form: TForm);
-procedure FormIniLoadFromFile(Form: TForm; FileName: String;
-    Lista: TListView = nil);
-procedure FormIniSaveToFile(Form: TForm; FileName: String; Lista: TListView = nil);
 procedure OnMessage(var Message: TMessage);
 procedure SendScript(Text: String);
 procedure LinkUpdate();
 
 implementation
 
-
-// ---------------------------------------------------------------------------//
 function FormAfterInitialize(H: THandle; DefaultWM: Cardinal): Boolean;
 var
     Parametro: String;
@@ -53,9 +48,9 @@ begin
         else if FindCmdLineSwitch('Close', True) then
             SendMessage(H, WM_PG_CLOSE, 0, 0)
         else if FindCmdLineSwitch('Script', Parametro, True,
-            [clstValueNextParam, clstValueAppended]) then
+          [clstValueNextParam, clstValueAppended]) then
             SendMessage(H, WM_PG_SCRIPT, Length(Parametro),
-                GlobalAddAtom(PChar(Parametro)))
+              GlobalAddAtom(PChar(Parametro)))
         else
             SendMessage(H, DefaultWM, 0, 0);
     end
@@ -63,12 +58,12 @@ begin
         Result := True;
 
 end;
-// ---------------------------------------------------------------------------//
+
 function FormBeforeInitialize(Classe: PWideChar; DefaultWM: Cardinal): Boolean;
 begin
     Result := FormAfterInitialize(FindWindow(Classe, nil), DefaultWM);
 end;
-// ---------------------------------------------------------------------------//
+
 procedure FormForceShow(Form: TForm; Focus: Boolean);
 var
     ForegroundThreadID: Cardinal;
@@ -95,11 +90,11 @@ begin
 
     c := BeginDeferWindowPos(1);
     c := DeferWindowPos(c, Form.Handle, HWND_TOPMOST, Form.Left, Form.Top,
-        Form.Width, Form.Height, ThisThreadID);
+      Form.Width, Form.Height, ThisThreadID);
     EndDeferWindowPos(c);
 
     SetWindowPos(Form.Handle, HWND_TOPMOST, Form.Left, Form.Top, Form.Width,
-        Form.Height, ThisThreadID);
+      Form.Height, ThisThreadID);
 
     if Focus then
     begin
@@ -110,12 +105,12 @@ begin
             ShowWindow(Form.Handle, SW_RESTORE);
 
         if ((Win32Platform = VER_PLATFORM_WIN32_NT) and (Win32MajorVersion > 4))
-            or ((Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and
-            ((Win32MajorVersion > 4) or ((Win32MajorVersion = 4) and
-            (Win32MinorVersion > 0)))) then
+          or ((Win32Platform = VER_PLATFORM_WIN32_WINDOWS) and
+          ((Win32MajorVersion > 4) or ((Win32MajorVersion = 4) and
+          (Win32MinorVersion > 0)))) then
         begin
             ForegroundThreadID := GetWindowThreadProcessID
-                (GetForegroundWindow, nil);
+              (GetForegroundWindow, nil);
             ThisThreadID := GetWindowThreadProcessID(Form.Handle, nil);
             if AttachThreadInput(ThisThreadID, ForegroundThreadID, True) then
             begin
@@ -137,76 +132,11 @@ begin
     end;
 end;
 
-// ----------------------------------------------------------------------------//
 procedure FormPositionFixed(Form: TForm);
 begin
     Form.MakeFullyVisible(Form.Monitor);
 end;
 
-// ----------------------------------------------------------------------------//
-procedure FormIniLoadFromFile(Form: TForm; FileName: String;
-    Lista: TListView = nil);
-var
-    ini: TIniFile;
-    c: Integer;
-begin
-    // carrega o config
-    ini := TIniFile.Create(FileName);
-    Form.Left := ini.ReadInteger(Form.Name, 'Left', Form.Left);
-    Form.Top := ini.ReadInteger(Form.Name, 'Top', Form.Top);
-    Form.Width := ini.ReadInteger(Form.Name, 'Width', Form.Width);
-    Form.Height := ini.ReadInteger(Form.Name, 'Height', Form.Height);
-    FormPositionFixed(Form);
-    if ini.ReadBool(Form.Name, 'Maximized', False) then
-        Form.WindowState := wsMaximized;
-
-    // Carrega colunas
-    if Lista <> nil then
-    begin
-        for c := 0 to Lista.Columns.Count - 1 do
-            Lista.Column[c].Width := ini.ReadInteger(Form.Name,
-                'Width' + IntToStr(c), Lista.Column[c].Width);
-        Lista.ViewStyle := TViewStyle(ini.ReadInteger(Form.Name, 'Style',
-            Integer(Lista.ViewStyle)));
-    end;
-
-    ini.Free;
-end;
-
-// ----------------------------------------------------------------------------//
-procedure FormIniSaveToFile(Form: TForm; FileName: String; Lista: TListView = nil);
-var
-    ini: TIniFile;
-    c: Integer;
-begin
-    // salvar configurações no Ini
-    ini := TIniFile.Create(FileName);
-
-    // salva forms
-    FormPositionFixed(Form);
-    if Form.WindowState <> wsMaximized then
-    begin
-        ini.WriteInteger(Form.Name, 'Left', Form.Left);
-        ini.WriteInteger(Form.Name, 'Top', Form.Top);
-        ini.WriteInteger(Form.Name, 'Width', Form.Width);
-        ini.WriteInteger(Form.Name, 'Height', Form.Height);
-        ini.WriteBool(Form.Name, 'Maximized', False);
-    end
-    else
-        ini.WriteBool(Form.Name, 'Maximized', True);
-
-    // Salva Colunas
-    if Lista <> nil then
-    begin
-        for c := 0 to Lista.Columns.Count - 1 do
-            ini.WriteInteger(Form.Name, 'Width' + IntToStr(c),
-                Lista.Column[c].Width);
-        ini.WriteInteger(Form.Name, 'Style', Integer(Lista.ViewStyle));
-    end;
-    ini.Free;
-end;
-
-// ---------------------------------------------------------------------------//
 procedure OnMessage(var Message: TMessage);
 var
     Parametro: String;
@@ -253,7 +183,6 @@ begin
     end;
 end;
 
-// ----------------------------------------------------------------------------//
 procedure SendScript(Text: String);
 var
     H: THandle;
@@ -263,7 +192,6 @@ begin
         SendMessage(H, WM_PG_SCRIPT, Length(Text), GlobalAddAtom(PChar(Text)));
 end;
 
-// ----------------------------------------------------------------------------//
 procedure LinkUpdate();
 var
     H: THandle;
@@ -272,6 +200,5 @@ begin
     if (H <> 0) then
         SendMessage(H, WM_PG_LINKUPD, 0, 0);
 end;
-// ----------------------------------------------------------------------------//
 
 end.
