@@ -28,9 +28,10 @@ type
         procedure FormCreate(Sender: TObject);
         procedure Salvar1Click(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
     private
         FFrmAutoComplete: TFrmAutoComplete;
+        procedure FlockClick(Sender: TObject);
     public
     end;
 
@@ -40,11 +41,16 @@ var
 implementation
 
 uses
-    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
+    PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Controls,
     PGofer.Links, PGofer.Hotkey,
     PGofer.Forms.Controls;
 
 {$R *.dfm}
+
+procedure TFrmMain.FlockClick(Sender: TObject);
+begin
+    ScriptExec('Menu',TMenuItem(Sender).Hint);
+end;
 
 procedure TFrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -60,6 +66,7 @@ begin
 
     FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1);
     TPGForm.Create(Self);
+    FormCreateMnPopUp(mniOpcoes, FlockClick);
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);

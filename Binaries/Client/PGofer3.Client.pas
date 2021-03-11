@@ -9,10 +9,11 @@ uses
     Vcl.Graphics, Vcl.Controls, Vcl.Forms,
     Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus,
     SynEdit,
+    PGofer.Forms,
     PGofer.Form.AutoComplete;
 
 type
-    TFrmPGofer = class(TForm)
+    TFrmPGofer = class(TFormEx)
         TryPGofer: TTrayIcon;
         PpmMenu: TPopupMenu;
         PnlCommand: TPanel;
@@ -31,6 +32,7 @@ type
         procedure FormDestroy(Sender: TObject);
         procedure FormKeyDown(Sender: TObject; var Key: Word;
             Shift: TShiftState);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     private
         FMouse: TPoint;
         FFrmAutoComplete: TFrmAutoComplete;
@@ -48,17 +50,18 @@ var
 implementation
 
 uses
-    PGofer.Sintatico, PGofer.Forms, PGofer.Forms.Controls;
+    PGofer.Sintatico, PGofer.Sintatico.Controls,
+    PGofer.Forms.Controls;
 
 {$R *.dfm}
 { TFrmPGofer3 }
 
 procedure TFrmPGofer.CreateWindowHandle(const Params: TCreateParams);
 begin
-    inherited;
-    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
-    SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_TOOLWINDOW and
-        not WS_EX_APPWINDOW);
+    inherited CreateWindowHandle(Params);
+    //SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
+    SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_TOOLWINDOW
+                                    and not WS_EX_APPWINDOW);
 end;
 
 procedure TFrmPGofer.OnQueryEndSession(var Msg: TWMQueryEndSession);
@@ -84,19 +87,29 @@ begin
     inherited WndProc(Message);
 end;
 
+procedure TFrmPGofer.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+    inherited;
+    //
+end;
+
 procedure TFrmPGofer.FormCreate(Sender: TObject);
 begin
+    inherited;
+    Self.Height := 30;
     SetPriorityClass(GetCurrentProcess, REALTIME_PRIORITY_CLASS);
     Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
     Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
     FFrmAutoComplete := TFrmAutoComplete.Create(EdtCommand);
     TPGForm.Create(Self);
+    FormCreateMnPopUp(PpmMenu, PopUpClick);
 end;
 
 procedure TFrmPGofer.FormDestroy(Sender: TObject);
 begin
     FFrmAutoComplete.Free();
+    inherited;
 end;
 
 procedure TFrmPGofer.FormKeyDown(Sender: TObject; var Key: Word;
@@ -105,7 +118,7 @@ begin
     if (not FFrmAutoComplete.Visible) and (Shift = []) and (Key = VK_RETURN)
     then
     begin
-        ScriptExec('main', EdtCommand.Text);
+        ScriptExec('Main', EdtCommand.Text);
     end;
 end;
 
@@ -156,12 +169,12 @@ end;
 
 procedure TFrmPGofer.PopUpClick(Sender: TObject);
 begin
-    ScriptExec('mainMenu', TMenuItem(Sender).Hint);
+    ScriptExec('MainMenu', TMenuItem(Sender).Hint);
 end;
 
 procedure TFrmPGofer.TryPGoferClick(Sender: TObject);
 begin
-    // FormForceShow(FrmPGofer, True);
+    FormForceShow(FrmPGofer, True);
 end;
 
 end.

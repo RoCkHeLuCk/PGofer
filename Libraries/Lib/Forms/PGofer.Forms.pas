@@ -10,7 +10,7 @@ uses
 type
 {$M+}
     TPGForm = class(TPGItemCMD)
-        constructor Create(Form: TForm); reintroduce;
+        constructor Create(AForm: TForm); reintroduce;
         destructor Destroy(); override;
     private
         function GetAlphaBlend(): Boolean;
@@ -81,10 +81,10 @@ uses
 
 { TPGForm }
 
-constructor TPGForm.Create(Form: TForm);
+constructor TPGForm.Create(AForm: TForm);
 begin
-    inherited Create(TPGForm.GlobList, Form.Name);
-    FForm := Form;
+    inherited Create(TPGForm.GlobList, AForm.Name);
+    FForm := AForm;
 end;
 
 destructor TPGForm.Destroy();
@@ -217,7 +217,11 @@ procedure TPGForm.Execute(Gramatica: TGramatica);
 begin
     inherited Execute(Gramatica);
     if Gramatica.TokenList.Token.Classe <> cmdDot then
-        Self.Show(true);
+       TThread.Synchronize(Gramatica,
+           procedure
+           begin
+               Self.Show(true)
+           end);
     Application.ProcessMessages();
 end;
 

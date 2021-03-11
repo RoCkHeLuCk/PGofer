@@ -7,7 +7,7 @@ uses
     System.Classes, System.SysUtils, System.IniFiles,
     Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
     SynEdit,
-    PGofer.Classes, PGofer.Component.ListView;
+    PGofer.Classes, PGofer.Forms, PGofer.Component.ListView;
 
 type
     TOnKeyDownUP = procedure(Sender: TObject; var Key: Word; Shift: TShiftState)
@@ -16,7 +16,7 @@ type
     TOnExit = procedure(Sender: TObject) of object;
     TSelectCMD = (selUp, selDown, selEnter);
 
-    TFrmAutoComplete = class(TForm)
+    TFrmAutoComplete = class(TFormEx)
         ltvAutoComplete: TListViewEx;
         ppmAutoComplete: TPopupMenu;
         mniPriority: TMenuItem;
@@ -35,6 +35,8 @@ type
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure ltvAutoCompleteCompare(Sender: TObject;
           Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     private
         FIniFile: TIniFile;
         FEditCtrl: TSynEdit;
@@ -55,6 +57,8 @@ type
         procedure SelectCMD(Selected: TSelectCMD);
     protected
         procedure CreateWindowHandle(const Params: TCreateParams); override;
+        procedure IniConfigSave(); reintroduce;
+        procedure IniConfigLoad(); reintroduce;
     public
         property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl;
     end;
@@ -139,7 +143,20 @@ end;
 
 procedure TFrmAutoComplete.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+    inherited;
     trmAutoComplete.Enabled := False;
+end;
+
+procedure TFrmAutoComplete.FormCreate(Sender: TObject);
+begin
+    inherited;
+    //
+end;
+
+procedure TFrmAutoComplete.FormDestroy(Sender: TObject);
+begin
+    inherited;
+    //
 end;
 
 procedure TFrmAutoComplete.FormKeyDown(Sender: TObject; var Key: Word;
@@ -327,6 +344,35 @@ begin
     Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + 2;
     Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
     FormForceShow(Self, False);
+end;
+
+procedure TFrmAutoComplete.IniConfigLoad;
+var
+    c : integer;
+begin
+    inherited;
+    for c := 0 to ltvAutoComplete.Columns.Count do
+    begin
+        ltvAutoComplete.Columns[c].Width :=
+            FIniFile.ReadInteger(
+                Self.Name,
+                'ColunWidth'+C.ToString,
+                ltvAutoComplete.Columns[c].Width);
+    end;
+end;
+
+procedure TFrmAutoComplete.IniConfigSave;
+var
+    c : integer;
+begin
+    for c := 0 to ltvAutoComplete.Columns.Count do
+    begin
+        FIniFile.WriteInteger(
+            Self.Name,
+            'ColunWidth'+C.ToString,
+            ltvAutoComplete.Columns[c].Width);
+    end;
+    inherited;
 end;
 
 procedure TFrmAutoComplete.ltvAutoCompleteCompare(Sender: TObject;

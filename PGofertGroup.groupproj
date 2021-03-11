@@ -9,6 +9,9 @@
         <Projects Include="Libraries\Componet\Package\PGoferComponent.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Binaries\Client\PGofer3.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +38,23 @@
     <Target Name="PGoferComponent:Make">
         <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj" Targets="Make"/>
     </Target>
+    <Target Name="PGofer3">
+        <MSBuild Projects="Binaries\Client\PGofer3.dproj"/>
+    </Target>
+    <Target Name="PGofer3:Clean">
+        <MSBuild Projects="Binaries\Client\PGofer3.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="PGofer3:Make">
+        <MSBuild Projects="Binaries\Client\PGofer3.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="AnaliseLexico;PGoferComponent"/>
+        <CallTarget Targets="AnaliseLexico;PGoferComponent;PGofer3"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="AnaliseLexico:Clean;PGoferComponent:Clean"/>
+        <CallTarget Targets="AnaliseLexico:Clean;PGoferComponent:Clean;PGofer3:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="AnaliseLexico:Make;PGoferComponent:Make"/>
+        <CallTarget Targets="AnaliseLexico:Make;PGoferComponent:Make;PGofer3:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

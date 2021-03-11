@@ -43,8 +43,6 @@ type
         procedure Execute; override;
     end;
 
-procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
-
 var
     GlobalFlockList: TObjectList<TPGItemCollect>;
     DirCurrent: String;
@@ -178,18 +176,6 @@ begin
     Sentencas(Self);
 end;
 
-procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
-var
-    Gramatica: TGramatica;
-begin
-    if Assigned(Nivel) then
-        Nivel := GlobalCollection;
-
-    Gramatica := TGramatica.Create(Name, Nivel, True);
-    Gramatica.SetAlgoritimo(Texto);
-    Gramatica.Start;
-end;
-
 initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
     IniConfigFile := DirCurrent + 'Config.ini';
@@ -197,7 +183,7 @@ initialization
     AutoCompleteFile := DirCurrent + 'AutoComplete.ini';
     GlobalFlockList := TObjectList<TPGItemCollect>.Create(True);
 
-    GlobalCollection := TPGItemCollect.Create('Global');
+    GlobalCollection := TPGItemCollect.Create('Global', False);
     GlobalFlockList.Add(GlobalCollection);
     GlobalItemCommand := TPGFolder.Create(GlobalCollection, 'Commands');
     GlobalItemTrigger := TPGFolder.Create(GlobalCollection, 'Triggers');

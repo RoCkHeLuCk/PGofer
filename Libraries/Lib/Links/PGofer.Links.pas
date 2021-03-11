@@ -223,7 +223,7 @@ end;
 initialization
     TPGLinkDeclare.Create(GlobalItemCommand, 'Link');
     TPGLink.GlobList := TPGFolder.Create(GlobalCollection, 'Links');
-    TPGLink.FlockCollection := TPGItemCollect.Create('Links');
+    TPGLink.FlockCollection := TPGItemCollect.Create('Links', True);
     TPGLink.FlockCollection.RegisterClass('Folder', TPGFolder);
     TPGLink.FlockCollection.RegisterClass('Link', TPGLinkMirror);
     GlobalFlockList.Add(TPGLink.FlockCollection);

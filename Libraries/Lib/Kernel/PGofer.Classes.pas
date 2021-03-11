@@ -56,7 +56,7 @@ type
     end;
 
     TPGItemCollect = class(TPGItem)
-        constructor Create(AName: String); overload;
+        constructor Create(AName: String; LoadFile: Boolean = False); overload;
         destructor Destroy(); override;
     private
         FClassList: TClassList;
@@ -68,15 +68,15 @@ type
         procedure XMLLoadFromFile(FileName: String);
         procedure XMLLoadFromStream(Stream: TStream);
     public
-        property Form: TForm read FForm;
         property TreeView: TTreeView read FTreeView;
         property RegClassList: TClassList read FClassList;
         procedure RegisterClass(AName: String; AClass: TClass);
         function GetRegClassName(AName: String): TClass;
         procedure TreeViewAttach();
         procedure TreeViewDetach();
-        procedure LoadFromFile();
+        procedure LoadFileAndForm();
         procedure UpdateToFile();
+        procedure FormShow();
     end;
 
 implementation
@@ -291,21 +291,29 @@ end;
 
 { TPGCollectItem }
 
-constructor TPGItemCollect.Create(AName: String);
+constructor TPGItemCollect.Create(AName: String;  LoadFile: Boolean = False);
 begin
     inherited Create(nil, AName);
     FClassList := TClassList.Create();
-    //FForm := TFrmController.Create(Self);
-    //FTreeView := TFrmController(FForm).TrvController;
-    FFileName := PGofer.Sintatico.DirCurrent+'\'+AName+'.xml';
+    if LoadFile then
+       FFileName := PGofer.Sintatico.DirCurrent+'\'+AName+'.xml'
+    else
+       FFileName := '';
 end;
 
 destructor TPGItemCollect.Destroy();
 begin
-    FClassList.Free();
-    //FForm.Free();
     FTreeView := nil;
+    if Assigned(FForm) then
+       FForm.Free();
+    FClassList.Free();
+    FFileName := '';
     inherited;
+end;
+
+procedure TPGItemCollect.FormShow;
+begin
+    FForm.Show;
 end;
 
 procedure TPGItemCollect.RegisterClass(AName: String; AClass: TClass);
@@ -338,8 +346,12 @@ procedure TPGItemCollect.TreeViewAttach();
 var
     Item: TPGItem;
 begin
-    for Item in Self do
-        NodeAttach(Item);
+    if Assigned(FForm) then
+    begin
+        FTreeView := TFrmController(FForm).TrvController;
+        for Item in Self do
+            NodeAttach(Item);
+    end;
 end;
 
 procedure TPGItemCollect.TreeViewDetach();
@@ -359,21 +371,27 @@ procedure TPGItemCollect.TreeViewDetach();
 var
     Item: TPGItem;
 begin
-    for Item in Self do
-        NodeDetach(Item);
+    if Assigned(FTreeView) then
+    begin
+        for Item in Self do
+            NodeDetach(Item);
+
+        FTreeView.Items.Clear();
+        FTreeView := nil;
+    end;
 end;
 
-procedure TPGItemCollect.LoadFromFile();
+procedure TPGItemCollect.LoadFileAndForm();
 begin
-    if FileExists(FFileName) then
-    begin
-        Self.XMLLoadFromFile(FFileName);
-    end;
+    FForm := TFrmController.Create(Self);
+    if (FFileName <> '') and FileExists(FFileName) then
+       Self.XMLLoadFromFile(FFileName);
 end;
 
 procedure TPGItemCollect.UpdateToFile();
 begin
-    Self.XMLSaveToFile(FFileName);
+    if (FFileName <> '') then
+       Self.XMLSaveToFile(FFileName);
 end;
 
 procedure TPGItemCollect.XMLSaveToFile(FileName: String);

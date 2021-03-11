@@ -102,88 +102,83 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Kernel\PGofer.Collection.pas"/>
-        <DCCReference Include="..\..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
+        <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
             <Form>PGFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Files\PGofer.Files.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Forms\PGofer.Forms.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Forms\PGofer.Forms.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Forms\PGofer.Forms.Frame.pas">
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Forms\PGofer.Forms.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Forms\PGofer.Forms.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Forms\PGofer.Forms.Frame.pas">
             <Form>PGFrameForms</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Lib\HotKey\PGofer.HotKey.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\HotKey\PGofer.HotKey.Frame.pas">
+        <DCCReference Include="..\..\Libraries\Lib\HotKey\PGofer.HotKey.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\HotKey\PGofer.HotKey.Frame.pas">
             <Form>PGFrameHotKey</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Lib\HotKey\PGofer.HotKey.Hook.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Key\PGofer.Key.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Links\PGofer.Links.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas">
+        <DCCReference Include="..\..\Libraries\Lib\HotKey\PGofer.HotKey.Hook.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas">
             <Form>PGLinkFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Lib\Links\PGofer.Links.ThreadLoadImage.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Math\PGofer.Math.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Net\PGofer.Net.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Net\PGofer.Net.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Net\PGofer.Net.Socket.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Process\PGofer.Process.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Process\PGofer.Process.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Registry\PGofer.Registry.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Registry\PGofer.Registry.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Registry\PGofer.Registry.Environment.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Services\PGofer.Services.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Sound\PGofer.Sound.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Sound\PGofer.Sound.DevApi.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.Functions.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas">
-            <Form>PGFrameFunction</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.Statements.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.Variants.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas">
+        <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.ThreadLoadImage.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Math\PGofer.Math.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.Socket.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Process\PGofer.Process.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Process\PGofer.Process.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Registry\PGofer.Registry.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Registry\PGofer.Registry.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Registry\PGofer.Registry.Environment.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Services\PGofer.Services.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.DevApi.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Statements.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas">
             <Form>PGFrame1</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\PGUtils\PGofer.RTTI.Attributes.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\PGUtils\PGofer.Types.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas">
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas">
+            <Form>PGFrameFunction</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Types.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
+        <DCCReference Include="..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas">
             <Form>FrmController</Form>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas">
+        <DCCReference Include="..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas">
             <Form>FrmAutoComplete</Form>
         </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
+        <DCCReference Include="..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
             <Form>FrmConsole</Form>
-        </DCCReference>
-        <DCCReference Include="..\..\..\Libraries\Form\Controller\PGofer.Form.Controller.Flock.pas">
-            <Form>FrmFlock</Form>
         </DCCReference>
         <DCCReference Include="PGofer3.Client.pas">
             <Form>FrmPGofer</Form>

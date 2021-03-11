@@ -1,19 +1,20 @@
 object FrmController: TFrmController
   Left = 480
   Top = 386
-  BorderStyle = bsSizeToolWin
+  BorderStyle = bsSingle
   Caption = 'Controller'
-  ClientHeight = 296
-  ClientWidth = 563
+  ClientHeight = 302
+  ClientWidth = 573
   Color = clBtnFace
-  DoubleBuffered = True
+  DefaultMonitor = dmDesktop
   ParentFont = True
   OldCreateOrder = False
   Position = poDesigned
   ScreenSnap = True
   ShowHint = True
-  Visible = True
   OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -21,7 +22,7 @@ object FrmController: TFrmController
     Left = 327
     Top = 0
     Width = 5
-    Height = 296
+    Height = 302
     Beveled = True
     ExplicitLeft = 241
     ExplicitHeight = 536
@@ -30,9 +31,10 @@ object FrmController: TFrmController
     Left = 0
     Top = 0
     Width = 327
-    Height = 296
+    Height = 302
     Align = alLeft
     TabOrder = 0
+    ExplicitHeight = 296
     object PnlFind: TPanel
       Left = 1
       Top = 1
@@ -66,11 +68,12 @@ object FrmController: TFrmController
     end
     object PnlButton: TPanel
       Left = 1
-      Top = 259
+      Top = 265
       Width = 325
       Height = 36
       Align = alBottom
       TabOrder = 1
+      ExplicitTop = 259
       object btnAlphaSort: TButton
         Left = 2
         Top = 2
@@ -112,7 +115,7 @@ object FrmController: TFrmController
       Left = 1
       Top = 29
       Width = 325
-      Height = 230
+      Height = 236
       Align = alClient
       HideSelection = False
       Indent = 19
@@ -128,18 +131,21 @@ object FrmController: TFrmController
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
       OwnsObjectsData = True
       AttachMode = naAdd
+      ExplicitHeight = 230
     end
   end
   object PnlFrame: TPanel
     Left = 332
     Top = 0
-    Width = 231
-    Height = 296
+    Width = 241
+    Height = 302
     Align = alClient
     Caption = 'Nenhum item selecionado!'
     DoubleBuffered = True
     ParentDoubleBuffered = False
     TabOrder = 1
+    ExplicitWidth = 231
+    ExplicitHeight = 296
   end
   object ppmAlphaSort: TPopupMenu
     Left = 20

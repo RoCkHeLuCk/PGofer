@@ -1,10 +1,7 @@
 object FrmPGofer: TFrmPGofer
-  Left = 0
+  Left = 80
   Top = 0
-  Margins.Left = 0
-  Margins.Top = 0
-  Margins.Right = 0
-  Margins.Bottom = 0
+  BorderIcons = []
   BorderStyle = bsNone
   Caption = 'PGofer V3.0'
   ClientHeight = 30
@@ -14,28 +11,28 @@ object FrmPGofer: TFrmPGofer
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
   DoubleBuffered = True
-  ParentFont = True
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Courier New'
+  Font.Style = []
   FormStyle = fsStayOnTop
   KeyPreview = True
   OldCreateOrder = False
-  Position = poDefault
-  ScreenSnap = True
+  Scaled = False
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 14
   object PnlCommand: TPanel
     Left = 0
     Top = 0
     Width = 200
     Height = 30
-    Margins.Left = 2
-    Margins.Top = 2
-    Margins.Right = 2
-    Margins.Bottom = 2
     Align = alClient
-    BevelOuter = bvNone
+    BevelKind = bkFlat
     Ctl3D = True
     ParentColor = True
     ParentCtl3D = False
@@ -43,55 +40,49 @@ object FrmPGofer: TFrmPGofer
     OnMouseDown = PnlArrastarMouseDown
     OnMouseMove = PnlArrastarMouseMove
     object PnlComandMove: TPanel
-      Left = 0
-      Top = 0
-      Width = 10
-      Height = 30
-      Margins.Left = 1
-      Margins.Top = 1
-      Margins.Right = 1
-      Margins.Bottom = 1
+      Left = 1
+      Top = 1
+      Width = 9
+      Height = 24
       Align = alLeft
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 1
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
-      ExplicitHeight = 62
-      DesignSize = (
-        10
-        30)
       object PnlArrastar: TPanel
-        Left = 4
+        AlignWithMargins = True
+        Left = 3
         Top = 3
-        Width = 3
-        Height = 24
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Width = 4
+        Height = 18
+        Margins.Right = 2
+        Align = alClient
         BevelOuter = bvNone
-        Color = clSilver
+        Color = clWindow
         ParentBackground = False
+        ShowCaption = False
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
+        ExplicitWidth = 5
       end
     end
     object EdtCommand: TSynEdit
       AlignWithMargins = True
-      Left = 12
-      Top = 2
-      Width = 186
-      Height = 26
-      Margins.Left = 2
+      Left = 13
+      Top = 3
+      Width = 179
+      Height = 20
       Margins.Top = 2
-      Margins.Right = 2
       Margins.Bottom = 2
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Courier New'
-      Font.Pitch = fpFixed
       Font.Style = []
+      ParentFont = True
       TabOrder = 0
       OnKeyDown = FormKeyDown
       CodeFolding.GutterShapeSize = 11
@@ -115,6 +106,15 @@ object FrmPGofer: TFrmPGofer
       WantTabs = True
       OnChange = EdtCommandChange
       FontSmoothing = fsmNone
+      ExplicitTop = 4
+      ExplicitWidth = 193
+      ExplicitHeight = 25
+      RemovedKeystrokes = <>
+      AddedKeystrokes = <
+        item
+          Command = ecAutoCompletion
+          ShortCut = 16416
+        end>
     end
   end
   object TryPGofer: TTrayIcon

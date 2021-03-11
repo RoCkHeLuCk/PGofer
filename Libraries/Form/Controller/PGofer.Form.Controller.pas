@@ -43,6 +43,8 @@ type
         procedure mniAlphaSortFolderClick(Sender: TObject);
         procedure onCreateItemPopUpClick(Sender: TObject);
         procedure btnDeleteClick(Sender: TObject);
+        procedure FormCreate(Sender: TObject);
+        procedure FormDestroy(Sender: TObject);
     private
         FAlphaSort: Boolean;
         FAlphaSortFolder: Boolean;
@@ -79,29 +81,26 @@ end;
 
 destructor TFrmController.Destroy();
 begin
-    FCollectItem.UpdateToFile();
-    FCollectItem.TreeViewDetach();
+    FSelectedItem := nil;
     FAlphaSort := False;
     FAlphaSortFolder := False;
-    FSelectedItem := nil;
+    FCollectItem.UpdateToFile();
+    FCollectItem.TreeViewDetach();
+    FCollectItem := nil;
     inherited;
 end;
 
-procedure TFrmController.PanelCleaning();
-var
-    c: Integer;
+procedure TFrmController.FormCreate(Sender: TObject);
 begin
-    for c := PnlFrame.ControlCount - 1 downto 0 do
-    begin
-        PnlFrame.Controls[c].Free();
-    end;
-    FSelectedItem := nil;
+    inherited;
+    //
 end;
 
-procedure TFrmController.EdtFindKeyPress(Sender: TObject; var Key: Char);
+procedure TFrmController.FormShow(Sender: TObject);
 begin
-    if Key = #13 then
-        TrvController.FindText(EdtFind.Text);
+    inherited;
+    FCollectItem.TreeViewAttach();
+    TrvController.AlphaSort(True);
 end;
 
 procedure TFrmController.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -111,10 +110,10 @@ begin
     FCollectItem.TreeViewDetach();
 end;
 
-procedure TFrmController.FormShow(Sender: TObject);
+procedure TFrmController.FormDestroy(Sender: TObject);
 begin
-    FCollectItem.TreeViewAttach();
-    TrvController.AlphaSort(True);
+    inherited;
+    //
 end;
 
 procedure TFrmController.IniConfigLoad();
@@ -136,6 +135,23 @@ begin
     FIniFile.WriteBool(Self.Name, 'AlphaSort', Self.FAlphaSort);
     FIniFile.WriteBool(Self.Name, 'AlphaSortFolder', Self.FAlphaSortFolder);
     FIniFile.UpdateFile;
+end;
+
+procedure TFrmController.PanelCleaning();
+var
+    c: Integer;
+begin
+    for c := PnlFrame.ControlCount - 1 downto 0 do
+    begin
+        PnlFrame.Controls[c].Free();
+    end;
+    FSelectedItem := nil;
+end;
+
+procedure TFrmController.EdtFindKeyPress(Sender: TObject; var Key: Char);
+begin
+    if Key = #13 then
+        TrvController.FindText(EdtFind.Text);
 end;
 
 procedure TFrmController.mniAlphaSortFolderClick(Sender: TObject);
@@ -188,7 +204,6 @@ begin
             Compare := 1;
         end;
     end;
-
 end;
 
 procedure TFrmController.TrvControllerDragDrop(Sender, Source: TObject;

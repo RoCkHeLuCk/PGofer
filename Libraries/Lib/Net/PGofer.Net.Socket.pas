@@ -76,7 +76,7 @@ implementation
 
 uses
     System.SysUtils,
-    PGofer.Sintatico, PGofer.Net.Controls;
+    PGofer.Sintatico, PGofer.Sintatico.Controls, PGofer.Net.Controls;
 
 { TPGNetServer }
 

@@ -3,9 +3,13 @@ object FrmAutoComplete: TFrmAutoComplete
   Top = 154
   BorderStyle = bsNone
   Caption = 'FrmAutoComplete'
-  ClientHeight = 115
-  ClientWidth = 342
+  ClientHeight = 50
+  ClientWidth = 200
   Color = clBtnFace
+  Constraints.MinHeight = 50
+  Constraints.MinWidth = 200
+  DefaultMonitor = dmDesktop
+  DoubleBuffered = True
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -17,6 +21,8 @@ object FrmAutoComplete: TFrmAutoComplete
   Position = poDefault
   OnActivate = FormActivate
   OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
@@ -26,8 +32,8 @@ object FrmAutoComplete: TFrmAutoComplete
   object ltvAutoComplete: TListViewEx
     Left = 0
     Top = 0
-    Width = 342
-    Height = 115
+    Width = 200
+    Height = 50
     Align = alClient
     Columns = <
       item
@@ -51,10 +57,12 @@ object FrmAutoComplete: TFrmAutoComplete
     OnCompare = ltvAutoCompleteCompare
     OnDblClick = ltvAutoCompleteDblClick
     ColumnAlphaSort = True
+    ExplicitWidth = 342
+    ExplicitHeight = 115
   end
   object ppmAutoComplete: TPopupMenu
-    Left = 136
-    Top = 44
+    Left = 24
+    Top = 24
     object mniPriority: TMenuItem
       Caption = 'Alterar Prioridade'
       ShortCut = 16449
@@ -65,7 +73,7 @@ object FrmAutoComplete: TFrmAutoComplete
     Enabled = False
     Interval = 500
     OnTimer = trmAutoCompleteTimer
-    Left = 216
-    Top = 44
+    Left = 52
+    Top = 24
   end
 end

@@ -254,7 +254,7 @@ initialization
     TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey');
     TPGHotKey.GlobList := TPGFolder.Create(GlobalItemTrigger, 'HK');
 
-    TPGHotKey.FlockCollection := TPGItemCollect.Create('HotKeys');
+    TPGHotKey.FlockCollection := TPGItemCollect.Create('HotKeys', True);
     TPGHotKey.FlockCollection.RegisterClass('Folder', TPGFolder);
     TPGHotKey.FlockCollection.RegisterClass('HotKeys', TPGHotKeyMirror);
     GlobalFlockList.Add(TPGHotKey.FlockCollection);

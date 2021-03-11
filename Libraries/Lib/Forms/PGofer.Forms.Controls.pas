@@ -3,7 +3,7 @@ unit PGofer.Forms.Controls;
 interface
 
 uses
-    Vcl.Forms, Vcl.ComCtrls,
+    Vcl.Forms, Vcl.ComCtrls, Vcl.Menus,
     WinApi.Windows, WinApi.Messages,
     System.SysUtils, System.Classes;
 
@@ -24,8 +24,15 @@ procedure FormPositionFixed(Form: TForm);
 procedure OnMessage(var Message: TMessage);
 procedure SendScript(Text: String);
 procedure LinkUpdate();
+procedure FormCreateMnPopUp(APopupMenu: TPopupMenu;
+                            OnClick: TNotifyEvent); overload;
+procedure FormCreateMnPopUp(AMenuItem: TMenuItem;
+                            OnClick: TNotifyEvent); overload;
 
 implementation
+
+uses
+   PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Controls;
 
 function FormAfterInitialize(H: THandle; DefaultWM: Cardinal): Boolean;
 var
@@ -200,5 +207,39 @@ begin
     if (H <> 0) then
         SendMessage(H, WM_PG_LINKUPD, 0, 0);
 end;
+
+procedure FormCreateMnPopUp(APopupMenu: TPopupMenu;
+                            OnClick: TNotifyEvent); overload;
+var
+    Flock : TPGItemCollect;
+    Menu : TMenuItem;
+begin
+    for Flock in GlobalFlockList do
+    begin
+        Flock.LoadFileAndForm();
+        Menu := TMenuItem.Create(APopupMenu);
+        APopupMenu.Items.Add(Menu);
+        Menu.Caption := Flock.Name;
+        Menu.Hint := 'Frm'+Flock.Name+';';
+        Menu.OnClick := OnClick;
+    end;
+end;
+
+procedure FormCreateMnPopUp(AMenuItem: TMenuItem; OnClick: TNotifyEvent);
+var
+    Flock : TPGItemCollect;
+    Menu : TMenuItem;
+begin
+    for Flock in GlobalFlockList do
+    begin
+        Flock.LoadFileAndForm();
+        Menu := TMenuItem.Create(AMenuItem);
+        AMenuItem.Add(Menu);
+        Menu.Caption := Flock.Name;
+        Menu.Hint := 'Frm'+Flock.Name+';';
+        Menu.OnClick := OnClick;
+    end;
+end;
+
 
 end.
