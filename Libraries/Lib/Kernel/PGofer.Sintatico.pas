@@ -48,7 +48,6 @@ var
     DirCurrent: String;
     IniConfigFile: String;
     LogFile: String;
-    AutoCompleteFile: String;
 
     GlobalCollection: TPGItemCollect;
     GlobalItemCommand: TPGItem;
@@ -180,7 +179,6 @@ initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
     IniConfigFile := DirCurrent + 'Config.ini';
     LogFile := DirCurrent + 'PGofer.log';
-    AutoCompleteFile := DirCurrent + 'AutoComplete.ini';
     GlobalFlockList := TObjectList<TPGItemCollect>.Create(True);
 
     GlobalCollection := TPGItemCollect.Create('Global', False);

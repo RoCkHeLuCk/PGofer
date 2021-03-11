@@ -65,7 +65,6 @@ object FrmPGofer: TFrmPGofer
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
-        ExplicitWidth = 5
       end
     end
     object EdtCommand: TSynEdit
@@ -106,9 +105,6 @@ object FrmPGofer: TFrmPGofer
       WantTabs = True
       OnChange = EdtCommandChange
       FontSmoothing = fsmNone
-      ExplicitTop = 4
-      ExplicitWidth = 193
-      ExplicitHeight = 25
       RemovedKeystrokes = <>
       AddedKeystrokes = <
         item

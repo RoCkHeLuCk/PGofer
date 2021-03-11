@@ -57,8 +57,6 @@ object FrmAutoComplete: TFrmAutoComplete
     OnCompare = ltvAutoCompleteCompare
     OnDblClick = ltvAutoCompleteDblClick
     ColumnAlphaSort = True
-    ExplicitWidth = 342
-    ExplicitHeight = 115
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

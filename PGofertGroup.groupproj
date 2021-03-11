@@ -3,13 +3,10 @@
         <ProjectGuid>{3BE3825E-6101-4466-A1BE-615F01804DDA}</ProjectGuid>
     </PropertyGroup>
     <ItemGroup>
-        <Projects Include="Binaries\AnaliseLexico\AnaliseLexico.dproj">
+        <Projects Include="Binaries\Client\PGofer3.dproj">
             <Dependencies/>
         </Projects>
         <Projects Include="Libraries\Componet\Package\PGoferComponent.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="Binaries\Client\PGofer3.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -20,14 +17,14 @@
             <Default.Personality/>
         </BorlandProject>
     </ProjectExtensions>
-    <Target Name="AnaliseLexico">
-        <MSBuild Projects="Binaries\AnaliseLexico\AnaliseLexico.dproj"/>
+    <Target Name="PGofer3">
+        <MSBuild Projects="Binaries\Client\PGofer3.dproj"/>
     </Target>
-    <Target Name="AnaliseLexico:Clean">
-        <MSBuild Projects="Binaries\AnaliseLexico\AnaliseLexico.dproj" Targets="Clean"/>
+    <Target Name="PGofer3:Clean">
+        <MSBuild Projects="Binaries\Client\PGofer3.dproj" Targets="Clean"/>
     </Target>
-    <Target Name="AnaliseLexico:Make">
-        <MSBuild Projects="Binaries\AnaliseLexico\AnaliseLexico.dproj" Targets="Make"/>
+    <Target Name="PGofer3:Make">
+        <MSBuild Projects="Binaries\Client\PGofer3.dproj" Targets="Make"/>
     </Target>
     <Target Name="PGoferComponent">
         <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj"/>
@@ -38,23 +35,14 @@
     <Target Name="PGoferComponent:Make">
         <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj" Targets="Make"/>
     </Target>
-    <Target Name="PGofer3">
-        <MSBuild Projects="Binaries\Client\PGofer3.dproj"/>
-    </Target>
-    <Target Name="PGofer3:Clean">
-        <MSBuild Projects="Binaries\Client\PGofer3.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="PGofer3:Make">
-        <MSBuild Projects="Binaries\Client\PGofer3.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="AnaliseLexico;PGoferComponent;PGofer3"/>
+        <CallTarget Targets="PGofer3;PGoferComponent"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="AnaliseLexico:Clean;PGoferComponent:Clean;PGofer3:Clean"/>
+        <CallTarget Targets="PGofer3:Clean;PGoferComponent:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="AnaliseLexico:Make;PGoferComponent:Make;PGofer3:Make"/>
+        <CallTarget Targets="PGofer3:Make;PGoferComponent:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

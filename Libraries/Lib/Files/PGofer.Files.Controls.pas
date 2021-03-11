@@ -34,7 +34,7 @@ implementation
 
 uses
 {$WARN UNIT_PLATFORM OFF}
-    Vcl.Forms,  Vcl.FileCtrl, Vcl.Dialogs,
+    Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
     WinApi.ShellApi, WinApi.ShlwApi,
     System.SysUtils, System.Classes,
     PGofer.Sintatico;
@@ -191,6 +191,10 @@ function FileExec(Arquivo, Parametro, Diretorio: String; ShowControl: Integer;
 var
     ShellExecuteInfoW: TShellExecuteInfo;
 begin
+    Arquivo := FileExpandPath(Arquivo);
+    Parametro := FileExpandPath(Parametro);
+    Diretorio := FileExpandPath(Diretorio);
+
     FillChar(ShellExecuteInfoW, SizeOf(TShellExecuteInfoW), #0);
 
     ShellExecuteInfoW.cbSize := SizeOf(TShellExecuteInfoW);
@@ -207,14 +211,13 @@ begin
     if ShellExecuteInfoW.hProcess > 0 then
     begin
         SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(Prioridade));
-
     end;
 
     Result := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);
 end;
 
 function FileControl(FileName, FileAlter: String;
-  Const Func, Flags: Cardinal): Integer;
+  const Func, Flags: Cardinal): Integer;
 var
     Arquivos: TSHFileOpStruct;
 begin

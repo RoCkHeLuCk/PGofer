@@ -35,18 +35,19 @@ type
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure ltvAutoCompleteCompare(Sender: TObject;
           Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
+        procedure FormCreate(Sender: TObject);
+        procedure FormDestroy(Sender: TObject);
     private
-        FIniFile: TIniFile;
         FEditCtrl: TSynEdit;
         FEditKeyDown: TOnKeyDownUP;
         FEditKeyPress: TOnKeyPress;
         FEditKeyUp: TOnKeyDownUP;
         FShift: TShiftState;
+        FMemoryIniFile: TIniFile;
         FMemoryNoCtrl: Boolean;
-        FMemoryCommand: TStringList;
+        FMemoryList: TStringList;
         FMemoryPosition: Integer;
+        FMemoryFile: String;
         procedure ListViewAdd(Caption, Origin: String); overload;
         procedure ListViewAdd(Item: TPGItem); overload;
         procedure PriorityStep();
@@ -89,25 +90,28 @@ begin
     FEditCtrl.OnKeyDown := Self.FormKeyDown;
     FEditCtrl.OnKeyPress := Self.FormKeyPress;
     FEditCtrl.OnKeyUp := Self.FormKeyUp;
-    // carrega arquivos ini
-    FIniFile := TIniFile.Create(PGofer.Sintatico.AutoCompleteFile);
 
+    // carrega arquivos ini
+    FMemoryIniFile := TIniFile.Create(PGofer.Sintatico.DirCurrent
+                                      +'AutoComplete.ini');
+    //?????????
     FShift := [];
+
+    //controle de memorização de comandos
     FMemoryNoCtrl := False;
     FMemoryPosition := 0;
-    FMemoryCommand := TStringList.Create();
-    // ????????? load memory
+    FMemoryList := TStringList.Create();
+    FMemoryFile := PGofer.Sintatico.DirCurrent+'AutoCompleteMen.txt';
+    if FileExists(FMemoryFile) then
+       FMemoryList.LoadFromFile(FMemoryFile);
 end;
 
 procedure TFrmAutoComplete.CreateWindowHandle(const Params: TCreateParams);
 begin
     inherited CreateWindowHandle(Params);
-    // sem borda e ajustavel
-    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX); // WS_POPUP or
-    // configura a janela para não aparecer na barra e não ativado.
+    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
     SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
-      WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
-    // adiciona como popup
+                  WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
     Application.AddPopupForm(Self);
 end;
 
@@ -123,12 +127,13 @@ begin
     FEditKeyUp := nil;
     FEditCtrl := nil;
 
-    FIniFile.Free();
-    // ?????? save memory
-    FMemoryCommand.Free();
-    FShift := [];
+    FMemoryIniFile.Free();
+    FMemoryList.SaveToFile(FMemoryFile);
+    FMemoryList.Free();
     FMemoryPosition := 0;
     FMemoryNoCtrl := False;
+
+    FShift := [];
     inherited;
 end;
 
@@ -227,10 +232,10 @@ begin
             // enter
             VK_RETURN:
                 begin
-                    FMemoryPosition := FMemoryCommand.Count;
-                    FMemoryCommand.Add(Edit.Lines[Edit.CaretY - 1]);
+                    FMemoryPosition := FMemoryList.Count;
+                    FMemoryList.Add(Edit.Lines[Edit.CaretY - 1]);
                     if FMemoryPosition > 100 then
-                        FMemoryCommand.Delete(0);
+                        FMemoryList.Delete(0);
                 end;
 
             // PGup PGDown
@@ -238,7 +243,7 @@ begin
                 begin
                     if (Shift = [ssCtrl]) or (FMemoryNoCtrl) then
                     begin
-                        c := FMemoryCommand.Count;
+                        c := FMemoryList.Count;
                         if c > 0 then
                         begin
                             // anteriores
@@ -259,7 +264,7 @@ begin
                             end;
                             // escreve no edit
                             Edit.Lines[Edit.CaretY - 1] :=
-                              FMemoryCommand[FMemoryPosition];
+                              FMemoryList[FMemoryPosition];
                             Key := 0;
                         end;
                     end;
@@ -348,29 +353,24 @@ end;
 
 procedure TFrmAutoComplete.IniConfigLoad;
 var
-    c : integer;
+    c: Integer;
 begin
     inherited;
     for c := 0 to ltvAutoComplete.Columns.Count do
     begin
-        ltvAutoComplete.Columns[c].Width :=
-            FIniFile.ReadInteger(
-                Self.Name,
-                'ColunWidth'+C.ToString,
-                ltvAutoComplete.Columns[c].Width);
+        ltvAutoComplete.Columns[c].Width := FIniFile.ReadInteger(Self.Name,
+          'ColunWidth' + IntToStr(c), ltvAutoComplete.Columns[c].Width);
     end;
 end;
 
 procedure TFrmAutoComplete.IniConfigSave;
 var
-    c : integer;
+    c: Integer;
 begin
     for c := 0 to ltvAutoComplete.Columns.Count do
     begin
-        FIniFile.WriteInteger(
-            Self.Name,
-            'ColunWidth'+C.ToString,
-            ltvAutoComplete.Columns[c].Width);
+        FIniFile.WriteInteger(Self.Name, 'ColunWidth' + IntToStr(c),
+          ltvAutoComplete.Columns[c].Width);
     end;
     inherited;
 end;
@@ -415,7 +415,7 @@ begin
         ListItem.ImageIndex := -1;
         ListItem.Caption := Caption;
         ListItem.SubItems.Add(Origin);
-        ListItem.SubItems.Add(FIniFile.ReadString('AutoComplete',
+        ListItem.SubItems.Add(FMemoryIniFile.ReadString('AutoComplete',
           Origin + '.' + Caption, '0'));
         ListItem.Data := nil;
     end;
@@ -432,7 +432,7 @@ begin
         ListItem.SubItems.Add(Item.Parent.Name)
     else
         ListItem.SubItems.Add('');
-    ListItem.SubItems.Add(FIniFile.ReadString('AutoComplete',
+    ListItem.SubItems.Add(FMemoryIniFile.ReadString('AutoComplete',
       ListItem.SubItems[0] + '.' + ListItem.Caption, '0'));
     ListItem.Data := Item;
 end;
@@ -443,20 +443,20 @@ var
 begin
     Value := ltvAutoComplete.ItemFocused.SubItems[1].ToInteger();
     Inc(Value);
-    FIniFile.WriteInteger('AutoComplete', ltvAutoComplete.ItemFocused.SubItems
+    FMemoryIniFile.WriteInteger('AutoComplete', ltvAutoComplete.ItemFocused.SubItems
       [0] + '.' + ltvAutoComplete.ItemFocused.Caption, Value);
     ltvAutoComplete.ItemFocused.SubItems[1] := Value.ToString;
     ltvAutoComplete.Update();
-    FIniFile.UpdateFile();
+    FMemoryIniFile.UpdateFile();
 end;
 
 procedure TFrmAutoComplete.SetPriority(Value: FixedInt);
 begin
     ltvAutoComplete.ItemFocused.SubItems[1] := IntToStr(Value);
-    FIniFile.WriteInteger('AutoComplete', ltvAutoComplete.ItemFocused.SubItems
+    FMemoryIniFile.WriteInteger('AutoComplete', ltvAutoComplete.ItemFocused.SubItems
       [0] + '.' + ltvAutoComplete.ItemFocused.Caption, Value);
     ltvAutoComplete.Update();
-    FIniFile.UpdateFile();
+    FMemoryIniFile.UpdateFile();
 end;
 
 procedure TFrmAutoComplete.trmAutoCompleteTimer(Sender: TObject);

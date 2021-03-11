@@ -34,7 +34,6 @@ object FrmController: TFrmController
     Height = 302
     Align = alLeft
     TabOrder = 0
-    ExplicitHeight = 296
     object PnlFind: TPanel
       Left = 1
       Top = 1
@@ -73,7 +72,6 @@ object FrmController: TFrmController
       Height = 36
       Align = alBottom
       TabOrder = 1
-      ExplicitTop = 259
       object btnAlphaSort: TButton
         Left = 2
         Top = 2
@@ -94,7 +92,7 @@ object FrmController: TFrmController
         Width = 69
         Height = 32
         Caption = 'Create'
-        PopupMenu = ppmCreate
+        DropDownMenu = ppmCreate
         Style = bsSplitButton
         TabOrder = 1
         Visible = False
@@ -131,7 +129,6 @@ object FrmController: TFrmController
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
       OwnsObjectsData = True
       AttachMode = naAdd
-      ExplicitHeight = 230
     end
   end
   object PnlFrame: TPanel
@@ -144,8 +141,6 @@ object FrmController: TFrmController
     DoubleBuffered = True
     ParentDoubleBuffered = False
     TabOrder = 1
-    ExplicitWidth = 231
-    ExplicitHeight = 296
   end
   object ppmAlphaSort: TPopupMenu
     Left = 20

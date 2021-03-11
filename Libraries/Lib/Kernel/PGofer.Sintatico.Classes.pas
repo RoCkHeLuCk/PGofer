@@ -311,8 +311,10 @@ end;
 destructor TPGItemOriginal.Destroy();
 begin
     if Assigned(FItemMirror) then
+    begin
+        FItemMirror.FItemOriginal := nil;
         FItemMirror.Free();
-    FItemMirror := nil;
+    end;
     inherited;
 end;
 
@@ -334,8 +336,11 @@ end;
 
 destructor TPGItemMirror.Destroy();
 begin
-    FItemOriginal.FItemMirror := nil;
-    FItemOriginal.Free;
+    if Assigned(FItemOriginal) then
+    begin
+        FItemOriginal.FItemMirror := nil;
+        FItemOriginal.Free;
+    end;
     inherited;
 end;
 

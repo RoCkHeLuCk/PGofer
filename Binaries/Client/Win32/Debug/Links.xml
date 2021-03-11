@@ -1,2 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Links Version="1.0"/>
+<Links Version="1.0">
+  <Folder Name="Testes" Enabled="true" ReadOnly="false"/>
+</Links>

@@ -32,7 +32,7 @@ type
         procedure FormDestroy(Sender: TObject);
         procedure FormKeyDown(Sender: TObject; var Key: Word;
             Shift: TShiftState);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
     private
         FMouse: TPoint;
         FFrmAutoComplete: TFrmAutoComplete;
@@ -115,10 +115,18 @@ end;
 procedure TFrmPGofer.FormKeyDown(Sender: TObject; var Key: Word;
     Shift: TShiftState);
 begin
-    if (not FFrmAutoComplete.Visible) and (Shift = []) and (Key = VK_RETURN)
-    then
-    begin
-        ScriptExec('Main', EdtCommand.Text);
+    if (not FFrmAutoComplete.Visible) and (Shift = []) then
+    case Key of
+        VK_RETURN:
+        begin
+            ScriptExec('Main', EdtCommand.Text);
+            EdtCommand.Clear;
+        end;
+
+        VK_ESCAPE:
+        begin
+            Self.Visible := false;
+        end;
     end;
 end;
 
