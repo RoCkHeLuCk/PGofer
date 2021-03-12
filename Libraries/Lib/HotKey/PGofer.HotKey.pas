@@ -135,7 +135,7 @@ begin
     Result := '';
     for Key in FKeys do
     begin
-        if Result <> '' then
+        if Result = '' then
             Result := KeyVirtualToStr(Key)
         else
             Result := Result + ' + ' + KeyVirtualToStr(Key);

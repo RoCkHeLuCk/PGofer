@@ -32,10 +32,13 @@ type
         { Private declarations }
         FMouseA: TPoint;
         FItem: TPGFrmConsole;
+        function GetAutoClose():Boolean;
     protected
         procedure CreateWindowHandle(const Params: TCreateParams); override;
+        procedure IniConfigSave(); override;
+        procedure IniConfigLoad(); override;
     public
-        { Public declarations }
+        property AutoClose: Boolean read GetAutoClose;
         procedure ConsoleNotifyMessage(Value: String; Show: Boolean);
     end;
 
@@ -83,22 +86,30 @@ end;
 
 procedure TFrmConsole.FormCreate(Sender: TObject);
 begin
-    inherited;
     FItem := TPGFrmConsole.Create(Self);
     PGofer.Sintatico.ConsoleNotify := Self.ConsoleNotifyMessage;
+    inherited;
+end;
+
+procedure TFrmConsole.FormShow(Sender: TObject);
+begin
+    Self.TmrConsole.Enabled := False;
+    Self.TmrConsole.Interval := FItem.Delay;
+    Self.BtnFixed.Down := (not FItem.AutoClose);
+    Self.TmrConsole.Enabled := (not Self.BtnFixed.Down);
 end;
 
 procedure TFrmConsole.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-    inherited;
     TmrConsole.Enabled := False;
+    inherited;
 end;
 
 procedure TFrmConsole.FormDestroy(Sender: TObject);
 begin
+    inherited;
     ConsoleNotify := nil;
     FItem := nil;
-    inherited;
 end;
 
 procedure TFrmConsole.FormKeyPress(Sender: TObject; var Key: Char);
@@ -108,12 +119,27 @@ begin
         Close;
 end;
 
-procedure TFrmConsole.FormShow(Sender: TObject);
+function TFrmConsole.GetAutoClose: Boolean;
 begin
-    Self.TmrConsole.Enabled := False;
-    Self.TmrConsole.Interval := FItem.Delay;
-    Self.BtnFixed.Down := (not FItem.AutoClose);
-    Self.TmrConsole.Enabled := (not Self.BtnFixed.Down);
+    Result := FItem.AutoClose;
+end;
+
+procedure TFrmConsole.IniConfigLoad();
+begin
+    inherited;
+    FItem.Delay := FIniFile.ReadInteger(Self.Name, 'Delay', FItem.Delay);
+    FItem.ShowMessage := FIniFile.ReadBool(Self.Name, 'Delay',
+        FItem.ShowMessage);
+    FItem.AutoClose := FIniFile.ReadBool(Self.Name, 'Delay', FItem.AutoClose);
+end;
+
+procedure TFrmConsole.IniConfigSave();
+begin
+    FIniFile.WriteInteger(Self.Name, 'Delay', FItem.Delay);
+    FIniFile.WriteBool(Self.Name, 'Delay',
+        FItem.ShowMessage);
+    FIniFile.WriteBool(Self.Name, 'Delay', FItem.AutoClose);
+    inherited;
 end;
 
 procedure TFrmConsole.BtnFixedClick(Sender: TObject);

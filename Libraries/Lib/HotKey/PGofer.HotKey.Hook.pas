@@ -189,9 +189,9 @@ end;
 
 initialization
     THookProc.FShootKeys := TList<Word>.Create();
-    {$IFNDEF DEBUG}
+{$IFNDEF DEBUG}
     THookProc.EnableHoot();
-    {$ENDIF}
+{$ENDIF}
 
 finalization
     THookProc.DisableHoot();

@@ -47,7 +47,6 @@ type
         FMemoryNoCtrl: Boolean;
         FMemoryList: TStringList;
         FMemoryPosition: Integer;
-        FMemoryFile: String;
         procedure ListViewAdd(Caption, Origin: String); overload;
         procedure ListViewAdd(Item: TPGItem); overload;
         procedure PriorityStep();
@@ -58,8 +57,8 @@ type
         procedure SelectCMD(Selected: TSelectCMD);
     protected
         procedure CreateWindowHandle(const Params: TCreateParams); override;
-        procedure IniConfigSave(); reintroduce;
-        procedure IniConfigLoad(); reintroduce;
+        procedure IniConfigSave(); override;
+        procedure IniConfigLoad(); override;
     public
         property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl;
     end;
@@ -101,9 +100,6 @@ begin
     FMemoryNoCtrl := False;
     FMemoryPosition := 0;
     FMemoryList := TStringList.Create();
-    FMemoryFile := PGofer.Sintatico.DirCurrent+'AutoCompleteMen.txt';
-    if FileExists(FMemoryFile) then
-       FMemoryList.LoadFromFile(FMemoryFile);
 end;
 
 procedure TFrmAutoComplete.CreateWindowHandle(const Params: TCreateParams);
@@ -128,7 +124,6 @@ begin
     FEditCtrl := nil;
 
     FMemoryIniFile.Free();
-    FMemoryList.SaveToFile(FMemoryFile);
     FMemoryList.Free();
     FMemoryPosition := 0;
     FMemoryNoCtrl := False;
@@ -168,61 +163,60 @@ procedure TFrmAutoComplete.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
     c: Word;
-    Edit: TSynEdit;
 begin
-    Edit := TSynEdit(Sender);
-
     if Self.Visible then
     begin
         // visible
         case Key of
             // ENTER
             VK_RETURN:
+            begin
+                Self.SelectCMD(selEnter);
+                // seleciona |
+                c := Pos('|', FEditCtrl.Lines[FEditCtrl.CaretY - 1]);
+                if c > 0 then
                 begin
-                    Self.SelectCMD(selEnter);
-                    // seleciona |
-                    c := Pos('|', Edit.Lines[Edit.CaretY - 1]);
-                    if c > 0 then
-                    begin
-                        Edit.CaretX := c;
-                        Edit.SelLength := 1;
-                        Edit.SelText := '';
-                        Self.FindCMD();
-                    end; // if c > 0 then
+                    FEditCtrl.CaretX := c;
+                    FEditCtrl.SelLength := 1;
+                    FEditCtrl.SelText := '';
+                    Self.FindCMD();
+                end; // if c > 0 then
 
-                    Key := 0;
-                end; // VK_RETURN
+                Key := 0;
+            end; // VK_RETURN
 
             // ESQ
             VK_ESCAPE:
-                begin
-                    Self.Close;
-                    Key := 0;
-                end; // VK_ESCAPE
+            begin
+                Self.Close;
+                Key := 0;
+            end; // VK_ESCAPE
 
             // ESPAÇO
             VK_SPACE:
+            begin
+                if Shift = [ssCtrl] then
                 begin
-                    if Shift = [ssCtrl] then
-                    begin
-                        Key := 0;
-                    end;
-                end; // VK_ESCAPE
-
-            VK_UP:
-                begin
-                    Self.SelectCMD(selUp);
-                end;
-            VK_DOWN:
-                begin
-                    Self.SelectCMD(selDown);
                     Key := 0;
-                end;
-
-            VK_LEFT, VK_RIGHT:
-                begin
                     Self.FindCMD();
                 end;
+            end; // VK_ESCAPE
+
+            VK_UP:
+            begin
+                Self.SelectCMD(selUp);
+            end;
+
+            VK_DOWN:
+            begin
+                Self.SelectCMD(selDown);
+                Key := 0;
+            end;
+
+            VK_LEFT, VK_RIGHT:
+            begin
+                Self.FindCMD();
+            end;
         end; // case
     end
     else
@@ -231,44 +225,47 @@ begin
         case Key of
             // enter
             VK_RETURN:
+            begin
+                if FEditCtrl.Text <> '' then
                 begin
                     FMemoryPosition := FMemoryList.Count;
-                    FMemoryList.Add(Edit.Lines[Edit.CaretY - 1]);
+                    FMemoryList.Add(FEditCtrl.Lines[FEditCtrl.CaretY - 1]);
                     if FMemoryPosition > 100 then
                         FMemoryList.Delete(0);
                 end;
+            end;
 
             // PGup PGDown
             VK_PRIOR, VK_NEXT:
+            begin
+                if (Shift = [ssCtrl]) or (FMemoryNoCtrl) then
                 begin
-                    if (Shift = [ssCtrl]) or (FMemoryNoCtrl) then
+                    c := FMemoryList.Count;
+                    if c > 0 then
                     begin
-                        c := FMemoryList.Count;
-                        if c > 0 then
+                        // anteriores
+                        if (Key in [VK_PRIOR, VK_UP]) then
                         begin
-                            // anteriores
-                            if (Key in [VK_PRIOR, VK_UP]) then
-                            begin
-                                if FMemoryPosition > 0 then
-                                    Dec(FMemoryPosition)
-                                else
-                                    FMemoryPosition := c - 1;
-                            end;
-                            // posteriores
-                            if (Key = VK_NEXT) then
-                            begin
-                                if FMemoryPosition < c - 1 then
-                                    Inc(FMemoryPosition)
-                                else
-                                    FMemoryPosition := 0;
-                            end;
-                            // escreve no edit
-                            Edit.Lines[Edit.CaretY - 1] :=
-                              FMemoryList[FMemoryPosition];
-                            Key := 0;
+                            if FMemoryPosition > 0 then
+                                Dec(FMemoryPosition)
+                            else
+                                FMemoryPosition := c - 1;
                         end;
+                        // posteriores
+                        if (Key = VK_NEXT) then
+                        begin
+                            if FMemoryPosition < c - 1 then
+                                Inc(FMemoryPosition)
+                            else
+                                FMemoryPosition := 0;
+                        end;
+                        // escreve no edit
+                        FEditCtrl.Lines[FEditCtrl.CaretY - 1] :=
+                          FMemoryList[FMemoryPosition];
+                        Key := 0;
                     end;
                 end;
+            end;
         end;
     end;
 
@@ -292,45 +289,44 @@ end;
 
 procedure TFrmAutoComplete.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-    Edit: TSynEdit;
 begin
-    Edit := TSynEdit(Sender);
     case Key of
         8 { bcks } , // backspace
         48 { 0 } .. 57 { 9 } , // numero
         65 { A } .. 92 { Z } , // letra
         96 { 0 } .. 105 { 9 } , // numpad
-        106 { * } , 107 { + } , 109 { - } , 110 { . } , 111 { / } , 187 { = } ,
-          186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } ,
-          219 { [ } , 220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
-            begin
-                if Edit.LineText <> '' then
-                    Self.FindCMD()
-                else
-                    Self.Close;
-            end; // $30..$39,
+        106 { * } , 107 { + } , 109 { - } ,
+        110 { . } , 111 { / } , 187 { = } ,
+        186 { ; } , 188 { , } , 189 { - } ,
+        190 { . } , 191 { / } , 219 { [ } ,
+        220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
+        begin
+            if FEditCtrl.LineText <> '' then
+               Self.FindCMD()
+            else
+               Self.Close;
+        end; // $30..$39,
 
         VK_LEFT, VK_RIGHT:
+        begin
+            if Copy(FEditCtrl.Lines[FEditCtrl.CaretY - 1],
+                    FEditCtrl.CaretX, 1) = '|' then
             begin
-                if Copy(Edit.Lines[Edit.CaretY - 1], Edit.CaretX, 1) = '|' then
-                begin
-                    Edit.SelLength := 1;
-                    Edit.SelText := '';
-                    Self.FindCMD();
-                end;
+                FEditCtrl.SelLength := 1;
+                FEditCtrl.SelText := '';
+                Self.FindCMD();
             end;
+        end;
 
         // ESPAÇO
         VK_SPACE:
+        begin
+            if Shift = [ssCtrl] then
             begin
-                if Shift = [ssCtrl] then
-                begin
-                    Self.FindCMD();
-                    Key := 0;
-                    Shift := [];
-                end;
+                Self.FindCMD();
+                Key := 0;
             end;
+        end;
 
     end; // case
 
@@ -356,7 +352,7 @@ var
     c: Integer;
 begin
     inherited;
-    for c := 0 to ltvAutoComplete.Columns.Count do
+    for c := 0 to ltvAutoComplete.Columns.Count-1 do
     begin
         ltvAutoComplete.Columns[c].Width := FIniFile.ReadInteger(Self.Name,
           'ColunWidth' + IntToStr(c), ltvAutoComplete.Columns[c].Width);
@@ -367,7 +363,7 @@ procedure TFrmAutoComplete.IniConfigSave;
 var
     c: Integer;
 begin
-    for c := 0 to ltvAutoComplete.Columns.Count do
+    for c := 0 to ltvAutoComplete.Columns.Count-1 do
     begin
         FIniFile.WriteInteger(Self.Name, 'ColunWidth' + IntToStr(c),
           ltvAutoComplete.Columns[c].Width);
@@ -618,29 +614,28 @@ begin
         case Selected of
 
             selUp:
-                begin
-                    if ltvAutoComplete.ItemIndex > 0 then
-                        ltvAutoComplete.ItemIndex :=
-                          ltvAutoComplete.ItemIndex - 1;
-                end;
+            begin
+                if ltvAutoComplete.ItemIndex > 0 then
+                    ltvAutoComplete.ItemIndex :=
+                      ltvAutoComplete.ItemIndex - 1;
+            end;
 
             selDown:
-                begin
-                    if ltvAutoComplete.ItemIndex < ltvAutoComplete.Items.Count - 1
-                    then
-                        ltvAutoComplete.ItemIndex :=
-                          ltvAutoComplete.ItemIndex + 1;
-                end;
+            begin
+                if ltvAutoComplete.ItemIndex < ltvAutoComplete.Items.Count - 1
+                then
+                    ltvAutoComplete.ItemIndex :=
+                      ltvAutoComplete.ItemIndex + 1;
+            end;
 
             selEnter:
-                begin
-                    FEditCtrl.CaretX := SelInicio;
-                    FEditCtrl.SelLength := SelFinal - SelInicio;
-                    FEditCtrl.SelText := ltvAutoComplete.ItemFocused.Caption;
-                    Self.PriorityStep();
-                    Self.Close;
-                end;
-
+            begin
+                FEditCtrl.CaretX := SelInicio;
+                FEditCtrl.SelLength := SelFinal - SelInicio;
+                FEditCtrl.SelText := ltvAutoComplete.ItemFocused.Caption;
+                Self.PriorityStep();
+                Self.Close;
+            end;
         end;
 
         ltvAutoComplete.SuperSelected();

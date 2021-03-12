@@ -30,9 +30,9 @@ type
         procedure FormCreate(Sender: TObject);
         procedure PopUpClick(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
-        procedure FormKeyDown(Sender: TObject; var Key: Word;
-            Shift: TShiftState);
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure EdtCommandKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     private
         FMouse: TPoint;
         FFrmAutoComplete: TFrmAutoComplete;
@@ -51,7 +51,7 @@ implementation
 
 uses
     PGofer.Sintatico, PGofer.Sintatico.Controls,
-    PGofer.Forms.Controls;
+    PGofer.Forms.Controls, PGofer.Form.Console;
 
 {$R *.dfm}
 { TFrmPGofer3 }
@@ -102,6 +102,7 @@ begin
     Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
     FFrmAutoComplete := TFrmAutoComplete.Create(EdtCommand);
+    FFrmAutoComplete.MemoryNoCtrl := True;
     TPGForm.Create(Self);
     FormCreateMnPopUp(PpmMenu, PopUpClick);
 end;
@@ -110,24 +111,6 @@ procedure TFrmPGofer.FormDestroy(Sender: TObject);
 begin
     FFrmAutoComplete.Free();
     inherited;
-end;
-
-procedure TFrmPGofer.FormKeyDown(Sender: TObject; var Key: Word;
-    Shift: TShiftState);
-begin
-    if (not FFrmAutoComplete.Visible) and (Shift = []) then
-    case Key of
-        VK_RETURN:
-        begin
-            ScriptExec('Main', EdtCommand.Text);
-            EdtCommand.Clear;
-        end;
-
-        VK_ESCAPE:
-        begin
-            Self.Visible := false;
-        end;
-    end;
 end;
 
 procedure TFrmPGofer.EdtCommandChange(Sender: TObject);
@@ -153,6 +136,32 @@ begin
         'BBBBBB');
     Self.Height := (EdtCommand.Lines.Count * EdtCommand.LineHeight) +
         EdtCommand.Font.Size * 2;
+end;
+
+procedure TFrmPGofer.EdtCommandKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+    if (not FFrmAutoComplete.Visible) and (Shift = []) then
+    case Key of
+        VK_RETURN:
+        begin
+            if EdtCommand.Text <> '' then
+            begin
+                ScriptExec('Main', EdtCommand.Text);
+                EdtCommand.Clear;
+
+                if FrmConsole.AutoClose then
+                   Self.Hide;
+                Key := 0;
+                EdtCommand.OnChange(nil);
+            end;
+        end;
+
+        VK_ESCAPE:
+        begin
+            Self.Hide;
+        end;
+    end;
 end;
 
 procedure TFrmPGofer.PnlArrastarMouseDown(Sender: TObject; Button: TMouseButton;

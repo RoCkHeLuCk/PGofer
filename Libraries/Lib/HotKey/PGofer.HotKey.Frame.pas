@@ -8,7 +8,7 @@ uses
     Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
     Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
     SynEdit,
-    PGofer.Classes, PGofer.HotKey, PGofer.Item.Frame,
+    PGofer.Classes, PGofer.HotKey, PGofer.Item.Frame, PGofer.Form.AutoComplete,
     PGofer.Component.Edit;
 
 type
@@ -33,6 +33,7 @@ type
           Shift: TShiftState);
     private
         FItem: TPGHotKey;
+        FFrmAutoComplete: TFrmAutoComplete;
 {$HINTS OFF}
         class function LowLevelProc(Code: Integer; wParam: wParam;
           lParam: lParam): NativeInt; stdcall; static;
@@ -86,10 +87,12 @@ begin
     CkbInibir.Checked := FItem.Inhibit;
     EdtScript.Text := FItem.Script;
     MmoTeclas.Lines.Text := FItem.GetKeysName();
+    FFrmAutoComplete := TFrmAutoComplete.Create(EdtScript);
 end;
 
 destructor TPGFrameHotKey.Destroy;
 begin
+    FFrmAutoComplete.Free();
     MmoTeclas.OnExit(Self);
     FItem := nil;
     inherited Destroy();

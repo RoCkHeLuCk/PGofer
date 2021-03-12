@@ -10,14 +10,11 @@ object FrmAutoComplete: TFrmAutoComplete
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
   DoubleBuffered = True
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   KeyPreview = True
   OldCreateOrder = False
+  PopupMenu = ppmAutoComplete
   Position = poDefault
   OnActivate = FormActivate
   OnClose = FormClose
@@ -35,6 +32,8 @@ object FrmAutoComplete: TFrmAutoComplete
     Width = 200
     Height = 50
     Align = alClient
+    BevelInner = bvNone
+    BevelOuter = bvNone
     Columns = <
       item
         Caption = 'Command'

@@ -7,15 +7,11 @@ object FrmConsole: TFrmConsole
   ClientHeight = 80
   ClientWidth = 200
   Color = clBtnFace
-  Constraints.MinHeight = 30
+  Constraints.MinHeight = 80
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
   DoubleBuffered = True
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
+  ParentFont = True
   FormStyle = fsStayOnTop
   KeyPreview = True
   OldCreateOrder = False
@@ -33,24 +29,30 @@ object FrmConsole: TFrmConsole
     Width = 200
     Height = 80
     Align = alClient
-    BevelInner = bvRaised
+    BevelOuter = bvNone
     TabOrder = 0
+    OnMouseDown = PnlArrastarMouseDown
+    OnMouseMove = PnlArrastarMouseMove
     object PnlArrastar: TPanel
-      Left = 2
-      Top = 2
-      Width = 196
+      Left = 0
+      Top = 0
+      Width = 200
       Height = 12
       Align = alTop
       BevelOuter = bvNone
+      ParentColor = True
       TabOrder = 0
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
+      ExplicitLeft = 2
+      ExplicitTop = 2
+      ExplicitWidth = 196
       DesignSize = (
-        196
+        200
         12)
       object BtnFixed: TSpeedButton
         AlignWithMargins = True
-        Left = 179
+        Left = 183
         Top = 0
         Width = 15
         Height = 13
@@ -108,27 +110,30 @@ object FrmConsole: TFrmConsole
       end
       object PnlArrastar2: TPanel
         Left = 3
-        Top = 3
-        Width = 173
-        Height = 6
+        Top = 4
+        Width = 177
+        Height = 4
         Anchors = [akLeft, akTop, akRight, akBottom]
+        BevelOuter = bvNone
+        Color = clWindow
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
+        ExplicitWidth = 173
       end
     end
     object EdtConsole: TSynEdit
-      Left = 2
-      Top = 14
-      Width = 196
-      Height = 64
+      Left = 0
+      Top = 12
+      Width = 200
+      Height = 68
       Align = alClient
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Courier New'
-      Font.Pitch = fpFixed
+      Font.Name = 'Tahoma'
       Font.Style = []
+      ParentFont = True
       TabOrder = 1
       OnKeyPress = FormKeyPress
       CodeFolding.GutterShapeSize = 11

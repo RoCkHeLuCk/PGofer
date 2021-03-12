@@ -56,7 +56,9 @@ uses
   PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
   PGofer.Form.Console in '..\..\Libraries\Form\Console\PGofer.Form.Console.pas' {FrmConsole},
   Vcl.Forms,
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
@@ -66,6 +68,6 @@ begin
     Application.MainFormOnTaskbar := True;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    Application.Run;
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  Application.Run;
 end.

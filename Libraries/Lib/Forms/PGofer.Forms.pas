@@ -253,8 +253,8 @@ procedure TFormEx.IniConfigLoad();
 begin
     Self.Left := FIniFile.ReadInteger(Self.Name, 'Left', Self.Left);
     Self.Top := FIniFile.ReadInteger(Self.Name, 'Top', Self.Top);
-    Self.Width := FIniFile.ReadInteger(Self.Name, 'Width', Self.Width);
-    Self.Height := FIniFile.ReadInteger(Self.Name, 'Height', Self.Height);
+    Self.ClientWidth := FIniFile.ReadInteger(Self.Name, 'Width', Self.ClientWidth);
+    Self.ClientHeight := FIniFile.ReadInteger(Self.Name, 'Height', Self.ClientHeight);
     Self.MakeFullyVisible(Self.Monitor);
     if FIniFile.ReadBool(Self.Name, 'Maximized', False) then
         Self.WindowState := wsMaximized;
@@ -267,8 +267,8 @@ begin
     begin
         FIniFile.WriteInteger(Self.Name, 'Left', Self.Left);
         FIniFile.WriteInteger(Self.Name, 'Top', Self.Top);
-        FIniFile.WriteInteger(Self.Name, 'Width', Self.Width);
-        FIniFile.WriteInteger(Self.Name, 'Height', Self.Height);
+        FIniFile.WriteInteger(Self.Name, 'Width', Self.ClientWidth);
+        FIniFile.WriteInteger(Self.Name, 'Height', Self.ClientHeight);
         FIniFile.WriteBool(Self.Name, 'Maximized', False);
     end
     else

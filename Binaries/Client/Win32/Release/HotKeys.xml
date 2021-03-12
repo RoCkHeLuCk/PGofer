@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HotKeys Version="1.0">
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <HotKeys Name="HotKeys" Enabled="true" ReadOnly="false">
+      <HotKeysHex Type="string">20105B0470460480440450520540590A20A0053</HotKeysHex>
+      <Detect Type="Byte">0</Detect>
+      <Inhibit Type="Boolean">False</Inhibit>
+      <Script Type="string"></Script>
+    </HotKeys>
+  </Folder>
+</HotKeys>

@@ -32,13 +32,10 @@ object PGFrame: TPGFrame
       Width = 390
       Height = 83
       Align = alClient
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
+      BevelInner = bvNone
+      BevelOuter = bvNone
       ParentColor = True
-      ParentFont = False
+      PlainText = True
       ReadOnly = True
       TabOrder = 0
       Zoom = 100
@@ -53,15 +50,19 @@ object PGFrame: TPGFrame
     BevelOuter = bvNone
     Constraints.MinHeight = 35
     Constraints.MinWidth = 400
+    ParentColor = True
+    ShowCaption = False
     TabOrder = 1
     DesignSize = (
       400
       35)
     object LblName: TLabel
-      Left = 34
+      Left = 3
       Top = 9
-      Width = 30
+      Width = 61
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
       Caption = 'Titulo:'
     end
     object EdtName: TEditEx

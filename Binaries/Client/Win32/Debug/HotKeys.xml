@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HotKeys Version="1.0"/>
+<HotKeys Version="1.0">
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <HotKeys Name="PGofer" Enabled="true" ReadOnly="false">
+      <HotKeysHex Type="string">05B047</HotKeysHex>
+      <Detect Type="Byte">0</Detect>
+      <Inhibit Type="Boolean">True</Inhibit>
+      <Script Type="string">FrmPGofer;
+</Script>
+    </HotKeys>
+  </Folder>
+</HotKeys>

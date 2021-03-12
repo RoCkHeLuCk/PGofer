@@ -1,3 +1,16 @@
 FrmPGofer.Close
 FrmLinks;
 FrmLinks;
+
+
+
+
+
+
+
+Calc
+write("teste")
+write("testes")
+Write("asdf");
+Writeasdf
+asdf

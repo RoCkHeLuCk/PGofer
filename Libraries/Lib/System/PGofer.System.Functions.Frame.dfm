@@ -7,21 +7,20 @@ inherited PGFrameFunction: TPGFrameFunction
   end
   inherited grbAbout: TGroupBox
     Top = 161
-    ExplicitTop = 161
   end
   inherited pnlItem: TPanel
     Height = 150
     Constraints.MinHeight = 150
     Constraints.MinWidth = 0
     ExplicitHeight = 150
-    object GroupBox1: TGroupBox
+    object GroupBox1: TGroupBox [1]
       Left = 5
       Top = 33
       Width = 390
       Height = 113
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Conteudo'
-      TabOrder = 1
+      TabOrder = 0
       object mmoContents: TSynMemo
         Left = 2
         Top = 15
@@ -30,9 +29,10 @@ inherited PGFrameFunction: TPGFrameFunction
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Courier New'
+        Font.Height = -11
+        Font.Name = 'Tahoma'
         Font.Style = []
+        ParentFont = True
         TabOrder = 0
         OnExit = mmoContentsExit
         CodeFolding.GutterShapeSize = 11
@@ -50,6 +50,9 @@ inherited PGFrameFunction: TPGFrameFunction
         Gutter.Font.Style = []
         FontSmoothing = fsmNone
       end
+    end
+    inherited EdtName: TEditEx
+      TabOrder = 1
     end
   end
 end

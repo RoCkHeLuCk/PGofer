@@ -1,10 +1,10 @@
 object FrmController: TFrmController
   Left = 480
   Top = 386
-  BorderStyle = bsSingle
+  BorderStyle = bsSizeToolWin
   Caption = 'Controller'
-  ClientHeight = 302
-  ClientWidth = 573
+  ClientHeight = 135
+  ClientWidth = 585
   Color = clBtnFace
   DefaultMonitor = dmDesktop
   ParentFont = True
@@ -19,10 +19,10 @@ object FrmController: TFrmController
   PixelsPerInch = 96
   TextHeight = 13
   object Splitter1: TSplitter
-    Left = 327
+    Left = 180
     Top = 0
     Width = 5
-    Height = 302
+    Height = 135
     Beveled = True
     ExplicitLeft = 241
     ExplicitHeight = 536
@@ -30,25 +30,29 @@ object FrmController: TFrmController
   object PnlTreeView: TPanel
     Left = 0
     Top = 0
-    Width = 327
-    Height = 302
+    Width = 180
+    Height = 135
     Align = alLeft
+    Constraints.MinWidth = 180
+    ParentColor = True
     TabOrder = 0
+    ExplicitHeight = 323
     object PnlFind: TPanel
       Left = 1
       Top = 1
-      Width = 325
+      Width = 178
       Height = 28
       Align = alTop
+      ParentColor = True
       TabOrder = 0
       DesignSize = (
-        325
+        178
         28)
       object EdtFind: TButtonedEdit
         Left = 3
         Top = 3
-        Width = 319
-        Height = 21
+        Width = 146
+        Height = 22
         Anchors = [akLeft, akTop, akRight, akBottom]
         LeftButton.DisabledImageIndex = 0
         LeftButton.Enabled = False
@@ -64,13 +68,24 @@ object FrmController: TFrmController
         TabOrder = 0
         OnKeyPress = EdtFindKeyPress
       end
+      object btnRecall: TButton
+        Left = 151
+        Top = 3
+        Width = 26
+        Height = 23
+        Anchors = [akTop, akRight, akBottom]
+        Caption = '<<'
+        TabOrder = 1
+        OnClick = btnRecallClick
+      end
     end
     object PnlButton: TPanel
       Left = 1
-      Top = 265
-      Width = 325
+      Top = 98
+      Width = 178
       Height = 36
       Align = alBottom
+      ParentColor = True
       TabOrder = 1
       object btnAlphaSort: TButton
         Left = 2
@@ -78,9 +93,7 @@ object FrmController: TFrmController
         Width = 43
         Height = 32
         Caption = 'AZ'
-        DoubleBuffered = False
         DropDownMenu = ppmAlphaSort
-        ParentDoubleBuffered = False
         Style = bsSplitButton
         TabOrder = 0
         WordWrap = True
@@ -96,6 +109,7 @@ object FrmController: TFrmController
         Style = bsSplitButton
         TabOrder = 1
         Visible = False
+        WordWrap = True
         OnClick = onCreateItemPopUpClick
       end
       object btnDelete: TButton
@@ -106,14 +120,15 @@ object FrmController: TFrmController
         Caption = 'Delete'
         TabOrder = 2
         Visible = False
+        WordWrap = True
         OnClick = btnDeleteClick
       end
     end
     object TrvController: TTreeViewEx
       Left = 1
       Top = 29
-      Width = 325
-      Height = 236
+      Width = 178
+      Height = 69
       Align = alClient
       HideSelection = False
       Indent = 19
@@ -132,19 +147,20 @@ object FrmController: TFrmController
     end
   end
   object PnlFrame: TPanel
-    Left = 332
+    Left = 185
     Top = 0
-    Width = 241
-    Height = 302
+    Width = 400
+    Height = 135
     Align = alClient
     Caption = 'Nenhum item selecionado!'
-    DoubleBuffered = True
-    ParentDoubleBuffered = False
+    Constraints.MinHeight = 135
+    Constraints.MinWidth = 400
+    ParentColor = True
     TabOrder = 1
   end
   object ppmAlphaSort: TPopupMenu
-    Left = 20
-    Top = 172
+    Left = 12
+    Top = 36
     object mniAZ: TMenuItem
       Caption = 'AZ'
       OnClick = mniAZClick
@@ -163,7 +179,7 @@ object FrmController: TFrmController
     end
   end
   object ppmCreate: TPopupMenu
-    Left = 88
-    Top = 172
+    Left = 44
+    Top = 36
   end
 end

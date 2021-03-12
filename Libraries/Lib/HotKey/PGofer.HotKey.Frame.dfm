@@ -37,12 +37,15 @@ inherited PGFrameHotKey: TPGFrameHotKey
       401
       280)
     object LblDetectar: TLabel [1]
-      Left = 123
+      Left = 110
       Top = 118
-      Width = 46
+      Width = 59
       Height = 13
       Hint = 'Forma de detectar a HotKey'
+      AutoSize = False
+      BiDiMode = bdRightToLeft
       Caption = 'Detectar:'
+      ParentBiDiMode = False
     end
     inherited EdtName: TEditEx
       Width = 326
@@ -61,28 +64,21 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Top = 15
         Width = 386
         Height = 55
-        ParentCustomHint = False
         Align = alClient
         Alignment = taCenter
         BevelInner = bvNone
         BevelOuter = bvNone
-        Ctl3D = False
-        DoubleBuffered = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -16
+        Font.Height = -19
         Font.Name = 'Tahoma'
-        Font.Style = [fsBold]
+        Font.Style = []
         Lines.Strings = (
           '')
         ParentColor = True
-        ParentCtl3D = False
-        ParentDoubleBuffered = False
         ParentFont = False
-        ParentShowHint = False
         PopupMenu = PpmNull
         ReadOnly = True
-        ShowHint = False
         TabOrder = 0
         WantReturns = False
         WordWrap = False
@@ -122,9 +118,9 @@ inherited PGFrameHotKey: TPGFrameHotKey
         'Wheel')
     end
     object CkbInibir: TCheckBox
-      Left = 308
+      Left = 295
       Top = 117
-      Width = 83
+      Width = 98
       Height = 17
       Hint = 'Bloqueia a tecla detectada'
       Caption = 'Inibir Teclas'
@@ -150,9 +146,10 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Align = alClient
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -13
-        Font.Name = 'Courier New'
+        Font.Height = -11
+        Font.Name = 'Tahoma'
         Font.Style = []
+        ParentFont = True
         TabOrder = 0
         OnKeyUp = EdtScriptKeyUp
         CodeFolding.GutterShapeSize = 11
@@ -163,7 +160,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
         CodeFolding.ShowCollapsedLine = False
         CodeFolding.ShowHintMark = True
         UseCodeFolding = False
-        Gutter.AutoSize = True
         Gutter.Font.Charset = DEFAULT_CHARSET
         Gutter.Font.Color = clWindowText
         Gutter.Font.Height = -11
@@ -171,7 +167,17 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Gutter.Font.Style = []
         Gutter.LeftOffset = 1
         Gutter.ShowLineNumbers = True
+        Gutter.UseFontStyle = False
+        WantTabs = True
+        WordWrap = True
+        WordWrapGlyph.Visible = False
         FontSmoothing = fsmNone
+        RemovedKeystrokes = <>
+        AddedKeystrokes = <
+          item
+            Command = ecAutoCompletion
+            ShortCut = 16416
+          end>
       end
     end
   end

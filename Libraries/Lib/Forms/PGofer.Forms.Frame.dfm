@@ -16,16 +16,9 @@ inherited PGFrameForms: TPGFrameForms
     Top = 266
     Width = 408
     Height = 109
-    ExplicitTop = 266
-    ExplicitWidth = 408
-    ExplicitHeight = 109
     inherited rceAbout: TRichEdit
       Width = 404
       Height = 92
-      ScrollBars = ssBoth
-      WantTabs = True
-      ExplicitWidth = 404
-      ExplicitHeight = 92
     end
   end
   inherited pnlItem: TPanel
@@ -38,124 +31,143 @@ inherited PGFrameForms: TPGFrameForms
     DesignSize = (
       414
       255)
-    object LblAlphaBlendValue: TLabel [1]
-      Left = 160
+    object LblAlphaBlendValue: TLabel [0]
+      Left = 144
       Top = 40
-      Width = 89
+      Width = 104
       Height = 13
       Alignment = taRightJustify
+      AutoSize = False
       Caption = 'Alpha Blend Value:'
     end
-    object LblHeigth: TLabel [2]
-      Left = 29
+    object LblHeigth: TLabel [1]
+      Left = 5
       Top = 134
-      Width = 35
+      Width = 59
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      BiDiMode = bdLeftToRight
       Caption = 'Heigth:'
+      ParentBiDiMode = False
     end
-    object LblLeft: TLabel [3]
-      Left = 226
+    object LblLeft: TLabel [2]
+      Left = 173
       Top = 162
-      Width = 23
+      Width = 74
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      BiDiMode = bdLeftToRight
       Caption = 'Left:'
+      ParentBiDiMode = False
     end
-    object LblTop: TLabel [4]
-      Left = 41
+    object LblTop: TLabel [3]
+      Left = 5
       Top = 162
-      Width = 22
+      Width = 59
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      BiDiMode = bdLeftToRight
       Caption = 'Top:'
+      ParentBiDiMode = False
     end
-    object LblTransparentColor: TLabel [5]
-      Left = 204
+    object LblTransparentColor: TLabel [4]
+      Left = 144
       Top = 73
-      Width = 91
+      Width = 148
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
       Caption = 'Transparent Color:'
     end
-    object LblWidth: TLabel [6]
-      Left = 214
+    object LblWidth: TLabel [5]
+      Left = 173
       Top = 134
-      Width = 32
+      Width = 74
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      BiDiMode = bdLeftToRight
       Caption = 'Width:'
+      ParentBiDiMode = False
     end
-    object LblWindowState: TLabel [7]
-      Left = 30
+    object LblWindowState: TLabel [6]
+      Left = 5
       Top = 191
-      Width = 68
+      Width = 93
       Height = 13
+      Alignment = taRightJustify
+      AutoSize = False
+      BiDiMode = bdLeftToRight
       Caption = 'WindowState:'
+      ParentBiDiMode = False
     end
-    inherited EdtName: TEditEx
-      Width = 338
-      ExplicitWidth = 338
-    end
-    object CkbAlphaBlend: TCheckBox
+    object CkbAlphaBlend: TCheckBox [8]
       Left = 49
       Top = 39
       Width = 89
       Height = 17
       Caption = 'Alpha Blend'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = CkbAlphaBlendClick
     end
-    object UpdAlphaBlendValue: TUpDown
+    object UpdAlphaBlendValue: TUpDown [9]
       Left = 305
       Top = 37
       Width = 15
       Height = 21
       Associate = EdtAlphaBlendValue
       Max = 255
-      TabOrder = 2
+      TabOrder = 1
       OnChanging = UpdAlphaBlendValueChanging
     end
-    object CkbEnabled: TCheckBox
+    object CkbEnabled: TCheckBox [10]
       Left = 244
       Top = 103
       Width = 76
       Height = 17
       Caption = 'Enabled'
-      TabOrder = 3
+      TabOrder = 2
       OnClick = CkbEnabledClick
     end
-    object CkbTransparent: TCheckBox
+    object CkbTransparent: TCheckBox [11]
       Left = 49
       Top = 69
       Width = 89
       Height = 17
       Caption = 'Transparent'
-      TabOrder = 4
+      TabOrder = 3
       OnClick = CkbTransparentClick
     end
-    object PnlTransparentColor: TPanel
+    object PnlTransparentColor: TPanel [12]
       Left = 298
       Top = 69
       Width = 22
       Height = 22
       Color = clBlack
       ParentBackground = False
-      TabOrder = 5
+      TabOrder = 4
       OnClick = PnlTransparentColorClick
     end
-    object CkbVisible: TCheckBox
+    object CkbVisible: TCheckBox [13]
       Left = 49
       Top = 103
       Width = 97
       Height = 17
       Caption = 'Visible'
-      TabOrder = 6
+      TabOrder = 5
       OnClick = CkbVisibleClick
     end
-    object CmbWindowState: TComboBox
+    object CmbWindowState: TComboBox [14]
       Left = 104
       Top = 188
       Width = 117
       Height = 21
       Style = csDropDownList
       ItemIndex = 0
-      TabOrder = 7
+      TabOrder = 6
       Text = 'wsNormal'
       OnChange = CmbWindowStateChange
       Items.Strings = (
@@ -163,74 +175,77 @@ inherited PGFrameForms: TPGFrameForms
         'wsMinimized'
         'wsMaximized')
     end
-    object BtnClose: TButton
+    object BtnClose: TButton [15]
       Left = 245
       Top = 219
       Width = 75
       Height = 25
       Caption = 'Close'
-      TabOrder = 8
+      TabOrder = 7
       OnClick = BtnCloseClick
     end
-    object BtnShow: TButton
+    object BtnShow: TButton [16]
       Left = 70
       Top = 219
       Width = 75
       Height = 25
       Caption = 'Show'
-      TabOrder = 9
+      TabOrder = 8
       OnClick = BtnShowClick
     end
-    object EdtAlphaBlendValue: TEditEx
+    object EdtAlphaBlendValue: TEditEx [17]
       Left = 254
       Top = 37
       Width = 51
       Height = 21
-      TabOrder = 10
+      TabOrder = 9
       Text = '0'
       OnExit = EdtAlphaBlendValueExit
       RegExamples = reNone
       RegExpression = '^\d*$'
     end
-    object EdtHeigth: TEditEx
+    object EdtHeigth: TEditEx [18]
       Left = 70
       Top = 131
       Width = 76
       Height = 21
-      TabOrder = 11
+      TabOrder = 10
       OnExit = EdtHeigthExit
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end
-    object EdtTop: TEditEx
+    object EdtTop: TEditEx [19]
       Left = 70
       Top = 158
       Width = 76
       Height = 21
-      TabOrder = 12
+      TabOrder = 11
       OnExit = EdtTopExit
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end
-    object EdtWidth: TEditEx
+    object EdtWidth: TEditEx [20]
       Left = 253
       Top = 131
       Width = 76
       Height = 21
-      TabOrder = 13
+      TabOrder = 12
       OnExit = EdtWidthExit
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end
-    object EdtLeft: TEditEx
+    object EdtLeft: TEditEx [21]
       Left = 253
       Top = 158
       Width = 76
       Height = 21
-      TabOrder = 14
+      TabOrder = 13
       OnExit = EdtLeftExit
       RegExamples = reNone
       RegExpression = '^-?\d*$'
+    end
+    inherited EdtName: TEditEx
+      TabOrder = 14
     end
   end
   object cldTrasparentColor: TColorDialog

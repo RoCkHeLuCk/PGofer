@@ -4,8 +4,8 @@ interface
 
 uses
     System.Classes,
-    Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-    Vcl.StdCtrls, Vcl.Menus,
+    Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
+    Vcl.Menus,
     PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView;
 
 type
@@ -26,6 +26,7 @@ type
         btnCreate: TButton;
         btnDelete: TButton;
         ppmCreate: TPopupMenu;
+        btnRecall: TButton;
         constructor Create(ACollectItem: TPGItemCollect); reintroduce;
         destructor Destroy(); override;
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -45,16 +46,19 @@ type
         procedure btnDeleteClick(Sender: TObject);
         procedure FormCreate(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
+        procedure btnRecallClick(Sender: TObject);
     private
         FAlphaSort: Boolean;
         FAlphaSortFolder: Boolean;
         procedure PanelCleaning();
         procedure CreatePopups();
+        procedure FrameShow();
+        procedure FrameHide();
     protected
         FCollectItem: TPGItemCollect;
         FSelectedItem: TPGItem;
-        procedure IniConfigSave(); reintroduce;
-        procedure IniConfigLoad(); reintroduce;
+        procedure IniConfigSave(); override;
+        procedure IniConfigLoad(); override;
     public
     end;
 
@@ -84,8 +88,6 @@ begin
     FSelectedItem := nil;
     FAlphaSort := False;
     FAlphaSortFolder := False;
-    FCollectItem.UpdateToFile();
-    FCollectItem.TreeViewDetach();
     FCollectItem := nil;
     inherited;
 end;
@@ -101,6 +103,24 @@ begin
     inherited;
     FCollectItem.TreeViewAttach();
     TrvController.AlphaSort(True);
+    if not Assigned(FSelectedItem) then
+       Self.FrameHide();
+end;
+
+procedure TFrmController.FrameHide();
+begin
+    Self.PanelCleaning();
+    PnlFrame.Visible := False;
+    Splitter1.Visible := False;
+    Self.ClientWidth := PnlTreeView.ClientWidth;
+end;
+
+procedure TFrmController.FrameShow();
+begin
+    Self.ClientWidth := PnlTreeView.ClientWidth + Splitter1.ClientWidth
+       + PnlFrame.ClientWidth;
+    Splitter1.Visible := True;
+    PnlFrame.Visible := True;
 end;
 
 procedure TFrmController.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -119,8 +139,10 @@ end;
 procedure TFrmController.IniConfigLoad();
 begin
     inherited;
-    Self.PnlTreeView.Width := FIniFile.ReadInteger(Self.Name, 'TreeViewWidth',
-      Self.TrvController.Width);
+    Self.PnlTreeView.ClientWidth := FIniFile.ReadInteger(Self.Name,
+    'TreeViewWidth', Self.TrvController.ClientWidth);
+    Self.PnlFrame.ClientWidth := FIniFile.ReadInteger(Self.Name, 'FrameWidth',
+      Self.PnlFrame.ClientWidth);
     Self.FAlphaSort := FIniFile.ReadBool(Self.Name, 'AlphaSort',
       Self.FAlphaSort);
     Self.FAlphaSortFolder := FIniFile.ReadBool(Self.Name, 'AlphaSortFolder',
@@ -131,7 +153,12 @@ end;
 procedure TFrmController.IniConfigSave();
 begin
     inherited;
-    FIniFile.WriteInteger(Self.Name, 'TreeViewWidth', Self.TrvController.Width);
+    FIniFile.WriteInteger(Self.Name, 'Width',
+      Self.PnlTreeView.ClientWidth + Self.Splitter1.ClientWidth
+      + Self.PnlFrame.ClientWidth);
+    FIniFile.WriteInteger(Self.Name, 'TreeViewWidth',
+      Self.PnlTreeView.ClientWidth);
+    FIniFile.WriteInteger(Self.Name, 'FrameWidth', Self.PnlFrame.ClientWidth);
     FIniFile.WriteBool(Self.Name, 'AlphaSort', Self.FAlphaSort);
     FIniFile.WriteBool(Self.Name, 'AlphaSortFolder', Self.FAlphaSortFolder);
     FIniFile.UpdateFile;
@@ -258,6 +285,7 @@ begin
           (TPGItem(TrvController.Selected.Data) <> FSelectedItem) then
         begin
             Self.PanelCleaning();
+            Self.FrameShow();
             FSelectedItem := TPGItem(TrvController.Selected.Data);
             FSelectedItem.Frame(PnlFrame);
             PnlFrame.Caption := '';
@@ -330,6 +358,14 @@ begin
     begin
         TrvController.DeleteSelect();
     end;
+end;
+
+procedure TFrmController.btnRecallClick(Sender: TObject);
+begin
+    if PnlFrame.Visible then
+       Self.FrameHide()
+    else
+       Self.FrameShow();
 end;
 
 end.
