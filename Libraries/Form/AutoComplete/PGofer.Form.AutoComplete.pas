@@ -77,6 +77,15 @@ const
       '<', '>', '(', ')', '[', ']', '!', '@', '#', '%', '^', '$', '&', '?', '|',
       '''', '"', '.'];
 
+procedure TFrmAutoComplete.CreateWindowHandle(const Params: TCreateParams);
+begin
+    inherited CreateWindowHandle(Params);
+    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
+    SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
+                  WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
+    Application.AddPopupForm(Self);
+end;
+
 constructor TFrmAutoComplete.Create(EditCtrl: TSynEdit);
 begin
     inherited Create(nil);
@@ -100,15 +109,6 @@ begin
     FMemoryNoCtrl := False;
     FMemoryPosition := 0;
     FMemoryList := TStringList.Create();
-end;
-
-procedure TFrmAutoComplete.CreateWindowHandle(const Params: TCreateParams);
-begin
-    inherited CreateWindowHandle(Params);
-    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
-    SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
-                  WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
-    Application.AddPopupForm(Self);
 end;
 
 destructor TFrmAutoComplete.Destroy();

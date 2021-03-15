@@ -16,9 +16,14 @@ inherited PGFrameForms: TPGFrameForms
     Top = 266
     Width = 408
     Height = 109
+    ExplicitTop = 266
+    ExplicitWidth = 408
+    ExplicitHeight = 109
     inherited rceAbout: TRichEdit
       Width = 404
       Height = 92
+      ExplicitWidth = 404
+      ExplicitHeight = 92
     end
   end
   inherited pnlItem: TPanel

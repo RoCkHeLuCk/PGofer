@@ -20,7 +20,6 @@ const
 function FormAfterInitialize(H: THandle; DefaultWM: Cardinal): Boolean;
 function FormBeforeInitialize(Classe: PWideChar; DefaultWM: Cardinal): Boolean;
 procedure FormForceShow(Form: TForm; Focus: Boolean);
-procedure FormPositionFixed(Form: TForm);
 procedure OnMessage(var Message: TMessage);
 procedure SendScript(Text: String);
 procedure LinkUpdate();
@@ -45,7 +44,6 @@ begin
         // procura parametros e envia mensagem
         if FindCmdLineSwitch('Duplicate', True) then
             Result := True;
-
         if FindCmdLineSwitch('Hide', True) then
             SendMessage(H, WM_PG_HIDE, 0, 0)
         else if FindCmdLineSwitch('NoFocus', True) then
@@ -63,7 +61,6 @@ begin
     end
     else
         Result := True;
-
 end;
 
 function FormBeforeInitialize(Classe: PWideChar; DefaultWM: Cardinal): Boolean;
@@ -139,11 +136,6 @@ begin
     end;
 end;
 
-procedure FormPositionFixed(Form: TForm);
-begin
-    Form.MakeFullyVisible(Form.Monitor);
-end;
-
 procedure OnMessage(var Message: TMessage);
 var
     Parametro: String;
@@ -176,7 +168,7 @@ begin
                 Parametro := StrPas(Buffer);
                 StrDispose(Buffer);
                 GlobalDeleteAtom(Message.LParam);
-                // CompilarComando ( Parametro, nil );
+                ScriptExec('External',Parametro, nil );
             end;
         WM_MOUSEACTIVATE:
             begin

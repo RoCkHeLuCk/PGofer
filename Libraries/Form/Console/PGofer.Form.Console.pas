@@ -51,6 +51,8 @@ type
         FShowMessage: Boolean;
         FAutoClose: Boolean;
         procedure SetAutoClose(Value: Boolean);
+    public
+        procedure Frame(Parent: TObject); override;
     published
         property AutoClose: Boolean read FAutoClose write SetAutoClose;
         procedure Clear();
@@ -68,19 +70,17 @@ implementation
 {$R *.dfm}
 
 uses
-    PGofer.Classes, PGofer.Sintatico, PGofer.Forms.Controls;
+    PGofer.Classes, PGofer.Sintatico, PGofer.Forms.Controls,
+    PGofer.Form.Console.Frame;
 
 { TFrmConsole }
 
 procedure TFrmConsole.CreateWindowHandle(const Params: TCreateParams);
 begin
     inherited CreateWindowHandle(Params);
-    // sem borda e ajustavel
-    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX); // WS_POPUP or
-    // configura a janela para não aparecer na barra e não ativado.
+    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
     SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
-      WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
-    // adiciona como popup
+                  WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
     Application.AddPopupForm(Self);
 end;
 
@@ -128,17 +128,17 @@ procedure TFrmConsole.IniConfigLoad();
 begin
     inherited;
     FItem.Delay := FIniFile.ReadInteger(Self.Name, 'Delay', FItem.Delay);
-    FItem.ShowMessage := FIniFile.ReadBool(Self.Name, 'Delay',
+    FItem.ShowMessage := FIniFile.ReadBool(Self.Name, 'ShowMessage',
         FItem.ShowMessage);
-    FItem.AutoClose := FIniFile.ReadBool(Self.Name, 'Delay', FItem.AutoClose);
+    FItem.AutoClose := FIniFile.ReadBool(Self.Name, 'AutoClose', FItem.AutoClose);
 end;
 
 procedure TFrmConsole.IniConfigSave();
 begin
     FIniFile.WriteInteger(Self.Name, 'Delay', FItem.Delay);
-    FIniFile.WriteBool(Self.Name, 'Delay',
+    FIniFile.WriteBool(Self.Name, 'ShowMessage',
         FItem.ShowMessage);
-    FIniFile.WriteBool(Self.Name, 'Delay', FItem.AutoClose);
+    FIniFile.WriteBool(Self.Name, 'AutoClose', FItem.AutoClose);
     inherited;
 end;
 
@@ -151,14 +151,13 @@ end;
 
 procedure TFrmConsole.TmrConsoleTimer(Sender: TObject);
 begin
-    try
-        // fechar se o mouse estiver fora do form
-        if (Mouse.CursorPos.X < Left) or (Mouse.CursorPos.Y < Top) or
-          (Mouse.CursorPos.X > Left + Width) or
-          (Mouse.CursorPos.Y > Top + Height) then
-            Close;
-    except
-    end;
+    // fechar se o mouse estiver fora do form
+    if((Mouse.CursorPos.X < Left)
+    or (Mouse.CursorPos.Y < Top)
+    or (Mouse.CursorPos.X > Left + Width)
+    or (Mouse.CursorPos.Y > Top + Height))
+    and (Self.Visible) then
+       Hide;
 end;
 
 procedure TFrmConsole.PnlArrastarMouseDown(Sender: TObject;
@@ -191,7 +190,7 @@ begin
         // ajusta posicao do console
         Self.Left := Application.MainForm.Left;
         Self.Top := Application.MainForm.Top + Application.MainForm.Height;
-        FormPositionFixed(Self);
+        Self.MakeFullyVisible(Self.Monitor);
         FormForceShow(Self, False);
     end;
 end;
@@ -211,6 +210,11 @@ begin
     FShowMessage := False;
     FAutoClose := False;
     inherited;
+end;
+
+procedure TPGFrmConsole.Frame(Parent: TObject);
+begin
+    TPGFrameConsole.Create(Self, Parent);
 end;
 
 procedure TPGFrmConsole.SetAutoClose(Value: Boolean);

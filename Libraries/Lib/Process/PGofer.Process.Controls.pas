@@ -118,7 +118,7 @@ function ProcessGetForeground(): Cardinal;
 var
     activeWinHandle: HWND;
 begin
-    activeWinHandle := GetForegroundWindow;
+    activeWinHandle := GetForegroundWindow();
     GetWindowThreadProcessID(activeWinHandle, @Result);
 end;
 

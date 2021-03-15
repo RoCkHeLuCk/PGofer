@@ -44,9 +44,6 @@ object FrmConsole: TFrmConsole
       TabOrder = 0
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
-      ExplicitLeft = 2
-      ExplicitTop = 2
-      ExplicitWidth = 196
       DesignSize = (
         200
         12)
@@ -115,11 +112,11 @@ object FrmConsole: TFrmConsole
         Height = 4
         Anchors = [akLeft, akTop, akRight, akBottom]
         BevelOuter = bvNone
-        Color = clWindow
+        Color = clBtnShadow
+        ParentBackground = False
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
-        ExplicitWidth = 173
       end
     end
     object EdtConsole: TSynEdit

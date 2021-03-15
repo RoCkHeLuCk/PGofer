@@ -58,16 +58,23 @@ uses
   Vcl.Forms,
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  PGofer.Form.Console.Frame in '..\..\Libraries\Form\Console\PGofer.Form.Console.Frame.pas' {PGFrameConsole: TFrame};
 
 {$R *.res}
 
 begin
-    ReportMemoryLeaksOnShutdown := True;
-    Application.Initialize;
-    Application.MainFormOnTaskbar := True;
-    Application.Title := 'PGofer V3.0';
-    Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  Application.Run;
+    if FormBeforeInitialize('TFrmPGofer', WM_PG_SETFOCUS) then
+    begin
+        ReportMemoryLeaksOnShutdown := True;
+        Application.Initialize;
+        Application.MainFormOnTaskbar := True;
+        Application.Title := 'PGofer V3.0';
+        Application.CreateForm(TFrmPGofer, FrmPGofer);
+        Application.CreateForm(TFrmConsole, FrmConsole);
+        FormAfterInitialize(FrmPGofer.Handle, WM_PG_SETFOCUS);
+        //CompilarComando('File.Script( '+DirCurrent+'Lib\Consts.pas , 0 , 1 );', nil );
+        //CompilarComando('File.Script( '+DirCurrent+'AutoRun\AutoRun.pas , 0 , 1 );', nil );
+        Application.Run;
+   end;
 end.

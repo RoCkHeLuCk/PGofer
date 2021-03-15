@@ -4,10 +4,10 @@ object FrmPGofer: TFrmPGofer
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'PGofer V3.0'
-  ClientHeight = 30
+  ClientHeight = 40
   ClientWidth = 200
   Color = clBtnFace
-  Constraints.MinHeight = 30
+  Constraints.MinHeight = 40
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
   DoubleBuffered = True
@@ -23,44 +23,48 @@ object FrmPGofer: TFrmPGofer
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 18
   object PnlCommand: TPanel
     Left = 0
     Top = 0
     Width = 200
-    Height = 30
+    Height = 40
     Align = alClient
     ParentColor = True
     TabOrder = 0
     OnMouseDown = PnlArrastarMouseDown
     OnMouseMove = PnlArrastarMouseMove
+    ExplicitHeight = 36
     object PnlComandMove: TPanel
       Left = 1
       Top = 1
       Width = 9
-      Height = 28
+      Height = 38
       Align = alLeft
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 1
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
+      ExplicitHeight = 28
       object PnlArrastar: TPanel
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 4
-        Height = 22
+        Height = 32
         Margins.Right = 2
         Align = alClient
         BevelOuter = bvNone
-        Color = clWindow
+        Color = clBtnShadow
         ParentBackground = False
         ShowCaption = False
         TabOrder = 0
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
+        ExplicitHeight = 22
       end
     end
     object EdtCommand: TSynEdit
@@ -68,7 +72,7 @@ object FrmPGofer: TFrmPGofer
       Left = 13
       Top = 3
       Width = 183
-      Height = 24
+      Height = 34
       Margins.Top = 2
       Margins.Bottom = 2
       Align = alClient
@@ -101,6 +105,7 @@ object FrmPGofer: TFrmPGofer
       WantTabs = True
       OnChange = EdtCommandChange
       FontSmoothing = fsmNone
+      ExplicitHeight = 30
       RemovedKeystrokes = <>
       AddedKeystrokes = <
         item

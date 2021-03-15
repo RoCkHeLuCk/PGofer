@@ -33,6 +33,7 @@ type
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EdtCommandKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure FormShow(Sender: TObject);
     private
         FMouse: TPoint;
         FFrmAutoComplete: TFrmAutoComplete;
@@ -59,7 +60,7 @@ uses
 procedure TFrmPGofer.CreateWindowHandle(const Params: TCreateParams);
 begin
     inherited CreateWindowHandle(Params);
-    //SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
+    SetWindowLong(Self.Handle, GWL_STYLE, WS_SIZEBOX);
     SetWindowLong(Self.Handle, GWL_EXSTYLE, WS_EX_TOOLWINDOW
                                     and not WS_EX_APPWINDOW);
 end;
@@ -83,14 +84,14 @@ end;
 
 procedure TFrmPGofer.WndProc(var Message: TMessage);
 begin
-    // OnMessage(Message);
+    OnMessage(Message);
     inherited WndProc(Message);
 end;
 
 procedure TFrmPGofer.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
+    Self.EdtCommandChange(Sender);
     inherited;
-    //
 end;
 
 procedure TFrmPGofer.FormCreate(Sender: TObject);
@@ -111,6 +112,11 @@ procedure TFrmPGofer.FormDestroy(Sender: TObject);
 begin
     FFrmAutoComplete.Free();
     inherited;
+end;
+
+procedure TFrmPGofer.FormShow(Sender: TObject);
+begin
+    Self.EdtCommandChange(Sender);
 end;
 
 procedure TFrmPGofer.EdtCommandChange(Sender: TObject);
@@ -135,7 +141,7 @@ begin
     Self.Width := EdtCommand.Canvas.TextWidth(EdtCommand.Lines[IndexMaxLength] +
         'BBBBBB');
     Self.Height := (EdtCommand.Lines.Count * EdtCommand.LineHeight) +
-        EdtCommand.Font.Size * 2;
+        (EdtCommand.Font.Size * 2) - 2;
 end;
 
 procedure TFrmPGofer.EdtCommandKeyDown(Sender: TObject; var Key: Word;

@@ -54,9 +54,6 @@ type
         destructor Destroy(); override;
     end;
 
-var
-    PGFrameForms: TPGFrameForms;
-
 implementation
 
 uses
