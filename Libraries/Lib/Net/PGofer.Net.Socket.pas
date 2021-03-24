@@ -214,7 +214,7 @@ begin
         if Texto <> '' then
         begin
             Self.ConsoleSendMSG('Clinet Send Command, Server Working...');
-            ScriptExec('Script: ' + Socket.RemoteAddress, Texto, nil);
+            ScriptExec('Script: ' + Socket.RemoteAddress, Texto);
             if FLog then
                 NetLogSrvSocket('Client [' + Socket.RemoteAddress +
                   '] Resceive Text: ' + Texto);
@@ -247,8 +247,13 @@ end;
 destructor TPGNetClient.Destroy;
 begin
     FPassWord := '';
+    FClient.OnConnecting := nil;
+    FClient.OnConnect := nil;
+    FClient.OnDisconnect := nil;
+    FClient.OnRead := nil;
+    FClient.OnError := nil;
     FClient.Free;
-    inherited Destroy();
+    inherited Destroy;
 end;
 
 function TPGNetClient.GetActive: Boolean;

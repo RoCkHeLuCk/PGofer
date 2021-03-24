@@ -31,8 +31,6 @@ function FindID(Item: TPGItem; Name: String): TPGItem;
 function IdentificadorLocalizar(Gramatica: TGramatica): TPGItem;
 procedure Identificador(Gramatica: TGramatica);
 
-procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
-
 
 implementation
 
@@ -565,18 +563,6 @@ begin
         else
             Gramatica.ErroAdd('Identificador não existente.');
     end;
-end;
-
-procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil);
-var
-    Gramatica: TGramatica;
-begin
-    if Assigned(Nivel) then
-        Nivel := GlobalCollection;
-
-    Gramatica := TGramatica.Create(Name, Nivel, True);
-    Gramatica.SetAlgoritimo(Texto);
-    Gramatica.Start;
 end;
 
 initialization

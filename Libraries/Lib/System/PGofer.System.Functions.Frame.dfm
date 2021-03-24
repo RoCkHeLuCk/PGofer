@@ -7,6 +7,7 @@ inherited PGFrameFunction: TPGFrameFunction
   end
   inherited grbAbout: TGroupBox
     Top = 161
+    ExplicitTop = 161
   end
   inherited pnlItem: TPanel
     Height = 150

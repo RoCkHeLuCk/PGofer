@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Triggers Version="1.0">
+  <Link Name="New" Enabled="true" ReadOnly="false">
+    <Arquivo Type="string">E:\Downloads\¡²³.doc</Arquivo>
+    <Parametro Type="string"></Parametro>
+    <Diretorio Type="string">E:\Downloads\</Diretorio>
+    <IconeFile Type="string">E:\Downloads\¡²³.doc</IconeFile>
+    <IconeIndex Type="Byte">0</IconeIndex>
+    <Estado Type="Byte">1</Estado>
+    <Prioridade Type="Byte">3</Prioridade>
+    <Operation Type="Byte">0</Operation>
+  </Link>
+  <Link Name="New1" Enabled="true" ReadOnly="false">
+    <Arquivo Type="string">E:\Downloads\¡²³.doc</Arquivo>
+    <Parametro Type="string"></Parametro>
+    <Diretorio Type="string">E:\Downloads\</Diretorio>
+    <IconeFile Type="string">E:\Downloads\¡²³.doc</IconeFile>
+    <IconeIndex Type="Byte">0</IconeIndex>
+    <Estado Type="Byte">1</Estado>
+    <Prioridade Type="Byte">3</Prioridade>
+    <Operation Type="Byte">0</Operation>
+  </Link>
+</Triggers>

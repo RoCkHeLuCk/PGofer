@@ -11,17 +11,8 @@ uses
   PGofer.ClipBoards.Controls in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',
   PGofer.Files in '..\..\Libraries\Lib\Files\PGofer.Files.pas',
   PGofer.Files.Controls in '..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas',
-  PGofer.Forms in '..\..\Libraries\Lib\Forms\PGofer.Forms.pas',
-  PGofer.Forms.Controls in '..\..\Libraries\Lib\Forms\PGofer.Forms.Controls.pas',
-  PGofer.Forms.Frame in '..\..\Libraries\Lib\Forms\PGofer.Forms.Frame.pas' {PGFrameForms: TFrame},
-  PGofer.HotKey in '..\..\Libraries\Lib\HotKey\PGofer.HotKey.pas',
-  PGofer.HotKey.Frame in '..\..\Libraries\Lib\HotKey\PGofer.HotKey.Frame.pas' {PGFrameHotKey: TFrame},
-  PGofer.HotKey.Hook in '..\..\Libraries\Lib\HotKey\PGofer.HotKey.Hook.pas',
   PGofer.Key in '..\..\Libraries\Lib\Key\PGofer.Key.pas',
   PGofer.Key.Controls in '..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas',
-  PGofer.Links in '..\..\Libraries\Lib\Links\PGofer.Links.pas',
-  PGofer.Links.Frame in '..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas' {PGLinkFrame: TFrame},
-  PGofer.Links.ThreadLoadImage in '..\..\Libraries\Lib\Links\PGofer.Links.ThreadLoadImage.pas',
   PGofer.Math in '..\..\Libraries\Lib\Math\PGofer.Math.pas',
   PGofer.Math.Controls in '..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas',
   PGofer.Net in '..\..\Libraries\Lib\Net\PGofer.Net.pas',
@@ -52,29 +43,47 @@ uses
   PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
-  PGofer.Form.Controller in '..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas' {FrmController},
-  PGofer.Form.AutoComplete in '..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas' {FrmAutoComplete},
-  PGofer.Form.Console in '..\..\Libraries\Form\Console\PGofer.Form.Console.pas' {FrmConsole},
+  PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
+  PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
+  PGofer.Forms.Frame in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFrameForms: TFrame},
+  PGofer.Forms.Controller in '..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas' {FrmController},
+  PGofer.Forms.AutoComplete in '..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas' {FrmAutoComplete},
+  PGofer.Forms.Console.Frame in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas' {PGFrameConsole: TFrame},
+  PGofer.Forms.Console in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas' {FrmConsole},
+  PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
+  PGofer.Triggers.HotKeys in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas',
+  PGofer.Triggers.HotKeys.Frame in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas' {PGFrameHotKey: TFrame},
+  PGofer.Triggers.HotKeys.Hook in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Hook.pas',
+  PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
+  PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
+  PGofer.Triggers.Links.ThreadLoadImage in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ThreadLoadImage.pas',
+  PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
+  PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
+  Winapi.Windows,
   Vcl.Forms,
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
-  Vcl.Themes,
-  Vcl.Styles,
-  PGofer.Form.Console.Frame in '..\..\Libraries\Form\Console\PGofer.Form.Console.Frame.pas' {PGFrameConsole: TFrame};
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
 
 begin
     if FormBeforeInitialize('TFrmPGofer', WM_PG_SETFOCUS) then
     begin
-        ReportMemoryLeaksOnShutdown := True;
+        {$IFDEF DEBUG}
+            ReportMemoryLeaksOnShutdown := True;
+        {$ENDIF}
+        SetPriorityClass(GetCurrentProcess, REALTIME_PRIORITY_CLASS);
+        SetProcessPriorityBoost(GetCurrentProcess, False);
+
         Application.Initialize;
         Application.MainFormOnTaskbar := True;
+        Application.ModalPopupMode := pmAuto;
         Application.Title := 'PGofer V3.0';
         Application.CreateForm(TFrmPGofer, FrmPGofer);
         Application.CreateForm(TFrmConsole, FrmConsole);
+        GlobalCollection.LoadFileAndForm();
+        TriggersCollect.LoadFileAndForm();
+        TPGTask.Initializations();
         FormAfterInitialize(FrmPGofer.Handle, WM_PG_SETFOCUS);
-        //CompilarComando('File.Script( '+DirCurrent+'Lib\Consts.pas , 0 , 1 );', nil );
-        //CompilarComando('File.Script( '+DirCurrent+'AutoRun\AutoRun.pas , 0 , 1 );', nil );
         Application.Run;
    end;
 end.

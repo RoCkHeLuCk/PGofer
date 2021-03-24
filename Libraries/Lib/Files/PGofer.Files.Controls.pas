@@ -280,19 +280,18 @@ end;
 function FileScript(FileName: String; Esperar: Boolean): Boolean;
 var
     Texto: TStringList;
-    Gramatica2: TGramatica;
 begin
     if FileExists(FileName) then
     begin
         Texto := TStringList.Create;
         Texto.LoadFromFile(FileName);
-        Gramatica2 := TGramatica.Create('Script: ' + FileName + '.',
-          GlobalCollection, True);
-        Gramatica2.Start;
-        if Esperar then
-            Gramatica2.WaitFor;
-        Result := True;
+        ScriptExec(
+            'Script: ' + FileName + '.',
+            Texto.Text,
+            nil,
+            Esperar);
         Texto.Free;
+        Result := True;
     end
     else
         Result := False;

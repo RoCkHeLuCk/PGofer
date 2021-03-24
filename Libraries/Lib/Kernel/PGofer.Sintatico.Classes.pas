@@ -7,7 +7,7 @@ uses
     PGofer.Classes, PGofer.Sintatico;
 
 type
-    TPGAttributeType = (attText, attDocFile, attDocComent, attParam);
+    TPGAttributeType = (attText, attDocFile, attDocComent, attParam, attIcon);
 
     TPGRttiAttribute = class(TCustomAttribute)
     private
@@ -46,35 +46,10 @@ type
         property Expanded: Boolean read GetExpanded write SetExpanded;
     end;
 
-    TPGItemMirror = class;
-
-    TPGItemOriginal = class(TPGItemCMD)
-    private
-        FItemMirror: TPGItemMirror;
-    protected
-        procedure SetName(Name: String); override;
-    public
-        constructor Create(ItemDad: TPGItem; Name: String;
-          ItemMirror: TPGItemMirror); overload;
-        destructor Destroy(); override;
-        property ItemMirror: TPGItemMirror read FItemMirror;
-    end;
-
-    TPGItemMirror = class(TPGItem)
-    private
-        FItemOriginal: TPGItemOriginal;
-    public
-        constructor Create(ItemDad: TPGItem;
-          ItemOriginal: TPGItemOriginal); overload;
-        destructor Destroy(); override;
-        property ItemOriginal: TPGItemOriginal read FItemOriginal;
-        class function TranscendName(AName: String): String;
-    end;
-
 implementation
 
 uses
-    System.Classes, System.SysUtils, System.TypInfo,
+    System.TypInfo,
     PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls;
 
 { TPGAttribute }
@@ -297,64 +272,6 @@ procedure TPGFolder.SetExpanded(Value: Boolean);
 begin
     if Assigned(Node) then
         Node.Expanded := Value;
-end;
-
-{ TPGItemMirror }
-
-constructor TPGItemOriginal.Create(ItemDad: TPGItem; Name: String;
-  ItemMirror: TPGItemMirror);
-begin
-    inherited Create(ItemDad, Name);
-    FItemMirror := ItemMirror;
-end;
-
-destructor TPGItemOriginal.Destroy();
-begin
-    if Assigned(FItemMirror) then
-    begin
-        FItemMirror.FItemOriginal := nil;
-        FItemMirror.Free();
-    end;
-    inherited;
-end;
-
-procedure TPGItemOriginal.SetName(Name: String);
-begin
-    inherited;
-    if Assigned(FItemMirror) then
-        FItemMirror.Name := Name;
-end;
-
-{ TPGItemMirror }
-
-constructor TPGItemMirror.Create(ItemDad: TPGItem;
-  ItemOriginal: TPGItemOriginal);
-begin
-    inherited Create(ItemDad, ItemOriginal.Name);
-    FItemOriginal := ItemOriginal;
-end;
-
-destructor TPGItemMirror.Destroy();
-begin
-    if Assigned(FItemOriginal) then
-    begin
-        FItemOriginal.FItemMirror := nil;
-        FItemOriginal.Free;
-    end;
-    inherited;
-end;
-
-class function TPGItemMirror.TranscendName(AName: String): String;
-var
-    C: Word;
-begin
-    C := 0;
-    Result := AName;
-    while Assigned(FindID(GlobalCollection, Result)) do
-    begin
-        Inc(C);
-        Result := AName + IntToStr(C);
-    end;
 end;
 
 initialization

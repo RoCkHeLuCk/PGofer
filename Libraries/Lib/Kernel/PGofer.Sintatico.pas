@@ -4,6 +4,7 @@ interface
 
 uses
     System.SysUtils, System.Classes, System.Generics.Collections,
+    Vcl.Controls,
     PGofer.Classes, PGofer.Lexico;
 
 type
@@ -43,13 +44,16 @@ type
         procedure Execute; override;
     end;
 
+    procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil;
+                         WaitFor: Boolean = False);
+
 var
-    GlobalFlockList: TObjectList<TPGItemCollect>;
     DirCurrent: String;
     IniConfigFile: String;
     LogFile: String;
 
     GlobalCollection: TPGItemCollect;
+    TriggersCollect: TPGItemCollect;
     GlobalItemCommand: TPGItem;
     GlobalItemTrigger: TPGItem;
     LoopLimite: Int64 = 1000000;
@@ -146,7 +150,7 @@ end;
 procedure TGramatica.MSGsAdd(Texto: String);
 begin
     if Assigned(ConsoleNotify) then
-        Synchronize(
+       Synchronize(
             procedure
             begin
                 ConsoleNotify(Texto, FConsoleShowMessage);
@@ -175,19 +179,38 @@ begin
     Sentencas(Self);
 end;
 
+procedure ScriptExec(Name, Texto: String; Nivel: TPGItem = nil;
+                     WaitFor: Boolean = False);
+var
+    Gramatica: TGramatica;
+begin
+    if not Assigned(Nivel) then
+        Nivel := GlobalCollection;
+
+    Gramatica := TGramatica.Create(Name, Nivel, not WaitFor);
+    Gramatica.SetAlgoritimo(Texto);
+    Gramatica.Start;
+    if WaitFor then
+    begin
+       Gramatica.WaitFor();
+       Gramatica.Free();
+    end;
+end;
+
 initialization
     DirCurrent := ExtractFilePath(ParamStr(0));
     IniConfigFile := DirCurrent + 'Config.ini';
     LogFile := DirCurrent + 'PGofer.log';
-    GlobalFlockList := TObjectList<TPGItemCollect>.Create(True);
 
-    GlobalCollection := TPGItemCollect.Create('Global', False);
-    GlobalFlockList.Add(GlobalCollection);
+    GlobalCollection := TPGItemCollect.Create('Globals', False);
     GlobalItemCommand := TPGFolder.Create(GlobalCollection, 'Commands');
     GlobalItemTrigger := TPGFolder.Create(GlobalCollection, 'Triggers');
 
-finalization
-    GlobalFlockList.Free;
+    TriggersCollect := TPGItemCollect.Create('Triggers', True);
+    TriggersCollect.RegisterClass('Folder', TPGFolder);
 
+finalization
+    GlobalCollection.Free;
+    TriggersCollect.Free;
 
 end.

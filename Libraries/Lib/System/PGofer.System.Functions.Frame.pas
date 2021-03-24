@@ -7,7 +7,7 @@ uses
     Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls,
     SynEdit, SynMemo,
     PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit,
-    PGofer.System.Functions, PGofer.Form.AutoComplete;
+    PGofer.System.Functions, PGofer.Forms.AutoComplete;
 
 type
     TPGFrameFunction = class(TPGFrame)

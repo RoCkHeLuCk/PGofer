@@ -34,7 +34,13 @@ object PGFrame: TPGFrame
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
       ParentColor = True
+      ParentFont = False
       PlainText = True
       ReadOnly = True
       TabOrder = 0

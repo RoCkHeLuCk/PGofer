@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Triggers Version="1.0">
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <Task Name="Task1" Enabled="true" ReadOnly="false">
+      <Script Type="string">FrmPGofer.Left := 20;
+FrmPGofer.Top := 20;
+</Script>
+      <DateTime Type="TDateTime">30/12/1899</DateTime>
+      <Repetir Type="Word">0</Repetir>
+      <Tipo Type="Byte">0</Tipo>
+    </Task>
+    <HotKeys Name="HotKeys" Enabled="true" ReadOnly="false">
+      <HotKeysHex Type="string"></HotKeysHex>
+      <Detect Type="Byte">0</Detect>
+      <Inhibit Type="Boolean">True</Inhibit>
+      <Script Type="string">FrmPGofer;
+</Script>
+    </HotKeys>
+    <Link Name="Calc" Enabled="true" ReadOnly="false">
+      <Arquivo Type="string">%SystemRoot%\SysWOW64\calc.exe</Arquivo>
+      <Parametro Type="string"></Parametro>
+      <Diretorio Type="string">%SystemRoot%\SysWOW64\</Diretorio>
+      <IconeFile Type="string">%SystemRoot%\SysWOW64\calc.exe</IconeFile>
+      <IconeIndex Type="Byte">0</IconeIndex>
+      <Estado Type="Byte">1</Estado>
+      <Prioridade Type="Byte">3</Prioridade>
+      <Operation Type="Byte">0</Operation>
+    </Link>
+  </Folder>
+</Triggers>

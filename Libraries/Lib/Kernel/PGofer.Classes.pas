@@ -85,7 +85,7 @@ uses
     System.SysUtils, System.RTTI, System.TypInfo,
     XML.XMLDoc, XML.XMLIntf,
     PGofer.Item.Frame, PGofer.Sintatico, PGofer.Sintatico.Classes,
-    PGofer.Form.Controller;
+    PGofer.Forms.Controller, PGofer.Triggers;
 
 { TPGItem }
 
