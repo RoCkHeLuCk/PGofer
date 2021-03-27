@@ -6,7 +6,7 @@ uses
     System.Classes,
     Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
     Vcl.Menus,
-    PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView;
+    PGofer.ImageList, PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView;
 
 type
     TFrmController = class(TFormEx)
@@ -83,6 +83,7 @@ begin
     Self.Caption := FCollectItem.Name;
     TPGForm.Create(Self);
     CreatePopups();
+    TrvController.Images := GlogalImageList.ImageList;
 end;
 
 destructor TFrmController.Destroy();

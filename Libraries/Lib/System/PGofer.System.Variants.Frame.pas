@@ -15,7 +15,7 @@ type
         procedure edtValueChange(Sender: TObject);
     private
         { Private declarations }
-        FItem: TPGVariable;
+        FItem: TPGVariant;
     public
         { Public declarations }
         constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
@@ -33,8 +33,9 @@ implementation
 constructor TPGFrameVariants.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
-    FItem := TPGVariable(Item);
-    edtValue.Text := FItem.Valor;
+    FItem := TPGVariant(Item);
+    edtValue.Text := FItem.Value;
+    edtValue.ReadOnly := FItem.Constant;
 end;
 
 destructor TPGFrameVariants.Destroy;
@@ -45,8 +46,7 @@ end;
 
 procedure TPGFrameVariants.edtValueChange(Sender: TObject);
 begin
-    FItem.Valor := edtValue.Text;
-
+    FItem.Value := edtValue.Text;
 end;
 
 end.

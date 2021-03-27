@@ -3,7 +3,7 @@ unit Pgofer.Component.ListView;
 interface
 
 uses
-    System.SysUtils, System.Classes, Vcl.Controls, Vcl.ComCtrls,
+    System.Classes, System.SysUtils, Vcl.Controls, Vcl.ComCtrls,
     WinApi.Windows, WinApi.CommCtrl;
 
 type

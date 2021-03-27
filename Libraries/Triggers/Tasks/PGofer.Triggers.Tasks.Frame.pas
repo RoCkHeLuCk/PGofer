@@ -7,17 +7,15 @@ uses
     Winapi.Windows,
     Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
     Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-    SynEdit,
     PGofer.Classes, PGofer.Triggers.Tasks, PGofer.Item.Frame,
     PGofer.Forms.AutoComplete,
-    PGofer.Component.Edit;
+    PGofer.Component.Edit, PGofer.Component.RichEdit;
 
 type
     TPGTaskFrame = class(TPGFrame)
         LblTipo: TLabel;
         CmbTipo: TComboBox;
         GrbScript: TGroupBox;
-        EdtScript: TSynEdit;
         dtpDate: TDateTimePicker;
         dtpTime: TDateTimePicker;
         lblDate: TLabel;
@@ -25,6 +23,7 @@ type
         edtRepeat: TEditEx;
         updRepeat: TUpDown;
         lblRepeat: TLabel;
+        EdtScript: TRichEditEx;
         procedure CmbTipoChange(Sender: TObject);
         procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
           Shift: TShiftState);

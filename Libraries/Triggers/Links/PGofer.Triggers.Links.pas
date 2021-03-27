@@ -20,12 +20,14 @@ type
         FEstado: Byte;
         FPrioridade: Byte;
         FOperation: Byte;
+        class var FImageIndex: Integer;
         procedure SetIco(FileName: String);
         function GetDirExist(): Boolean;
         function GetFileExist(): Boolean;
         function GetIconExist(): Boolean;
     protected
         procedure ExecutarNivel1(); override;
+        class function GetImageIndex(): Integer; override;
     public
         constructor Create(Name: String; Mirror: TPGItemMirror);
         destructor Destroy(); override;
@@ -52,6 +54,8 @@ type
     end;
 
     TPGLinkMirror = class(TPGItemMirror)
+    protected
+        class function GetImageIndex(): Integer; override;
     public
         constructor Create(ItemDad: TPGItem; AName: String);
         procedure Frame(Parent: TObject); override;
@@ -64,7 +68,8 @@ uses
     System.SysUtils,
     PGofer.Sintatico.Controls,
     PGofer.Files.Controls,
-    PGofer.Triggers.Links.Frame;
+    PGofer.Triggers.Links.Frame,
+    PGofer.ImageList;
 
 { TPGLinks }
 
@@ -138,6 +143,11 @@ begin
         Result := FileExists(FileExpandPath(FIconeFile))
     else
         Result := True;
+end;
+
+class function TPGLink.GetImageIndex: Integer;
+begin
+    Result := FImageIndex;
 end;
 
 procedure TPGLink.ExecutarNivel1();
@@ -230,11 +240,18 @@ begin
     TPGLinkFrame.Create(Self.ItemOriginal, Parent);
 end;
 
+class function TPGLinkMirror.GetImageIndex: Integer;
+begin
+    Result := TPGLink.FImageIndex;
+end;
+
 initialization
     TPGLinkDeclare.Create(GlobalItemCommand, 'Link');
     TPGLink.GlobList := TPGFolder.Create(GlobalCollection, 'Links');
 
     TriggersCollect.RegisterClass('Link', TPGLinkMirror);
+    TPGLink.FImageIndex := GlogalImageList.AddIcon('Link');
+
 finalization
 
 end.

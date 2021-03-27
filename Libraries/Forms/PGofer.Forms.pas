@@ -10,9 +10,8 @@ uses
 type
 {$M+}
     TPGForm = class(TPGItemCMD)
-        constructor Create(AForm: TForm); reintroduce;
-        destructor Destroy(); override;
     private
+        class var FImageIndex: Integer;
         function GetAlphaBlend(): Boolean;
         procedure SetAlphaBlend(AlphaBlend: Boolean);
         function GetAlphaBlendValue(): Byte;
@@ -37,7 +36,10 @@ type
         procedure SetWindowState(WindowState: Byte);
     protected
         FForm: TForm;
+        class function GetImageIndex(): Integer; override;
     public
+        constructor Create(AForm: TForm); reintroduce;
+        destructor Destroy(); override;
         procedure Frame(Parent: TObject); override;
         procedure Execute(Gramatica: TGramatica); override;
         class var GlobList: TPGItem;
@@ -77,7 +79,8 @@ implementation
 
 uses
     PGofer.Lexico, PGofer.Forms.Controls,
-    PGofer.Forms.Frame;
+    PGofer.Forms.Frame,
+    PGofer.ImageList;
 
 { TPGForm }
 
@@ -136,6 +139,11 @@ end;
 function TPGForm.GetHeigth(): Integer;
 begin
     Result := FForm.Height;
+end;
+
+class function TPGForm.GetImageIndex: Integer;
+begin
+    Result := FImageIndex;
 end;
 
 procedure TPGForm.SetLeft(Left: Integer);
@@ -278,6 +286,7 @@ end;
 
 initialization
     TPGForm.GlobList := TPGFolder.Create(GlobalCollection, 'Forms');
+    TPGForm.FImageIndex := GlogalImageList.AddIcon('Form');
 
 finalization
 

@@ -5,14 +5,14 @@ interface
 uses
     System.Classes,
     Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls,
-    SynEdit, SynMemo,
     PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit,
-    PGofer.System.Functions, PGofer.Forms.AutoComplete;
+    PGofer.System.Functions, PGofer.Forms.AutoComplete,
+    PGofer.Component.RichEdit;
 
 type
     TPGFrameFunction = class(TPGFrame)
         GroupBox1: TGroupBox;
-        mmoContents: TSynMemo;
+        EdtScript: TRichEditEx;
         procedure mmoContentsExit(Sender: TObject);
     private
         { Private declarations }
@@ -36,8 +36,8 @@ constructor TPGFrameFunction.Create(Item: TPGItem; Parent: TObject);
 begin
     inherited Create(Item, Parent);
     FItem := TPGFunction(Item);
-    mmoContents.Text := FItem.Contents;
-    frmAutoComplete := TFrmAutoComplete.Create(mmoContents);
+    EdtScript.Text := FItem.Contents;
+    frmAutoComplete := TFrmAutoComplete.Create(EdtScript);
 end;
 
 destructor TPGFrameFunction.Destroy;
@@ -49,7 +49,7 @@ end;
 
 procedure TPGFrameFunction.mmoContentsExit(Sender: TObject);
 begin
-    FItem.Contents := mmoContents.Text;
+    FItem.Contents := EdtScript.Text;
 end;
 
 end.

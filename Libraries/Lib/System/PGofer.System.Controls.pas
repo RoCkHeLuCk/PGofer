@@ -1,6 +1,8 @@
 unit PGofer.System.Controls;
 
 interface
+uses
+   Winapi.Windows, System.SysUtils;
 
 function SystemShutDown(Off: Cardinal): Boolean;
 function SystemSetSuspendState(hibernate, forcecritical, disablewakeevent
@@ -13,16 +15,16 @@ function SystemPrtScreen(Height, Width, Top, Left: Integer;
 function SystemGetFindWindow(ClassName: String): NativeInt;
 function SystemGetDateTimeNow(Format: String): String;
 function SystemGetWindowsTextFromPoint(): String;
-function SystemShowDialogMessage(Text: String;
-  Tipo, Botoes, Botao: Word): Integer;
+function SystemDialogMessage(Text: String): Boolean;
 function SystemMonitorPower(OnOff: Boolean): NativeInt;
+
 // QueryPerformanceCounter(StartTime);
 // QueryPerformanceFrequency(Frequency);
 
 implementation
 
 uses
-    WinApi.Windows, Vcl.Graphics, System.SysUtils,
+    Vcl.Graphics,
     System.UITypes, Vcl.Dialogs, Vcl.Forms;
 
 function SystemShutDown(Off: Cardinal): Boolean;
@@ -133,21 +135,9 @@ begin
     Result := Buffer;
 end;
 
-function SystemShowDialogMessage(Text: String;
-  Tipo, Botoes, Botao: Word): Integer;
+function SystemDialogMessage(Text: String): Boolean;
 begin
-    { ??????????????
-      Butao :=  TMsgDlgBtn( Trunc( Sqrt( Gramatica.Pilha.Desempilhar(0) )-1 ) );
-      Butoes := TMsgDlgButtons( word( Gramatica.Pilha.Desempilhar(0)) );
-      Tipo := TMsgDlgType( Gramatica.Pilha.Desempilhar(0) );
-    }
-    try
-        Result := MessageDlg(Text, TMsgDlgType(Tipo), TMsgDlgButtons(Botoes), 0,
-          TMsgDlgBtn(Botao));
-    except
-        Result := 9;
-    end;
-
+    Result := MessageDlg(Text, mtConfirmation, [mbYes,mbNo], 0) = mrYes;
 end;
 
 function SystemMonitorPower(OnOff: Boolean): NativeInt;

@@ -128,6 +128,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.ImageList.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
         <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
             <Form>PGFrame</Form>
@@ -141,26 +142,8 @@
         <DCCReference Include="..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Forms\PGofer.Forms.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Forms\PGofer.Forms.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Forms\PGofer.Forms.Frame.pas">
-            <Form>PGFrameForms</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\HotKey\PGofer.HotKey.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\HotKey\PGofer.HotKey.Frame.pas">
-            <Form>PGFrameHotKey</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\HotKey\PGofer.HotKey.Hook.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.Frame.pas">
-            <Form>PGLinkFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\Links\PGofer.Links.ThreadLoadImage.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Math\PGofer.Math.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.pas"/>
@@ -196,16 +179,45 @@
         <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
-        <DCCReference Include="..\..\Libraries\Form\Controller\PGofer.Form.Controller.pas">
+        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.pas"/>
+        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Controls.pas"/>
+        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Frame.pas">
+            <Form>PGFrameForms</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas">
             <Form>FrmController</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Form\AutoComplete\PGofer.Form.AutoComplete.pas">
+        <DCCReference Include="..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas">
             <Form>FrmAutoComplete</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Form\Console\PGofer.Form.Console.pas">
+        <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas">
+            <Form>PGFrameConsole</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas">
             <Form>FrmConsole</Form>
         </DCCReference>
+        <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas">
+            <Form>PGFrameHotKey</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Hook.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas">
+            <Form>PGLinkFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ThreadLoadImage.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas">
+            <Form>PGTaskFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas"/>
         <DCCReference Include="UnitMain.pas">
             <Form>FrmMain</Form>
         </DCCReference>

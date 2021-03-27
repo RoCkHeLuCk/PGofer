@@ -5,7 +5,7 @@ interface
 uses
     System.Classes, Winapi.Windows,
     Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
-    SynEdit, PGofer.Forms;
+    PGofer.Forms, Vcl.StdCtrls, Vcl.ComCtrls, PGofer.Component.RichEdit;
 
 type
     TPGFrmConsole = class;
@@ -15,8 +15,8 @@ type
         PnlArrastar: TPanel;
         BtnFixed: TSpeedButton;
         PnlArrastar2: TPanel;
-        EdtConsole: TSynEdit;
         TmrConsole: TTimer;
+    EdtConsole: TRichEditEx;
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
         procedure FormKeyPress(Sender: TObject; var Key: Char);
         procedure TmrConsoleTimer(Sender: TObject);

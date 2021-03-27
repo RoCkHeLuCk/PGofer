@@ -15,15 +15,12 @@ object FrmAutoComplete: TFrmAutoComplete
   OldCreateOrder = False
   PopupMenu = ppmAutoComplete
   Position = poDefault
-  OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
-  OnPaint = FormPaint
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object ltvAutoComplete: TListViewEx

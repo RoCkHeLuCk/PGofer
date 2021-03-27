@@ -79,7 +79,7 @@ begin
 end;
 
 procedure EncontrarFim(Gramatica: TGramatica; BeginEnd: Boolean;
-  EmpilharTokenList: Boolean);
+                       EmpilharTokenList: Boolean);
 var
     BeginCount: Word;
     TokenList: TTokenList;
@@ -94,9 +94,7 @@ begin
         if (Gramatica.TokenList.Token.Classe <> cmdRes_begin) then
         begin
             Gramatica.ErroAdd('"Begin" Esperado.')
-        end
-        else
-        begin
+        end else begin
             BeginCount := 1;
             Gramatica.TokenList.GetNextToken;
             repeat
@@ -121,15 +119,11 @@ begin
             if (Gramatica.TokenList.Token.Classe <> cmdRes_end) then
             begin
                 Gramatica.ErroAdd('"End" Esperado.')
-            end
-            else
-            begin
+            end else begin
                 Gramatica.TokenList.GetNextToken;
             end;
         end;
-    end
-    else
-    begin
+    end else begin
         while not(Gramatica.TokenList.Token.Classe in [cmdEOF, cmdDotComa]) do
         begin
             if EmpilharTokenList then

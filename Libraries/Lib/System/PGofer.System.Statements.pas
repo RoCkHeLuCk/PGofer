@@ -109,7 +109,7 @@ end;
 procedure TPGFor.Execute(Gramatica: TGramatica);
 var
     ID: TPGItem;
-    Variavel: TPGVariable;
+    Variavel: TPGVariant;
     VarInicio, VarLimite: Int64;
     LoopContador: Int64;
     Decrecente: Boolean;
@@ -118,11 +118,11 @@ begin
     Gramatica.TokenList.GetNextToken;
     ID := IdentificadorLocalizar(Gramatica);
 
-    if (ID.ClassType = TPGVariable) then
+    if (ID.ClassType = TPGVariant) then
     begin
-        Variavel := TPGVariable(ID);
+        Variavel := TPGVariant(ID);
         Variavel.Execute(Gramatica);
-        VarInicio := Variavel.Valor;
+        VarInicio := Variavel.Value;
         if (not Gramatica.Erro) and
           (Gramatica.TokenList.Token.Classe in [cmdRes_downto, cmdRes_to]) then
         begin
@@ -151,7 +151,7 @@ begin
                             Inc(VarInicio);
 
                         Inc(LoopContador);
-                        Variavel.Valor := VarInicio;
+                        Variavel.Value := VarInicio;
                     end;
 
                     if (LoopContador >= LoopLimite) then
@@ -183,31 +183,36 @@ begin
     // executa a condição
     Gramatica.TokenList.GetNextToken;
     Expressao(Gramatica);
-    Continuar := Gramatica.Pilha.Desempilhar(false);
 
-    if (Gramatica.TokenList.Token.Classe = cmdRes_then) then
+    if (not Gramatica.Erro) then
     begin
-        Gramatica.TokenList.GetNextToken;
-        if Continuar then
-            Comandos(Gramatica)
-        else
-            EncontrarFim(Gramatica,
-              (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
-    end
-    else
-        Gramatica.ErroAdd('"Then" Esperado.');
+        Continuar := Gramatica.Pilha.Desempilhar(false);
 
-    // verifica se tem ELSE
-    if (not Gramatica.Erro) and (Gramatica.TokenList.Token.Classe = cmdRes_else)
-    then
-    begin
-        Gramatica.TokenList.GetNextToken;
-        if not Continuar then
-            Comandos(Gramatica)
+        if (Gramatica.TokenList.Token.Classe = cmdRes_then) then
+        begin
+            Gramatica.TokenList.GetNextToken;
+            if Continuar then
+                Comandos(Gramatica)
+            else
+                EncontrarFim(Gramatica,
+                  (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
+        end
         else
-            EncontrarFim(Gramatica,
-              (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
-    end;
+            Gramatica.ErroAdd('"Then" Esperado.');
+
+        // verifica se tem ELSE
+        if (not Gramatica.Erro) and (Gramatica.TokenList.Token.Classe = cmdRes_else)
+        then
+        begin
+            Gramatica.TokenList.GetNextToken;
+            if not Continuar then
+                Comandos(Gramatica)
+            else
+                EncontrarFim(Gramatica,
+                  (Gramatica.TokenList.Token.Classe = cmdRes_begin), false);
+        end;
+    end else
+           Gramatica.ErroAdd('"Expressão Booleana" Esperado.');
 end;
 
 { TPGisDef }

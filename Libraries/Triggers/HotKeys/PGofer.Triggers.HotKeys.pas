@@ -16,10 +16,12 @@ type
         FDetect: Byte;
         FInhibit: Boolean;
         FScript: String;
+        class var FImageIndex: Integer;
         function GetKeysHex(): String;
         procedure SetKeysHex(Value: String);
     protected
         procedure ExecutarNivel1(); override;
+        class function GetImageIndex(): Integer; override;
     public
         constructor Create(Name: String; Mirror: TPGItemMirror); overload;
         destructor Destroy(); override;
@@ -43,6 +45,8 @@ type
     end;
 
     TPGHotKeyMirror = class(TPGItemMirror)
+    protected
+        class function GetImageIndex(): Integer; override;
     public
         constructor Create(ItemDad: TPGItem; AName: String); overload;
         procedure Frame(Parent: TObject); override;
@@ -54,7 +58,8 @@ uses
     System.SysUtils,
     PGofer.Sintatico.Controls,
     PGofer.Key.Controls,
-    PGofer.Triggers.HotKeys.Frame;
+    PGofer.Triggers.HotKeys.Frame,
+    PGofer.ImageList;
 
 { TPGHotKeyMain }
 
@@ -87,6 +92,11 @@ end;
 procedure TPGHotKey.Frame(Parent: TObject);
 begin
     TPGFrameHotKey.Create(Self, Parent);
+end;
+
+class function TPGHotKey.GetImageIndex: Integer;
+begin
+    Result := FImageIndex;
 end;
 
 function TPGHotKey.GetKeysHex(): String;
@@ -227,11 +237,17 @@ begin
     TPGFrameHotKey.Create(Self.ItemOriginal, Parent);
 end;
 
+class function TPGHotKeyMirror.GetImageIndex: Integer;
+begin
+    Result := TPGHotKey.FImageIndex;
+end;
+
 initialization
     TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey');
     TPGHotKey.GlobList := TPGFolder.Create(GlobalItemTrigger, 'HotKey');
 
     TriggersCollect.RegisterClass('HotKeys', TPGHotKeyMirror);
+    TPGHotKey.FImageIndex := GlogalImageList.AddIcon('HotKey');
 
 finalization
 

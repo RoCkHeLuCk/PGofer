@@ -8,39 +8,13 @@ uses
     System.Classes,
     Vcl.Graphics, Vcl.Controls, Vcl.Forms,
     Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus,
-    SynEdit,
     PGofer.Forms,
-    PGofer.Forms.AutoComplete;
+    PGofer.Forms.AutoComplete, Vcl.StdCtrls, Vcl.ComCtrls,
+    PGofer.Component.RichEdit;
 
 type
     TFrmPGofer = class(TFormEx)
-        TryPGofer: TTrayIcon;
-        PpmMenu: TPopupMenu;
-        PnlCommand: TPanel;
-        PnlComandMove: TPanel;
-        PnlArrastar: TPanel;
-        EdtCommand: TSynEdit;
-        mniClose: TMenuItem;
-        mniN1: TMenuItem;
-        mniGlobals: TMenuItem;
-        mniTriggers: TMenuItem;
-        procedure PnlArrastarMouseDown(Sender: TObject; Button: TMouseButton;
-          Shift: TShiftState; X, Y: Integer);
-        procedure PnlArrastarMouseMove(Sender: TObject; Shift: TShiftState;
-          X, Y: Integer);
-        procedure TryPGoferClick(Sender: TObject);
-        procedure EdtCommandChange(Sender: TObject);
-        procedure FormCreate(Sender: TObject);
-        procedure PopUpClick(Sender: TObject);
-        procedure FormDestroy(Sender: TObject);
-        procedure FormClose(Sender: TObject; var Action: TCloseAction);
-        procedure EdtCommandKeyDown(Sender: TObject; var Key: Word;
-          Shift: TShiftState);
-        procedure FormShow(Sender: TObject);
-        procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-        procedure FormHide(Sender: TObject);
-        procedure EdtCommandDropFiles(Sender: TObject; X, Y: Integer;
-          AFiles: TStrings);
+    EdtScript: TRichEditEx;
     private
         FMouse: TPoint;
         FFrmAutoComplete: TFrmAutoComplete;
@@ -50,6 +24,32 @@ type
           message WM_QueryEndSession;
         procedure WndProc(var Message: TMessage); override;
     public
+        TryPGofer: TTrayIcon;
+        PpmMenu: TPopupMenu;
+        PnlCommand: TPanel;
+        PnlComandMove: TPanel;
+        PnlArrastar: TPanel;
+        mniClose: TMenuItem;
+        mniN1: TMenuItem;
+        mniGlobals: TMenuItem;
+        mniTriggers: TMenuItem;
+        procedure EdtScriptKeyDown(Sender: TObject; var Key: Word;
+          Shift: TShiftState);
+        procedure EdtScriptChange(Sender: TObject);
+        procedure EdtScriptDropFiles(Sender: TObject; X, Y: Integer;
+          AFiles: TStrings);
+        procedure FormCreate(Sender: TObject);
+        procedure FormDestroy(Sender: TObject);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure FormShow(Sender: TObject);
+        procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+        procedure FormHide(Sender: TObject);
+        procedure PopUpClick(Sender: TObject);
+        procedure PnlArrastarMouseDown(Sender: TObject; Button: TMouseButton;
+          Shift: TShiftState; X, Y: Integer);
+        procedure PnlArrastarMouseMove(Sender: TObject; Shift: TShiftState;
+          X, Y: Integer);
+        procedure TryPGoferClick(Sender: TObject);
     end;
 
 var
@@ -59,6 +59,7 @@ implementation
 
 uses
     PGofer.Sintatico,
+    PGofer.System.Controls,
     PGofer.Forms.Controls, PGofer.Forms.Console,
     PGofer.Triggers.Links, PGofer.Triggers.Tasks;
 
@@ -73,23 +74,6 @@ begin
       not WS_EX_APPWINDOW);
 end;
 
-procedure TFrmPGofer.OnQueryEndSession(var Msg: TWMQueryEndSession);
-begin
-    // ?????????? arrumar isso
-    if (false) then
-    begin
-        Msg.Result := 0;
-        if (MessageDlg('Algum programa está tentando desligar o computador' +
-          #13 + 'Deseja bloquear o desligamento?', mtConfirmation,
-          [mbYes, mbNo], mrYes) = mrYes) then
-            Msg.Result := 0
-        else
-            Msg.Result := 1;
-    end
-    else
-        Msg.Result := 1;
-end;
-
 procedure TFrmPGofer.WndProc(var Message: TMessage);
 begin
     OnMessage(Message);
@@ -102,21 +86,30 @@ begin
     Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
     Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
-    FFrmAutoComplete := TFrmAutoComplete.Create(EdtCommand);
+    FFrmAutoComplete := TFrmAutoComplete.Create(EdtScript);
     FFrmAutoComplete.MemoryNoCtrl := True;
     FFrmAutoComplete.DropFiles := false;
     TPGForm.Create(Self);
 end;
 
+procedure TFrmPGofer.OnQueryEndSession(var Msg: TWMQueryEndSession);
+begin
+    TPGTask.Working(2, True);
+    if PGofer.Sintatico.CanOff then
+        Msg.Result := 0
+    else
+        Msg.Result := 1;
+end;
+
 procedure TFrmPGofer.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-    TPGTask.Finalizations();
-    CanClose := True;
+    TPGTask.Working(1, True);
+    CanClose := PGofer.Sintatico.CanClose;
 end;
 
 procedure TFrmPGofer.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-    Self.EdtCommandChange(Sender);
+    Self.EdtScriptChange(Sender);
     inherited;
 end;
 
@@ -128,26 +121,26 @@ end;
 
 procedure TFrmPGofer.FormHide(Sender: TObject);
 begin
-    Self.EdtCommandChange(Sender);
+    Self.EdtScriptChange(Sender);
     inherited;
 end;
 
 procedure TFrmPGofer.FormShow(Sender: TObject);
 begin
-    Self.EdtCommandChange(Sender);
+    Self.EdtScriptChange(Sender);
     inherited;
 end;
 
-procedure TFrmPGofer.EdtCommandChange(Sender: TObject);
+procedure TFrmPGofer.EdtScriptChange(Sender: TObject);
 var
     TextHeight, TextWidth: Integer;
     Counter, AuxLength, MaxLength, IndexMaxLength: Integer;
 begin
     MaxLength := 0;
     IndexMaxLength := 0;
-    for Counter := 0 to EdtCommand.Lines.Count do
+    for Counter := 0 to EdtScript.Lines.Count do
     begin
-        AuxLength := Length(EdtCommand.Lines[Counter]);
+        AuxLength := Length(EdtScript.Lines[Counter]);
         if AuxLength > MaxLength then
         begin
             MaxLength := AuxLength;
@@ -155,39 +148,39 @@ begin
         end;
     end;
 
-    TextWidth := EdtCommand.Font.Size;
-    TextWidth := (TextWidth * EdtCommand.Lines[IndexMaxLength].Length) +
+    TextWidth := EdtScript.Font.Size;
+    TextWidth := (TextWidth * EdtScript.Lines[IndexMaxLength].Length) +
       TextWidth * 2;
-    Self.ClientWidth := TextWidth + EdtCommand.Left + 12;
+    Self.ClientWidth := TextWidth + EdtScript.Left + 12;
 
-    TextHeight := EdtCommand.LineHeight;
-    if EdtCommand.Lines.Count > 0 then
-        TextHeight := TextHeight * EdtCommand.Lines.Count;
+    TextHeight := EdtScript.Font.Size;
+    if EdtScript.Lines.Count > 0 then
+        TextHeight := TextHeight * EdtScript.Lines.Count;
     Self.ClientHeight := TextHeight + 12;
 end;
 
-procedure TFrmPGofer.EdtCommandDropFiles(Sender: TObject; X, Y: Integer;
+procedure TFrmPGofer.EdtScriptDropFiles(Sender: TObject; X, Y: Integer;
   AFiles: TStrings);
 begin
     TPGLinkMirror.DropFiles(AFiles);
 end;
 
-procedure TFrmPGofer.EdtCommandKeyDown(Sender: TObject; var Key: Word;
+procedure TFrmPGofer.EdtScriptKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
     if (not FFrmAutoComplete.Visible) and (Shift = []) then
         case Key of
             VK_RETURN:
                 begin
-                    if (EdtCommand.Text <> '') then
+                    if (EdtScript.Text <> '') then
                     begin
-                        ScriptExec('Main', EdtCommand.Text);
-                        EdtCommand.Clear;
+                        ScriptExec('Main', EdtScript.Text);
+                        EdtScript.Clear;
 
                         if FrmConsole.AutoClose then
                             Self.Hide;
                         Key := 0;
-                        EdtCommand.OnChange(nil);
+                        EdtScript.OnChange(nil);
                     end;
                 end;
 

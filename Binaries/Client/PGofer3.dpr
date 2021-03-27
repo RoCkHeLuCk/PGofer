@@ -1,6 +1,6 @@
 program PGofer3;
-
 uses
+  PGofer.ImageList in '..\..\Libraries\Lib\Kernel\PGofer.ImageList.pas',
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
   PGofer.Item.Frame in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGFrame: TFrame},
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
@@ -42,6 +42,7 @@ uses
   PGofer.ZLib in '..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas',
   PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
+  PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
@@ -82,7 +83,7 @@ begin
         Application.CreateForm(TFrmConsole, FrmConsole);
         GlobalCollection.LoadFileAndForm();
         TriggersCollect.LoadFileAndForm();
-        TPGTask.Initializations();
+        TPGTask.Working( 0, False );
         FormAfterInitialize(FrmPGofer.Handle, WM_PG_SETFOCUS);
         Application.Run;
    end;

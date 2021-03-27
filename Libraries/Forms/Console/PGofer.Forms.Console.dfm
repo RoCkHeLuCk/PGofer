@@ -119,41 +119,25 @@ object FrmConsole: TFrmConsole
         OnMouseMove = PnlArrastarMouseMove
       end
     end
-    object EdtConsole: TSynEdit
+    object EdtConsole: TRichEditEx
       Left = 0
       Top = 12
       Width = 200
       Height = 68
       Align = alClient
-      Font.Charset = DEFAULT_CHARSET
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
+      Ctl3D = True
+      Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
-      ParentFont = True
+      ParentCtl3D = False
+      ParentFont = False
       TabOrder = 1
-      OnKeyPress = FormKeyPress
-      CodeFolding.GutterShapeSize = 11
-      CodeFolding.CollapsedLineColor = clGrayText
-      CodeFolding.FolderBarLinesColor = clGrayText
-      CodeFolding.IndentGuidesColor = clGray
-      CodeFolding.IndentGuides = True
-      CodeFolding.ShowCollapsedLine = False
-      CodeFolding.ShowHintMark = True
-      UseCodeFolding = False
-      Gutter.Font.Charset = DEFAULT_CHARSET
-      Gutter.Font.Color = clWindowText
-      Gutter.Font.Height = -11
-      Gutter.Font.Name = 'Courier New'
-      Gutter.Font.Style = []
-      Gutter.Visible = False
-      Gutter.Width = 0
-      InsertCaret = ctHorizontalLine
-      Options = [eoAutoIndent, eoDragDropEditing, eoEnhanceEndKey, eoGroupUndo, eoShowScrollHint, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
-      ReadOnly = True
-      ScrollBars = ssVertical
-      WantTabs = True
-      FontSmoothing = fsmNone
+      Zoom = 100
     end
   end
   object TmrConsole: TTimer

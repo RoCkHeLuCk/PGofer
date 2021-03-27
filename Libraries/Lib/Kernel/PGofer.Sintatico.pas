@@ -63,11 +63,13 @@ var
     ConsoleNotify: TPGConsoleNotify;
     ConsoleMessage: Boolean = True;
     LogMaxSize: Integer = 10000;
+    CanOff: Boolean = false;
+    CanClose: Boolean = True;
 
 implementation
 
 uses
-    PGofer.Sintatico.Classes, PGofer.Sintatico.Controls;
+    PGofer.Sintatico.Classes, PGofer.Sintatico.Controls, PGofer.ImageList;
 
 { TPilha }
 
@@ -207,7 +209,14 @@ initialization
     GlobalItemTrigger := TPGFolder.Create(GlobalCollection, 'Triggers');
 
     TriggersCollect := TPGItemCollect.Create('Triggers', True);
-    TriggersCollect.RegisterClass('Folder', TPGFolder);
+
+    {$IFNDEF DEBUG}
+        GlogalImageList.CurrentPath := DirCurrent + 'Icons\';
+    {$ELSE}
+        GlogalImageList.CurrentPath := '..\..\..\..\Documents\Imagens\Icons\';
+    {$ENDIF}
+
+    GlogalImageList.AddIcon('Item');
 
 finalization
     GlobalCollection.Free;

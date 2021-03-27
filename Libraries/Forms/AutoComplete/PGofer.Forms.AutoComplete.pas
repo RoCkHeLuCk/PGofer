@@ -6,16 +6,10 @@ uses
     Winapi.Windows,
     System.Classes, System.SysUtils, System.IniFiles,
     Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
-    SynEdit,
-    PGofer.Classes, PGofer.Forms, PGofer.Component.ListView;
+    PGofer.Classes, PGofer.Forms, PGofer.Component.ListView,
+    PGofer.Component.RichEdit;
 
 type
-    TOnKeyDownUP = procedure(Sender: TObject; var Key: Word; Shift: TShiftState)
-      of object;
-    TOnKeyPress = procedure(Sender: TObject; var Key: Char) of object;
-    TOnExit = procedure(Sender: TObject) of object;
-    TOnDropFile = procedure(Sender: TObject; X, Y: Integer; AFiles: TStrings)
-      of object;
     TSelectCMD = (selUp, selDown, selEnter);
 
     TFrmAutoComplete = class(TFormEx)
@@ -23,13 +17,13 @@ type
         ppmAutoComplete: TPopupMenu;
         mniPriority: TMenuItem;
         trmAutoComplete: TTimer;
-        constructor Create(EditCtrl: TSynEdit); reintroduce;
+        constructor Create(EditCtrl: TRichEditEx); reintroduce;
         destructor Destroy(); override;
         procedure FormKeyDown(Sender: TObject; var Key: Word;
           Shift: TShiftState);
         procedure FormKeyPress(Sender: TObject; var Key: Char);
         procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-        procedure FormDropFile(Sender: TObject; X, Y: Integer; AFiles: TStrings);
+        procedure FormDropFile(Sender: TObject; AFiles: TStrings);
         procedure ltvAutoCompleteDblClick(Sender: TObject);
         procedure mniPriorityClick(Sender: TObject);
         procedure trmAutoCompleteTimer(Sender: TObject);
@@ -38,11 +32,8 @@ type
           Item1, Item2: TListItem; Data: Integer; var Compare: Integer);
         procedure FormCreate(Sender: TObject);
         procedure FormDestroy(Sender: TObject);
-    procedure FormActivate(Sender: TObject);
-    procedure FormPaint(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     private
-        FEditCtrl: TSynEdit;
+        FEditCtrl: TRichEditEx;
         FEditKeyDown: TOnKeyDownUP;
         FEditKeyPress: TOnKeyPress;
         FEditKeyUp: TOnKeyDownUP;
@@ -93,7 +84,7 @@ begin
     Application.AddPopupForm(Self);
 end;
 
-constructor TFrmAutoComplete.Create(EditCtrl: TSynEdit);
+constructor TFrmAutoComplete.Create(EditCtrl: TRichEditEx);
 begin
     inherited Create(nil);
     // guarda os eventos do edit
@@ -142,34 +133,15 @@ end;
 
 procedure TFrmAutoComplete.ShowAutoComplete();
 var
-    DisplayCoord: TDisplayCoord;
-    Point: TPoint;
+    Point : TPoint;
 begin
-    DisplayCoord := FEditCtrl.DisplayXY;
-    Inc(DisplayCoord.Row);
-    Point := FEditCtrl.RowColumnToPixels(DisplayCoord);
+    Point := FEditCtrl.DisplayXY;
     Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + 2;
     Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
     trmAutoComplete.Enabled := True;
     FormForceShow( Self, True);
     FEditCtrl.SetFocus;
     FormForceShow( Self, False);
-end;
-
-procedure TFrmAutoComplete.FormPaint(Sender: TObject);
-begin
-//
-end;
-
-procedure TFrmAutoComplete.FormShow(Sender: TObject);
-begin
-//
-end;
-
-procedure TFrmAutoComplete.FormActivate(Sender: TObject);
-begin
-//    if not Self.Visible then
-//       FEditCtrl.SetFocus;
 end;
 
 procedure TFrmAutoComplete.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -190,8 +162,7 @@ begin
     //
 end;
 
-procedure TFrmAutoComplete.FormDropFile(Sender: TObject; X, Y: Integer;
-  AFiles: TStrings);
+procedure TFrmAutoComplete.FormDropFile(Sender: TObject; AFiles: TStrings);
 begin
     if FDropFiles and (AFiles.Text <> '') then
     begin
@@ -199,7 +170,7 @@ begin
     end;
 
     if Assigned(FEditDropFile) then
-        FEditDropFile(Sender, X, Y, AFiles);
+        FEditDropFile(Sender, AFiles);
 end;
 
 procedure TFrmAutoComplete.FormKeyDown(Sender: TObject; var Key: Word;
@@ -343,7 +314,7 @@ begin
           186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } ,
           219 { [ } , 220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
             begin
-                if FEditCtrl.LineText <> '' then
+                if FEditCtrl.Lines.Text <> '' then
                     Self.FindCMD()
                 else
                     Self.Close;
@@ -559,7 +530,7 @@ begin
     ltvAutoComplete.Items.Clear();
 
     // pega a posição do cursor texto
-    SelStart := FEditCtrl.RowColToCharIndex(FEditCtrl.CaretXY);
+    SelStart := FEditCtrl.SelStart;
 
     // le o algoritimo
     Automato := TAutomato.Create();
@@ -580,9 +551,6 @@ begin
         TokenList.GetNextToken;
     end;
     TokenList.Free;
-
-    if Classe in [cmdDotComa] then
-        Comando := '';
 
     // verificar se é arquivo
     if (Classe = cmdString) and (Length(Comando) > 2) then
@@ -618,14 +586,14 @@ begin
     begin
         // localiza o final
         SelFinal := FEditCtrl.CaretX;
-        while (SelFinal < Length(FEditCtrl.LineText)) and
-          (not CharInSet(FEditCtrl.LineText[SelFinal], Caracteres)) do
+        while (SelFinal < Length(FEditCtrl.Lines.Text)) and
+          (not CharInSet(FEditCtrl.Lines.Text[SelFinal], Caracteres)) do
             Inc(SelFinal);
 
         // localiza o inicio
         SelInicio := FEditCtrl.CaretX - 1;
-        while (SelInicio > 0) and (SelInicio <= Length(FEditCtrl.LineText)) and
-          (not CharInSet(FEditCtrl.LineText[SelInicio], Caracteres)) do
+        while (SelInicio > 0) and (SelInicio <= Length(FEditCtrl.Lines.Text)) and
+          (not CharInSet(FEditCtrl.Lines.Text[SelInicio], Caracteres)) do
             Dec(SelInicio);
 
         Inc(SelInicio);

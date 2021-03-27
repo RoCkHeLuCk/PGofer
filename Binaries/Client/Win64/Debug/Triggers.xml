@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <Link Name="New" Enabled="true" ReadOnly="false">
-    <Arquivo Type="string">E:\Downloads\¡²³.doc</Arquivo>
-    <Parametro Type="string"></Parametro>
-    <Diretorio Type="string">E:\Downloads\</Diretorio>
-    <IconeFile Type="string">E:\Downloads\¡²³.doc</IconeFile>
-    <IconeIndex Type="Byte">0</IconeIndex>
-    <Estado Type="Byte">1</Estado>
-    <Prioridade Type="Byte">3</Prioridade>
-    <Operation Type="Byte">0</Operation>
-  </Link>
-  <Link Name="New1" Enabled="true" ReadOnly="false">
-    <Arquivo Type="string">E:\Downloads\¡²³.doc</Arquivo>
-    <Parametro Type="string"></Parametro>
-    <Diretorio Type="string">E:\Downloads\</Diretorio>
-    <IconeFile Type="string">E:\Downloads\¡²³.doc</IconeFile>
-    <IconeIndex Type="Byte">0</IconeIndex>
-    <Estado Type="Byte">1</Estado>
-    <Prioridade Type="Byte">3</Prioridade>
-    <Operation Type="Byte">0</Operation>
-  </Link>
+  <Task Name="Task" Enabled="true" ReadOnly="false">
+    <Script Type="string">System.CanClose :=  System.DialogMessage('Deseja fechar?');</Script>
+    <DateTime Type="TDateTime">30/12/1899</DateTime>
+    <Repetir Type="Word">0</Repetir>
+    <Tipo Type="Byte">1</Tipo>
+  </Task>
+  <Task Name="Task1" Enabled="true" ReadOnly="false">
+    <Script Type="string">Function teste(a:=0, b:=10);
+begin
+
+    Write( a+ b);
+    
+end;</Script>
+    <DateTime Type="TDateTime">30/12/1899</DateTime>
+    <Repetir Type="Word">0</Repetir>
+    <Tipo Type="Byte">2</Tipo>
+  </Task>
 </Triggers>

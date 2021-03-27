@@ -7,10 +7,9 @@ uses
     Winapi.Windows,
     Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
     Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-    SynEdit,
     PGofer.Classes, PGofer.Triggers.HotKeys, PGofer.Item.Frame,
     PGofer.Forms.AutoComplete,
-    PGofer.Component.Edit;
+    PGofer.Component.Edit, PGofer.Component.RichEdit;
 
 type
     TPGFrameHotKey = class(TPGFrame)
@@ -22,7 +21,7 @@ type
         CmbDetectar: TComboBox;
         CkbInibir: TCheckBox;
         GrbScript: TGroupBox;
-        EdtScript: TSynEdit;
+        EdtScript: TRichEditEx;
         procedure CkbInibirClick(Sender: TObject);
         procedure CmbDetectarChange(Sender: TObject);
         procedure MmoTeclasEnter(Sender: TObject);
@@ -86,7 +85,7 @@ begin
     FItem := TPGHotKey(Item);
     CmbDetectar.ItemIndex := FItem.Detect;
     CkbInibir.Checked := FItem.Inhibit;
-    EdtScript.Text := FItem.Script;
+    edtScript.Text := FItem.Script;
     MmoTeclas.Lines.Text := FItem.GetKeysName();
     FFrmAutoComplete := TFrmAutoComplete.Create(EdtScript);
 end;
@@ -116,7 +115,7 @@ end;
 procedure TPGFrameHotKey.EdtScriptKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-    FItem.Script := EdtScript.Text;
+    FItem.Script := edtScript.Text;
 end;
 
 procedure TPGFrameHotKey.BtnClearClick(Sender: TObject);

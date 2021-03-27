@@ -2,7 +2,7 @@ object PGFrame: TPGFrame
   Left = 0
   Top = 0
   Width = 400
-  Height = 149
+  Height = 89
   AutoScroll = True
   Constraints.MinWidth = 400
   TabOrder = 0
@@ -12,25 +12,26 @@ object PGFrame: TPGFrame
     Width = 400
     Height = 8
     Cursor = crVSplit
-    Align = alTop
+    Align = alBottom
     Beveled = True
-    ExplicitTop = 216
+    ExplicitLeft = 12
+    ExplicitTop = 85
   end
   object grbAbout: TGroupBox
     AlignWithMargins = True
     Left = 3
     Top = 46
     Width = 394
-    Height = 100
-    Align = alClient
+    Height = 40
+    Align = alBottom
     Caption = 'Sobre'
-    Constraints.MinHeight = 100
+    Constraints.MinHeight = 40
     TabOrder = 0
     object rceAbout: TRichEdit
       Left = 2
       Top = 15
       Width = 390
-      Height = 83
+      Height = 23
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
@@ -45,6 +46,7 @@ object PGFrame: TPGFrame
       ReadOnly = True
       TabOrder = 0
       Zoom = 100
+      ExplicitHeight = 83
     end
   end
   object pnlItem: TPanel
@@ -52,7 +54,7 @@ object PGFrame: TPGFrame
     Top = 0
     Width = 400
     Height = 35
-    Align = alTop
+    Align = alClient
     BevelOuter = bvNone
     Constraints.MinHeight = 35
     Constraints.MinWidth = 400

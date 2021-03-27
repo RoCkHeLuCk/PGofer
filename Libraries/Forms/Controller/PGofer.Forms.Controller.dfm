@@ -136,12 +136,10 @@ object FrmController: TFrmController
       Align = alClient
       Constraints.MinHeight = 70
       Constraints.MinWidth = 178
-      DoubleBuffered = True
       HideSelection = False
       Indent = 19
       MultiSelect = True
       MultiSelectStyle = [msControlSelect, msShiftSelect, msVisibleOnly, msSiblingOnly]
-      ParentDoubleBuffered = False
       ReadOnly = True
       RightClickSelect = True
       RowSelect = True

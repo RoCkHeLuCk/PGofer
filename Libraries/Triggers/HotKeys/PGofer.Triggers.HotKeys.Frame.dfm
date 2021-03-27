@@ -1,41 +1,37 @@
 inherited PGFrameHotKey: TPGFrameHotKey
   Width = 401
-  Height = 328
+  Height = 275
   Constraints.MinHeight = 250
   OnExit = MmoTeclasExit
   ExplicitWidth = 401
-  ExplicitHeight = 328
+  ExplicitHeight = 275
   inherited SplitterItem: TSplitter
-    Top = 220
+    Top = 221
     Width = 401
     ExplicitTop = 34
     ExplicitWidth = 393
   end
   inherited grbAbout: TGroupBox
-    Top = 231
+    Top = 232
     Width = 395
-    Height = 94
-    Constraints.MinHeight = 94
-    ExplicitTop = 231
+    ExplicitTop = 232
     ExplicitWidth = 395
-    ExplicitHeight = 94
     inherited rceAbout: TRichEdit
       Width = 391
-      Height = 77
       ExplicitWidth = 391
-      ExplicitHeight = 77
+      ExplicitHeight = 23
     end
   end
   inherited pnlItem: TPanel
     Width = 401
-    Height = 220
+    Height = 221
     Constraints.MinHeight = 220
     Constraints.MinWidth = 0
     ExplicitWidth = 401
-    ExplicitHeight = 220
+    ExplicitHeight = 221
     DesignSize = (
       401
-      220)
+      221)
     object LblDetectar: TLabel [1]
       Left = 110
       Top = 118
@@ -133,53 +129,24 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Left = 5
       Top = 145
       Width = 390
-      Height = 73
+      Height = 74
       Anchors = [akLeft, akTop, akRight, akBottom]
-      Caption = 'Script'
+      Caption = 'Script (Run: F9)'
       TabOrder = 5
-      object EdtScript: TSynEdit
-        AlignWithMargins = True
-        Left = 5
-        Top = 18
-        Width = 380
-        Height = 50
+      object EdtScript: TRichEditEx
+        Left = 2
+        Top = 15
+        Width = 386
+        Height = 57
         Align = alClient
-        Font.Charset = DEFAULT_CHARSET
+        Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
-        ParentFont = True
+        ParentFont = False
         TabOrder = 0
-        OnKeyUp = EdtScriptKeyUp
-        CodeFolding.GutterShapeSize = 11
-        CodeFolding.CollapsedLineColor = clGrayText
-        CodeFolding.FolderBarLinesColor = clGrayText
-        CodeFolding.IndentGuidesColor = clGray
-        CodeFolding.IndentGuides = True
-        CodeFolding.ShowCollapsedLine = False
-        CodeFolding.ShowHintMark = True
-        UseCodeFolding = False
-        Gutter.Font.Charset = DEFAULT_CHARSET
-        Gutter.Font.Color = clWindowText
-        Gutter.Font.Height = -11
-        Gutter.Font.Name = 'Courier New'
-        Gutter.Font.Style = []
-        Gutter.Visible = False
-        Gutter.Width = 0
-        InsertCaret = ctHorizontalLine
-        Options = [eoAutoIndent, eoDragDropEditing, eoDropFiles, eoEnhanceEndKey, eoGroupUndo, eoShowScrollHint, eoSmartTabDelete, eoSmartTabs, eoTabsToSpaces]
-        ScrollBars = ssNone
-        WantTabs = True
-        FontSmoothing = fsmNone
-        ExplicitLeft = 7
-        ExplicitTop = 19
-        RemovedKeystrokes = <>
-        AddedKeystrokes = <
-          item
-            Command = ecAutoCompletion
-            ShortCut = 16416
-          end>
+        Zoom = 100
       end
     end
   end

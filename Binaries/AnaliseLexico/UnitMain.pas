@@ -7,12 +7,11 @@ uses
     System.SysUtils, System.Variants, System.Classes, System.TypInfo,
     Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls,
     Vcl.StdCtrls, Vcl.Menus,
-    SynEdit,
-    PGofer.Forms, PGofer.Form.AutoComplete;
+    PGofer.Forms, PGofer.Forms.AutoComplete, Vcl.ComCtrls,
+    PGofer.Component.RichEdit;
 
 type
     TFrmMain = class(TFormEx)
-        SynEdit1: TSynEdit;
         Splitter1: TSplitter;
         MainMenu1: TMainMenu;
         Compilar1: TMenuItem;
@@ -23,15 +22,19 @@ type
         Arquivos1: TMenuItem;
         Salvar1: TMenuItem;
         mniOpcoes: TMenuItem;
+        StatusBar1: TStatusBar;
+        SetCaret1: TMenuItem;
+    EdtScript: TRichEditEx;
         procedure Lexico1Click(Sender: TObject);
         procedure Sintatico1Click(Sender: TObject);
         procedure FormCreate(Sender: TObject);
         procedure Salvar1Click(Sender: TObject);
-        procedure FormDestroy(Sender: TObject);
         procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure FormDestroy(Sender: TObject);
+        procedure EdtScriptSelectionChange(Sender: TObject);
+        procedure SetCaret1Click(Sender: TObject);
     private
         FFrmAutoComplete: TFrmAutoComplete;
-        procedure FlockClick(Sender: TObject);
     public
     end;
 
@@ -42,15 +45,9 @@ implementation
 
 uses
     PGofer.Classes, PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Controls,
-    PGofer.Links, PGofer.Hotkey,
-    PGofer.Forms.Controls;
+    PGofer.Triggers.Links, PGofer.Forms.Controls;
 
 {$R *.dfm}
-
-procedure TFrmMain.FlockClick(Sender: TObject);
-begin
-    ScriptExec('Menu',TMenuItem(Sender).Hint);
-end;
 
 procedure TFrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -62,11 +59,9 @@ procedure TFrmMain.FormCreate(Sender: TObject);
 begin
     inherited;
     if (FileExists(paramstr(0) + '.pas')) then
-        SynEdit1.Lines.LoadFromFile(paramstr(0) + '.pas');
-
-    FFrmAutoComplete := TFrmAutoComplete.Create(SynEdit1);
+        EdtScript.Lines.LoadFromFile(paramstr(0) + '.pas');
     TPGForm.Create(Self);
-    FormCreateMnPopUp(mniOpcoes, FlockClick);
+    FFrmAutoComplete := TFrmAutoComplete.Create(EdtScript);
 end;
 
 procedure TFrmMain.FormDestroy(Sender: TObject);
@@ -84,7 +79,7 @@ begin
     Memo1.Visible := False;
 
     Automato := TAutomato.Create();
-    TokenList := Automato.TokenListCreate(SynEdit1.Text);
+    TokenList := Automato.TokenListCreate(EdtScript.Text);
     Automato.Free;
     repeat
         Memo1.Lines.Add('Lexema: ' + String(TokenList.Token.Lexema));
@@ -98,9 +93,21 @@ begin
     Memo1.Visible := True;
 end;
 
+procedure TFrmMain.EdtScriptSelectionChange(Sender: TObject);
+begin
+    StatusBar1.Panels[0].Text := 'Row: ' + EdtScript.CaretY.ToString
+                              + ' Col: ' + EdtScript.CaretX.ToString;
+end;
+
 procedure TFrmMain.Salvar1Click(Sender: TObject);
 begin
-    SynEdit1.Lines.SaveToFile(paramstr(0) + '.pas');
+    EdtScript.Lines.SaveToFile(paramstr(0) + '.pas');
+end;
+
+procedure TFrmMain.SetCaret1Click(Sender: TObject);
+begin
+    EdtScript.CaretY := 3;
+    EdtScript.CaretX := 3;
 end;
 
 procedure TFrmMain.Sintatico1Click(Sender: TObject);
@@ -108,7 +115,7 @@ var
     Gramatica: TGramatica;
 begin
     Gramatica := TGramatica.Create('Gramatica', GlobalCollection, True);
-    Gramatica.SetAlgoritimo(SynEdit1.Text);
+    Gramatica.SetAlgoritimo(EdtScript.Text);
     Gramatica.Start;
 end;
 

@@ -3,7 +3,7 @@ unit PGofer.Component.Edit;
 interface
 
 uses
-    System.Classes, System.RegularExpressions,
+    System.RegularExpressions,
     Vcl.StdCtrls;
 
 type
@@ -36,14 +36,14 @@ procedure Register;
 implementation
 
 uses
-    Winapi.Windows;
+    System.Classes, Winapi.Windows;
 
 procedure Register;
 begin
     RegisterComponents('PGofer', [TEditEx]);
 end;
 
-{ TPGEditNumeric }
+{ TEditEx }
 
 procedure TEditEx.KeyPress(var Key: Char);
 var

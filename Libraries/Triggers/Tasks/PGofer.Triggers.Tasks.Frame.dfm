@@ -1,18 +1,21 @@
 inherited PGTaskFrame: TPGTaskFrame
-  Height = 274
-  ExplicitHeight = 274
+  Height = 215
+  ExplicitHeight = 215
   inherited SplitterItem: TSplitter
-    Top = 160
+    Top = 161
     ExplicitTop = 333
   end
   inherited grbAbout: TGroupBox
-    Top = 171
-    ExplicitTop = 211
+    Top = 172
+    ExplicitTop = 172
+    inherited rceAbout: TRichEdit
+      ExplicitHeight = 23
+    end
   end
   inherited pnlItem: TPanel
-    Height = 160
+    Height = 161
     Constraints.MinHeight = 160
-    ExplicitHeight = 160
+    ExplicitHeight = 161
     object LblTipo: TLabel [1]
       Left = 5
       Top = 36
@@ -77,65 +80,32 @@ inherited PGTaskFrame: TPGTaskFrame
       OnChange = CmbTipoChange
       Items.Strings = (
         'Inicializando '
-        'Finalizando')
+        'Finalizando'
+        'Desligando')
     end
     object GrbScript: TGroupBox
       AlignWithMargins = True
       Left = 5
       Top = 84
       Width = 390
-      Height = 73
+      Height = 74
       Anchors = [akLeft, akTop, akRight, akBottom]
-      Caption = 'Script'
+      Caption = 'Script (Run: F9)'
       TabOrder = 2
-      ExplicitHeight = 113
-      object EdtScript: TSynEdit
-        AlignWithMargins = True
-        Left = 5
-        Top = 18
-        Width = 380
-        Height = 50
-        Hint = 'Programa'#231#227'o que ser'#225' executada'
+      object EdtScript: TRichEditEx
+        Left = 2
+        Top = 15
+        Width = 386
+        Height = 57
         Align = alClient
-        Font.Charset = DEFAULT_CHARSET
+        Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Tahoma'
         Font.Style = []
-        ParentFont = True
+        ParentFont = False
         TabOrder = 0
-        OnKeyUp = EdtScriptKeyUp
-        CodeFolding.GutterShapeSize = 11
-        CodeFolding.CollapsedLineColor = clGrayText
-        CodeFolding.FolderBarLinesColor = clGrayText
-        CodeFolding.IndentGuidesColor = clGray
-        CodeFolding.IndentGuides = False
-        CodeFolding.ShowCollapsedLine = False
-        CodeFolding.ShowHintMark = False
-        UseCodeFolding = False
-        BookMarkOptions.DrawBookmarksFirst = False
-        BookMarkOptions.EnableKeys = False
-        BookMarkOptions.GlyphsVisible = False
-        Gutter.AutoSize = True
-        Gutter.Font.Charset = DEFAULT_CHARSET
-        Gutter.Font.Color = clWindowText
-        Gutter.Font.Height = -11
-        Gutter.Font.Name = 'Courier New'
-        Gutter.Font.Style = []
-        Gutter.LeftOffset = 1
-        Gutter.ShowLineNumbers = True
-        Gutter.UseFontStyle = False
-        WantTabs = True
-        WordWrap = True
-        WordWrapGlyph.Visible = False
-        FontSmoothing = fsmNone
-        ExplicitHeight = 90
-        RemovedKeystrokes = <>
-        AddedKeystrokes = <
-          item
-            Command = ecAutoCompletion
-            ShortCut = 16416
-          end>
+        Zoom = 100
       end
     end
     object dtpDate: TDateTimePicker

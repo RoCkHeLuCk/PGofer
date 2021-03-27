@@ -3,7 +3,7 @@ unit Pgofer.Component.TreeView;
 interface
 
 uses
-    System.SysUtils, System.Classes, Vcl.Controls, Vcl.ComCtrls;
+    System.SysUtils, Vcl.Controls, Vcl.ComCtrls;
 
 type
     TTreeViewEx = class(TTreeView)
@@ -35,6 +35,8 @@ type
 procedure Register;
 
 implementation
+uses
+   System.Classes;
 
 procedure Register;
 begin

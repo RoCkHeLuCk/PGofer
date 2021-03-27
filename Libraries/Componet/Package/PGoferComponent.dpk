@@ -39,6 +39,7 @@ requires
 contains
   Pgofer.Component.Edit in '..\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\Source\PGofer.Component.ListView.pas',
-  PGofer.Component.TreeView in '..\Source\PGofer.Component.TreeView.pas';
+  PGofer.Component.TreeView in '..\Source\PGofer.Component.TreeView.pas',
+  PGofer.Component.RichEdit in '..\Source\PGofer.Component.RichEdit.pas';
 
 end.

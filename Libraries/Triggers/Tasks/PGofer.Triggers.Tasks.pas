@@ -15,15 +15,16 @@ type
         FRepeat: Word;
         FScript: String;
         FType: Byte;
+        class var FImageIndex: Integer;
     protected
+        class function GetImageIndex(): Integer; override;
         procedure ExecutarNivel1(); override;
     public
         constructor Create(Name: String; Mirror: TPGItemMirror);
         destructor Destroy(); override;
         procedure Frame(Parent: TObject); override;
         class var GlobList: TPGItem;
-        class procedure Initializations();
-        class procedure Finalizations();
+        class procedure Working(AType: Byte; WaitFor: Boolean = False);
     published
         property Script: String read FScript write FScript;
         property DateTime: TDateTime read FDateTime write FDateTime;
@@ -38,6 +39,8 @@ type
     end;
 
     TPGTaskMirror = class(TPGItemMirror)
+    protected
+        class function GetImageIndex(): Integer; override;
     public
         constructor Create(ItemDad: TPGItem; AName: String);
         procedure Frame(Parent: TObject); override;
@@ -48,7 +51,8 @@ implementation
 uses
     System.SysUtils,
     PGofer.Sintatico.Controls,
-    PGofer.Triggers.Tasks.Frame;
+    PGofer.Triggers.Tasks.Frame,
+    PGofer.ImageList;
 
 { TPGTask }
 
@@ -82,26 +86,20 @@ begin
     TPGTaskFrame.Create(Self, Parent);
 end;
 
-class procedure TPGTask.Initializations;
-var
-    Item : TPGItem;
+class function TPGTask.GetImageIndex: Integer;
 begin
-    for Item in TPGTask.GlobList do
-    begin
-        if TPGTask(Item).Tipo = 0 then
-           ScriptExec('Task'+Item.Name,TPGTask(Item).Script);
-    end;
+    Result := FImageIndex;
 end;
 
-class procedure TPGTask.Finalizations;
+class procedure TPGTask.Working(AType: Byte; WaitFor: Boolean = False);
 var
     Item : TPGItem;
 begin
     for Item in TPGTask.GlobList do
     begin
-        if TPGTask(Item).Tipo = 1 then
+        if (TPGTask(Item).Tipo = AType) and Item.Enabled then
         begin
-            ScriptExec('Task'+Item.Name, TPGTask(Item).Script, nil, True);
+            ScriptExec('Task'+Item.Name, TPGTask(Item).Script, nil, WaitFor);
         end;
     end;
 end;
@@ -159,11 +157,18 @@ begin
     TPGTaskFrame.Create(Self.ItemOriginal, Parent);
 end;
 
+class function TPGTaskMirror.GetImageIndex: Integer;
+begin
+    Result := TPGTask.FImageIndex;
+end;
+
 initialization
     TPGTaskDeclare.Create(GlobalItemCommand, 'Task');
     TPGTask.GlobList := TPGFolder.Create(GlobalItemTrigger, 'Tasks');
 
     TriggersCollect.RegisterClass('Task', TPGTaskMirror);
+    TPGTask.FImageIndex := GlogalImageList.AddIcon('Task');
+
 finalization
 
 

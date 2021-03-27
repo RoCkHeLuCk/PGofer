@@ -14,8 +14,6 @@ type
     TPGItemCollect = class;
 
     TPGItem = class(TObjectList<TPGItem>)
-        constructor Create(AParent: TPGItem; Name: String); overload;
-        destructor Destroy(); override;
     private
         FName: String;
         FEnabled: Boolean;
@@ -24,16 +22,20 @@ type
         FNode: TTreeNode;
         procedure SetParent(AParent: TPGItem);
         function GetCollectDad(): TPGItemCollect;
+        procedure SetNode(Value: TTreeNode);
     protected
         procedure SetName(Name: String); virtual;
         procedure SetEnabled(Value: Boolean); virtual;
         procedure SetReadOnly(Value: Boolean); virtual;
+        class function GetImageIndex(): Integer; virtual;
     public
+        constructor Create(AParent: TPGItem; Name: String); overload;
+        destructor Destroy(); override;
         property Name: String read FName write SetName;
         property Enabled: Boolean read FEnabled write SetEnabled;
         property ReadOnly: Boolean read FReadOnly write SetReadOnly;
         property Parent: TPGItem read FParent write SetParent;
-        property Node: TTreeNode read FNode write FNode;
+        property Node: TTreeNode read FNode write SetNode;
         property CollectDad: TPGItemCollect read GetCollectDad;
         procedure Frame(Parent: TObject); virtual;
         function FindName(Name: String): TPGItem;
@@ -102,18 +104,14 @@ begin
         AParent.Add(Self);
         if Assigned(AParent.FNode) then
         begin
-            FNode := TTreeView(AParent.FNode.TreeView)
+            Self.Node := TTreeView(AParent.FNode.TreeView)
               .Items.AddChild(AParent.FNode, FName);
-            FNode.Data := Self;
-        end
-        else
-        begin
-            if (AParent is TPGItemCollect) and
-              (Assigned(TPGItemCollect(AParent).TreeView)) then
+        end else begin
+            if (AParent is TPGItemCollect)
+            and(Assigned(TPGItemCollect(AParent).TreeView)) then
             begin
-                FNode := TPGItemCollect(AParent).TreeView.Items.AddChild
+                Self.Node := TPGItemCollect(AParent).TreeView.Items.AddChild
                   (nil, FName);
-                FNode.Data := Self;
             end;
         end;
     end;
@@ -186,6 +184,18 @@ begin
     end;
 end;
 
+procedure TPGItem.SetNode(Value: TTreeNode);
+begin
+    FNode := Value;
+    if Assigned(FNode) then
+    begin
+        FNode.Data := Self;
+        Self.Node.ImageIndex := GetImageIndex();
+        Self.Node.SelectedIndex := GetImageIndex();
+        Self.Node.ExpandedImageIndex := GetImageIndex();
+    end;
+end;
+
 procedure TPGItem.Frame(Parent: TObject);
 begin
     TPGFrame.Create(Self, Parent);
@@ -199,6 +209,11 @@ begin
         Result := TPGItemCollect(Self)
     else
         Result := nil;
+end;
+
+class function TPGItem.GetImageIndex: Integer;
+begin
+    Result := 0;
 end;
 
 function TPGItem.FindName(Name: String): TPGItem;
@@ -338,7 +353,6 @@ procedure TPGItemCollect.TreeViewAttach();
         else
             Node := nil;
         Item.Node := FTreeView.Items.AddChild(Node, Item.Name);
-        Item.Node.Data := Item;
         for ItemChild in Item do
             NodeAttach(ItemChild);
     end;

@@ -22,60 +22,55 @@ object FrmMain: TFrmMain
     Left = 455
     Top = 0
     Width = 5
-    Height = 277
+    Height = 258
     Align = alRight
     Beveled = True
     ExplicitLeft = 434
     ExplicitHeight = 294
   end
-  object SynEdit1: TSynEdit
-    Left = 0
-    Top = 0
-    Width = 455
-    Height = 277
-    Align = alClient
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -19
-    Font.Name = 'Courier New'
-    Font.Style = []
-    TabOrder = 0
-    CodeFolding.GutterShapeSize = 11
-    CodeFolding.CollapsedLineColor = clGrayText
-    CodeFolding.FolderBarLinesColor = clGrayText
-    CodeFolding.IndentGuidesColor = clGray
-    CodeFolding.IndentGuides = True
-    CodeFolding.ShowCollapsedLine = False
-    CodeFolding.ShowHintMark = True
-    UseCodeFolding = False
-    Gutter.AutoSize = True
-    Gutter.Font.Charset = DEFAULT_CHARSET
-    Gutter.Font.Color = clWindowText
-    Gutter.Font.Height = -11
-    Gutter.Font.Name = 'Courier New'
-    Gutter.Font.Style = []
-    Gutter.ShowLineNumbers = True
-    Lines.Strings = (
-      'write( -2^3 );')
-    WantTabs = True
-    FontSmoothing = fsmNone
-  end
   object Panel1: TPanel
     Left = 460
     Top = 0
     Width = 240
-    Height = 277
+    Height = 258
     Align = alRight
     Caption = 'Panel1'
-    TabOrder = 1
+    TabOrder = 0
     object Memo1: TMemo
       Left = 1
       Top = 1
       Width = 238
-      Height = 275
+      Height = 256
       Align = alClient
       TabOrder = 0
     end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 258
+    Width = 700
+    Height = 19
+    Panels = <
+      item
+        Width = 200
+      end
+      item
+        Width = 50
+      end>
+  end
+  object EdtScript: TRichEditEx
+    Left = 0
+    Top = 0
+    Width = 455
+    Height = 258
+    Align = alClient
+    TabOrder = 2
+    Zoom = 100
+    OnSelectionChange = EdtScriptSelectionChange
+    ExplicitLeft = 108
+    ExplicitTop = 84
+    ExplicitWidth = 185
+    ExplicitHeight = 89
   end
   object MainMenu1: TMainMenu
     Left = 248
@@ -90,6 +85,10 @@ object FrmMain: TFrmMain
     end
     object mniOpcoes: TMenuItem
       Caption = 'Op'#231#245'es'
+      object SetCaret1: TMenuItem
+        Caption = 'SetCaret'
+        OnClick = SetCaret1Click
+      end
     end
     object Compilar1: TMenuItem
       Caption = 'Compilar'

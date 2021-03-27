@@ -240,7 +240,6 @@ begin
     FClient.OnDisconnect := Self.OnClientDisconnect;
     FClient.OnRead := Self.OnClientRead;
     FClient.OnError := Self.OnClientError;
-    // FClient.Host := '127.0.0.1';
     FPassWord := '';
 end;
 
@@ -253,7 +252,7 @@ begin
     FClient.OnRead := nil;
     FClient.OnError := nil;
     FClient.Free;
-    inherited Destroy;
+    inherited;
 end;
 
 function TPGNetClient.GetActive: Boolean;

@@ -1,19 +1,22 @@
 inherited PGFrameVariants: TPGFrameVariants
-  Height = 175
-  ExplicitHeight = 175
+  Height = 114
+  ExplicitHeight = 114
   inherited SplitterItem: TSplitter
-    Top = 61
+    Top = 60
     ExplicitTop = 61
   end
   inherited grbAbout: TGroupBox
-    Top = 72
-    ExplicitTop = 72
+    Top = 71
+    ExplicitTop = 132
+    inherited rceAbout: TRichEdit
+      ExplicitHeight = 23
+    end
   end
   inherited pnlItem: TPanel
-    Height = 61
+    Height = 60
     Constraints.MinHeight = 60
     Constraints.MinWidth = 0
-    ExplicitHeight = 61
+    ExplicitHeight = 121
     object LblValue: TLabel [0]
       Left = 5
       Top = 36

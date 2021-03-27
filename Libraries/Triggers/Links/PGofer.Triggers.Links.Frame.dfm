@@ -1,9 +1,9 @@
 inherited PGLinkFrame: TPGLinkFrame
   Width = 416
-  Height = 305
+  Height = 254
   Constraints.MinHeight = 200
   ExplicitWidth = 416
-  ExplicitHeight = 305
+  ExplicitHeight = 254
   inherited SplitterItem: TSplitter
     Top = 200
     Width = 416
@@ -13,11 +13,12 @@ inherited PGLinkFrame: TPGLinkFrame
   inherited grbAbout: TGroupBox
     Top = 211
     Width = 410
-    ExplicitTop = 211
+    ExplicitTop = 262
     ExplicitWidth = 410
     inherited rceAbout: TRichEdit
       Width = 406
       ExplicitWidth = 406
+      ExplicitHeight = 23
     end
   end
   inherited pnlItem: TPanel
@@ -26,7 +27,7 @@ inherited PGLinkFrame: TPGLinkFrame
     Constraints.MinHeight = 200
     Constraints.MinWidth = 0
     ExplicitWidth = 416
-    ExplicitHeight = 200
+    ExplicitHeight = 251
     object LblArquivo: TLabel [0]
       Left = 5
       Top = 36

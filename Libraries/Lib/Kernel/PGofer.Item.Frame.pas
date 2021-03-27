@@ -32,8 +32,7 @@ uses
     PGofer.Sintatico.Classes;
 
 constructor TPGFrame.Create(Item: TPGItem; Parent: TObject);
-var
-    Attribute: TPGRttiAttribute;
+
 begin
     inherited Create(nil);
     Self.Parent := TWinControl(Parent);
@@ -42,13 +41,6 @@ begin
     EdtName.Text := FItem.Name;
     EdtName.ReadOnly := FItem.ReadOnly;
     EdtName.ParentColor := FItem.ReadOnly;
-    if FItem is TPGItemCMD then
-    begin
-        for Attribute in TPGItemCMD(FItem).AttributeList do
-        begin
-            rceAbout.Lines.Add(Attribute.Value);
-        end;
-    end;
 end;
 
 destructor TPGFrame.Destroy;
