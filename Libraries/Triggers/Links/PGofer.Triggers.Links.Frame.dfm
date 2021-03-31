@@ -1,33 +1,24 @@
 inherited PGLinkFrame: TPGLinkFrame
-  Width = 416
-  Height = 254
+  Height = 364
   Constraints.MinHeight = 200
-  ExplicitWidth = 416
-  ExplicitHeight = 254
+  ExplicitHeight = 364
   inherited SplitterItem: TSplitter
-    Top = 200
-    Width = 416
+    Top = 310
     ExplicitTop = 200
     ExplicitWidth = 416
   end
   inherited grbAbout: TGroupBox
-    Top = 211
-    Width = 410
-    ExplicitTop = 262
-    ExplicitWidth = 410
+    Top = 321
+    ExplicitTop = 321
     inherited rceAbout: TRichEdit
-      Width = 406
-      ExplicitWidth = 406
       ExplicitHeight = 23
     end
   end
   inherited pnlItem: TPanel
-    Width = 416
-    Height = 200
-    Constraints.MinHeight = 200
+    Height = 310
+    Constraints.MinHeight = 310
     Constraints.MinWidth = 0
-    ExplicitWidth = 416
-    ExplicitHeight = 251
+    ExplicitHeight = 310
     object LblArquivo: TLabel [0]
       Left = 5
       Top = 36
@@ -55,36 +46,27 @@ inherited PGLinkFrame: TPGLinkFrame
       AutoSize = False
       Caption = 'Diretorio:'
     end
-    object LblIcone: TLabel [3]
+    object LblEstado: TLabel [3]
       Left = 5
       Top = 117
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Icone:'
-    end
-    object LblEstado: TLabel [4]
-      Left = 5
-      Top = 144
-      Width = 59
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
       Caption = 'Estado:'
     end
-    object LblPrioridade: TLabel [5]
+    object LblPrioridade: TLabel [4]
       Left = 5
-      Top = 171
+      Top = 144
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Prioridade:'
     end
-    object LblOperation: TLabel [6]
-      Left = 212
-      Top = 144
+    object LblOperation: TLabel [5]
+      Left = 195
+      Top = 117
       Width = 67
       Height = 13
       Alignment = taRightJustify
@@ -92,91 +74,61 @@ inherited PGLinkFrame: TPGLinkFrame
       AutoSize = False
       Caption = 'Opera'#231#227'o:'
     end
-    object EdtArquivo: TEdit [8]
+    object EdtArquivo: TEdit [7]
       Left = 70
       Top = 33
-      Width = 303
+      Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
       OnChange = EdtArquivoChange
     end
-    object BtnArquivo: TButton [9]
-      Left = 379
+    object BtnArquivo: TButton [8]
+      Left = 366
       Top = 33
-      Width = 33
+      Width = 29
       Height = 21
       Anchors = [akTop, akRight]
       Caption = '...'
       TabOrder = 1
       OnClick = BtnArquivoClick
     end
-    object EdtParametro: TEdit [10]
+    object EdtParametro: TEdit [9]
       Left = 70
       Top = 60
-      Width = 342
+      Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       OnChange = EdtParametroChange
     end
-    object EdtDiretorio: TEdit [11]
+    object EdtDiretorio: TEdit [10]
       Left = 70
       Top = 87
-      Width = 303
+      Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
       OnChange = EdtDiretorioChange
     end
-    object BtnDiretorio: TButton [12]
-      Left = 379
+    object BtnDiretorio: TButton [11]
+      Left = 366
       Top = 87
-      Width = 33
+      Width = 29
       Height = 21
       Anchors = [akTop, akRight]
       Caption = '...'
       TabOrder = 4
       OnClick = BtnDiretorioClick
     end
-    object EdtIcone: TEdit [13]
+    object CmbEstado: TComboBox [12]
       Left = 70
       Top = 114
-      Width = 268
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      TabOrder = 5
-      OnChange = EdtIconeChange
-    end
-    object BtnIcone: TButton [14]
-      Left = 379
-      Top = 114
-      Width = 33
-      Height = 21
-      Anchors = [akTop, akRight]
-      Caption = '...'
-      TabOrder = 6
-      OnClick = BtnIconeClick
-    end
-    object EdtIconeIndex: TEdit [15]
-      Left = 340
-      Top = 114
-      Width = 33
-      Height = 21
-      Anchors = [akTop, akRight]
-      NumbersOnly = True
-      TabOrder = 7
-      Text = '0'
-      OnChange = EdtIconeIndexChange
-    end
-    object CmbEstado: TComboBox [16]
-      Left = 70
-      Top = 141
-      Width = 135
+      Width = 119
       Height = 21
       Style = csDropDownList
       ItemIndex = 1
-      TabOrder = 8
+      TabOrder = 5
       Text = 'Normal'
       OnChange = CmbEstadoChange
       Items.Strings = (
@@ -185,18 +137,17 @@ inherited PGLinkFrame: TPGLinkFrame
         'Minimizado'
         'Maxmizado')
     end
-    object CmbPrioridade: TComboBox [17]
+    object CmbPrioridade: TComboBox [13]
       Left = 70
-      Top = 168
-      Width = 135
+      Top = 141
+      Width = 119
       Height = 21
       Style = csDropDownList
-      ItemIndex = 3
-      TabOrder = 9
+      ItemIndex = 2
+      TabOrder = 6
       Text = 'Normal'
       OnChange = CmbPrioridadeChange
       Items.Strings = (
-        'Suspenso'
         'Baixa'
         'Abaixo do Normal'
         'Normal'
@@ -204,25 +155,25 @@ inherited PGLinkFrame: TPGLinkFrame
         'Alta'
         'Tempo Real')
     end
-    object BtnTest: TButton [18]
-      Left = 285
-      Top = 168
+    object BtnTest: TButton [14]
+      Left = 269
+      Top = 141
       Width = 127
       Height = 21
       Anchors = [akTop, akRight]
       Caption = 'Test'
-      TabOrder = 10
+      TabOrder = 7
       OnClick = BtnTestClick
     end
-    object CmbOperation: TComboBox [19]
-      Left = 285
-      Top = 141
+    object CmbOperation: TComboBox [15]
+      Left = 268
+      Top = 114
       Width = 127
       Height = 21
       Style = csDropDownList
       Anchors = [akTop, akRight]
       ItemIndex = 0
-      TabOrder = 11
+      TabOrder = 8
       Text = 'Open'
       OnChange = CmbOperationChange
       Items.Strings = (
@@ -231,14 +182,89 @@ inherited PGLinkFrame: TPGLinkFrame
         'Explore'
         'Find'
         'Print'
-        'Properties')
+        'Properties'
+        'Runas')
     end
     inherited EdtName: TEditEx
-      TabOrder = 12
+      TabOrder = 9
+    end
+    object pnlScript: TPanel
+      Left = 0
+      Top = 168
+      Width = 400
+      Height = 142
+      Align = alBottom
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      BevelOuter = bvNone
+      TabOrder = 10
+      object Splitter1: TSplitter
+        Left = 0
+        Top = 66
+        Width = 400
+        Height = 8
+        Cursor = crVSplit
+        Align = alTop
+        Beveled = True
+        ExplicitTop = 94
+      end
+      object GrbScriptIni: TGroupBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 3
+        Width = 394
+        Height = 60
+        Align = alTop
+        Caption = 'Script Inicio (Run: F9)'
+        Constraints.MinHeight = 60
+        TabOrder = 0
+        object EdtScriptIni: TRichEditEx
+          Left = 2
+          Top = 15
+          Width = 390
+          Height = 43
+          Align = alClient
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          Zoom = 100
+          OnChange = EdtScriptIniChange
+        end
+      end
+      object gpbScriptEnd: TGroupBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 77
+        Width = 394
+        Height = 62
+        Align = alClient
+        Caption = 'Script Final (Run: F9)'
+        Constraints.MinHeight = 60
+        TabOrder = 1
+        object edtScriptEnd: TRichEditEx
+          Left = 2
+          Top = 15
+          Width = 390
+          Height = 45
+          Align = alClient
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 0
+          Zoom = 100
+          OnChange = edtScriptEndChange
+        end
+      end
     end
   end
   object OpdLinks: TOpenDialog
-    Left = 219
-    Top = 87
+    Left = 199
+    Top = 39
   end
 end

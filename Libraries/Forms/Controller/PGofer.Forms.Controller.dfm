@@ -104,7 +104,7 @@ object FrmController: TFrmController
         OnClick = mniAZClick
       end
       object btnCreate: TButton
-        Left = 46
+        Left = 108
         Top = 2
         Width = 69
         Height = 32
@@ -116,16 +116,17 @@ object FrmController: TFrmController
         WordWrap = True
         OnClick = onCreateItemPopUpClick
       end
-      object btnDelete: TButton
-        Left = 116
-        Top = 3
+      object btnEdit: TButton
+        Left = 46
+        Top = 2
         Width = 61
-        Height = 31
-        Caption = 'Delete'
+        Height = 32
+        Caption = 'Edit'
+        DropDownMenu = ppmEdit
+        Style = bsSplitButton
         TabOrder = 2
-        Visible = False
         WordWrap = True
-        OnClick = btnDeleteClick
+        OnClick = mniDeleteClick
       end
     end
     object TrvController: TTreeViewEx
@@ -148,8 +149,11 @@ object FrmController: TFrmController
       OnDragDrop = TrvControllerDragDrop
       OnDragOver = TrvControllerDragOver
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
+      OnKeyUp = TrvControllerKeyUp
+      OnMouseDown = TrvControllerMouseDown
       OwnsObjectsData = True
       AttachMode = naAdd
+      OnDropFiles = TrvControllerDropFiles
     end
   end
   object PnlFrame: TPanel
@@ -185,7 +189,29 @@ object FrmController: TFrmController
     end
   end
   object ppmCreate: TPopupMenu
-    Left = 44
+    Left = 88
     Top = 36
+  end
+  object ppmEdit: TPopupMenu
+    Left = 52
+    Top = 36
+    object mniExpand: TMenuItem
+      Caption = 'Expand All'
+      ShortCut = 16449
+      OnClick = mniExpandClick
+    end
+    object mniUnExpand: TMenuItem
+      Caption = 'UnExpand All'
+      ShortCut = 16457
+      OnClick = mniUnExpandClick
+    end
+    object N1: TMenuItem
+      Caption = '-'
+    end
+    object mniDelete: TMenuItem
+      Caption = 'Delete Selected'
+      ShortCut = 16430
+      OnClick = mniDeleteClick
+    end
   end
 end

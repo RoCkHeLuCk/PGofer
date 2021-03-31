@@ -3,78 +3,80 @@ unit PGofer.Services;
 interface
 
 uses
-    PGofer.Sintatico.Classes;
+  PGofer.Sintatico.Classes;
 
 type
 {$M+}
-    TPGService = class(TPGItemCMD)
-    private
-    public
-    published
-        function Created(Maquina, Servico, DisplayName, PathFile: String)
-          : Cardinal;
-        function Delete(Maquina, Servico: String): Boolean;
-        function GetConfig(Maquina, Servico: String): Byte;
-        function GetDesciption(Maquina, Servico: String): String;
-        function GetState(Maquina, Servico: String): Byte;
-        function SetConfig(Maquina, Servico: String; Controle: Byte): Boolean;
-        function SetDesciption(Maquina, Servico, Desciption: String): Boolean;
-        function SetState(Maquina, Servico: String; Controle: Byte): Boolean;
-    end;
+  TPGService = class( TPGItemCMD )
+  private
+  public
+  published
+    function Created( Maquina, Servico, DisplayName, PathFile: string )
+       : Cardinal;
+    function Delete( Maquina, Servico: string ): Boolean;
+    function GetConfig( Maquina, Servico: string ): Byte;
+    function GetDesciption( Maquina, Servico: string ): string;
+    function GetState( Maquina, Servico: string ): Byte;
+    function SetConfig( Maquina, Servico: string; Controle: Byte ): Boolean;
+    function SetDesciption( Maquina, Servico, Desciption: string ): Boolean;
+    function SetState( Maquina, Servico: string; Controle: Byte ): Boolean;
+  end;
 {$TYPEINFO ON}
 
 implementation
 
 uses
-    PGofer.Sintatico, PGofer.Services.Controls;
+  PGofer.Sintatico, PGofer.Services.Controls;
 
 { TPGService }
 
-function TPGService.Created(Maquina, Servico, DisplayName, PathFile: String)
-  : Cardinal;
+function TPGService.Created( Maquina, Servico, DisplayName, PathFile: string )
+   : Cardinal;
 begin
-    Result := ServiceCreate(Maquina, Servico, DisplayName, PathFile);
+  Result := ServiceCreate( Maquina, Servico, DisplayName, PathFile );
 end;
 
-function TPGService.Delete(Maquina, Servico: String): Boolean;
+function TPGService.Delete( Maquina, Servico: string ): Boolean;
 begin
-    Result := ServiceDelete(Maquina, Servico);
+  Result := ServiceDelete( Maquina, Servico );
 end;
 
-function TPGService.GetConfig(Maquina, Servico: String): Byte;
+function TPGService.GetConfig( Maquina, Servico: string ): Byte;
 begin
-    Result := ServiceGetConfig(Maquina, Servico);
+  Result := ServiceGetConfig( Maquina, Servico );
 end;
 
-function TPGService.GetDesciption(Maquina, Servico: String): String;
+function TPGService.GetDesciption( Maquina, Servico: string ): string;
 begin
-    Result := ServiceGetDesciption(Maquina, Servico);
+  Result := ServiceGetDesciption( Maquina, Servico );
 end;
 
-function TPGService.GetState(Maquina, Servico: String): Byte;
+function TPGService.GetState( Maquina, Servico: string ): Byte;
 begin
-    Result := ServiceGetState(Maquina, Servico);
+  Result := ServiceGetState( Maquina, Servico );
 end;
 
-function TPGService.SetConfig(Maquina, Servico: String; Controle: Byte)
-  : Boolean;
+function TPGService.SetConfig( Maquina, Servico: string;
+   Controle: Byte ): Boolean;
 begin
-    Result := ServiceSetConfig(Maquina, Servico, Controle);
+  Result := ServiceSetConfig( Maquina, Servico, Controle );
 end;
 
-function TPGService.SetDesciption(Maquina, Servico, Desciption: String)
-  : Boolean;
+function TPGService.SetDesciption( Maquina, Servico,
+   Desciption: string ): Boolean;
 begin
-    Result := ServiceSetDesciption(Maquina, Servico, Desciption);
+  Result := ServiceSetDesciption( Maquina, Servico, Desciption );
 end;
 
-function TPGService.SetState(Maquina, Servico: String; Controle: Byte): Boolean;
+function TPGService.SetState( Maquina, Servico: string;
+   Controle: Byte ): Boolean;
 begin
-    Result := ServiceSetState(Maquina, Servico, Controle);
+  Result := ServiceSetState( Maquina, Servico, Controle );
 end;
 
 initialization
-    TPGService.Create(GlobalItemCommand);
+
+TPGService.Create( GlobalItemCommand );
 
 finalization
 

@@ -1,12 +1,12 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <ProjectGuid>{E4844B65-5EBB-4AF1-979F-D377F97929F7}</ProjectGuid>
+        <ProjectGuid>{FF0010A6-2BCF-4582-BFD6-5652DB920ECD}</ProjectGuid>
         <ProjectVersion>18.4</ProjectVersion>
         <FrameworkType>VCL</FrameworkType>
-        <MainSource>PGofer3.dpr</MainSource>
+        <MainSource>Project1.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -70,46 +70,25 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>PGofer3</SanitizedProjectName>
-        <VerInfo_Locale>1046</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.1;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=3.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
-        <DCC_IntegerOverflowCheck>true</DCC_IntegerOverflowCheck>
-        <DCC_RangeChecking>true</DCC_RangeChecking>
-        <BRCC_Language>Portugues</BRCC_Language>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_MajorVer>3</VerInfo_MajorVer>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Debug>true</VerInfo_Debug>
-        <VerInfo_PreRelease>true</VerInfo_PreRelease>
-        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <SanitizedProjectName>Project1</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>DBXSqliteDriver;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;vclFireDAC;svnui;tethering;FireDACADSDriver;DBXMSSQLDriver;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;vcldb;bindcompfmx;svn;DBXOracleDriver;inetdb;emsedge;fmx;fmxdae;FireDACDBXDriver;dbexpress;IndyCore;vclx;dsnap;DataSnapCommon;DataSnapConnectors;PGoferComponent;VCLRESTComponents;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;FireDACMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;DataSnapClient;bindcompdbx;IndyIPCommon;ImageCheckBox;vcl;DBXSybaseASEDriver;IndyIPServer;IndySystem;FireDACDb2Driver;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;emshosting;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;DbxCommonDriver;DataSnapServer;xmlrtl;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;DbxClientDriver;DBXSybaseASADriver;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;IndyIPClient;bindcompvcl;SynEdit_R;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>DBXSqliteDriver;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;vclFireDAC;svnui;tethering;FireDACADSDriver;DBXMSSQLDriver;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;vcldb;bindcompfmx;svn;DBXOracleDriver;inetdb;emsedge;fmx;fmxdae;FireDACDBXDriver;dbexpress;IndyCore;vclx;dsnap;DataSnapCommon;DataSnapConnectors;PGoferComponent;VCLRESTComponents;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;FireDACMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;DataSnapClient;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;IndySystem;FireDACDb2Driver;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;emshosting;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;DbxCommonDriver;DataSnapServer;xmlrtl;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;DbxClientDriver;DBXSybaseASADriver;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;IndyIPClient;bindcompvcl;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.1;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
-        <Debugger_RunParams>/Duplicate</Debugger_RunParams>
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <AppEnableHighDPI>true</AppEnableHighDPI>
-        <Icon_MainIcon>..\..\Documents\Imagens\Gofer Icon.ico</Icon_MainIcon>
-        <UWP_DelphiLogo44>..\..\Documents\Imagens\Logo 44px.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>..\..\Documents\Imagens\Logo 150px.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>DBXSqliteDriver;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;vclFireDAC;tethering;FireDACADSDriver;DBXMSSQLDriver;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;vcldb;bindcompfmx;DBXOracleDriver;inetdb;emsedge;fmx;fmxdae;FireDACDBXDriver;dbexpress;IndyCore;vclx;dsnap;DataSnapCommon;DataSnapConnectors;VCLRESTComponents;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;FireDACMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;DataSnapClient;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;IndySystem;FireDACDb2Driver;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;emshosting;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;DbxCommonDriver;DataSnapServer;xmlrtl;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;DbxClientDriver;DBXSybaseASADriver;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;IndyIPClient;bindcompvcl;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>DBXSqliteDriver;DataSnapServerMidas;DBXDb2Driver;DBXInterBaseDriver;vclactnband;vclFireDAC;tethering;FireDACADSDriver;DBXMSSQLDriver;DatasnapConnectorsFreePascal;FireDACMSSQLDriver;vcltouch;vcldb;bindcompfmx;DBXOracleDriver;inetdb;emsedge;fmx;fmxdae;FireDACDBXDriver;dbexpress;IndyCore;vclx;dsnap;DataSnapCommon;DataSnapConnectors;PGoferComponent;VCLRESTComponents;vclie;bindengine;DBXMySQLDriver;FireDACOracleDriver;FireDACMySQLDriver;DBXFirebirdDriver;FireDACCommonODBC;DataSnapClient;bindcompdbx;IndyIPCommon;vcl;DBXSybaseASEDriver;IndyIPServer;IndySystem;FireDACDb2Driver;dsnapcon;FireDACMSAccDriver;fmxFireDAC;FireDACInfxDriver;vclimg;emshosting;FireDACPgDriver;FireDACASADriver;DBXOdbcDriver;FireDACTDataDriver;DbxCommonDriver;DataSnapServer;xmlrtl;DataSnapNativeClient;fmxobj;vclwinx;FireDACDSDriver;rtl;DbxClientDriver;DBXSybaseASADriver;CustomIPTransport;vcldsnap;bindcomp;appanalytics;DBXInformixDriver;IndyIPClient;bindcompvcl;dbxcds;VclSmp;adortl;FireDACODBCDriver;DataSnapIndy10ServerTransport;dsnapxml;DataSnapProviderClient;dbrtl;inetdbxpress;FireDACMongoDBDriver;IndyProtocols;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.1;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-        <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
-        <Debugger_RunParams>/Duplicate</Debugger_RunParams>
-        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <AppEnableHighDPI>true</AppEnableHighDPI>
-        <Icon_MainIcon>..\..\Documents\Imagens\Gofer Icon.ico</Icon_MainIcon>
-        <UWP_DelphiLogo44>..\..\Documents\Imagens\Logo 44px.png</UWP_DelphiLogo44>
-        <UWP_DelphiLogo150>..\..\Documents\Imagens\Logo 150px.png</UWP_DelphiLogo150>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -121,19 +100,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
-        <VerInfo_Locale>1033</VerInfo_Locale>
-        <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
-        <VerInfo_Build>34</VerInfo_Build>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.34;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <Icon_MainIcon>..\..\Documents\Imagens\Gofer Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Build>26</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.26;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -148,107 +120,20 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
-        <VerInfo_Build>22</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.22;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.ImageList.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
-        <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
-            <Form>PGFrame</Form>
-            <DesignClass>TFrame</DesignClass>
+        <DCCReference Include="Unit1.pas">
+            <Form>Form1</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Math\PGofer.Math.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Net\PGofer.Net.Socket.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Process\PGofer.Process.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Process\PGofer.Process.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Registry\PGofer.Registry.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Registry\PGofer.Registry.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Registry\PGofer.Registry.Environment.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Services\PGofer.Services.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Sound\PGofer.Sound.DevApi.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Statements.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas">
-            <Form>PGFrame1</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas">
-            <Form>PGFrameFunction</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.Types.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
-        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.pas"/>
-        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Frame.pas">
-            <Form>PGFrameForms</Form>
-            <DesignClass>TFrame</DesignClass>
+        <DCCReference Include="Unit2.pas">
+            <Form>Form2</Form>
+            <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas">
-            <Form>FrmController</Form>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas">
-            <Form>FrmAutoComplete</Form>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas">
-            <Form>PGFrameConsole</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas">
-            <Form>FrmConsole</Form>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas">
-            <Form>PGFrameHotKey</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Hook.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas">
-            <Form>PGLinkFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ThreadLoadImage.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas">
-            <Form>PGTaskFrame</Form>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas"/>
-        <DCCReference Include="PGofer3.Client.pas">
-            <Form>FrmPGofer</Form>
-        </DCCReference>
-        <None Include="PGofer3.dpr"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -267,63 +152,13 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">PGofer3.dpr</Source>
+                    <Source Name="MainSource">Project1.dpr</Source>
                 </Source>
-                <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
-                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win64\Debug\PGofer3.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win64">
-                        <RemoteName>PGofer3.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="PGofer3.dpr" Configuration="Debug" Class="ProjectFile">
-                    <Platform Name="Win64">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win64">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="PGofer3.dpr" Configuration="Debug" Class="ProjectFile">
+                <DeployFile LocalName="Win32\Debug\Project1.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteDir>.\</RemoteDir>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Win32\Debug\PGofer3.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>PGofer3.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win64">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
+                        <RemoteName>Project1.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

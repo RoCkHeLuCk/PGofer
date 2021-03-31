@@ -3,35 +3,35 @@ unit PGofer.Utils;
 interface
 
 uses
-    System.SysUtils;
+  System.SysUtils;
 
-function SplitEx(Text, Separator: String): TArray<String>;
+function SplitEx( Text, Separator: string ): TArray< string >;
 
 implementation
 
 uses
-    PGofer.Classes;
+  PGofer.Classes;
 
-function SplitEx(Text, Separator: String): TArray<String>;
+function SplitEx( Text, Separator: string ): TArray< string >;
 var
-    TxtBgn, TxtEnd, RstLength, TxtLength, SptLength: FixedInt;
+  TxtBgn, TxtEnd, RstLength, TxtLength, SptLength: FixedInt;
 begin
-    RstLength := 0;
-    SetLength(Result, RstLength);
-    TxtLength := Text.Length + 1;
-    SptLength := Separator.Length;
-    TxtBgn := LowString;
-    while TxtBgn <= TxtLength do
-    begin
-        TxtEnd := Pos(Separator, Text, TxtBgn);
-        if TxtEnd = 0 then
-            TxtEnd := TxtLength + 1;
+  RstLength := 0;
+  SetLength( Result, RstLength );
+  TxtLength := Text.Length + 1;
+  SptLength := Separator.Length;
+  TxtBgn := LowString;
+  while TxtBgn <= TxtLength do
+  begin
+    TxtEnd := Pos( Separator, Text, TxtBgn );
+    if TxtEnd = 0 then
+      TxtEnd := TxtLength + 1;
 
-        Inc(RstLength);
-        SetLength(Result, RstLength);
-        Result[RstLength - 1] := Copy(Text, TxtBgn, TxtEnd - TxtBgn);
-        TxtBgn := TxtEnd + SptLength;
-    end;
+    Inc( RstLength );
+    SetLength( Result, RstLength );
+    Result[ RstLength - 1 ] := Copy( Text, TxtBgn, TxtEnd - TxtBgn );
+    TxtBgn := TxtEnd + SptLength;
+  end;
 end;
 
 end.

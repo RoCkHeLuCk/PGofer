@@ -17,13 +17,13 @@ inherited PGFrameFunction: TPGFrameFunction
     Constraints.MinHeight = 150
     Constraints.MinWidth = 0
     ExplicitHeight = 150
-    object GroupBox1: TGroupBox [1]
+    object gpbScript: TGroupBox [1]
       Left = 5
       Top = 33
       Width = 390
       Height = 114
       Anchors = [akLeft, akTop, akRight, akBottom]
-      Caption = 'Conteudo'
+      Caption = 'Script (Run = F9)'
       TabOrder = 0
       object EdtScript: TRichEditEx
         Left = 2
@@ -39,6 +39,7 @@ inherited PGFrameFunction: TPGFrameFunction
         ParentFont = False
         TabOrder = 0
         Zoom = 100
+        OnExit = EdtScriptExit
       end
     end
     inherited EdtName: TEditEx

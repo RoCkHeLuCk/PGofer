@@ -3,193 +3,194 @@ unit PGofer.Files;
 interface
 
 uses
-    PGofer.Sintatico.Classes;
+  PGofer.Sintatico.Classes;
 
 type
 {$WARN SYMBOL_PLATFORM OFF}
 {$M+}
-    TPGFile = class(TPGItemCMD)
-    private
-    public
-    published
-        function Copy(FileFrom, FileTo: String; Flags: Word): Integer;
-        function Delete(FileFrom: String; Flags: Word): Integer;
-        function DirExists(Directory: String): Boolean;
-        function Exec(FileName, Parametro, Diretorio: String;
-          ShowControl: Integer; Operation: Byte; Prioridade: Byte): String;
-        function ExtractDir(FileName: String): String;
-        function ExtractExt(FileName: String): String;
-        function ExtractName(FileName: String): String;
-        function ExtractPath(FileName: String): String;
-        function GetAttrib(FileName: String): Integer;
-        function GetSize(FileName: String): Int64;
-        function GetTimeAcess(FileName: String): String;
-        function GetTimeCreate(FileName: String): String;
-        function GetTimeModify(FileName: String): String;
-        function LoadFromText(FileName: String): String;
-        function MkDir(Directory: String): Boolean;
-        function Move(FileFrom, FileTo: String; Flags: Word): Integer;
-        function FileDialog(Directory: String): String;
-        function DirDialog(Directory: String): String;
-        function PathExpand(FileName: String): String;
-        function PathUnExpand(FileName: String): String;
-        function Rename(FileFrom, FileTo: String; Flags: Word): Integer;
-        function SaveToText(FileName, Text: String): Boolean;
-        function Script(FileName: String; Esperar: Boolean): Boolean;
-        function Search(FileName, DirList: String): String;
-        function SetAttrib(FileName: String; Flags: Integer): Boolean;
-        function SetDateTime(FileName: String;
-          CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
-    end;
+  TPGFile = class( TPGItemCMD )
+  private
+  public
+  published
+    function Copy( FileFrom, FileTo: string; Flags: Word ): Integer;
+    function Delete( FileFrom: string; Flags: Word ): Integer;
+    function DirExists( Directory: string ): Boolean;
+    function Exec( FileName, Parametro, Diretorio: string; ShowControl: Integer;
+       Operation: Byte; Prioridade: Byte ): string;
+    function ExtractDir( FileName: string ): string;
+    function ExtractExt( FileName: string ): string;
+    function ExtractName( FileName: string ): string;
+    function ExtractPath( FileName: string ): string;
+    function GetAttrib( FileName: string ): Integer;
+    function GetSize( FileName: string ): Int64;
+    function GetTimeAcess( FileName: string ): string;
+    function GetTimeCreate( FileName: string ): string;
+    function GetTimeModify( FileName: string ): string;
+    function LoadFromText( FileName: string ): string;
+    function MkDir( Directory: string ): Boolean;
+    function Move( FileFrom, FileTo: string; Flags: Word ): Integer;
+    function FileDialog( Directory: string ): string;
+    function DirDialog( Directory: string ): string;
+    function PathExpand( FileName: string ): string;
+    function PathUnExpand( FileName: string ): string;
+    function Rename( FileFrom, FileTo: string; Flags: Word ): Integer;
+    function SaveToText( FileName, Text: string ): Boolean;
+    function Script( FileName: string; Esperar: Boolean ): Boolean;
+    function Search( FileName, DirList: string ): string;
+    function SetAttrib( FileName: string; Flags: Integer ): Boolean;
+    function SetDateTime( FileName: string;
+       CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
+  end;
 {$TYPEINFO ON}
 
 implementation
 
 uses
-    System.SysUtils,
-    PGofer.Sintatico, PGofer.Files.Controls;
+  System.SysUtils,
+  PGofer.Sintatico, PGofer.Files.Controls;
 
 { TPGFile }
 
-function TPGFile.Copy(FileFrom, FileTo: String; Flags: Word): Integer;
+function TPGFile.Copy( FileFrom, FileTo: string; Flags: Word ): Integer;
 begin
-    Result := FileControl(FileFrom, FileTo, $0002, Flags);
+  Result := FileControl( FileFrom, FileTo, $0002, Flags );
 end;
 
-function TPGFile.Delete(FileFrom: String; Flags: Word): Integer;
+function TPGFile.Delete( FileFrom: string; Flags: Word ): Integer;
 begin
-    Result := FileControl(FileFrom, '', $0003, Flags);
+  Result := FileControl( FileFrom, '', $0003, Flags );
 end;
 
-function TPGFile.DirExists(Directory: String): Boolean;
+function TPGFile.DirExists( Directory: string ): Boolean;
 begin
-    Result := DirectoryExists(Directory, True);
+  Result := DirectoryExists( Directory, True );
 end;
 
-function TPGFile.Exec(FileName, Parametro, Diretorio: String;
-  ShowControl: Integer; Operation: Byte; Prioridade: Byte): String;
+function TPGFile.Exec( FileName, Parametro, Diretorio: string;
+   ShowControl: Integer; Operation: Byte; Prioridade: Byte ): string;
 begin
-    Result := FileExec(FileName, Parametro, Diretorio, ShowControl, Operation,
-      Prioridade);
+  Result := FileExec( FileName, Parametro, Diretorio, ShowControl, Operation,
+     Prioridade );
 end;
 
-function TPGFile.ExtractDir(FileName: String): String;
+function TPGFile.ExtractDir( FileName: string ): string;
 begin
-    Result := ExtractFileDir(FileName);
+  Result := ExtractFileDir( FileName );
 end;
 
-function TPGFile.ExtractExt(FileName: String): String;
+function TPGFile.ExtractExt( FileName: string ): string;
 begin
-    Result := ExtractFileExt(FileName);
+  Result := ExtractFileExt( FileName );
 end;
 
-function TPGFile.ExtractName(FileName: String): String;
+function TPGFile.ExtractName( FileName: string ): string;
 begin
-    Result := ExtractFileName(FileName);
+  Result := ExtractFileName( FileName );
 end;
 
-function TPGFile.ExtractPath(FileName: String): String;
+function TPGFile.ExtractPath( FileName: string ): string;
 begin
-    Result := ExtractFilePath(FileName);
+  Result := ExtractFilePath( FileName );
 end;
 
-function TPGFile.GetAttrib(FileName: String): Integer;
+function TPGFile.GetAttrib( FileName: string ): Integer;
 begin
-    Result := FileGetAttr(FileName + #0 + #0, True);
+  Result := FileGetAttr( FileName + #0 + #0, True );
 end;
 
-function TPGFile.GetSize(FileName: String): Int64;
+function TPGFile.GetSize( FileName: string ): Int64;
 begin
-    Result := FileGetSize(FileName);
+  Result := FileGetSize( FileName );
 end;
 
-function TPGFile.GetTimeAcess(FileName: String): String;
+function TPGFile.GetTimeAcess( FileName: string ): string;
 begin
-    Result := FileGetAcessTime(FileName);
+  Result := FileGetAcessTime( FileName );
 end;
 
-function TPGFile.GetTimeCreate(FileName: String): String;
+function TPGFile.GetTimeCreate( FileName: string ): string;
 begin
-    Result := FileGetCreateTime(FileName);
+  Result := FileGetCreateTime( FileName );
 end;
 
-function TPGFile.GetTimeModify(FileName: String): String;
+function TPGFile.GetTimeModify( FileName: string ): string;
 begin
-    Result := FileGetModifyTime(FileName);
+  Result := FileGetModifyTime( FileName );
 end;
 
-function TPGFile.LoadFromText(FileName: String): String;
+function TPGFile.LoadFromText( FileName: string ): string;
 begin
-    Result := FileLoadFromText(FileName);
+  Result := FileLoadFromText( FileName );
 end;
 
-function TPGFile.MkDir(Directory: String): Boolean;
+function TPGFile.MkDir( Directory: string ): Boolean;
 begin
-    try
-        System.MkDir(Directory);
-    finally
-        Result := DirectoryExists(Directory, False);
-    end;
+  try
+    System.MkDir( Directory );
+  finally
+    Result := DirectoryExists( Directory, False );
+  end;
 end;
 
-function TPGFile.Move(FileFrom, FileTo: String; Flags: Word): Integer;
+function TPGFile.Move( FileFrom, FileTo: string; Flags: Word ): Integer;
 begin
-    Result := FileControl(FileFrom, FileTo, $0001, Flags);
+  Result := FileControl( FileFrom, FileTo, $0001, Flags );
 end;
 
-function TPGFile.FileDialog(Directory: String): String;
+function TPGFile.FileDialog( Directory: string ): string;
 begin
-    Result := FileOpenDialog(Directory);
+  Result := FileOpenDialog( Directory );
 end;
 
-function TPGFile.DirDialog(Directory: String): String;
+function TPGFile.DirDialog( Directory: string ): string;
 begin
-    Result := FileDirDialog(Directory);
+  Result := FileDirDialog( Directory );
 end;
 
-function TPGFile.PathExpand(FileName: String): String;
+function TPGFile.PathExpand( FileName: string ): string;
 begin
-    Result := FileExpandPath(FileName);
+  Result := FileExpandPath( FileName );
 end;
 
-function TPGFile.PathUnExpand(FileName: String): String;
+function TPGFile.PathUnExpand( FileName: string ): string;
 begin
-    Result := FileUnExpandPath(FileName);
+  Result := FileUnExpandPath( FileName );
 end;
 
-function TPGFile.Rename(FileFrom, FileTo: String; Flags: Word): Integer;
+function TPGFile.Rename( FileFrom, FileTo: string; Flags: Word ): Integer;
 begin
-    Result := FileControl(FileFrom, FileTo, $0004, Flags);
+  Result := FileControl( FileFrom, FileTo, $0004, Flags );
 end;
 
-function TPGFile.SaveToText(FileName, Text: String): Boolean;
+function TPGFile.SaveToText( FileName, Text: string ): Boolean;
 begin
-    Result := FileSaveToText(FileName, Text);
+  Result := FileSaveToText( FileName, Text );
 end;
 
-function TPGFile.Script(FileName: String; Esperar: Boolean): Boolean;
+function TPGFile.Script( FileName: string; Esperar: Boolean ): Boolean;
 begin
-    Result := FileScript(FileName, Esperar);
+  Result := FileScript( FileName, Esperar );
 end;
 
-function TPGFile.Search(FileName, DirList: String): String;
+function TPGFile.Search( FileName, DirList: string ): string;
 begin
-    Result := FileSearch(FileName + #0 + #0, DirList);
+  Result := FileSearch( FileName + #0 + #0, DirList );
 end;
 
-function TPGFile.SetAttrib(FileName: String; Flags: Integer): Boolean;
+function TPGFile.SetAttrib( FileName: string; Flags: Integer ): Boolean;
 begin
-    Result := (FileSetAttr(FileName + #0 + #0, Flags, True) = 0);
+  Result := ( FileSetAttr( FileName + #0 + #0, Flags, True ) = 0 );
 end;
 
-function TPGFile.SetDateTime(FileName: String;
-  CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
+function TPGFile.SetDateTime( FileName: string;
+   CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 begin
-    Result := FileSetDateTime(FileName, CreateTime, ModifyTime, AcessTime);
+  Result := FileSetDateTime( FileName, CreateTime, ModifyTime, AcessTime );
 end;
 
 initialization
-    TPGFile.Create(GlobalItemCommand);
+
+TPGFile.Create( GlobalItemCommand );
 
 finalization
 

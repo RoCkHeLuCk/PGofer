@@ -3,149 +3,147 @@ unit PGofer.Triggers.HotKeys.Frame;
 interface
 
 uses
-    System.Classes,
-    Winapi.Windows,
-    Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
-    Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-    PGofer.Classes, PGofer.Triggers.HotKeys, PGofer.Item.Frame,
-    PGofer.Forms.AutoComplete,
-    PGofer.Component.Edit, PGofer.Component.RichEdit;
+  System.Classes,
+  Winapi.Windows,
+  Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
+  Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  PGofer.Classes, PGofer.Triggers.HotKeys, PGofer.Item.Frame,
+  PGofer.Forms.AutoComplete,
+  PGofer.Component.Edit, PGofer.Component.RichEdit;
 
 type
-    TPGFrameHotKey = class(TPGFrame)
-        PpmNull: TPopupMenu;
-        GrbTeclas: TGroupBox;
-        MmoTeclas: TMemo;
-        BtnClear: TButton;
-        LblDetectar: TLabel;
-        CmbDetectar: TComboBox;
-        CkbInibir: TCheckBox;
-        GrbScript: TGroupBox;
-        EdtScript: TRichEditEx;
-        procedure CkbInibirClick(Sender: TObject);
-        procedure CmbDetectarChange(Sender: TObject);
-        procedure MmoTeclasEnter(Sender: TObject);
-        procedure MmoTeclasExit(Sender: TObject);
-        procedure BtnClearClick(Sender: TObject);
-        procedure EdtNameKeyUp(Sender: TObject; var Key: Word;
-          Shift: TShiftState);
-        procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
-          Shift: TShiftState);
-    private
-        FItem: TPGHotKey;
-        FFrmAutoComplete: TFrmAutoComplete;
+  TPGFrameHotKey = class( TPGFrame )
+    PpmNull: TPopupMenu;
+    GrbTeclas: TGroupBox;
+    MmoTeclas: TMemo;
+    BtnClear: TButton;
+    LblDetectar: TLabel;
+    CmbDetectar: TComboBox;
+    CkbInibir: TCheckBox;
+    GrbScript: TGroupBox;
+    EdtScript: TRichEditEx;
+    procedure CkbInibirClick( Sender: TObject );
+    procedure CmbDetectarChange( Sender: TObject );
+    procedure MmoTeclasEnter( Sender: TObject );
+    procedure MmoTeclasExit( Sender: TObject );
+    procedure BtnClearClick( Sender: TObject );
+    procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
+       Shift: TShiftState );
+    procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
+       Shift: TShiftState );
+  private
+    FItem           : TPGHotKey;
+    FFrmAutoComplete: TFrmAutoComplete;
 {$HINTS OFF}
-        class function LowLevelProc(Code: Integer; wParam: wParam;
-          lParam: lParam): NativeInt; stdcall; static;
+    class function LowLevelProc( Code: Integer; wParam: wParam; lParam: lParam )
+       : NativeInt; stdcall; static;
 {$HINTS ON}
-    public
-        constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
-        destructor Destroy(); override;
-    end;
+  public
+    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    destructor Destroy( ); override;
+  end;
 
 var
-    PGFrameHotKey: TPGFrameHotKey;
+  PGFrameHotKey: TPGFrameHotKey;
 
 implementation
 
 uses
-    PGofer.Triggers.HotKeys.Hook;
+  PGofer.Triggers.HotKeys.Hook;
 
 {$R *.dfm}
 { TPGFrameHotKey }
 
-class function TPGFrameHotKey.LowLevelProc(Code: Integer; wParam: wParam;
-  lParam: lParam): NativeInt;
+class function TPGFrameHotKey.LowLevelProc( Code: Integer; wParam: wParam;
+   lParam: lParam ): NativeInt;
 var
-    Key: TKey;
+  Key: TKey;
 begin
-    if Assigned(PGFrameHotKey.FItem) then
+  if Assigned( PGFrameHotKey.FItem ) then
+  begin
+    if ( Code = HC_ACTION ) then
     begin
-        if (Code = HC_ACTION) then
+      THookProc.CalcVirtualKey( wParam, lParam, Key );
+      if Key.wKey > 0 then
+      begin
+        if Key.bDetect in [ kd_Down, kd_Wheel ] then
         begin
-            THookProc.CalcVirtualKey(wParam, lParam, Key);
-            if Key.wKey > 0 then
-            begin
-                if Key.bDetect in [kd_Down, kd_Wheel] then
-                begin
-                    if not(PGFrameHotKey.FItem.Keys.Contains(Key.wKey)) then
-                        PGFrameHotKey.FItem.Keys.Add(Key.wKey);
-                end;
-            end;
+          if not( PGFrameHotKey.FItem.Keys.Contains( Key.wKey ) ) then
+            PGFrameHotKey.FItem.Keys.Add( Key.wKey );
         end;
-
-        PGFrameHotKey.MmoTeclas.Lines.Text := PGFrameHotKey.FItem.GetKeysName();
+      end;
     end;
-    Result := CallNextHookEx(0, Code, wParam, lParam);
+
+    PGFrameHotKey.MmoTeclas.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
+  end;
+  Result := CallNextHookEx( 0, Code, wParam, lParam );
 end;
 
-constructor TPGFrameHotKey.Create(Item: TPGItem; Parent: TObject);
+constructor TPGFrameHotKey.Create( Item: TPGItem; Parent: TObject );
 begin
-    inherited Create(Item, Parent);
-    FItem := TPGHotKey(Item);
-    CmbDetectar.ItemIndex := FItem.Detect;
-    CkbInibir.Checked := FItem.Inhibit;
-    edtScript.Text := FItem.Script;
-    MmoTeclas.Lines.Text := FItem.GetKeysName();
-    FFrmAutoComplete := TFrmAutoComplete.Create(EdtScript);
+  inherited Create( Item, Parent );
+  FItem := TPGHotKey( Item );
+  CmbDetectar.ItemIndex := FItem.Detect;
+  CkbInibir.Checked := FItem.Inhibit;
+  EdtScript.Text := FItem.Script;
+  MmoTeclas.Lines.Text := FItem.GetKeysName( );
+  FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;
 
 destructor TPGFrameHotKey.Destroy;
 begin
-    FFrmAutoComplete.Free();
-    MmoTeclas.OnExit(Self);
-    FItem := nil;
-    inherited Destroy();
+  FFrmAutoComplete.Free( );
+  MmoTeclas.OnExit( Self );
+  FItem := nil;
+  inherited Destroy( );
 end;
 
-procedure TPGFrameHotKey.EdtNameKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameHotKey.EdtNameKeyUp( Sender: TObject; var Key: Word;
+   Shift: TShiftState );
 begin
-    if FItem.isItemExist(EdtName.Text) then
-    begin
-        EdtName.Color := clRed;
-    end
-    else
-    begin
-        EdtName.Color := clWindow;
-        inherited;
-    end;
+  if FItem.isItemExist( EdtName.Text ) then
+  begin
+    EdtName.Color := clRed;
+  end else begin
+    EdtName.Color := clWindow;
+    inherited;
+  end;
 end;
 
-procedure TPGFrameHotKey.EdtScriptKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameHotKey.EdtScriptKeyUp( Sender: TObject; var Key: Word;
+   Shift: TShiftState );
 begin
-    FItem.Script := edtScript.Text;
+  FItem.Script := EdtScript.Text;
 end;
 
-procedure TPGFrameHotKey.BtnClearClick(Sender: TObject);
+procedure TPGFrameHotKey.BtnClearClick( Sender: TObject );
 begin
-    FItem.Keys.Clear;
-    MmoTeclas.Clear;
+  FItem.Keys.Clear;
+  MmoTeclas.Clear;
 end;
 
-procedure TPGFrameHotKey.CkbInibirClick(Sender: TObject);
+procedure TPGFrameHotKey.CkbInibirClick( Sender: TObject );
 begin
-    FItem.Inhibit := CkbInibir.Checked;
+  FItem.Inhibit := CkbInibir.Checked;
 end;
 
-procedure TPGFrameHotKey.CmbDetectarChange(Sender: TObject);
+procedure TPGFrameHotKey.CmbDetectarChange( Sender: TObject );
 begin
-    FItem.Detect := CmbDetectar.ItemIndex;
+  FItem.Detect := CmbDetectar.ItemIndex;
 end;
 
-procedure TPGFrameHotKey.MmoTeclasEnter(Sender: TObject);
+procedure TPGFrameHotKey.MmoTeclasEnter( Sender: TObject );
 begin
-    PGFrameHotKey := Self;
+  PGFrameHotKey := Self;
 {$IFNDEF DEBUG}
-    THookProc.EnableHoot(TPGFrameHotKey.LowLevelProc);
+  THookProc.EnableHoot( TPGFrameHotKey.LowLevelProc );
 {$ENDIF}
 end;
 
-procedure TPGFrameHotKey.MmoTeclasExit(Sender: TObject);
+procedure TPGFrameHotKey.MmoTeclasExit( Sender: TObject );
 begin
 {$IFNDEF DEBUG}
-    THookProc.EnableHoot();
+  THookProc.EnableHoot( );
 {$ENDIF}
 end;
 

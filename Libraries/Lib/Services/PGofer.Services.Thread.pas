@@ -3,68 +3,69 @@ unit PGofer.Services.Thread;
 interface
 
 uses
-    System.Classes, Vcl.ComCtrls;
+  System.Classes, Vcl.ComCtrls;
 
 type
-    TThreadService = class(TThread)
-        constructor Create(const Host: String; const Item: TListItem;
-          const Config: Cardinal);
-    private
-        { Private declarations }
-        HostA: String;
-        ItemA: TListItem;
-        ConfigA: Cardinal;
-    protected
-        procedure Execute; override;
-    public
+  TThreadService = class( TThread )
+    constructor Create( const Host: string; const Item: TListItem;
+       const Config: Cardinal );
+  private
+    { Private declarations }
+    HostA  : string;
+    ItemA  : TListItem;
+    ConfigA: Cardinal;
+  protected
+    procedure Execute; override;
+  public
 
-    end;
+  end;
 
 implementation
 
-uses PGofer.Services, PGofer.Services.Controls;
+uses
+  PGofer.Services, PGofer.Services.Controls;
 
 { TThreadLoadImage }
 // ----------------------------------------------------------------------------//
-constructor TThreadService.Create(const Host: String; const Item: TListItem;
-  const Config: Cardinal);
+constructor TThreadService.Create( const Host: string; const Item: TListItem;
+   const Config: Cardinal );
 begin
-    // cria thread
-    inherited Create(true);
-    Priority := tpIdle;
-    FreeOnTerminate := true;
+  // cria thread
+  inherited Create( true );
+  Priority := tpIdle;
+  FreeOnTerminate := true;
 
-    HostA := Host;
-    ItemA := Item;
-    ConfigA := Config;
+  HostA := Host;
+  ItemA := Item;
+  ConfigA := Config;
 end;
 
 // ----------------------------------------------------------------------------//
-procedure TThreadService.Execute();
+procedure TThreadService.Execute( );
 var
-    c, d, e: Cardinal;
+  c, d, e: Cardinal;
 begin
-    ServiceSetState(HostA, ItemA.SubItems[4], ConfigA);
-    c := 0;
-    d := 0;
-    e := 0;
-    while (c <> ConfigA) and (d < 100) do
+  ServiceSetState( HostA, ItemA.SubItems[ 4 ], ConfigA );
+  c := 0;
+  d := 0;
+  e := 0;
+  while ( c <> ConfigA ) and ( d < 100 ) do
+  begin
+    sleep( 100 );
+    c := ServiceGetState( HostA, ItemA.SubItems[ 4 ] );
+    inc( d );
+    if c <> e then
     begin
-        sleep(100);
-        c := ServiceGetState(HostA, ItemA.SubItems[4]);
-        inc(d);
-        if c <> e then
+      e := c;
+      Synchronize(
+        procedure
         begin
-            e := c;
-            Synchronize(
-                procedure
-                begin
-                    ItemA.SubItems[0] := ServiceStatusToState(c);
-                    ItemA.SubItems[9] := Char(c) + ItemA.SubItems[9][2];
-                end);
-        end;
+          ItemA.SubItems[ 0 ] := ServiceStatusToState( c );
+          ItemA.SubItems[ 9 ] := Char( c ) + ItemA.SubItems[ 9 ][ 2 ];
+        end );
     end;
-    Terminate;
+  end;
+  Terminate;
 end;
 // ----------------------------------------------------------------------------//
 

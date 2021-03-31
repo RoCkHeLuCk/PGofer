@@ -3,72 +3,72 @@ unit PGofer.Forms.Console.Frame;
 interface
 
 uses
-    System.Classes,
-    Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-    Vcl.Dialogs,
-    PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
-    PGofer.Component.Edit, PGofer.Item.Frame;
+  System.Classes,
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.Dialogs,
+  PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
+  PGofer.Component.Edit, PGofer.Item.Frame;
 
 type
-    TPGFrameConsole = class(TPGFrameForms)
-        lblDelay: TLabel;
-        edtDelay: TEditEx;
-        updDelay: TUpDown;
-        ckbShowMessage: TCheckBox;
-        ckbAutoClose: TCheckBox;
-        procedure ckbShowMessageClick(Sender: TObject);
-        procedure ckbAutoCloseClick(Sender: TObject);
-        procedure edtDelayExit(Sender: TObject);
-        procedure updDelayChanging(Sender: TObject; var AllowChange: Boolean);
-    private
-        FItem: TPGFrmConsole;
-    public
-        constructor Create(Item: TPGItem; Parent: TObject); reintroduce;
-        destructor Destroy(); override;
-    end;
+  TPGFrameConsole = class( TPGFrameForms )
+    lblDelay: TLabel;
+    edtDelay: TEditEx;
+    updDelay: TUpDown;
+    ckbShowMessage: TCheckBox;
+    ckbAutoClose: TCheckBox;
+    procedure ckbShowMessageClick( Sender: TObject );
+    procedure ckbAutoCloseClick( Sender: TObject );
+    procedure edtDelayExit( Sender: TObject );
+    procedure updDelayChanging( Sender: TObject; var AllowChange: Boolean );
+  private
+    FItem: TPGFrmConsole;
+  public
+    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    destructor Destroy( ); override;
+  end;
 
 implementation
 
 uses
-    System.SysUtils;
+  System.SysUtils;
 
 {$R *.dfm}
 { TPGFrameConsole }
 
-procedure TPGFrameConsole.ckbAutoCloseClick(Sender: TObject);
+procedure TPGFrameConsole.ckbAutoCloseClick( Sender: TObject );
 begin
-    FItem.AutoClose := ckbAutoClose.Checked;
+  FItem.AutoClose := ckbAutoClose.Checked;
 end;
 
-procedure TPGFrameConsole.ckbShowMessageClick(Sender: TObject);
+procedure TPGFrameConsole.ckbShowMessageClick( Sender: TObject );
 begin
-    FItem.ShowMessage := ckbShowMessage.Checked;
+  FItem.ShowMessage := ckbShowMessage.Checked;
 end;
 
-constructor TPGFrameConsole.Create(Item: TPGItem; Parent: TObject);
+constructor TPGFrameConsole.Create( Item: TPGItem; Parent: TObject );
 begin
-    inherited;
-    FItem := TPGFrmConsole(Item);
-    edtDelay.Text := FItem.Delay.ToString;
-    ckbShowMessage.Checked := FItem.ShowMessage;
-    ckbAutoClose.Checked := FItem.AutoClose;
+  inherited;
+  FItem := TPGFrmConsole( Item );
+  edtDelay.Text := FItem.Delay.ToString;
+  ckbShowMessage.Checked := FItem.ShowMessage;
+  ckbAutoClose.Checked := FItem.AutoClose;
 end;
 
 destructor TPGFrameConsole.Destroy;
 begin
-    FItem := nil;
-    inherited;
+  FItem := nil;
+  inherited;
 end;
 
-procedure TPGFrameConsole.edtDelayExit(Sender: TObject);
+procedure TPGFrameConsole.edtDelayExit( Sender: TObject );
 begin
-    FItem.Delay := StrToInt(edtDelay.Text);
+  FItem.Delay := StrToInt( edtDelay.Text );
 end;
 
-procedure TPGFrameConsole.updDelayChanging(Sender: TObject;
-  var AllowChange: Boolean);
+procedure TPGFrameConsole.updDelayChanging( Sender: TObject;
+   var AllowChange: Boolean );
 begin
-    edtDelayExit(Sender);
+  edtDelayExit( Sender );
 end;
 
 end.

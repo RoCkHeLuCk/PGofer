@@ -3,62 +3,63 @@ unit PGofer.ClipBoards;
 interface
 
 uses
-    PGofer.Sintatico.Classes;
+  PGofer.Sintatico.Classes;
 
 type
 {$M+}
-    TPGClipBoard = class(TPGItemCMD)
-    private
-    public
-    published
-        procedure Clear();
-        procedure CopyFromText(Text: String);
-        function GetFormat(): String;
-        function LoadFromFile(FileName: String): Boolean;
-        function PasteToText(): String;
-        function SaveToFile(FileName: String): Boolean;
-    end;
+  TPGClipBoard = class( TPGItemCMD )
+  private
+  public
+  published
+    procedure Clear( );
+    procedure CopyFromText( Text: string );
+    function GetFormat( ): string;
+    function LoadFromFile( FileName: string ): Boolean;
+    function PasteToText( ): string;
+    function SaveToFile( FileName: string ): Boolean;
+  end;
 {$TYPEINFO ON}
 
 implementation
 
 uses
-    PGofer.Sintatico, PGofer.ClipBoards.Controls;
+  PGofer.Sintatico, PGofer.ClipBoards.Controls;
 
 { TPGClipBoard }
 
-procedure TPGClipBoard.Clear();
+procedure TPGClipBoard.Clear( );
 begin
-    ClipBoardClear();
+  ClipBoardClear( );
 end;
 
-procedure TPGClipBoard.CopyFromText(Text: String);
+procedure TPGClipBoard.CopyFromText( Text: string );
 begin
-    ClipBoardCopyFromText(Text);
+  ClipBoardCopyFromText( Text );
 end;
 
-function TPGClipBoard.GetFormat: String;
+function TPGClipBoard.GetFormat: string;
 begin
-    Result := ClipBoardGetFormat();
+  Result := ClipBoardGetFormat( );
 end;
 
-function TPGClipBoard.LoadFromFile(FileName: String): Boolean;
+function TPGClipBoard.LoadFromFile( FileName: string ): Boolean;
 begin
-    Result := ClipBoardLoadFile(FileName);
+  Result := ClipBoardLoadFile( FileName );
 end;
 
-function TPGClipBoard.PasteToText: String;
+function TPGClipBoard.PasteToText: string;
 begin
-    Result := ClipBoardPasteToText();
+  Result := ClipBoardPasteToText( );
 end;
 
-function TPGClipBoard.SaveToFile(FileName: String): Boolean;
+function TPGClipBoard.SaveToFile( FileName: string ): Boolean;
 begin
-    Result := ClipBoardSaveFile(FileName);
+  Result := ClipBoardSaveFile( FileName );
 end;
 
 initialization
-    TPGClipBoard.Create(GlobalItemCommand);
+
+TPGClipBoard.Create( GlobalItemCommand );
 
 finalization
 

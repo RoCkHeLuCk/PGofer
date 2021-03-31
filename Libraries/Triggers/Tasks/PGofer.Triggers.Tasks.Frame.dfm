@@ -106,6 +106,7 @@ inherited PGTaskFrame: TPGTaskFrame
         ParentFont = False
         TabOrder = 0
         Zoom = 100
+        OnKeyUp = EdtScriptKeyUp
       end
     end
     object dtpDate: TDateTimePicker
