@@ -3,7 +3,7 @@ unit PGofer.Process.Controls;
 interface
 
 function ProcessFileToPID( const FileName: string ): Cardinal;
-function ProcessFileFromPID( const PID: Cardinal ): string;
+function ProcessPIDToFile( const PID: Cardinal ): string;
 function ProcessKill( const PID: Cardinal ): Boolean;
 function ProcessSetPriority( const PID, Priority: Cardinal ): Boolean;
 function ProcessGetPriority( const PID: Cardinal ): Cardinal;
@@ -16,10 +16,10 @@ uses
 
 function ProcessFileToPID( const FileName: string ): Cardinal;
 var
-  PID             : array [ 0 .. 1023 ] of Cardinal;
-  aModule         : array [ 0 .. 299 ] of Char;
-  cbNeeded        : Cardinal;
-  cProcesses, C   : Cardinal;
+  PID: array [ 0 .. 1023 ] of Cardinal;
+  aModule: array [ 0 .. 299 ] of Char;
+  cbNeeded: Cardinal;
+  cProcesses, C: Cardinal;
   hProcess, hModul: THandle;
 begin
   Result := 0;
@@ -50,11 +50,11 @@ begin
   end;
 end;
 
-function ProcessFileFromPID( const PID: Cardinal ): string;
+function ProcessPIDToFile( const PID: Cardinal ): string;
 var
-  aModule         : array [ 0 .. 299 ] of Char;
+  aModule: array [ 0 .. 299 ] of Char;
   hProcess, hModul: THandle;
-  cbNeeded        : Cardinal;
+  cbNeeded: Cardinal;
 begin
   hProcess := OpenProcess( PROCESS_QUERY_INFORMATION or PROCESS_VM_READ,
      false, PID );

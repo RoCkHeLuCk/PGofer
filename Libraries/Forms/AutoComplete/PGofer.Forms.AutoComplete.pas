@@ -32,15 +32,15 @@ type
     procedure ltvAutoCompleteCompare( Sender: TObject; Item1, Item2: TListItem;
        Data: Integer; var Compare: Integer );
   private
-    FEditCtrl        : TRichEditEx;
-    FEditKeyDown     : TOnKeyDownUP;
-    FEditKeyPress    : TOnKeyPress;
-    FEditKeyUp       : TOnKeyDownUP;
-    FEditDropFile    : TOnDropFile;
-    FMemoryIniFile   : TIniFile;
-    FMemoryNoCtrl    : Boolean;
-    FMemoryList      : TStringList;
-    FMemoryPosition  : Integer;
+    FEditCtrl: TRichEditEx;
+    FEditKeyDown: TOnKeyDownUP;
+    FEditKeyPress: TOnKeyPress;
+    FEditKeyUp: TOnKeyDownUP;
+    FEditDropFile: TOnDropFile;
+    FMemoryIniFile: TIniFile;
+    FMemoryNoCtrl: Boolean;
+    FMemoryList: TStringList;
+    FMemoryPosition: Integer;
     FEditControlPress: Boolean;
     procedure ListViewAdd( Caption, Origin: string ); overload;
     procedure ListViewAdd( Item: TPGItem ); overload;
@@ -277,26 +277,27 @@ end;
 procedure TFrmAutoComplete.FormKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
-  case Key of
-    8 { bcks } , // backspace
-    48 { 0 } .. 57 { 9 } , // numero
-    65 { A } .. 92 { Z } , // letra
-    96 { 0 } .. 105 { 9 } , // numpad
-    106 { * } , 107 { + } , 109 { - } , 110 { . } , 111 { / } , 187 { = } ,
-       186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } , 219 { [ } ,
-       220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
-    begin
-      if FEditCtrl.Text <> '' then
-        Self.FindCMD( )
-      else
-        Self.Close;
-    end; // $30..$39,
+  if Shift = [ ] then
+    case Key of
+      8 { bcks } , // backspace
+      48 { 0 } .. 57 { 9 } , // numero
+      65 { A } .. 92 { Z } , // letra
+      96 { 0 } .. 105 { 9 } , // numpad
+      106 { * } , 107 { + } , 109 { - } , 110 { . } , 111 { / } , 187 { = } ,
+         186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } , 219 { [ } ,
+         220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
+      begin
+        if FEditCtrl.Text <> '' then
+          Self.FindCMD( )
+        else
+          Self.Close;
+      end; // $30..$39,
 
-    VK_F9:
-    begin
-      ScriptExec( 'Test', FEditCtrl.Text, nil, False );
-    end;
-  end; // case
+      VK_F9:
+      begin
+        ScriptExec( 'Test', FEditCtrl.Lines.Text, nil, False );
+      end;
+    end; // case
 
   FEditControlPress := False;
 
@@ -430,10 +431,10 @@ end;
 
 procedure TFrmAutoComplete.ProcurarComandos( Comando: string );
 var
-  SubCMD : TArray< string >;
-  Item   : TPGItem;
+  SubCMD: TArray< string >;
+  Item: TPGItem;
   ItemAux: TPGItem;
-  c, l   : Integer;
+  c, l: Integer;
 begin
   SubCMD := SplitEx( Comando, '.' );
   l := Length( SubCMD );
@@ -465,8 +466,8 @@ end;
 procedure TFrmAutoComplete.FileNameList( FileName: string );
 var
   SearchRec: TSearchRec;
-  c        : Integer;
-  d        : Cardinal;
+  c: Integer;
+  d: Cardinal;
 begin
   ChDir( PGofer.Sintatico.DirCurrent );
 
@@ -489,11 +490,11 @@ end;
 
 procedure TFrmAutoComplete.FindCMD( );
 var
-  Automato          : TAutomato;
-  TokenList         : TTokenList;
-  Classe            : TLexicoClass;
+  Automato: TAutomato;
+  TokenList: TTokenList;
+  Classe: TLexicoClass;
   Diretorio, Comando: string;
-  SelStart          : Integer;
+  SelStart: Integer;
 begin
   // limpa tudo
   ltvAutoComplete.Items.Clear( );

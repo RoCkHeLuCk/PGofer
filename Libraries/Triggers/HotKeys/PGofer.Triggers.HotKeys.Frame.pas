@@ -32,7 +32,7 @@ type
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
   private
-    FItem           : TPGHotKey;
+    FItem: TPGHotKey;
     FFrmAutoComplete: TFrmAutoComplete;
 {$HINTS OFF}
     class function LowLevelProc( Code: Integer; wParam: wParam; lParam: lParam )
@@ -85,7 +85,7 @@ begin
   FItem := TPGHotKey( Item );
   CmbDetectar.ItemIndex := FItem.Detect;
   CkbInibir.Checked := FItem.Inhibit;
-  EdtScript.Text := FItem.Script;
+  EdtScript.Lines.Text := FItem.Script;
   MmoTeclas.Lines.Text := FItem.GetKeysName( );
   FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;
@@ -101,7 +101,7 @@ end;
 procedure TPGFrameHotKey.EdtNameKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
-  if FItem.isItemExist( EdtName.Text ) then
+  if FItem.isItemExist( EdtName.Text, True ) then
   begin
     EdtName.Color := clRed;
   end else begin
@@ -113,7 +113,7 @@ end;
 procedure TPGFrameHotKey.EdtScriptKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
-  FItem.Script := EdtScript.Text;
+  FItem.Script := EdtScript.Lines.Text;
 end;
 
 procedure TPGFrameHotKey.BtnClearClick( Sender: TObject );
@@ -135,6 +135,7 @@ end;
 procedure TPGFrameHotKey.MmoTeclasEnter( Sender: TObject );
 begin
   PGFrameHotKey := Self;
+  MmoTeclas.Color := clRed;
 {$IFNDEF DEBUG}
   THookProc.EnableHoot( TPGFrameHotKey.LowLevelProc );
 {$ENDIF}
@@ -142,6 +143,7 @@ end;
 
 procedure TPGFrameHotKey.MmoTeclasExit( Sender: TObject );
 begin
+  MmoTeclas.Color := clBtnFace;
 {$IFNDEF DEBUG}
   THookProc.EnableHoot( );
 {$ENDIF}

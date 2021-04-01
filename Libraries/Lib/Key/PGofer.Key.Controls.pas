@@ -26,7 +26,7 @@ const
   procedure PressKeys( Key: Char; Shift, Alt, Space: Boolean );
   var
     smallKeysScan: SmallInt;
-    mpVirtuals   : Cardinal;
+    mpVirtuals: Cardinal;
   begin
     smallKeysScan := VkKeyScan( Key );
     mpVirtuals := MapVirtualKey( Cardinal( Key ), 0 );
@@ -58,13 +58,13 @@ const
   end;
 
 var
-  Key     : Char;
-  c, d    : Cardinal;
+  Key: Char;
+  c, d: Cardinal;
   KeyState: TKeyboardState;
   Capslook: Boolean;
-  Shift   : Boolean;
-  Alt     : Boolean;
-  Space   : Boolean;
+  Shift: Boolean;
+  Alt: Boolean;
+  Space: Boolean;
 begin
   GetKeyboardState( KeyState );
   Capslook := KeyState[ VK_CAPITAL ] = 1;
@@ -414,7 +414,7 @@ const
      '()*+,-_./:;<=>?@[\]^`{|}{~€‚ƒ„…†‡ˆ‰‹Œ‘’“”•–—˜™›œ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÆæŞß×Øğ÷øş';
 
 var
-  c, d      : Integer;
+  c, d: Integer;
   Caracteres: string;
 begin
   // todos os caracteres ou so acentos

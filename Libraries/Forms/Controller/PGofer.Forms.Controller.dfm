@@ -141,6 +141,7 @@ object FrmController: TFrmController
       Indent = 19
       MultiSelect = True
       MultiSelectStyle = [msControlSelect, msShiftSelect, msVisibleOnly, msSiblingOnly]
+      PopupMenu = ppmConttroler
       ReadOnly = True
       RightClickSelect = True
       RowSelect = True
@@ -173,10 +174,12 @@ object FrmController: TFrmController
     Top = 36
     object mniAZ: TMenuItem
       Caption = 'AZ'
+      ShortCut = 16449
       OnClick = mniAZClick
     end
     object mniZA: TMenuItem
       Caption = 'ZA'
+      ShortCut = 16474
       OnClick = mniZAClick
     end
     object mniN1: TMenuItem
@@ -189,20 +192,20 @@ object FrmController: TFrmController
     end
   end
   object ppmCreate: TPopupMenu
-    Left = 88
+    Left = 68
     Top = 36
   end
   object ppmEdit: TPopupMenu
-    Left = 52
+    Left = 40
     Top = 36
     object mniExpand: TMenuItem
       Caption = 'Expand All'
-      ShortCut = 16449
+      ShortCut = 16453
       OnClick = mniExpandClick
     end
     object mniUnExpand: TMenuItem
       Caption = 'UnExpand All'
-      ShortCut = 16457
+      ShortCut = 16469
       OnClick = mniUnExpandClick
     end
     object N1: TMenuItem
@@ -213,5 +216,9 @@ object FrmController: TFrmController
       ShortCut = 16430
       OnClick = mniDeleteClick
     end
+  end
+  object ppmConttroler: TPopupMenu
+    Left = 96
+    Top = 36
   end
 end

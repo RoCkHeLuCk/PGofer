@@ -98,13 +98,9 @@ inherited PGTaskFrame: TPGTaskFrame
         Width = 386
         Height = 57
         Align = alClient
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
+        ScrollBars = ssBoth
         TabOrder = 0
+        WantTabs = True
         Zoom = 100
         OnKeyUp = EdtScriptKeyUp
       end

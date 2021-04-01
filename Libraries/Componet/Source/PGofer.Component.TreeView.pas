@@ -12,17 +12,19 @@ type
 
   TTreeViewEx = class( TTreeView )
   private
-    FDropFileAccept : Boolean;
-    FOnDropFiles    : TOnDropFile;
+    FDropFileAccept: Boolean;
+    FOnDropFiles: TOnDropFile;
     FOwnsObjectsData: Boolean;
-    FAttachMode     : TNodeAttachMode;
-    FTargetDrag     : TTreeNode;
-    FSelectionsDrag : TArray< TTreeNode >;
+    FAttachMode: TNodeAttachMode;
+    FTargetDrag: TTreeNode;
+    FSelectionsDrag: TArray< TTreeNode >;
     procedure DoDropFiles( var msg: TWMDropFiles ); message WM_DROPFILES;
     procedure SetDropFileAccept( AValue: Boolean );
   protected
     procedure Delete( Node: TTreeNode ); override;
     procedure DoEndDrag( Target: TObject; X, Y: Integer ); override;
+    procedure MouseDown( Button: TMouseButton; Shift: TShiftState;
+       X, Y: Integer ); override;
   public
     procedure DragOver( Source: TObject; X, Y: Integer; State: TDragState;
        var Accept: Boolean ); override;
@@ -70,7 +72,7 @@ end;
 
 procedure TTreeViewEx.DragDrop( Source: TObject; X, Y: Integer );
 var
-  Node      : TTreeNode;
+  Node: TTreeNode;
   NodeAttach: TNodeAttachMode;
 begin
   if Assigned( FTargetDrag ) then
@@ -109,22 +111,27 @@ end;
 procedure TTreeViewEx.DoDropFiles( var msg: TWMDropFiles );
 var
   C, FileCount: Integer;
-  FileName    : array [ 0 .. MAX_PATH ] of Char;
-  FileList    : TStrings;
+  TargetPoint : TPoint;
+  FileName: array [ 0 .. MAX_PATH ] of Char;
+  FileList: TStrings;
 begin
   if FDropFileAccept and Assigned( FOnDropFiles ) then
   begin
-    FileList := TStringList.Create;
-    FileCount := DragQueryFile( msg.Drop, $FFFFFFFF, nil, MAX_PATH );
-    for C := 0 to -1 + FileCount do
+    if DragQueryPoint(msg.Drop, TargetPoint) then
     begin
-      DragQueryFile( msg.Drop, C, FileName, MAX_PATH );
-      FileList.Add( FileName );
+      FTargetDrag :=  Self.GetNodeAt( TargetPoint.X, TargetPoint.Y );
+      FileList := TStringList.Create;
+      FileCount := DragQueryFile( msg.Drop, $FFFFFFFF, nil, MAX_PATH );
+      for C := 0 to -1 + FileCount do
+      begin
+        DragQueryFile( msg.Drop, C, FileName, MAX_PATH );
+        FileList.Add( FileName );
+      end;
+      FOnDropFiles( Self, FileList );
+      FileList.Free( );
     end;
-    DragFinish( msg.Drop );
-    FOnDropFiles( Self, FileList );
-    FileList.Free( );
   end;
+  DragFinish( msg.Drop );
 end;
 
 procedure TTreeViewEx.DoEndDrag( Target: TObject; X, Y: Integer );
@@ -162,6 +169,14 @@ end;
 function TTreeViewEx.isSelectWork( ): Boolean;
 begin
   Result := ( Assigned( Self.Selected ) and Assigned( Self.Selected.Data ) );
+end;
+
+procedure TTreeViewEx.MouseDown( Button: TMouseButton; Shift: TShiftState;
+   X, Y: Integer );
+begin
+    if (not Self.Dragging) then
+       Self.Selected := Self.GetNodeAt(X, Y);
+    inherited;
 end;
 
 procedure TTreeViewEx.FindText( Text: string; OffSet: Integer = -1 );

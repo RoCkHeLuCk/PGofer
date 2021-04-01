@@ -231,7 +231,7 @@ end;
 
 procedure ValorFinal( Gramatica: TGramatica );
 var
-  Valor : string;
+  Valor: string;
   Numero: Extended;
 begin
   Gramatica.TokenList.GetNextToken;
@@ -273,9 +273,9 @@ end;
 procedure ExpressaoAddSub( Gramatica: TGramatica );
 var
   Operador: TLexicoClass;
-  S1, S2  : string;
-  N1, N2  : Extended;
-  B1, B2  : Boolean;
+  S1, S2: string;
+  N1, N2: Extended;
+  B1, B2: Boolean;
 begin
   if ( Gramatica.TokenList.Token.Classe in [ cmdAdd, cmdSub, cmdRes_and,
      cmdRes_or, cmdRes_xor ] ) then
@@ -315,8 +315,8 @@ begin
       end;
     end else begin
       // se nao compara com relação boleana
-      B1 := ( S1 <> '0' );
-      B2 := ( S2 <> '0' );
+      B1 := S1.ToBoolean;
+      B2 := S2.ToBoolean;
       case Operador of
         cmdRes_and:
         B1 := ( B1 and B2 );
@@ -334,7 +334,7 @@ end;
 procedure ExpressaoMulDiv( Gramatica: TGramatica );
 var
   Operador: TLexicoClass;
-  N1, N2  : Extended;
+  N1, N2: Extended;
 begin
   if ( Gramatica.TokenList.Token.Classe in [ cmdMult, cmdBar, cmdRes_mod ] )
   then
@@ -381,8 +381,8 @@ end;
 procedure ExpressaoPowSqt( Gramatica: TGramatica );
 var
   Operador: TLexicoClass;
-  S1, S2  : string;
-  N1, N2  : Extended;
+  S1, S2: string;
+  N1, N2: Extended;
 begin
   if ( Gramatica.TokenList.Token.Classe in [ cmdTone, cmdRes_root, cmdEqual,
      cmdMore, cmdMinor, cmdMoreEqual, cmdMinorEqual, cmdDifferent ] ) then
@@ -482,7 +482,8 @@ begin
     begin
       Gramatica.TokenList.GetNextToken;
       Expressao( Gramatica );
-      Gramatica.Pilha.Empilhar( not Gramatica.Pilha.Desempilhar( False ) );
+      Gramatica.Pilha.Empilhar
+         ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
     end;
   else
   Gramatica.ErroAdd( 'Expressão Invalida.' );

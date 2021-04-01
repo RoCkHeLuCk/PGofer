@@ -15,7 +15,7 @@ type
     { Private declarations }
     FRegExample: TRegExample;
     FExpression: string;
-    FRegExp    : TRegEx;
+    FRegExp: TRegEx;
     procedure SetRegExample( Value: TRegExample );
     procedure SetRegExp( Value: string );
   protected
@@ -47,7 +47,7 @@ end;
 
 procedure TEditEx.KeyPress( var Key: Char );
 var
-  NewText            : string;
+  NewText: string;
   SelStart, SelLength: Integer;
 begin
   case Key of

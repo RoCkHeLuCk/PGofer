@@ -16,7 +16,7 @@ implementation
 function ZLibCompress( const MStream: TMemoryStream;
    const FileName, Password: string ): Boolean;
 var
-  LTempStream      : TMemoryStream;
+  LTempStream: TMemoryStream;
   LCompressedStream: TCompressionStream;
 begin
   try
@@ -37,7 +37,7 @@ end;
 // ----------------------------------------------------------------------------//
 function ZLibDecompress( const FileName, Password: string ): TMemoryStream;
 var
-  LTempStream         : TMemoryStream;
+  LTempStream: TMemoryStream;
   LDecompressionStream: TDecompressionStream;
 begin
   try

@@ -3,6 +3,7 @@ unit PGofer.Triggers.HotKeys;
 interface
 
 uses
+  System.Classes,
   System.Generics.Collections,
   PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Triggers, PGofer.Triggers.HotKeys.Hook;
@@ -12,13 +13,15 @@ type
 {$M+}
   TPGHotKey = class( TPGItemTrigger )
   private
-    FKeys                : TList< Word >;
-    FDetect              : Byte;
-    FInhibit             : Boolean;
-    FScript              : string;
+    FKeys: TList< Word >;
+    FDetect: Byte;
+    FInhibit: Boolean;
+    FScript: TStrings;
     class var FImageIndex: Integer;
     function GetKeysHex( ): string;
     procedure SetKeysHex( Value: string );
+    function GetScript: string;
+    procedure SetScript(const Value: string);
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
@@ -30,12 +33,12 @@ type
     property Keys: TList< Word > read FKeys;
     function GetKeysName( ): string;
     class function LocateHotKeys( Keys: TList< Word > ): TPGHotKey;
-    function isItemExist( AName: string ): Boolean; override;
+    procedure Triggering( ); override;
   published
     property HotKeysHex: string read GetKeysHex write SetKeysHex;
-    property Detect    : Byte read FDetect write FDetect;
-    property Inhibit   : Boolean read FInhibit write FInhibit;
-    property Script    : string read FScript write FScript;
+    property Detect: Byte read FDetect write FDetect;
+    property Inhibit: Boolean read FInhibit write FInhibit;
+    property Script: string read GetScript write SetScript;
   end;
 {$TYPEINFO ON}
 
@@ -70,14 +73,14 @@ begin
   FKeys := TList< Word >.Create;
   FDetect := 0;
   FInhibit := False;
-  FScript := '';
+  FScript := TStringList.Create;
 end;
 
 destructor TPGHotKey.Destroy( );
 begin
   FDetect := 0;
   FInhibit := False;
-  FScript := '';
+  FScript.Free;
   FKeys.Clear;
   FKeys.Free;
   FKeys := nil;
@@ -110,7 +113,7 @@ end;
 
 procedure TPGHotKey.SetKeysHex( Value: string );
 var
-  c  : SmallInt;
+  c: SmallInt;
   Key: Word;
 begin
   FKeys.Clear;
@@ -122,6 +125,16 @@ begin
       FKeys.Add( Key );
     inc( c, 3 );
   end;
+end;
+
+procedure TPGHotKey.SetScript(const Value: string);
+begin
+    FScript.Text := Value;
+end;
+
+procedure TPGHotKey.Triggering( );
+begin
+  ScriptExec( 'HotKey: ' + Self.Name, Self.Script, nil );
 end;
 
 function TPGHotKey.GetKeysName( ): string;
@@ -138,21 +151,18 @@ begin
   end;
 end;
 
-function TPGHotKey.isItemExist( AName: string ): Boolean;
-var
-  Item: TPGItem;
+function TPGHotKey.GetScript: string;
 begin
-  Item := TPGHotKey.GlobList.FindName( AName );
-  Result := ( Assigned( Item ) and ( Item <> Self ) );
+    Result := FScript.Text;
 end;
 
 class function TPGHotKey.LocateHotKeys( Keys: TList< Word > ): TPGHotKey;
 var
-  KeysCount : SmallInt;
-  ListCount : SmallInt;
+  KeysCount: SmallInt;
+  ListCount: SmallInt;
   AuxHotKeys: TPGHotKey;
-  c, D      : SmallInt;
-  Find      : Boolean;
+  c, D: SmallInt;
+  Find: Boolean;
 begin
   Result := nil;
   KeysCount := Keys.Count;
@@ -165,7 +175,7 @@ begin
     begin
       AuxHotKeys := TPGHotKey( TPGHotKey.GlobList[ c ] );
       if AuxHotKeys.Enabled and ( AuxHotKeys.FKeys.Count = KeysCount ) and
-         ( AuxHotKeys.FScript <> '' ) then
+         ( AuxHotKeys.Script <> '' ) then
       begin
         if KeysCount = AuxHotKeys.Keys.Count then
         begin
@@ -189,10 +199,10 @@ end;
 
 procedure TPGHotKeyDeclare.Execute( Gramatica: TGramatica );
 var
-  Titulo    : string;
+  Titulo: string;
   Quantidade: Byte;
-  HotKey    : TPGHotKey;
-  id        : TPGItem;
+  HotKey: TPGHotKey;
+  id: TPGItem;
 begin
   Gramatica.TokenList.GetNextToken;
   id := IdentificadorLocalizar( Gramatica );

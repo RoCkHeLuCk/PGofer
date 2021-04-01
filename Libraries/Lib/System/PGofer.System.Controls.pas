@@ -32,8 +32,8 @@ uses
 function SystemShutDown( Off: Cardinal ): Boolean;
 var
   TokenPriv: TTokenPrivileges;
-  H        : DWORD;
-  HToken   : THandle;
+  H: DWORD;
+  HToken: THandle;
 begin
   OpenProcessToken( GetCurrentProcess, TOKEN_ADJUST_PRIVILEGES, HToken );
   LookUpPrivilegeValue( nil, 'SeShutdownPrivilege',
@@ -66,7 +66,7 @@ function SystemSetSendMessage( ClassName: string; Mss: Cardinal;
    wPar, lPar: Integer ): Integer;
 var
   Prc: HWND;
-  C  : PWideChar;
+  C: PWideChar;
 begin
   C := PWideChar( ClassName );
   Prc := FindWindow( C, nil );
@@ -116,9 +116,9 @@ end;
 
 function SystemGetWindowsTextFromPoint( ): string;
 var
-  Buffer          : string;
-  txSize          : Integer;
-  cPoint          : TPoint;
+  Buffer: string;
+  txSize: Integer;
+  cPoint: TPoint;
   Handle1, Handle2: NativeInt;
 begin
   Buffer := '';

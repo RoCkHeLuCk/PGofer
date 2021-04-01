@@ -9,10 +9,10 @@ type
 {$M+}
   TPGNetServer = class( TPGItemCMD )
   private
-    FServer        : TServerSocket;
-    FMaxConnect    : Word;
-    FPassWord      : string;
-    FLog           : Boolean;
+    FServer: TServerSocket;
+    FMaxConnect: Word;
+    FPassWord: string;
+    FLog: Boolean;
     FConsoleMessage: Boolean;
     function GetPort( ): Word;
     procedure SetPort( Port: Word );
@@ -30,10 +30,10 @@ type
   published
     property Active: Boolean read GetActive write SetActive;
     property ConsoleMessage: Boolean read FConsoleMessage write FConsoleMessage;
-    property Log       : Boolean read FLog write FLog;
+    property Log: Boolean read FLog write FLog;
     property MaxConnect: Word read FMaxConnect write FMaxConnect;
-    property PassWord  : string read FPassWord write FPassWord;
-    property Port      : Word read GetPort write SetPort;
+    property PassWord: string read FPassWord write FPassWord;
+    property Port: Word read GetPort write SetPort;
     function SendMessage( Text: string ): Integer;
   end;
 {$TYPEINFO ON}
@@ -41,8 +41,8 @@ type
 
   TPGNetClient = class( TPGItemCMD )
   private
-    FClient        : TClientSocket;
-    FPassWord      : string;
+    FClient: TClientSocket;
+    FPassWord: string;
     FConsoleMessage: Boolean;
     function GetPort( ): Word;
     procedure SetPort( Port: Word );
@@ -62,11 +62,11 @@ type
     constructor Create( ItemDad: TPGItem );
     destructor Destroy( ); override;
   published
-    property Active : Boolean read GetActive write SetActive;
+    property Active: Boolean read GetActive write SetActive;
     property Address: string read GetAddress write SetAddress;
     property ConsoleMessage: Boolean read FConsoleMessage write FConsoleMessage;
     property PassWord: string read FPassWord write FPassWord;
-    property Port    : Word read GetPort write SetPort;
+    property Port: Word read GetPort write SetPort;
     function SendCommand( Text: string ): Integer;
   end;
 {$TYPEINFO ON}

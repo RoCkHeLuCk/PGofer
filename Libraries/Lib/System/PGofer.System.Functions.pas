@@ -3,6 +3,7 @@ unit PGofer.System.Functions;
 interface
 
 uses
+  System.Classes,
   PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
   PGofer.Sintatico.Classes, PGofer.System.Variants;
 
@@ -11,11 +12,12 @@ type
 {$M+}
   TPGFunction = class( TPGItemCMD )
   private
-    FTokenList           : TTokenList;
-    FVariantList         : TPGItem;
-    FScript              : string;
+    FTokenList: TTokenList;
+    FVariantList: TPGItem;
+    FScript: TStrings;
     class var FImageIndex: Integer;
     procedure SetScript( const Value: string );
+    function GetScript: string;
   public
     constructor Create( ItemDad: TPGItem; Name: string ); overload;
     destructor Destroy( ); override;
@@ -23,7 +25,7 @@ type
     class function GetImageIndex( ): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( Parent: TObject ); override;
-    property Script: string read FScript write SetScript;
+    property Script: string read GetScript write SetScript;
   published
   end;
 {$TYPEINFO ON}
@@ -48,14 +50,14 @@ uses
 constructor TPGFunction.Create( ItemDad: TPGItem; Name: string );
 begin
   inherited;
-  FScript := '';
+  FScript := TStringList.Create;
   FTokenList := TTokenList.Create( );
   FVariantList := TPGItem.Create( nil, 'VariantList' );
 end;
 
 destructor TPGFunction.Destroy( );
 begin
-  FScript := '';
+  FScript.Free;
   FTokenList.Free( );
   FVariantList.Free( );
   inherited Destroy( );
@@ -63,12 +65,12 @@ end;
 
 procedure TPGFunction.Execute( Gramatica: TGramatica );
 var
-  C         : Integer;
+  C: Integer;
   CountParam: Integer;
   Gramatica2: TGramatica;
-  VarTitulo : string;
-  VarValor  : Variant;
-  Resultado : TPGVariant;
+  VarTitulo: string;
+  VarValor: Variant;
+  Resultado: TPGVariant;
 begin
   CountParam := LerParamentros( Gramatica, 0, Self.FVariantList.Count ) - 1;
   if not Gramatica.Erro then
@@ -116,9 +118,15 @@ begin
   Result := FImageIndex;
 end;
 
+function TPGFunction.GetScript: string;
+begin
+    Result := FScript.Text;
+end;
+
 procedure TPGFunction.SetScript( const Value: string );
 begin
-  ScriptExec( 'Function: ' + Self.Name, Value, nil, False );
+  FScript.Text := Value;
+  ScriptExec( 'Function: ' + Self.Name, FScript.Text, nil, False );
 end;
 
 { TPGFunctionDeclare }
@@ -127,8 +135,8 @@ procedure TPGFunctionDeclare.DeclaraNivel1( Gramatica: TGramatica;
    Nivel: TPGItem );
 var
   Titulo: string;
-  ID    : TPGItem;
-  Fuck  : TPGFunction;
+  ID: TPGItem;
+  Fuck: TPGFunction;
 begin
   ID := IdentificadorLocalizar( Gramatica );
   if ( not Assigned( ID ) ) or ( ID is TPGFunction ) then
@@ -160,7 +168,7 @@ begin
             EncontrarFim( Gramatica, True, Fuck.FTokenList );
             if ( not Gramatica.Erro ) then
             begin
-              Fuck.FScript := copy( Gramatica.Script, FCordIni,
+              Fuck.FScript.Text := copy( Gramatica.Script, FCordIni,
                  Gramatica.TokenList.Token.Cordenada.Single - FCordIni );
             end;
           end

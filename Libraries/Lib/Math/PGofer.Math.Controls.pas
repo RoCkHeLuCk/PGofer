@@ -56,7 +56,7 @@ function FormatConvert( const Prefixo: Boolean; const Formato: string;
    Valor: Extended ): string;
 var
   pre, teste: Extended;
-  c         : Int8;
+  c: Int8;
 begin
   if Prefixo then
   begin

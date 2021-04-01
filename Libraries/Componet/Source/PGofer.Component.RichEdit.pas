@@ -17,8 +17,8 @@ type
   TRichEditEx = class( TRichEdit )
   private
     FOnDropFiles: TOnDropFile;
-    FCharHeight : Integer;
-    FCharWidth  : Integer;
+    FCharHeight: Integer;
+    FCharWidth: Integer;
     function GetCaretX( ): Integer;
     procedure SetCaretX( AValue: Integer );
     function GetCaretY( ): Integer;
@@ -36,14 +36,14 @@ type
     function GetCharWidth: Integer;
   protected
   public
-    property CaretY    : Integer read GetCaretY write SetCaretY;
-    property CaretX    : Integer read GetCaretX write SetCaretX;
-    property CaretXY   : TPoint read GetCaretPos write SetCaretPos;
+    property CaretY: Integer read GetCaretY write SetCaretY;
+    property CaretX: Integer read GetCaretX write SetCaretX;
+    property CaretXY: TPoint read GetCaretPos write SetCaretPos;
     property CharHeight: Integer read GetCharHeight;
-    property CharWidth : Integer read GetCharWidth;
-    property DisplayX  : Integer read GetDisplayX write SetDisplayX;
-    property DisplayY  : Integer read GetDisplayY write SetDisplayY;
-    property DisplayXY : TPoint read GetDisplayXY write SetDisplayXY;
+    property CharWidth: Integer read GetCharWidth;
+    property DisplayX: Integer read GetDisplayX write SetDisplayX;
+    property DisplayY: Integer read GetDisplayY write SetDisplayY;
+    property DisplayXY: TPoint read GetDisplayXY write SetDisplayXY;
   published
     property OnDropFiles: TOnDropFile read FOnDropFiles write SetOnDropFiles;
   end;
@@ -130,8 +130,8 @@ end;
 function TRichEditEx.GetTextMetric( ): TTextMetric;
 var
   TextMetric: TTextMetric;
-  aDC       : HDC;
-  aFont     : HFONT;
+  aDC: HDC;
+  aFont: HFONT;
 begin
   aDC := GetDC( Self.Handle );
   aFont := SelectObject( aDC, Self.Font.Handle );
@@ -150,8 +150,8 @@ end;
 procedure TRichEditEx.DoDropFiles( var msg: TWMDropFiles );
 var
   C, FileCount: Integer;
-  FileName    : array [ 0 .. MAX_PATH ] of Char;
-  FileList    : TStrings;
+  FileName: array [ 0 .. MAX_PATH ] of Char;
+  FileList: TStrings;
 begin
   if Assigned( FOnDropFiles ) then
   begin

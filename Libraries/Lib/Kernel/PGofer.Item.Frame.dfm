@@ -24,9 +24,10 @@ object PGFrame: TPGFrame
     Width = 394
     Height = 40
     Align = alBottom
-    Caption = 'Sobre'
+    Caption = 'About'
     Constraints.MinHeight = 40
     TabOrder = 0
+    ExplicitTop = 71
     object rceAbout: TRichEdit
       Left = 2
       Top = 15
@@ -46,7 +47,6 @@ object PGFrame: TPGFrame
       ReadOnly = True
       TabOrder = 0
       Zoom = 100
-      ExplicitHeight = 83
     end
   end
   object pnlItem: TPanel
@@ -71,7 +71,7 @@ object PGFrame: TPGFrame
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Titulo:'
+      Caption = 'Title:'
     end
     object EdtName: TEditEx
       Left = 70

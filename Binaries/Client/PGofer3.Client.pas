@@ -39,7 +39,7 @@ type
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
   private
-    FMouse          : TPoint;
+    FMouse: TPoint;
     FFrmAutoComplete: TFrmAutoComplete;
     procedure FormAutoSize( );
   protected
@@ -127,7 +127,7 @@ end;
 
 procedure TFrmPGofer.FormAutoSize( );
 var
-  TextHeight, TextWidth                        : Integer;
+  TextHeight, TextWidth: Integer;
   Counter, AuxLength, MaxLength, IndexMaxLength: Integer;
 begin
   MaxLength := 0;

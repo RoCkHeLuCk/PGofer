@@ -10,8 +10,8 @@ type
 {$M+}
   TPGVariant = class( TPGItemCMD )
   private
-    FValue               : Variant;
-    FConstant            : Boolean;
+    FValue: Variant;
+    FConstant: Boolean;
     class var FImageIndex: Integer;
   protected
     class function GetImageIndex( ): Integer; override;
@@ -95,8 +95,8 @@ class procedure TPGVariantDeclare.DeclaraNivel1( Gramatica: TGramatica;
    Nivel: TPGItem; Constant: Boolean );
 var
   Titulo: string;
-  ID    : TPGItem;
-  Valor : Variant;
+  ID: TPGItem;
+  Valor: Variant;
 begin
   ID := IdentificadorLocalizar( Gramatica );
   if ( not Assigned( ID ) ) or ( ID is TPGVariant ) then

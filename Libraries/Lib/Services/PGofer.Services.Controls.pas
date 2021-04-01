@@ -151,8 +151,8 @@ end;
 function ServiceSetState( Machine, Service: string; Control: Byte ): Boolean;
 var
   sc_Machie, sc_Service: SC_Handle;
-  ss_Status            : TServiceStatus;
-  Tempo                : PChar;
+  ss_Status: TServiceStatus;
+  Tempo: PChar;
 begin
   Result := False;
   // abre a maquina
@@ -193,7 +193,7 @@ end;
 function ServiceGetState( Machine, Service: string ): Cardinal;
 var
   sc_Machie, sc_Service: SC_Handle;
-  ss_Status            : TServiceStatus;
+  ss_Status: TServiceStatus;
 begin
   Result := 0;
   // abre a maquina
@@ -241,9 +241,9 @@ end;
 function ServiceGetConfig( Machine, Service: string ): Cardinal;
 var
   sc_Machie, sc_Service: SC_Handle;
-  nBytesNeeded         : DWord;
-  sConfig              : Pointer;
-  pConfig              : PQueryServiceConfigA;
+  nBytesNeeded: DWord;
+  sConfig: Pointer;
+  pConfig: PQueryServiceConfigA;
 begin
   Result := 0;
   // abre a maquina
@@ -322,8 +322,8 @@ end;
 
 function ServiceGetDesciption( Machine, Service: string ): string;
 var
-  dwNeeded             : DWord;
-  Buffer               : LPSERVICE_DESCRIPTION;
+  dwNeeded: DWord;
+  Buffer: LPSERVICE_DESCRIPTION;
   sc_Machie, sc_Service: SC_Handle;
 begin
   Result := '';
@@ -359,7 +359,7 @@ end;
 
 function ServiceSetDesciption( Machine, Service, Description: string ): Boolean;
 var
-  Sc_Buffer            : SERVICE_DESCRIPTION;
+  Sc_Buffer: SERVICE_DESCRIPTION;
   sc_Machie, sc_Service: SC_Handle;
 begin
   Result := False;

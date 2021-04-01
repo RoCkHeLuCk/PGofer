@@ -27,8 +27,10 @@ type
     procedure CmbTipoChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
+    procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
+       Shift: TShiftState );
   private
-    FItem           : TPGTask;
+    FItem: TPGTask;
     FFrmAutoComplete: TFrmAutoComplete;
   public
     constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
@@ -45,7 +47,7 @@ begin
   inherited Create( Item, Parent );
   FItem := TPGTask( Item );
   CmbTipo.ItemIndex := FItem.Tipo;
-  EdtScript.Text := FItem.Script;
+  EdtScript.Lines.Text := FItem.Script;
   FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;
 
@@ -56,10 +58,22 @@ begin
   inherited Destroy( );
 end;
 
+procedure TPGTaskFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
+   Shift: TShiftState );
+begin
+  if FItem.isItemExist( EdtName.Text, True ) then
+  begin
+    EdtName.Color := clRed;
+  end else begin
+    EdtName.Color := clWindow;
+    inherited;
+  end;
+end;
+
 procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
-  FItem.Script := EdtScript.Text;
+  FItem.Script := EdtScript.Lines.Text;
 end;
 
 procedure TPGTaskFrame.CmbTipoChange( Sender: TObject );

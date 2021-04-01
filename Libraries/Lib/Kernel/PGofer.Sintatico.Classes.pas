@@ -39,7 +39,7 @@ type
     // procedure AttributeAdd(AttType: TPGAttributeType; Value: String);
     // property AttributeList: TObjectList<TPGRttiAttribute>
     // read FAttributeList;
-    function isItemExist( AName: string ): Boolean; virtual;
+    function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
   end;
 
 {$M+}
@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  System.SysUtils, System.TypInfo,
+  System.TypInfo,
   PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls, PGofer.ImageList;
 
 { TPGAttribute }
@@ -126,11 +126,15 @@ begin
   Result := FImageIndex;
 end;
 
-function TPGItemCMD.isItemExist( AName: string ): Boolean;
+function TPGItemCMD.isItemExist( AName: string; ALocal: Boolean ): Boolean;
 var
   Item: TPGItem;
 begin
-  Item := FindID( GlobalCollection, AName );
+  if ALocal then
+    Item := Self.Parent.FindName( AName )
+  else
+    Item := FindID( GlobalCollection, AName );
+
   Result := ( Assigned( Item ) and ( Item <> Self ) );
 end;
 
@@ -175,7 +179,7 @@ procedure TPGItemCMD.RttiCreate( );
 
 var
   RttiContext: TRttiContext;
-  RttiType   : TRttiType;
+  RttiType: TRttiType;
 begin
   RttiContext := TRttiContext.Create( );
   RttiType := RttiContext.GetType( Self.ClassType );
@@ -192,16 +196,16 @@ end;
 
 procedure TPGItemCMD.RttiExecute( Gramatica: TGramatica; Item: TPGItemCMD );
 var
-  RttiContext : TRttiContext;
-  RttiType    : TRttiType;
+  RttiContext: TRttiContext;
+  RttiType: TRttiType;
   RttiProperty: TRttiProperty;
-  RttiMethods : TRttiMethod;
-  Parametros  : TArray< TRttiParameter >;
-  Tamanho     : SmallInt;
-  Valor       : TValue;
-  Valores     : array of TValue;
-  Aux         : Variant;
-  ItemAux     : TPGItemCMD;
+  RttiMethods: TRttiMethod;
+  Parametros: TArray< TRttiParameter >;
+  Tamanho: SmallInt;
+  Valor: TValue;
+  Valores: array of TValue;
+  Aux: Variant;
+  ItemAux: TPGItemCMD;
 begin
   RttiContext := TRttiContext.Create( );
   RttiType := RttiContext.GetType( Item.ClassType );
@@ -297,10 +301,9 @@ begin
 end;
 
 initialization
-
-TriggersCollect.RegisterClass( 'Folder', TPGFolder );
-TPGItemCMD.FImageIndex := GlogalImageList.AddIcon( 'Method' );
-TPGFolder.FImageIndex := GlogalImageList.AddIcon( 'Folder' );
+  TriggersCollect.RegisterClass( 'Folder', TPGFolder );
+  TPGItemCMD.FImageIndex := GlogalImageList.AddIcon( 'Method' );
+  TPGFolder.FImageIndex := GlogalImageList.AddIcon( 'Folder' );
 
 finalization
 

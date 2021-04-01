@@ -32,42 +32,44 @@ type
     mniExpand: TMenuItem;
     mniUnExpand: TMenuItem;
     N1: TMenuItem;
+    ppmConttroler: TPopupMenu;
     constructor Create( ACollectItem: TPGItemCollect ); reintroduce;
     destructor Destroy( ); override;
+    procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormShow( Sender: TObject );
-    procedure TrvControllerGetSelectedIndex( Sender: TObject; Node: TTreeNode );
-    procedure TrvControllerDragOver( Sender, Source: TObject; X, Y: Integer;
-       State: TDragState; var Accept: Boolean );
+    procedure FormDestroy( Sender: TObject );
+    procedure FormResize( Sender: TObject );
+    procedure onCreateItemPopUpClick( Sender: TObject );
     procedure EdtFindKeyPress( Sender: TObject; var Key: Char );
     procedure TrvControllerCompare( Sender: TObject; Node1, Node2: TTreeNode;
        Data: Integer; var Compare: Integer );
+    procedure TrvControllerGetSelectedIndex( Sender: TObject; Node: TTreeNode );
+    procedure TrvControllerDragOver( Sender, Source: TObject; X, Y: Integer;
+       State: TDragState; var Accept: Boolean );
     procedure TrvControllerDragDrop( Sender, Source: TObject; X, Y: Integer );
+    procedure TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
+    procedure TrvControllerKeyUp( Sender: TObject; var Key: Word;
+       Shift: TShiftState );
+    procedure TrvControllerMouseDown( Sender: TObject; Button: TMouseButton;
+       Shift: TShiftState; X, Y: Integer );
     procedure mniAZClick( Sender: TObject );
     procedure mniZAClick( Sender: TObject );
     procedure mniAlphaSortFolderClick( Sender: TObject );
-    procedure onCreateItemPopUpClick( Sender: TObject );
-    procedure FormDestroy( Sender: TObject );
-    procedure btnRecallClick( Sender: TObject );
-    procedure FormResize( Sender: TObject );
-    procedure TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
     procedure mniDeleteClick( Sender: TObject );
     procedure mniExpandClick( Sender: TObject );
     procedure mniUnExpandClick( Sender: TObject );
-    procedure FormCreate( Sender: TObject );
-    procedure TrvControllerKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
-    procedure TrvControllerMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+    procedure btnRecallClick( Sender: TObject );
   private
-    FAlphaSort      : Boolean;
+    FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
     procedure PanelCleaning( );
     procedure CreatePopups( );
     procedure FrameShow( );
     procedure FrameHide( );
+    function GetTargetWorking() : TPGItem;
   protected
-    FCollectItem : TPGItemCollect;
+    FCollectItem: TPGItemCollect;
     FSelectedItem: TPGItem;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
@@ -113,32 +115,14 @@ begin
   inherited;
   FCollectItem.TreeViewAttach( );
   TrvController.AlphaSort( True );
-  if not Assigned( FSelectedItem ) then
-    Self.FrameHide( );
-end;
-
-procedure TFrmController.FrameHide( );
-begin
-  Self.PanelCleaning( );
-  PnlFrame.Visible := False;
-  Splitter1.Visible := False;
-  Self.ClientWidth := PnlTreeView.ClientWidth;
-  btnRecall.Caption := '>>';
-end;
-
-procedure TFrmController.FrameShow( );
-begin
-  Splitter1.Visible := True;
-  PnlFrame.Visible := True;
-  TrvController.OnGetSelectedIndex( nil, nil );
-  btnRecall.Caption := '<<';
-  Self.ClientWidth := PnlTreeView.ClientWidth + Splitter1.ClientWidth +
-     PnlFrame.ClientWidth;
+  if not TrvController.isSelectWork then
+     FrameHide();
 end;
 
 procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
   inherited;
+  FrameHide( );
   FCollectItem.UpdateToFile( );
   FCollectItem.TreeViewDetach( );
 end;
@@ -176,6 +160,10 @@ begin
   Self.FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder',
      FAlphaSortFolder );
   Self.mniAlphaSortFolder.Checked := FAlphaSortFolder;
+  if Self.FAlphaSort then
+     mniAZ.Click
+  else
+     mniZA.Click;
 end;
 
 procedure TFrmController.IniConfigSave( );
@@ -189,6 +177,25 @@ begin
   FIniFile.WriteBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
   FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', Self.FAlphaSortFolder );
   FIniFile.UpdateFile;
+end;
+
+procedure TFrmController.FrameHide( );
+begin
+  Self.PanelCleaning( );
+  PnlFrame.Visible := False;
+  Splitter1.Visible := False;
+  Self.ClientWidth := PnlTreeView.ClientWidth;
+  btnRecall.Caption := '>>';
+end;
+
+procedure TFrmController.FrameShow( );
+begin
+  Splitter1.Visible := True;
+  PnlFrame.Visible := True;
+  TrvController.OnGetSelectedIndex( nil, nil );
+  btnRecall.Caption := '<<';
+  Self.ClientWidth := PnlTreeView.ClientWidth + Splitter1.ClientWidth +
+     PnlFrame.ClientWidth;
 end;
 
 procedure TFrmController.PanelCleaning( );
@@ -209,19 +216,27 @@ begin
     TrvController.FindText( EdtFind.Text );
 end;
 
+procedure TFrmController.mniAZClick( Sender: TObject );
+begin
+  btnAlphaSort.OnClick := mniAZClick;
+  btnAlphaSort.Caption := mniAZ.Caption;
+  FAlphaSort := True;
+  TrvController.AlphaSort( True );
+end;
+
+procedure TFrmController.mniZAClick( Sender: TObject );
+begin
+  btnAlphaSort.OnClick := mniZAClick;
+  btnAlphaSort.Caption := mniZA.Caption;
+  FAlphaSort := False;
+  TrvController.AlphaSort( True );
+end;
+
 procedure TFrmController.mniAlphaSortFolderClick( Sender: TObject );
 begin
   FAlphaSortFolder := not FAlphaSortFolder;
   mniAlphaSortFolder.Checked := FAlphaSortFolder;
   TrvController.AlphaSort( True );
-end;
-
-procedure TFrmController.mniAZClick( Sender: TObject );
-begin
-  FAlphaSort := True;
-  TrvController.AlphaSort( True );
-  btnAlphaSort.OnClick := mniZAClick;
-  btnAlphaSort.Caption := 'ZA';
 end;
 
 procedure TFrmController.mniDeleteClick( Sender: TObject );
@@ -231,24 +246,22 @@ begin
   begin
     TrvController.DeleteSelect( );
   end;
+  btnEdit.Caption := mniDelete.Caption;
+  btnEdit.OnClick := mniDelete.OnClick;
 end;
 
 procedure TFrmController.mniExpandClick( Sender: TObject );
 begin
-  TrvController.FullExpand;
+  TrvController.FullExpand( );
+  btnEdit.Caption := mniExpand.Caption;
+  btnEdit.OnClick := mniExpand.OnClick;
 end;
 
 procedure TFrmController.mniUnExpandClick( Sender: TObject );
 begin
-  TrvController.FullCollapse;
-end;
-
-procedure TFrmController.mniZAClick( Sender: TObject );
-begin
-  FAlphaSort := False;
-  TrvController.AlphaSort( True );
-  btnAlphaSort.OnClick := mniAZClick;
-  btnAlphaSort.Caption := 'AZ';
+  TrvController.FullCollapse( );
+  btnEdit.Caption := mniUnExpand.Caption;
+  btnEdit.OnClick := mniUnExpand.OnClick;
 end;
 
 procedure TFrmController.TrvControllerCompare( Sender: TObject;
@@ -268,7 +281,7 @@ begin
     FolderNode2 := Assigned( Node2.Data ) and
        ( TPGItem( Node2.Data ) is TPGFolder );
 
-    if FolderNode1 and ( not FolderNode2 ) then
+    if ( FolderNode1 ) and ( not FolderNode2 ) then
     begin
       Compare := -1;
     end;
@@ -280,20 +293,44 @@ begin
   end;
 end;
 
-procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
-   X, Y: Integer );
-var
-  Node   : TTreeNode;
-  ItemDad: TPGItem;
+function TFrmController.GetTargetWorking() : TPGItem;
 begin
   if Assigned( TrvController.TargetDrag ) then
   begin
-    ItemDad := TPGItem( TrvController.TargetDrag.Data );
-    if not( ItemDad is TPGFolder ) then
-      ItemDad := ItemDad.Parent;
+    Result := TPGItem( TrvController.TargetDrag.Data );
+    if not( Result is TPGFolder ) then
+      Result := Result.Parent;
   end
   else
-    ItemDad := FCollectItem;
+    Result := FCollectItem;
+end;
+
+procedure TFrmController.TrvControllerDropFiles( Sender: TObject;
+   AFiles: TStrings );
+var
+  FileName: string;
+  ItemDad : TPGItem;
+begin
+  ItemDad := GetTargetWorking();
+  for FileName in AFiles do
+  begin
+    with TPGLink( TPGLinkMirror.Create( ItemDad,
+       FileExtractOnlyFileName( FileName ) ).ItemOriginal ) do
+    begin
+      Arquivo := FileUnExpandPath( FileName );
+      Diretorio := FileUnExpandPath( ExtractFilePath( FileName ) );
+    end;
+  end;
+  FCollectItem.UpdateToFile( );
+end;
+
+procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
+   X, Y: Integer );
+var
+  Node: TTreeNode;
+  ItemDad: TPGItem;
+begin
+  ItemDad := GetTargetWorking();
 
   for Node in TrvController.SelectionsDrag do
   begin
@@ -302,6 +339,7 @@ begin
       TPGItem( Node.Data ).Parent := ItemDad;
     end;
   end;
+  FCollectItem.UpdateToFile;
 end;
 
 procedure TFrmController.TrvControllerDragOver( Sender, Source: TObject;
@@ -326,33 +364,6 @@ begin
   end;
 end;
 
-procedure TFrmController.TrvControllerDropFiles( Sender: TObject;
-   AFiles: TStrings );
-var
-  FileName: string;
-begin
-  if not Assigned( FSelectedItem ) then
-  begin
-    FSelectedItem := FCollectItem;
-  end else begin
-    if ( not( FSelectedItem is TPGFolder ) ) then
-    begin
-      FSelectedItem := FSelectedItem.Parent;
-    end;
-  end;
-
-  for FileName in AFiles do
-  begin
-    with TPGLink( TPGLinkMirror.Create( FSelectedItem,
-       FileExtractOnlyFileName( FileName ) ).ItemOriginal ) do
-    begin
-      Arquivo := FileUnExpandPath( FileName );
-      Diretorio := FileUnExpandPath( ExtractFilePath( FileName ) );
-    end;
-  end;
-  FCollectItem.UpdateToFile( );
-end;
-
 procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;
    Node: TTreeNode );
 begin
@@ -360,9 +371,7 @@ begin
   begin
     if TrvController.isSelectWork then
     begin
-      if Assigned( TrvController.Selected ) and
-         ( TPGItem( TrvController.Selected.Data ) is TPGItem ) and
-         ( TPGItem( TrvController.Selected.Data ) <> FSelectedItem ) then
+      if ( TPGItem( TrvController.Selected.Data ) <> FSelectedItem ) then
       begin
         Self.PanelCleaning( );
         FSelectedItem := TPGItem( TrvController.Selected.Data );
@@ -383,16 +392,15 @@ procedure TFrmController.TrvControllerKeyUp( Sender: TObject; var Key: Word;
 begin
   case Key of
     VK_RETURN:
-    Self.FrameShow( );
+      Self.FrameShow( );
     VK_ESCAPE:
-    Self.FrameHide( );
+      Self.FrameHide( );
   end;
 end;
 
-procedure TFrmController.TrvControllerMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+procedure TFrmController.TrvControllerMouseDown( Sender: TObject;
+   Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
 begin
-  TrvController.Select( TrvController.GetNodeAt( X, Y ), [ ] );
   if TrvController.isSelectWork then
     Self.FrameShow( )
   else
@@ -401,8 +409,8 @@ end;
 
 procedure TFrmController.CreatePopups( );
 var
-  PopUpItem: TMenuItem;
-  c, l     : Integer;
+  PopUpItem, SubPopUpItem, NewPopUpItem: TMenuItem;
+  c, l: Integer;
 begin
   l := FCollectItem.RegClassList.Count - 1;
   if l > 0 then
@@ -415,23 +423,77 @@ begin
       PopUpItem := TMenuItem.Create( ppmCreate );
       ppmCreate.Items.Add( PopUpItem );
       PopUpItem.Caption := FCollectItem.RegClassList.GetNameIndex( c );
-      PopUpItem.ShortCut := TextToShortCut( 'ALT+' + c.ToString );
+      PopUpItem.ShortCut := TextToShortCut( 'ALT+' + IntToStr( c + 1 ) );
       PopUpItem.Tag := c;
       PopUpItem.OnClick := onCreateItemPopUpClick;
     end;
   end;
+
+  PopUpItem := TMenuItem.Create( ppmConttroler );
+  ppmConttroler.Items.Add( PopUpItem );
+  PopUpItem.Caption := 'Alpha Short';
+  for SubPopUpItem in ppmAlphaSort.Items do
+  begin
+    NewPopUpItem := TMenuItem.Create( ppmConttroler );
+    PopUpItem.Add( NewPopUpItem );
+    NewPopUpItem.Caption := SubPopUpItem.Caption;
+    NewPopUpItem.ShortCut := SubPopUpItem.ShortCut;
+    NewPopUpItem.Checked := SubPopUpItem.Checked;
+    NewPopUpItem.OnClick := SubPopUpItem.OnClick;
+    NewPopUpItem.Tag := SubPopUpItem.Tag;
+  end;
+
+  PopUpItem := TMenuItem.Create( ppmConttroler );
+  ppmConttroler.Items.Add( PopUpItem );
+  PopUpItem.Caption := 'Edit';
+  for SubPopUpItem in ppmEdit.Items do
+  begin
+    NewPopUpItem := TMenuItem.Create( ppmConttroler );
+    PopUpItem.Add( NewPopUpItem );
+    NewPopUpItem.Caption := SubPopUpItem.Caption;
+    NewPopUpItem.ShortCut := SubPopUpItem.ShortCut;
+    NewPopUpItem.Checked := SubPopUpItem.Checked;
+    NewPopUpItem.OnClick := SubPopUpItem.OnClick;
+    NewPopUpItem.Tag := SubPopUpItem.Tag;
+  end;
+
+  PopUpItem := TMenuItem.Create( ppmConttroler );
+  ppmConttroler.Items.Add( PopUpItem );
+  PopUpItem.Caption := 'Create';
+  for SubPopUpItem in ppmCreate.Items do
+  begin
+    NewPopUpItem := TMenuItem.Create( ppmConttroler );
+    PopUpItem.Add( NewPopUpItem );
+    NewPopUpItem.Caption := SubPopUpItem.Caption;
+    NewPopUpItem.ShortCut := SubPopUpItem.ShortCut;
+    NewPopUpItem.Checked := SubPopUpItem.Checked;
+    NewPopUpItem.OnClick := SubPopUpItem.OnClick;
+    NewPopUpItem.Tag := SubPopUpItem.Tag;
+  end;
+
 end;
 
 procedure TFrmController.onCreateItemPopUpClick( Sender: TObject );
 var
-  IClass     : TClass;
-  IName      : string;
+  NumItem : Integer;
+  IClass: TClass;
+  IName: string;
   RttiContext: TRttiContext;
-  RttiType   : TRttiType;
-  Value      : TValue;
+  RttiType: TRttiType;
+  Value: TValue;
 begin
-  IClass := FCollectItem.RegClassList.GetClassIndex( TComponent( Sender ).Tag );
-  IName := FCollectItem.RegClassList.GetNameIndex( TComponent( Sender ).Tag );
+  if (Sender is TMenuItem) then
+  begin
+      with TMenuItem(Sender) do
+      begin
+          btnCreate.Caption := Caption;
+          btnCreate.Tag := Tag;
+      end;
+  end;
+  NumItem := TComponent(Sender).Tag;
+
+  IClass := FCollectItem.RegClassList.GetClassIndex( NumItem );
+  IName := FCollectItem.RegClassList.GetNameIndex( NumItem );
 
   if not Assigned( FSelectedItem ) then
   begin

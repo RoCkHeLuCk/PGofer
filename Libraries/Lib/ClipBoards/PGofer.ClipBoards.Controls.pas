@@ -58,9 +58,9 @@ end;
 function ClipBoardGetFormat( ): string;
 var
   Continuar: boolean;
-  c, d, e  : Integer;
-  FmtName  : array [ 0 .. 128 ] of Char;
-  Texto    : string;
+  c, d, e: Integer;
+  FmtName: array [ 0 .. 128 ] of Char;
+  Texto: string;
 begin
   Result := '';
   try
@@ -137,10 +137,10 @@ end;
 
 procedure ClipBoardLoadFormat( Reader: TReader );
 var
-  fmt    : Integer;
+  fmt: Integer;
   FmtName: string;
-  Size   : Integer;
-  Ms     : TMemoryStream;
+  Size: Integer;
+  Ms: TMemoryStream;
 begin
   Assert( Assigned( Reader ) );
   fmt := Reader.ReadInteger;
@@ -193,7 +193,7 @@ end;
 procedure ClipBoardSaveFormat( fmt: Word; writer: TWriter );
 var
   FmtName: array [ 0 .. 128 ] of Char;
-  Ms     : TMemoryStream;
+  Ms: TMemoryStream;
 begin
   Assert( Assigned( writer ) );
   if 0 = GetClipboardFormatName( fmt, FmtName, SizeOf( FmtName ) ) then
@@ -217,7 +217,7 @@ end;
 procedure ClipBoardSaveStream( S: TStream );
 var
   writer: TWriter;
-  i     : Integer;
+  i: Integer;
 begin
   Assert( Assigned( S ) );
   writer := TWriter.Create( S, 4096 );

@@ -12,18 +12,22 @@ type
 {$M+}
   TPGLink = class( TPGItemTrigger )
   private
-    FArquivo             : string;
-    FParametro           : string;
-    FDiretorio           : string;
-    FScriptIni           : string;
-    FScriptEnd           : string;
-    FEstado              : Byte;
-    FPrioridade          : Byte;
-    FOperation           : Byte;
-    FCanExecute          : Boolean;
+    FArquivo: string;
+    FParametro: string;
+    FDiretorio: string;
+    FScriptIni: TStrings;
+    FScriptEnd: TStrings;
+    FEstado: Byte;
+    FPrioridade: Byte;
+    FOperation: Byte;
+    FCanExecute: Boolean;
     class var FImageIndex: Integer;
     function GetDirExist( ): Boolean;
     function GetFileExist( ): Boolean;
+    function GetScriptEnd: string;
+    function GetScriptIni: string;
+    procedure SetScriptEnd(const Value: string);
+    procedure SetScriptIni(const Value: string);
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
@@ -32,18 +36,19 @@ type
     destructor Destroy( ); override;
     class var GlobList: TPGItem;
     procedure Frame( Parent: TObject ); override;
+    procedure Triggering( ); override;
   published
-    property Arquivo    : string read FArquivo write FArquivo;
-    property Parametro  : string read FParametro write FParametro;
-    property Diretorio  : string read FDiretorio write FDiretorio;
-    property Estado     : Byte read FEstado write FEstado;
-    property Prioridade : Byte read FPrioridade write FPrioridade;
-    property Operation  : Byte read FOperation write FOperation;
-    property ScriptIni  : string read FScriptIni write FScriptIni;
-    property ScriptEnd  : string read FScriptEnd write FScriptEnd;
+    property Arquivo: string read FArquivo write FArquivo;
+    property Parametro: string read FParametro write FParametro;
+    property Diretorio: string read FDiretorio write FDiretorio;
+    property Estado: Byte read FEstado write FEstado;
+    property Prioridade: Byte read FPrioridade write FPrioridade;
+    property Operation: Byte read FOperation write FOperation;
+    property ScriptIni: string read GetScriptIni write SetScriptIni;
+    property ScriptEnd: string read GetScriptEnd write SetScriptEnd;
     property isFileExist: Boolean read GetFileExist;
-    property isDirExist : Boolean read GetDirExist;
-    property CanExecute : Boolean write FCanExecute;
+    property isDirExist: Boolean read GetDirExist;
+    property CanExecute: Boolean write FCanExecute;
   end;
 {$TYPEINFO ON}
 
@@ -85,8 +90,8 @@ begin
   FEstado := 1;
   FPrioridade := 3;
   FOperation := 0;
-  FScriptIni := '';
-  FScriptEnd := '';
+  FScriptIni := TStringList.Create();
+  FScriptEnd := TStringList.Create();
   FCanExecute := true;
 end;
 
@@ -98,7 +103,8 @@ begin
   FEstado := 1;
   FPrioridade := 3;
   FOperation := 0;
-  FScriptEnd := '';
+  FScriptIni.Free();
+  FScriptEnd.Free();
   FCanExecute := False;
   inherited;
 end;
@@ -122,6 +128,31 @@ end;
 class function TPGLink.GetImageIndex: Integer;
 begin
   Result := FImageIndex;
+end;
+
+function TPGLink.GetScriptEnd: string;
+begin
+    Result := FScriptEnd.Text;
+end;
+
+function TPGLink.GetScriptIni: string;
+begin
+    Result := FScriptIni.Text;
+end;
+
+procedure TPGLink.SetScriptEnd(const Value: string);
+begin
+    FScriptEnd.Text := Value;
+end;
+
+procedure TPGLink.SetScriptIni(const Value: string);
+begin
+    FScriptIni.Text := Value;
+end;
+
+procedure TPGLink.Triggering( );
+begin
+  ScriptExec( 'Link: ' + Self.Name, Self.Name, nil, False );
 end;
 
 procedure TPGLink.ExecutarNivel1( Gramatica: TGramatica );
@@ -171,10 +202,10 @@ end;
 { TPGLinkDec }
 procedure TPGLinkDeclare.Execute( Gramatica: TGramatica );
 var
-  Titulo    : string;
+  Titulo: string;
   Quantidade: Byte;
-  Id        : TPGItem;
-  Link      : TPGLink;
+  Id: TPGItem;
+  Link: TPGLink;
 begin
   Gramatica.TokenList.GetNextToken;
   Id := IdentificadorLocalizar( Gramatica );

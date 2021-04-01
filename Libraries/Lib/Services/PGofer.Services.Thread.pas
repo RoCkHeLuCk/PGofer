@@ -11,8 +11,8 @@ type
        const Config: Cardinal );
   private
     { Private declarations }
-    HostA  : string;
-    ItemA  : TListItem;
+    HostA: string;
+    ItemA: TListItem;
     ConfigA: Cardinal;
   protected
     procedure Execute; override;

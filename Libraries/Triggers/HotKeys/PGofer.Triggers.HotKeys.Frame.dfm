@@ -19,7 +19,6 @@ inherited PGFrameHotKey: TPGFrameHotKey
     inherited rceAbout: TRichEdit
       Width = 391
       ExplicitWidth = 391
-      ExplicitHeight = 23
     end
   end
   inherited pnlItem: TPanel
@@ -145,7 +144,9 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Font.Name = 'Tahoma'
         Font.Style = []
         ParentFont = False
+        ScrollBars = ssBoth
         TabOrder = 0
+        WantTabs = True
         Zoom = 100
         OnKeyUp = EdtScriptKeyUp
       end

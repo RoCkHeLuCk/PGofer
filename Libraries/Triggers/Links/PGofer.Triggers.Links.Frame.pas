@@ -31,8 +31,8 @@ type
     pnlScript: TPanel;
     GrbScriptIni: TGroupBox;
     EdtScriptIni: TRichEditEx;
-    gpbScriptEnd: TGroupBox;
-    edtScriptEnd: TRichEditEx;
+    GpbScriptEnd: TGroupBox;
+    EdtScriptEnd: TRichEditEx;
     Splitter1: TSplitter;
     procedure EdtArquivoChange( Sender: TObject );
     procedure EdtParametroChange( Sender: TObject );
@@ -44,13 +44,16 @@ type
     procedure BtnDiretorioClick( Sender: TObject );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
-    procedure edtScriptEndChange( Sender: TObject );
+    procedure EdtScriptEndChange( Sender: TObject );
     procedure EdtScriptIniChange( Sender: TObject );
     procedure BtnTestClick( Sender: TObject );
   private
-    FItem            : TPGLink;
+    FItem: TPGLink;
     FFrmAutoCompleteI: TFrmAutoComplete;
     FFrmAutoCompleteE: TFrmAutoComplete;
+  protected
+    procedure IniConfigSave( ); override;
+    procedure IniConfigLoad( ); override;
   public
     constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -89,7 +92,7 @@ end;
 
 procedure TPGLinkFrame.BtnTestClick( Sender: TObject );
 begin
-  ScriptExec( 'Link Teste: ' + FItem.Name, FItem.Name, nil, false );
+  FItem.Triggering( );
 end;
 
 procedure TPGLinkFrame.CmbEstadoChange( Sender: TObject );
@@ -117,10 +120,10 @@ begin
   CmbEstado.ItemIndex := FItem.Estado;
   CmbPrioridade.ItemIndex := FItem.Prioridade;
   CmbOperation.ItemIndex := FItem.Operation;
-  EdtScriptIni.Text := FItem.ScriptIni;
-  edtScriptEnd.Text := FItem.ScriptEnd;
+  EdtScriptIni.Lines.Text := FItem.ScriptIni;
+  EdtScriptEnd.Lines.Text := FItem.ScriptEnd;
   FFrmAutoCompleteI := TFrmAutoComplete.Create( EdtScriptIni );
-  FFrmAutoCompleteE := TFrmAutoComplete.Create( edtScriptEnd );
+  FFrmAutoCompleteE := TFrmAutoComplete.Create( EdtScriptEnd );
 
 end;
 
@@ -153,7 +156,7 @@ end;
 procedure TPGLinkFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
-  if FItem.isItemExist( EdtName.Text ) then
+  if FItem.isItemExist( EdtName.Text, False ) then
   begin
     EdtName.Color := clRed;
   end else begin
@@ -167,14 +170,27 @@ begin
   FItem.Parametro := EdtParametro.Text;
 end;
 
-procedure TPGLinkFrame.edtScriptEndChange( Sender: TObject );
+procedure TPGLinkFrame.EdtScriptEndChange( Sender: TObject );
 begin
-  FItem.ScriptEnd := edtScriptEnd.Text;
+  FItem.ScriptEnd := EdtScriptEnd.Lines.Text;
 end;
 
 procedure TPGLinkFrame.EdtScriptIniChange( Sender: TObject );
 begin
-  FItem.ScriptIni := EdtScriptIni.Text;
+  FItem.ScriptIni := EdtScriptIni.Lines.Text;
+end;
+
+procedure TPGLinkFrame.IniConfigLoad;
+begin
+  inherited;
+  Self.GpbScriptEnd.Height := FIniFile.ReadInteger( Self.ClassName, 'Scripts',
+     Self.GpbScriptEnd.Height );
+end;
+
+procedure TPGLinkFrame.IniConfigSave;
+begin
+  FIniFile.WriteInteger( Self.ClassName, 'Scripts', Self.GpbScriptEnd.Height );
+  inherited;
 end;
 
 end.

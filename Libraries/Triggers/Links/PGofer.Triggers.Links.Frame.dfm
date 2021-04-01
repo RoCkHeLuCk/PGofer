@@ -10,9 +10,6 @@ inherited PGLinkFrame: TPGLinkFrame
   inherited grbAbout: TGroupBox
     Top = 321
     ExplicitTop = 321
-    inherited rceAbout: TRichEdit
-      ExplicitHeight = 23
-    end
   end
   inherited pnlItem: TPanel
     Height = 310
@@ -199,11 +196,11 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 10
       object Splitter1: TSplitter
         Left = 0
-        Top = 66
+        Top = 68
         Width = 400
         Height = 8
         Cursor = crVSplit
-        Align = alTop
+        Align = alBottom
         Beveled = True
         ExplicitTop = 94
       end
@@ -212,39 +209,15 @@ inherited PGLinkFrame: TPGLinkFrame
         Left = 3
         Top = 3
         Width = 394
-        Height = 60
-        Align = alTop
+        Height = 62
+        Align = alClient
         Caption = 'Script Inicio (Run: F9)'
         Constraints.MinHeight = 60
         TabOrder = 0
+        ExplicitLeft = 6
+        ExplicitTop = 14
+        ExplicitHeight = 61
         object EdtScriptIni: TRichEditEx
-          Left = 2
-          Top = 15
-          Width = 390
-          Height = 43
-          Align = alClient
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          TabOrder = 0
-          Zoom = 100
-          OnChange = EdtScriptIniChange
-        end
-      end
-      object gpbScriptEnd: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 77
-        Width = 394
-        Height = 62
-        Align = alClient
-        Caption = 'Script Final (Run: F9)'
-        Constraints.MinHeight = 60
-        TabOrder = 1
-        object edtScriptEnd: TRichEditEx
           Left = 2
           Top = 15
           Width = 390
@@ -256,9 +229,44 @@ inherited PGLinkFrame: TPGLinkFrame
           Font.Name = 'Tahoma'
           Font.Style = []
           ParentFont = False
+          ScrollBars = ssBoth
           TabOrder = 0
+          WantTabs = True
           Zoom = 100
-          OnChange = edtScriptEndChange
+          OnChange = EdtScriptIniChange
+          ExplicitHeight = 43
+        end
+      end
+      object GpbScriptEnd: TGroupBox
+        AlignWithMargins = True
+        Left = 3
+        Top = 79
+        Width = 394
+        Height = 60
+        Align = alBottom
+        Caption = 'Script Final (Run: F9)'
+        Constraints.MinHeight = 60
+        TabOrder = 1
+        ExplicitLeft = 5
+        ExplicitTop = 86
+        object EdtScriptEnd: TRichEditEx
+          Left = 2
+          Top = 15
+          Width = 390
+          Height = 43
+          Align = alClient
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
+          ScrollBars = ssBoth
+          TabOrder = 0
+          WantTabs = True
+          Zoom = 100
+          OnChange = EdtScriptEndChange
+          ExplicitHeight = 45
         end
       end
     end

@@ -15,7 +15,7 @@ type
     EdtScript: TRichEditEx;
     procedure EdtScriptExit( Sender: TObject );
   private
-    FItem          : TPGFunction;
+    FItem: TPGFunction;
     frmAutoComplete: TFrmAutoComplete;
   public
     constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;

@@ -57,15 +57,15 @@ function NetSetTCPIP( NetworkCard, IPAddress, Mask, GateWay: string ): Integer;
 const
   wbemFlagForwardOnly = $00000020;
 var
-  FSWbemLocator     : OleVariant;
-  FWMIService       : OleVariant;
-  FWbemObjectSet    : OleVariant;
-  FWbemObject       : OleVariant;
-  oEnum             : IEnumvariant;
-  iValue            : LongWord;
-  vIPAddress        : OleVariant;
-  vSubnetMask       : OleVariant;
-  vDefaultIPGateway : OleVariant;
+  FSWbemLocator: OleVariant;
+  FWMIService: OleVariant;
+  FWbemObjectSet: OleVariant;
+  FWbemObject: OleVariant;
+  oEnum: IEnumvariant;
+  iValue: LongWord;
+  vIPAddress: OleVariant;
+  vSubnetMask: OleVariant;
+  vDefaultIPGateway: OleVariant;
   vGatewayCostMetric: OleVariant;
 begin
   Result := 0;

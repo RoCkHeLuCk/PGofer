@@ -68,7 +68,7 @@ end;
 function TPGRegistryEnvironment.Remove( Key, Value: string ): Boolean;
 var
   Content: string;
-  I      : Integer;
+  I: Integer;
 begin
   Content := Self.Read( Key );
   I := Pos( Value, Content );

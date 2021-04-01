@@ -2,11 +2,175 @@
 <Triggers Version="1.0">
   <Folder Name="Folder" Enabled="true" ReadOnly="false">
     <_Expanded Type="Boolean">False</_Expanded>
-    <Task Name="Task" Enabled="true" ReadOnly="false">
-      <Script Type="string">FrmTriggers;</Script>
-      <DateTime Type="TDateTime">30/12/1899</DateTime>
-      <Repetir Type="Word">0</Repetir>
-      <Tipo Type="Byte">0</Tipo>
-    </Task>
+    <Link Name="Link1" Enabled="true" ReadOnly="false">
+      <Arquivo Type="string"></Arquivo>
+      <Parametro Type="string"></Parametro>
+      <Diretorio Type="string"></Diretorio>
+      <Estado Type="Byte">1</Estado>
+      <Prioridade Type="Byte">3</Prioridade>
+      <Operation Type="Byte">0</Operation>
+      <ScriptIni Type="string"></ScriptIni>
+      <ScriptEnd Type="string"></ScriptEnd>
+    </Link>
+    <Folder Name="Folder" Enabled="true" ReadOnly="false">
+      <_Expanded Type="Boolean">False</_Expanded>
+      <Folder Name="Folder" Enabled="true" ReadOnly="false">
+        <_Expanded Type="Boolean">False</_Expanded>
+      </Folder>
+    </Folder>
   </Folder>
+  <Task Name="Task" Enabled="true" ReadOnly="false">
+    <Script Type="string">//cococococo
+FrmTriggers;
+Write('inicializando');
+</Script>
+    <DateTime Type="TDateTime">30/12/1899</DateTime>
+    <Repetir Type="Word">0</Repetir>
+    <Tipo Type="Byte">0</Tipo>
+  </Task>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Task Name="Task2" Enabled="true" ReadOnly="false">
+    <Script Type="string"></Script>
+    <DateTime Type="TDateTime">30/12/1899</DateTime>
+    <Repetir Type="Word">0</Repetir>
+    <Tipo Type="Byte">0</Tipo>
+  </Task>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+    <Link Name="comprovanteporemail2325313151016522108" Enabled="true" ReadOnly="false">
+      <Arquivo Type="string">E:\Downloads\comprovante_por_email2325313151016522108.png</Arquivo>
+      <Parametro Type="string"></Parametro>
+      <Diretorio Type="string">E:\Downloads\</Diretorio>
+      <Estado Type="Byte">1</Estado>
+      <Prioridade Type="Byte">3</Prioridade>
+      <Operation Type="Byte">0</Operation>
+      <ScriptIni Type="string"></ScriptIni>
+      <ScriptEnd Type="string"></ScriptEnd>
+    </Link>
+    <Link Name="PPR2020MonitoramentoDEZ" Enabled="true" ReadOnly="false">
+      <Arquivo Type="string">E:\Downloads\PPR 2020 - Monitoramento DEZ.pdf</Arquivo>
+      <Parametro Type="string"></Parametro>
+      <Diretorio Type="string">E:\Downloads\</Diretorio>
+      <Estado Type="Byte">1</Estado>
+      <Prioridade Type="Byte">3</Prioridade>
+      <Operation Type="Byte">0</Operation>
+      <ScriptIni Type="string"></ScriptIni>
+      <ScriptEnd Type="string"></ScriptEnd>
+    </Link>
+    <HotKeys Name="HotKeys" Enabled="true" ReadOnly="false">
+      <HotKeysHex Type="string"></HotKeysHex>
+      <Detect Type="Byte">0</Detect>
+      <Inhibit Type="Boolean">False</Inhibit>
+      <Script Type="string"></Script>
+    </HotKeys>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+    <Link Name="comprovanteporemail23253131510165221081" Enabled="true" ReadOnly="false">
+      <Arquivo Type="string">E:\Downloads\comprovante_por_email2325313151016522108.png</Arquivo>
+      <Parametro Type="string"></Parametro>
+      <Diretorio Type="string">E:\Downloads\</Diretorio>
+      <Estado Type="Byte">1</Estado>
+      <Prioridade Type="Byte">3</Prioridade>
+      <Operation Type="Byte">0</Operation>
+      <ScriptIni Type="string"></ScriptIni>
+      <ScriptEnd Type="string"></ScriptEnd>
+    </Link>
+  </Folder>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+    <Folder Name="Folder" Enabled="true" ReadOnly="false">
+      <_Expanded Type="Boolean">False</_Expanded>
+    </Folder>
+  </Folder>
+  <Link Name="Link2" Enabled="true" ReadOnly="false">
+    <Arquivo Type="string"></Arquivo>
+    <Parametro Type="string"></Parametro>
+    <Diretorio Type="string"></Diretorio>
+    <Estado Type="Byte">1</Estado>
+    <Prioridade Type="Byte">3</Prioridade>
+    <Operation Type="Byte">0</Operation>
+    <ScriptIni Type="string"></ScriptIni>
+    <ScriptEnd Type="string"></ScriptEnd>
+  </Link>
+  <Task Name="Task3" Enabled="true" ReadOnly="false">
+    <Script Type="string"></Script>
+    <DateTime Type="TDateTime">30/12/1899</DateTime>
+    <Repetir Type="Word">0</Repetir>
+    <Tipo Type="Byte">0</Tipo>
+  </Task>
+  <HotKeys Name="HotKeys2" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string"></HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string"></Script>
+  </HotKeys>
+  <Task Name="Task1" Enabled="true" ReadOnly="false">
+    <Script Type="string">//Variavel para colcar seriais.
+var global Serial;
+
+//Desligar
+function global Off ( ); 
+begin
+    System.ShutDown( 1 );
+end;
+
+//Reiniciar
+function global Reset ( );
+begin
+    System.ShutDown( 2 );
+end;
+
+//StandBy
+function global StandBy ( );
+begin
+    System.ConsoleMsg := False ;
+    System.SetSuspendState( False );
+end;
+
+//Executa o script de serviços  para configurar o pc
+function global InstallServices ( ); 
+begin 
+    File.Script( System.DirCurrent + 'Scripts\Services.pas' ,0 ,0 );
+end;
+
+//Executa o script de registros para configurar o pc
+function global InstallRegister ( ); 
+begin 
+    File.Script( System.DirCurrent + 'Scripts\Registros.pas' ,0 ,0);
+end;
+
+//Executa o script dedetar pastas, para limpar o pc de lixo
+function global InstallDeleteFolders ( );
+begin 
+    File.Script( System.DirCurrent + 'Scripts\DeletePastas.pas' ,0 ,0);
+end;
+
+//Desabilita a Hibernação.
+function global InstallHibernate ( ); 
+begin 
+    File.Exec( 'POWERCFG' , '-H OFF' , '' , flxNormal );
+end;
+</Script>
+    <DateTime Type="TDateTime">30/12/1899</DateTime>
+    <Repetir Type="Word">0</Repetir>
+    <Tipo Type="Byte">0</Tipo>
+  </Task>
 </Triggers>

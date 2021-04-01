@@ -20,6 +20,7 @@ type
     destructor Destroy( ); override;
     property ItemMirror: TPGItemMirror read FItemMirror;
     procedure Execute( Gramatica: TGramatica ); override;
+    procedure Triggering( ); virtual; abstract;
   end;
 
   TPGItemMirror = class( TPGItem )

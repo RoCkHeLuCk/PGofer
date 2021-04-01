@@ -12,7 +12,7 @@ type
     { Private declarations }
     FOwnsObjectsData: Boolean;
     FColumnAlphaSort: Boolean;
-    FSort           : Boolean;
+    FSort: Boolean;
   protected
     { Protected declarations }
     procedure ColClick( Column: TListColumn ); override;
@@ -102,9 +102,9 @@ procedure TListViewEx.DragDrop( Source: TObject; X, Y: Integer );
 var
   TargetItem: TListItem;
   SourceItem: array of TListItem;
-  Aux       : TListItem;
-  Count     : Integer;
-  Inserted  : Boolean;
+  Aux: TListItem;
+  Count: Integer;
+  Inserted: Boolean;
 begin
   SetLength( SourceItem, Self.SelCount );
   Count := 0;

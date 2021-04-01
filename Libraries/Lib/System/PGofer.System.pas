@@ -28,7 +28,7 @@ type
   public
   published
     property CanClose: Boolean read GetCanClose write SetCanClose;
-    property CanOff  : Boolean read GetCanOff write SetCanOff;
+    property CanOff: Boolean read GetCanOff write SetCanOff;
     function DateTimeNow( Format: string ): string;
     procedure Delay( Valor: Cardinal );
     function DialogMessage( Text: string ): Boolean;

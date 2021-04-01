@@ -3,14 +3,14 @@ program PGofer3;
 uses
   PGofer.ImageList in '..\..\Libraries\Lib\Kernel\PGofer.ImageList.pas',
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
-  PGofer.Item.Frame
-     in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGFrame: TFrame} ,
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
   PGofer.Sintatico.Classes
      in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas',
   PGofer.Sintatico.Controls
      in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas',
+  PGofer.Item.Frame
+     in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGFrame: TFrame} ,
   PGofer.ClipBoards in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas',
   PGofer.ClipBoards.Controls
      in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',

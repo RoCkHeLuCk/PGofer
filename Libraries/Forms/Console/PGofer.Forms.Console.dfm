@@ -10,12 +10,12 @@ object FrmConsole: TFrmConsole
   Constraints.MinHeight = 80
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
-  DoubleBuffered = True
   ParentFont = True
   FormStyle = fsStayOnTop
   KeyPreview = True
   OldCreateOrder = False
   Position = poDefault
+  OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -30,6 +30,7 @@ object FrmConsole: TFrmConsole
     Height = 80
     Align = alClient
     BevelOuter = bvNone
+    ParentColor = True
     TabOrder = 0
     OnMouseDown = PnlArrastarMouseDown
     OnMouseMove = PnlArrastarMouseMove
@@ -125,9 +126,6 @@ object FrmConsole: TFrmConsole
       Width = 200
       Height = 68
       Align = alClient
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      BorderStyle = bsNone
       Ctl3D = True
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText

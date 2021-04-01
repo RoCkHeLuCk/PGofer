@@ -8,7 +8,7 @@ uses
 type
   TGlobalImageList = class
   private
-    FImageList  : TImageList;
+    FImageList: TImageList;
     FCurrentPath: string;
   public
     constructor Create( ); overload;

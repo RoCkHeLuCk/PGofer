@@ -32,23 +32,23 @@ type
   TCordenada = record
   private
     FSingle: FixedInt;
-    FRow   : FixedInt;
-    FCol   : FixedInt;
+    FRow: FixedInt;
+    FCol: FixedInt;
     procedure IncCol( );
     procedure IncRow( );
     procedure Zero( );
     function AsString( ): string;
   public
-    property Single  : FixedInt read FSingle;
-    property Row     : FixedInt read FRow;
-    property Col     : FixedInt read FCol;
+    property Single: FixedInt read FSingle;
+    property Row: FixedInt read FRow;
+    property Col: FixedInt read FCol;
     property ToString: string read AsString;
   end;
 
   TToken = class
   private
-    FLexema   : Variant;
-    FClasse   : TLexicoClass;
+    FLexema: Variant;
+    FClasse: TLexicoClass;
     FCordenada: TCordenada;
   public
     constructor Create( Lexema: Variant; Classe: TLexicoClass;
@@ -63,7 +63,7 @@ type
 
   TTokenList = class
   private
-    FTokenList    : TTokens;
+    FTokenList: TTokens;
     FTokenPosition: FixedInt;
     function GetToken( ): TToken;
   public
@@ -82,10 +82,10 @@ type
   private type
     TFita = record
     private
-      FValor    : string;
-      FHigh     : FixedInt;
-      FPosição  : FixedInt;
-      FCabeça   : Char;
+      FValor: string;
+      FHigh: FixedInt;
+      FPosição: FixedInt;
+      FCabeça: Char;
       FCordenada: TCordenada;
     public
       procedure Create( Value: string );
@@ -102,7 +102,7 @@ type
     end;
 
   var
-    FFita  : TFita;
+    FFita: TFita;
     FLexema: TLexema;
 
     procedure IncCabeça( AddLexico: Boolean );
@@ -148,7 +148,7 @@ end;
 
 procedure TCordenada.IncRow;
 begin
-  Inc( FSingle, 2 );
+  Inc( FSingle, 1 );
   Inc( FRow );
   FCol := LowString;
 end;
@@ -209,7 +209,7 @@ end;
 
 procedure TTokenList.Assign( TokenList: TTokenList );
 var
-  c       : FixedInt;
+  c: FixedInt;
   TokenAux: TToken;
 begin
   for c := 0 to TokenList.FTokenList.Count - 1 do
@@ -454,7 +454,7 @@ end;
 procedure TAutomato.Identificadores( );
 var
   Aux: Integer;
-  id : string;
+  id: string;
 begin
   IncCabeça( True );
   while ReadCharInSet( cNumeric + cAlphabet + [ '_' ], True ) do;

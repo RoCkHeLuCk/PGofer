@@ -46,8 +46,8 @@ uses
 function DateTimeToFileTime( DateTime: TDateTime ): PFileTime;
 var
   FileTime: TFileTime;
-  LFT     : TFileTime;
-  LST     : TSystemTime;
+  LFT: TFileTime;
+  LST: TSystemTime;
 begin
   Result := nil;
   if DateTime > 0 then
@@ -300,8 +300,8 @@ end;
 function FileListDir( MaskName: string; ExcludeExt: Boolean = False ): string;
 var
   SearchRec: TSearchRec;
-  FileName : string;
-  c        : Integer;
+  FileName: string;
+  c: Integer;
 begin
   Result := '';
   c := FindFirst( FileExpandPath( MaskName ), faAnyFile, SearchRec );
@@ -345,7 +345,7 @@ end;
 function FileSetDateTime( FileName: string;
    CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 var
-  FileHandle                             : Integer;
+  FileHandle: Integer;
   ftCreateTime, ftModifyTime, ftAcessTime: PFileTime;
 begin
   ftCreateTime := DateTimeToFileTime( CreateTime );

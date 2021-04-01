@@ -16,11 +16,11 @@ type
 
   TPGItem = class( TObjectList< TPGItem > )
   private
-    FName    : string;
-    FEnabled : Boolean;
+    FName: string;
+    FEnabled: Boolean;
     FReadOnly: Boolean;
-    FParent  : TPGItem;
-    FNode    : TTreeNode;
+    FParent: TPGItem;
+    FNode: TTreeNode;
     procedure SetParent( AParent: TPGItem );
     function GetCollectDad( ): TPGItemCollect;
     procedure SetNode( Value: TTreeNode );
@@ -45,7 +45,7 @@ type
 
   TClassList = class
   private
-    FNameList : TList< string >;
+    FNameList: TList< string >;
     FClassList: TList< TClass >;
   public
     constructor Create( ); overload;
@@ -63,15 +63,15 @@ type
     destructor Destroy( ); override;
   private
     FClassList: TClassList;
-    FTreeView : TTreeViewEx;
-    FForm     : TForm;
-    FFileName : string;
+    FTreeView: TTreeViewEx;
+    FForm: TForm;
+    FFileName: string;
     procedure XMLSaveToFile( FileName: string );
     procedure XMLSaveToStream( Stream: TStream );
     procedure XMLLoadFromFile( FileName: string );
     procedure XMLLoadFromStream( Stream: TStream );
   public
-    property TreeView    : TTreeViewEx read FTreeView;
+    property TreeView: TTreeViewEx read FTreeView;
     property RegClassList: TClassList read FClassList;
     procedure RegisterClass( AName: string; AClass: TClass );
     function GetRegClassName( AName: string ): TClass;
@@ -347,7 +347,7 @@ procedure TPGItemCollect.TreeViewAttach( );
 
   procedure NodeAttach( Item: TPGItem );
   var
-    Node     : TTreeNode;
+    Node: TTreeNode;
     ItemChild: TPGItem;
   begin
     if Assigned( Item.Parent ) then
@@ -426,14 +426,14 @@ procedure TPGItemCollect.XMLSaveToStream( Stream: TStream );
 
   procedure CreateNode( Item: TPGItem; XMLNodeDad: IXMLNode );
   var
-    RttiContext    : TRttiContext;
-    RttiType       : TRttiType;
-    RttiProperty   : TRttiProperty;
+    RttiContext: TRttiContext;
+    RttiType: TRttiType;
+    RttiProperty: TRttiProperty;
     XMLNodeProperty: IXMLNode;
-    XMLNode        : IXMLNode;
-    ItemChild      : TPGItem;
-    ItemOriginal   : TPGItem;
-    ClassName      : string;
+    XMLNode: IXMLNode;
+    ItemChild: TPGItem;
+    ItemOriginal: TPGItem;
+    ClassName: string;
   begin
     if not FClassList.TryGetName( Item.ClassType, ClassName ) then
       Exit;
@@ -471,8 +471,8 @@ procedure TPGItemCollect.XMLSaveToStream( Stream: TStream );
 
 var
   XMLDocument: IXMLDocument;
-  XMLRoot    : IXMLNode;
-  Item       : TPGItem;
+  XMLRoot: IXMLNode;
+  Item: TPGItem;
 begin
   XMLDocument := NewXMLDocument;
   XMLDocument.Encoding := 'utf-8';
@@ -504,16 +504,16 @@ procedure TPGItemCollect.XMLLoadFromStream( Stream: TStream );
 
   procedure CreateItem( ItemDad: TPGItem; XMLNode: IXMLNode );
   var
-    RttiContext    : TRttiContext;
-    RttiType       : TRttiType;
-    RttiProperty   : TRttiProperty;
+    RttiContext: TRttiContext;
+    RttiType: TRttiType;
+    RttiProperty: TRttiProperty;
     XMLNodeProperty: IXMLNode;
-    XMLNodeChild   : IXMLNode;
-    ClassRegister  : TClass;
-    Value          : TValue;
-    Item           : TPGItem;
-    ItemOriginal   : TPGItem;
-    Name           : string;
+    XMLNodeChild: IXMLNode;
+    ClassRegister: TClass;
+    Value: TValue;
+    Item: TPGItem;
+    ItemOriginal: TPGItem;
+    Name: string;
   begin
     if ( not FClassList.TryGetValue( XMLNode.NodeName, ClassRegister ) ) or
        ( not XMLNode.HasAttribute( 'Name' ) ) then
@@ -562,7 +562,8 @@ procedure TPGItemCollect.XMLLoadFromStream( Stream: TStream );
               RttiProperty.SetValue( ItemOriginal,
                  StrToFloatDef( XMLNodeProperty.Text, 0 ) );
               tkString, tkLString, tkWString, tkUString:
-              RttiProperty.SetValue( ItemOriginal, XMLNodeProperty.Text );
+              RttiProperty.SetValue( ItemOriginal,
+                 UnicodeString( XMLNodeProperty.Text ) );
             end;
           except
             raise Exception.Create( 'Erro: "' + XMLNode.NodeName + '", Campo "'
@@ -584,7 +585,7 @@ procedure TPGItemCollect.XMLLoadFromStream( Stream: TStream );
 
 var
   XMLDocument: IXMLDocument;
-  XMLNode    : IXMLNode;
+  XMLNode: IXMLNode;
 begin
   Self.Clear;
   XMLDocument := NewXMLDocument;

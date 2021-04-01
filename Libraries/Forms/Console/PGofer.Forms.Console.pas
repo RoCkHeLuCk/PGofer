@@ -28,10 +28,11 @@ type
     procedure FormShow( Sender: TObject );
     procedure FormCreate( Sender: TObject );
     procedure FormDestroy( Sender: TObject );
+    procedure FormActivate( Sender: TObject );
   private
     { Private declarations }
     FMouseA: TPoint;
-    FItem  : TPGFrmConsole;
+    FItem: TPGFrmConsole;
     function GetAutoClose( ): Boolean;
   protected
     procedure CreateWindowHandle( const Params: TCreateParams ); override;
@@ -46,9 +47,9 @@ type
 
   TPGFrmConsole = class( TPGForm )
   private
-    FDelay      : Cardinal;
+    FDelay: Cardinal;
     FShowMessage: Boolean;
-    FAutoClose  : Boolean;
+    FAutoClose: Boolean;
     procedure SetAutoClose( Value: Boolean );
   public
     constructor Create( AForm: TForm ); reintroduce;
@@ -98,6 +99,15 @@ begin
   Self.TmrConsole.Interval := FItem.Delay;
   Self.BtnFixed.Down := ( not FItem.AutoClose );
   Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
+end;
+
+procedure TFrmConsole.FormActivate( Sender: TObject );
+begin
+  // arruma a bagaça para não dar um bug sinistro.
+  Width := Width - 1;
+  Update;
+  Width := Width + 1;
+  Update;
 end;
 
 procedure TFrmConsole.FormClose( Sender: TObject; var Action: TCloseAction );
@@ -202,7 +212,7 @@ begin
   FAutoClose := True;
 end;
 
-destructor TPGFrmConsole.Destroy;
+destructor TPGFrmConsole.Destroy( );
 begin
   FDelay := 0;
   FShowMessage := False;

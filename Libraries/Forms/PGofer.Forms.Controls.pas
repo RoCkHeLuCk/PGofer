@@ -69,9 +69,9 @@ end;
 procedure FormForceShow( Form: TForm; Focus: Boolean );
 var
   ForegroundThreadID: Cardinal;
-  ThisThreadID      : Cardinal;
-  timeout           : Cardinal;
-  C                 : NativeInt;
+  ThisThreadID: Cardinal;
+  timeout: Cardinal;
+  C: NativeInt;
 begin
   // WS_OVERLAPPED or WS_EX_OVERLAPPEDWINDOW sobreposta
   // WS_EX_APPWINDOW visivilidade
@@ -146,7 +146,7 @@ end;
 procedure OnMessage( var AMessage: TMessage );
 var
   Parametro: string;
-  Buffer   : PChar;
+  Buffer: PChar;
 begin
   case AMessage.Msg of
     WM_PG_HIDE:

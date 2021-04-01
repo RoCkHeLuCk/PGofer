@@ -44,7 +44,7 @@ type
     procedure Execute( Gramatica: TGramatica ); override;
     class var GlobList: TPGItem;
   published
-    property AlphaBlend     : Boolean read GetAlphaBlend write SetAlphaBlend;
+    property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue
        write SetAlphaBlendValue;
     procedure Close( );

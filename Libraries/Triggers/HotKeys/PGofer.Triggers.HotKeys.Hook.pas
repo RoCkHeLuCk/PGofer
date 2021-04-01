@@ -41,9 +41,9 @@ type
 
   THookProc = class
   private
-    class var FKBHook   : HHook;
-    class var FMBHook   : HHook;
-    class var FKey      : TKey;
+    class var FKBHook: HHook;
+    class var FMBHook: HHook;
+    class var FKey: TKey;
     class var FShootKeys: TList< Word >;
     class function LowLevelProc( Code: Integer; wParam: wParam; lParam: lParam )
        : LRESULT; stdcall; static;
@@ -87,7 +87,7 @@ class function THookProc.LowLevelProc( Code: Integer; wParam: wParam;
    lParam: lParam ): LRESULT;
 var
   AuxHotKey: TPGHotKey;
-  Inibir   : Boolean;
+  Inibir: Boolean;
 begin
   Inibir := False;
   if ( Code = HC_ACTION ) then
@@ -108,7 +108,7 @@ begin
          ( ( FKey.bDetect = kd_Wheel ) or
          ( AuxHotKey.Detect = Byte( FKey.bDetect ) ) ) then
       begin
-        ScriptExec( 'HotKey: ' + AuxHotKey.Name, AuxHotKey.Name, nil, False );
+        AuxHotKey.Triggering( );
         Inibir := AuxHotKey.Inhibit;
       end;
 

@@ -76,7 +76,7 @@ uses
 
 procedure TPGCopy.Execute( Gramatica: TGramatica );
 var
-  Valor      : string;
+  Valor: string;
   Inicio, Fim: SmallInt;
 begin
   LerParamentros( Gramatica, 3, 3 );
@@ -93,7 +93,7 @@ end;
 
 procedure TPGDelete.Execute( Gramatica: TGramatica );
 var
-  Valor      : string;
+  Valor: string;
   Inicio, Fim: SmallInt;
 begin
   LerParamentros( Gramatica, 3, 3 );
@@ -111,12 +111,12 @@ end;
 
 procedure TPGFor.Execute( Gramatica: TGramatica );
 var
-  ID                  : TPGItem;
-  Variavel            : TPGVariant;
+  ID: TPGItem;
+  Variavel: TPGVariant;
   VarInicio, VarLimite: Int64;
-  LoopContador        : Int64;
-  Decrecente          : Boolean;
-  PositionIni         : FixedInt;
+  LoopContador: Int64;
+  Decrecente: Boolean;
+  PositionIni: FixedInt;
 begin
   Gramatica.TokenList.GetNextToken;
   ID := IdentificadorLocalizar( Gramatica );
@@ -248,7 +248,7 @@ end;
 procedure TPGInsert.Execute( Gramatica: TGramatica );
 var
   Valor1, Valor2: string;
-  Inicio        : SmallInt;
+  Inicio: SmallInt;
 begin
   LerParamentros( Gramatica, 3, 3 );
   Inicio := Gramatica.Pilha.Desempilhar( 0 );
@@ -280,8 +280,8 @@ end;
 procedure TPGRepeat.Execute( Gramatica: TGramatica );
 var
   LoopContador: Int64;
-  Continuar   : Boolean;
-  PositionIni : FixedInt;
+  Continuar: Boolean;
+  PositionIni: FixedInt;
 begin
   LoopContador := 0;
   Continuar := false;
@@ -346,8 +346,8 @@ end;
 procedure TPGWhile.Execute( Gramatica: TGramatica );
 var
   LoopContador: Int64;
-  Continuar   : Boolean;
-  PositionIni : FixedInt;
+  Continuar: Boolean;
+  PositionIni: FixedInt;
 begin
   Gramatica.TokenList.GetNextToken;
   PositionIni := Gramatica.TokenList.Position;

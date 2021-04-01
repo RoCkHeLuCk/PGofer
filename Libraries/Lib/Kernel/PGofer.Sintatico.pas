@@ -22,13 +22,13 @@ type
 
   TGramatica = class( TThread )
   private
-    FErro              : Boolean;
+    FErro: Boolean;
     FConsoleShowMessage: Boolean;
-    FPai               : TPGItem;
-    FLocal             : TPGItem;
-    FPilha             : TPGPilha;
-    FScript            : string;
-    FTokenList         : TTokenList;
+    FPai: TPGItem;
+    FLocal: TPGItem;
+    FPilha: TPGPilha;
+    FScript: string;
+    FTokenList: TTokenList;
   public
     constructor Create( Name: string; ItemDad: TPGItem;
        AutoTerminar: Boolean ); overload;
@@ -50,23 +50,23 @@ procedure ScriptExec( Name, Texto: string; Nivel: TPGItem = nil;
    WaitFor: Boolean = False );
 
 var
-  DirCurrent   : string;
+  DirCurrent: string;
   IniConfigFile: string;
-  LogFile      : string;
+  LogFile: string;
 
-  GlobalCollection : TPGItemCollect;
-  TriggersCollect  : TPGItemCollect;
+  GlobalCollection: TPGItemCollect;
+  TriggersCollect: TPGItemCollect;
   GlobalItemCommand: TPGItem;
   GlobalItemTrigger: TPGItem;
-  LoopLimite       : Int64 = 1000000;
-  FileListMax      : Cardinal = 200;
-  ReplyFormat      : string = '';
-  ReplyPrefix      : Boolean = False;
-  ConsoleNotify    : TPGConsoleNotify;
-  ConsoleMessage   : Boolean = True;
-  LogMaxSize       : Integer = 10000;
-  CanOff           : Boolean = False;
-  CanClose         : Boolean = True;
+  LoopLimite: Int64 = 1000000;
+  FileListMax: Cardinal = 200;
+  ReplyFormat: string = '';
+  ReplyPrefix: Boolean = False;
+  ConsoleNotify: TPGConsoleNotify;
+  ConsoleMessage: Boolean = True;
+  LogMaxSize: Integer = 10000;
+  CanOff: Boolean = False;
+  CanClose: Boolean = True;
 
 implementation
 

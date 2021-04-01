@@ -3,6 +3,7 @@ unit PGofer.Triggers.Tasks;
 interface
 
 uses
+  System.Classes,
   PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Triggers;
 
@@ -11,11 +12,13 @@ type
 {$M+}
   TPGTask = class( TPGItemTrigger )
   private
-    FDateTime            : TDateTime;
-    FRepeat              : Word;
-    FScript              : string;
-    FType                : Byte;
+    FDateTime: TDateTime;
+    FRepeat: Word;
+    FScript: TStrings;
+    FType: Byte;
     class var FImageIndex: Integer;
+    function GetScript: string;
+    procedure SetScript( const Value: string );
   protected
     class function GetImageIndex( ): Integer; override;
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
@@ -25,11 +28,12 @@ type
     procedure Frame( Parent: TObject ); override;
     class var GlobList: TPGItem;
     class procedure Working( AType: Byte; WaitFor: Boolean = False );
+    procedure Triggering( ); override;
   published
-    property Script  : string read FScript write FScript;
+    property Script: string read GetScript write SetScript;
     property DateTime: TDateTime read FDateTime write FDateTime;
-    property Repetir : Word read FRepeat write FRepeat;
-    property Tipo    : Byte read FType write FType;
+    property Repetir: Word read FRepeat write FRepeat;
+    property Tipo: Byte read FType write FType;
   end;
 {$TYPEINFO ON}
 
@@ -60,7 +64,7 @@ constructor TPGTask.Create( Name: string; Mirror: TPGItemMirror );
 begin
   inherited Create( TPGTask.GlobList, name, Mirror );
   Self.ReadOnly := False;
-  FScript := '';
+  FScript := TStringList.Create( );
   FDateTime := 0;
   FRepeat := 0;
   FType := 0;
@@ -68,7 +72,7 @@ end;
 
 destructor TPGTask.Destroy;
 begin
-  FScript := '';
+  FScript.Free;
   FDateTime := 0;
   FRepeat := 0;
   FType := 0;
@@ -91,6 +95,21 @@ begin
   Result := FImageIndex;
 end;
 
+function TPGTask.GetScript: string;
+begin
+  Result := FScript.Text;
+end;
+
+procedure TPGTask.SetScript( const Value: string );
+begin
+  FScript.Text := Value;
+end;
+
+procedure TPGTask.Triggering;
+begin
+  ScriptExec( 'Task: ' + Self.Name, Self.Script, nil );
+end;
+
 class procedure TPGTask.Working( AType: Byte; WaitFor: Boolean = False );
 var
   Item: TPGItem;
@@ -108,10 +127,10 @@ end;
 
 procedure TPGTaskDeclare.Execute( Gramatica: TGramatica );
 var
-  Titulo    : string;
+  Titulo: string;
   Quantidade: Byte;
-  Task      : TPGTask;
-  id        : TPGItem;
+  Task: TPGTask;
+  id: TPGItem;
 begin
   Gramatica.TokenList.GetNextToken;
   id := IdentificadorLocalizar( Gramatica );

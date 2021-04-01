@@ -23,7 +23,7 @@ function SoundCreateInstance( SoundDriver: Cardinal;
    var endpointVolume: IAudioEndpointVolume ): Boolean;
 var
   deviceEnumerator: IMMDeviceEnumerator;
-  defaultDevice   : IMMDevice;
+  defaultDevice: IMMDevice;
 begin
   try
     CoCreateInstance( CLASS_IMMDeviceEnumerator, nil, CLSCTX_INPROC_SERVER,
@@ -46,8 +46,8 @@ end;
 function SoundSetMute( SoundDriver: Cardinal ): Integer;
 var
   endpointVolume: IAudioEndpointVolume;
-  Mudo          : Boolean;
-  Volume        : Cardinal;
+  Mudo: Boolean;
+  Volume: Cardinal;
 begin
   if ( Win32MajorVersion >= 6 ) then
   begin
@@ -72,7 +72,7 @@ end;
 function SoundVolumeStepUp( SoundDriver: Cardinal ): Integer;
 var
   endpointVolume: IAudioEndpointVolume;
-  Volume        : Cardinal;
+  Volume: Cardinal;
 begin
   Result := 0;
   if ( Win32MajorVersion >= 6 ) then
@@ -89,7 +89,7 @@ end;
 function SoundVolumeStepDown( SoundDriver: Cardinal ): Integer;
 var
   endpointVolume: IAudioEndpointVolume;
-  Volume        : Cardinal;
+  Volume: Cardinal;
 begin
   Result := 0;
   if ( Win32MajorVersion >= 6 ) then
@@ -106,8 +106,8 @@ end;
 function SoundGetVolume( SoundDriver: Cardinal ): Integer;
 var
   endpointVolume: IAudioEndpointVolume;
-  Volume        : Single;
-  Volume2       : Cardinal;
+  Volume: Single;
+  Volume2: Cardinal;
 begin
   if ( Win32MajorVersion >= 6 ) then
   begin
@@ -127,8 +127,8 @@ end;
 function SoundSetVolume( SoundDriver: Cardinal; Value: Extended ): Integer;
 var
   endpointVolume: IAudioEndpointVolume;
-  Volume        : Single;
-  Volume2       : Cardinal;
+  Volume: Single;
+  Volume2: Cardinal;
 begin
   if ( Win32MajorVersion >= 6 ) then
   begin

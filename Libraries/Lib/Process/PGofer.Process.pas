@@ -12,7 +12,7 @@ type
   public
   published
     function FileToPID( FileName: string ): Cardinal;
-    function FileFromPID( PID: Cardinal ): string;
+    function PIDToFile( PID: Cardinal ): string;
     function GetPriority( PID: Cardinal ): Byte;
     function GetForeground( ): Cardinal;
     function Kill( PID: Cardinal ): Boolean;
@@ -32,9 +32,9 @@ begin
   Result := ProcessFileToPID( FileName );
 end;
 
-function TPGProcess.FileFromPID( PID: Cardinal ): string;
+function TPGProcess.PIDToFile( PID: Cardinal ): string;
 begin
-  Result := ProcessFileFromPID( PID );
+  Result := ProcessPIDToFile( PID );
 end;
 
 function TPGProcess.GetForeground: Cardinal;
