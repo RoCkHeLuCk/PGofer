@@ -211,7 +211,7 @@ begin
 
   ShellExecuteExW( @ShellExecuteInfoW );
 
-  if ShellExecuteInfoW.hProcess > INVALID_HANDLE_VALUE then
+  if ShellExecuteInfoW.hProcess > 0 then
   begin
     SetPriorityClass( ShellExecuteInfoW.hProcess, GetProcessPri( Prioridade ) );
   end;

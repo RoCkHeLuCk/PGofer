@@ -3,9 +3,7 @@
   <Task Name="rrr44444" Enabled="true" ReadOnly="false">
     <Script Type="string">Process.Kill('calc.exe');
 </Script>
-    <DateTime Type="TDateTime">30/12/1899</DateTime>
-    <Repetir Type="Word">0</Repetir>
-    <Tipo Type="Byte">0</Tipo>
+    <Trigger Type="Byte">0</Trigger>
   </Task>
   <Folder Name="dfghdfgh" Enabled="true" ReadOnly="false">
     <_Expanded Type="Boolean">False</_Expanded>

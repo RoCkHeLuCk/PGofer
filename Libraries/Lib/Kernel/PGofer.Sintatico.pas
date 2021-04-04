@@ -29,12 +29,14 @@ type
     FPilha: TPGPilha;
     FScript: string;
     FTokenList: TTokenList;
+  protected
+    procedure Execute; override;
   public
     constructor Create( AName: string; AItemDad: TPGItem;
        ATerminate: Boolean ); overload;
     destructor Destroy( ); override;
     property Pilha: TPGPilha read FPilha;
-    property local: TPGItem read FLocal;
+    property Local: TPGItem read FLocal;
     property TokenList: TTokenList read FTokenList;
     property Erro: Boolean read FErro write FErro;
     property Script: string read FScript;
@@ -42,8 +44,6 @@ type
     procedure MSGsAdd( AText: string );
     procedure SetScript( AScript: string );
     procedure SetTokens( TokenList: TTokenList );
-  protected
-    procedure Execute; override;
   end;
 
 procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;

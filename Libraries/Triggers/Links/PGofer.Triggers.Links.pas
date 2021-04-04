@@ -8,7 +8,6 @@ uses
   PGofer.Triggers;
 
 type
-
 {$M+}
   TPGLink = class( TPGItemTrigger )
   private
@@ -26,8 +25,9 @@ type
     function GetFileExist( ): Boolean;
     function GetScriptAfter: string;
     function GetScriptBefor: string;
-    procedure SetScriptAfter( const AValue: string );
-    procedure SetScriptBefor( const AValue: string );
+    procedure SetScriptAfter( AValue: string );
+    procedure SetScriptBefor( AValue: string );
+    procedure ThreadExecute( AWaitFor: Boolean );
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
@@ -49,6 +49,7 @@ type
     property isFileExist: Boolean read GetFileExist;
     property isDirExist: Boolean read GetDirExist;
     property CanExecute: Boolean read FCanExecute write FCanExecute;
+    procedure WaitFor( );
   end;
 {$TYPEINFO ON}
 
@@ -70,12 +71,10 @@ implementation
 
 uses
   System.SysUtils,
-  WinApi.Windows,
-  WinApi.ShellApi,
-  Vcl.Forms,
   PGofer.Sintatico.Controls,
   PGofer.Files.Controls,
   PGofer.Triggers.Links.Frame,
+  PGofer.Triggers.Links.Thread,
   PGofer.ImageList;
 
 { TPGLinks }
@@ -140,62 +139,42 @@ begin
   Result := FScriptBefor.Text;
 end;
 
-procedure TPGLink.SetScriptAfter( const AValue: string );
+procedure TPGLink.SetScriptAfter( AValue: string );
 begin
   FScriptAfter.Text := AValue;
 end;
 
-procedure TPGLink.SetScriptBefor( const AValue: string );
+procedure TPGLink.SetScriptBefor( AValue: string );
 begin
   FScriptBefor.Text := AValue;
 end;
 
+procedure TPGLink.ThreadExecute( AWaitFor: Boolean );
+var
+  LinkThread: TLinkThread;
+begin
+  LinkThread := TLinkThread.Create( Self, not AWaitFor );
+  LinkThread.Start;
+  if AWaitFor then
+  begin
+    LinkThread.WaitFor( );
+    LinkThread.Free( );
+  end;
+end;
+
 procedure TPGLink.Triggering( );
 begin
-  ScriptExec( 'Link: ' + Self.Name, Self.Name, nil, False );
+  Self.ThreadExecute( False );
+end;
+
+procedure TPGLink.WaitFor( );
+begin
+  Self.ThreadExecute( true );
 end;
 
 procedure TPGLink.ExecutarNivel1( Gramatica: TGramatica );
-var
-  ShellExecuteInfoW: TShellExecuteInfo;
 begin
-  Self.FCanExecute := true;
-  if Self.ScriptBefor <> '' then
-    ScriptExec( 'Link Befor: ' + Self.Name, Self.ScriptBefor,
-       Gramatica.Local, true );
-
-  if Self.FCanExecute then
-  begin
-    FillChar( ShellExecuteInfoW, SizeOf( TShellExecuteInfoW ), #0 );
-
-    ShellExecuteInfoW.cbSize := SizeOf( TShellExecuteInfoW );
-    ShellExecuteInfoW.fMask := SEE_MASK_NOCLOSEPROCESS;
-    ShellExecuteInfoW.Wnd := Application.Handle;
-    ShellExecuteInfoW.lpVerb := GetOperationToStr( Self.Operation );
-    ShellExecuteInfoW.lpFile := PWideChar( FileExpandPath( Self.FileName ) );
-    ShellExecuteInfoW.lpParameters :=
-       PWideChar( FileExpandPath( Self.Parameter ) );
-    ShellExecuteInfoW.lpDirectory :=
-       PWideChar( FileExpandPath( Self.Directory ) );
-    ShellExecuteInfoW.nShow := Self.FState;
-
-    ShellExecuteExW( @ShellExecuteInfoW );
-
-    if ShellExecuteInfoW.hProcess <> INVALID_HANDLE_VALUE then
-    begin
-      SetPriorityClass( ShellExecuteInfoW.hProcess, GetProcessPri( Priority ) );
-    end;
-    Gramatica.MSGsAdd( GetShellExMSGToStr( ShellExecuteInfoW.hInstApp ) );
-
-    while WaitForSingleObject( ShellExecuteInfoW.hProcess, 500 ) <>
-       WAIT_OBJECT_0 do;
-
-    CloseHandle( ShellExecuteInfoW.hProcess );
-
-    if Self.ScriptAfter <> '' then
-      ScriptExec( 'Link After: ' + Self.Name, Self.ScriptAfter,
-         Gramatica.Local, true );
-  end;
+  Self.ThreadExecute( False );
 end;
 
 { TPGLinkDec }
