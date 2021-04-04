@@ -13,27 +13,25 @@ type
   TPGTask = class( TPGItemTrigger )
   private
     FDateTime: TDateTime;
-    FRepeat: Word;
+    FOccurrence: Word;
     FScript: TStrings;
-    FType: Byte;
+    FTrigger: Byte;
     class var FImageIndex: Integer;
     function GetScript: string;
-    procedure SetScript( const Value: string );
+    procedure SetScript( AValue: string );
   protected
     class function GetImageIndex( ): Integer; override;
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
   public
-    constructor Create( Name: string; Mirror: TPGItemMirror );
+    constructor Create( AName: string; AMirror: TPGItemMirror );
     destructor Destroy( ); override;
-    procedure Frame( Parent: TObject ); override;
+    procedure Frame( AParent: TObject ); override;
     class var GlobList: TPGItem;
-    class procedure Working( AType: Byte; WaitFor: Boolean = False );
+    class procedure Working( AType: Byte; AWaitFor: Boolean = False );
     procedure Triggering( ); override;
   published
     property Script: string read GetScript write SetScript;
-    property DateTime: TDateTime read FDateTime write FDateTime;
-    property Repetir: Word read FRepeat write FRepeat;
-    property Tipo: Byte read FType write FType;
+    property Trigger: Byte read FTrigger write FTrigger;
   end;
 {$TYPEINFO ON}
 
@@ -46,8 +44,8 @@ type
   protected
     class function GetImageIndex( ): Integer; override;
   public
-    constructor Create( ItemDad: TPGItem; AName: string );
-    procedure Frame( Parent: TObject ); override;
+    constructor Create( AItemDad: TPGItem; AName: string );
+    procedure Frame( AParent: TObject ); override;
   end;
 
 implementation
@@ -60,23 +58,23 @@ uses
 
 { TPGTask }
 
-constructor TPGTask.Create( Name: string; Mirror: TPGItemMirror );
+constructor TPGTask.Create( AName: string; AMirror: TPGItemMirror );
 begin
-  inherited Create( TPGTask.GlobList, name, Mirror );
+  inherited Create( TPGTask.GlobList, AName, AMirror );
   Self.ReadOnly := False;
   FScript := TStringList.Create( );
   FDateTime := 0;
-  FRepeat := 0;
-  FType := 0;
+  FOccurrence := 0;
+  FTrigger := 0;
 end;
 
-destructor TPGTask.Destroy;
+destructor TPGTask.Destroy( );
 begin
   FScript.Free;
   FDateTime := 0;
-  FRepeat := 0;
-  FType := 0;
-  inherited;
+  FOccurrence := 0;
+  FTrigger := 0;
+  inherited Destroy( );
 end;
 
 procedure TPGTask.ExecutarNivel1( Gramatica: TGramatica );
@@ -84,41 +82,41 @@ begin
   ScriptExec( 'Task: ' + Self.Name, Self.Script, Gramatica.Local );
 end;
 
-procedure TPGTask.Frame( Parent: TObject );
+procedure TPGTask.Frame( AParent: TObject );
 begin
-  inherited Frame( Parent );
-  TPGTaskFrame.Create( Self, Parent );
+  inherited Frame( AParent );
+  TPGTaskFrame.Create( Self, AParent );
 end;
 
-class function TPGTask.GetImageIndex: Integer;
+class function TPGTask.GetImageIndex( ): Integer;
 begin
   Result := FImageIndex;
 end;
 
-function TPGTask.GetScript: string;
+function TPGTask.GetScript( ): string;
 begin
   Result := FScript.Text;
 end;
 
-procedure TPGTask.SetScript( const Value: string );
+procedure TPGTask.SetScript( AValue: string );
 begin
-  FScript.Text := Value;
+  FScript.Text := AValue;
 end;
 
-procedure TPGTask.Triggering;
+procedure TPGTask.Triggering( );
 begin
   ScriptExec( 'Task: ' + Self.Name, Self.Script, nil );
 end;
 
-class procedure TPGTask.Working( AType: Byte; WaitFor: Boolean = False );
+class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );
 var
   Item: TPGItem;
 begin
   for Item in TPGTask.GlobList do
   begin
-    if ( TPGTask( Item ).Tipo = AType ) and Item.Enabled then
+    if ( TPGTask( Item ).Trigger = AType ) and Item.Enabled then
     begin
-      ScriptExec( 'Task' + Item.Name, TPGTask( Item ).Script, nil, WaitFor );
+      ScriptExec( 'Task: ' + Item.Name, TPGTask( Item ).Script, nil, AWaitFor );
     end;
   end;
 end;
@@ -137,7 +135,7 @@ begin
   if ( not Assigned( id ) ) or ( id is TPGTask ) then
   begin
     Titulo := Gramatica.TokenList.Token.Lexema;
-    Quantidade := LerParamentros( Gramatica, 1, 4 );
+    Quantidade := LerParamentros( Gramatica, 1, 2 );
     if not Gramatica.Erro then
     begin
       if ( not Assigned( id ) ) then
@@ -145,14 +143,8 @@ begin
       else
         Task := TPGTask( id );
 
-      if Quantidade = 4 then
-        Task.Tipo := Gramatica.Pilha.Desempilhar( 0 );
-
-      if Quantidade >= 3 then
-        Task.Repetir := Gramatica.Pilha.Desempilhar( 0 );
-
-      if Quantidade >= 2 then
-        Task.DateTime := Gramatica.Pilha.Desempilhar( 0 );
+      if Quantidade = 2 then
+        Task.Trigger := Gramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 1 then
         Task.Script := Gramatica.Pilha.Desempilhar( '' );
@@ -164,16 +156,16 @@ end;
 
 { TPGTaskMirror }
 
-constructor TPGTaskMirror.Create( ItemDad: TPGItem; AName: string );
+constructor TPGTaskMirror.Create( AItemDad: TPGItem; AName: string );
 begin
   AName := TPGItemMirror.TranscendName( AName, TPGTask.GlobList );
-  inherited Create( ItemDad, TPGTask.Create( AName, Self ) );
+  inherited Create( AItemDad, TPGTask.Create( AName, Self ) );
   Self.ReadOnly := False;
 end;
 
-procedure TPGTaskMirror.Frame( Parent: TObject );
+procedure TPGTaskMirror.Frame( AParent: TObject );
 begin
-  TPGTaskFrame.Create( Self.ItemOriginal, Parent );
+  TPGTaskFrame.Create( Self.ItemOriginal, AParent );
 end;
 
 class function TPGTaskMirror.GetImageIndex: Integer;

@@ -13,18 +13,18 @@ uses
 
 type
   TPGTaskFrame = class( TPGFrame )
-    LblTipo: TLabel;
-    CmbTipo: TComboBox;
+    LblTrigger: TLabel;
+    CmbTrigger: TComboBox;
     GrbScript: TGroupBox;
     dtpDate: TDateTimePicker;
     dtpTime: TDateTimePicker;
     lblDate: TLabel;
     lblTime: TLabel;
-    edtRepeat: TEditEx;
-    updRepeat: TUpDown;
-    lblRepeat: TLabel;
+    edtOccurrence: TEditEx;
+    updOccurrence: TUpDown;
+    lblOccurrence: TLabel;
     EdtScript: TRichEditEx;
-    procedure CmbTipoChange( Sender: TObject );
+    procedure CmbTriggerChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
@@ -33,7 +33,7 @@ type
     FItem: TPGTask;
     FFrmAutoComplete: TFrmAutoComplete;
   public
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -42,11 +42,11 @@ implementation
 {$R *.dfm}
 { TPGTaskFrame }
 
-constructor TPGTaskFrame.Create( Item: TPGItem; Parent: TObject );
+constructor TPGTaskFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
-  inherited Create( Item, Parent );
-  FItem := TPGTask( Item );
-  CmbTipo.ItemIndex := FItem.Tipo;
+  inherited Create( AItem, AParent );
+  FItem := TPGTask( AItem );
+  CmbTrigger.ItemIndex := FItem.Trigger;
   EdtScript.Lines.Text := FItem.Script;
   FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;
@@ -66,7 +66,7 @@ begin
     EdtName.Color := clRed;
   end else begin
     EdtName.Color := clWindow;
-    inherited;
+    inherited EdtNameKeyUp( Sender, Key, Shift );
   end;
 end;
 
@@ -76,9 +76,9 @@ begin
   FItem.Script := EdtScript.Lines.Text;
 end;
 
-procedure TPGTaskFrame.CmbTipoChange( Sender: TObject );
+procedure TPGTaskFrame.CmbTriggerChange( Sender: TObject );
 begin
-  FItem.Tipo := CmbTipo.ItemIndex;
+  FItem.Trigger := CmbTrigger.ItemIndex;
 end;
 
 end.

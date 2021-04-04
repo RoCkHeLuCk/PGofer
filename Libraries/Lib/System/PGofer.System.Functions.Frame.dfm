@@ -8,9 +8,6 @@ inherited PGFrameFunction: TPGFrameFunction
   inherited grbAbout: TGroupBox
     Top = 161
     ExplicitTop = 161
-    inherited rceAbout: TRichEdit
-      ExplicitHeight = 23
-    end
   end
   inherited pnlItem: TPanel
     Height = 150
@@ -31,6 +28,12 @@ inherited PGFrameFunction: TPGFrameFunction
         Width = 386
         Height = 97
         Align = alClient
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
         WantTabs = True

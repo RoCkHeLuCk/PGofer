@@ -17,7 +17,7 @@ type
     ppmAutoComplete: TPopupMenu;
     mniPriority: TMenuItem;
     trmAutoComplete: TTimer;
-    constructor Create( EditCtrl: TRichEditEx ); reintroduce;
+    constructor Create( AEditCtrl: TRichEditEx ); reintroduce;
     destructor Destroy( ); override;
     procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
@@ -42,14 +42,14 @@ type
     FMemoryList: TStringList;
     FMemoryPosition: Integer;
     FEditControlPress: Boolean;
-    procedure ListViewAdd( Caption, Origin: string ); overload;
-    procedure ListViewAdd( Item: TPGItem ); overload;
+    procedure ListViewAdd( ACaption, AOrigin: string ); overload;
+    procedure ListViewAdd( AItem: TPGItem ); overload;
     procedure PriorityStep( );
-    procedure SetPriority( Value: FixedInt );
-    procedure ProcurarComandos( Comando: string ); overload;
-    procedure FileNameList( FileName: string );
+    procedure SetPriority( AValue: FixedInt );
+    procedure ProcurarComandos( ACommand: string ); overload;
+    procedure FileNameList( AFileName: string );
     procedure FindCMD( );
-    procedure SelectCMD( Selected: TSelectCMD );
+    procedure SelectCMD( ASelected: TSelectCMD );
     procedure ShowAutoComplete( );
   protected
     procedure CreateWindowHandle( const Params: TCreateParams ); override;
@@ -83,11 +83,11 @@ begin
   Application.AddPopupForm( Self );
 end;
 
-constructor TFrmAutoComplete.Create( EditCtrl: TRichEditEx );
+constructor TFrmAutoComplete.Create( AEditCtrl: TRichEditEx );
 begin
   inherited Create( nil );
   // guarda os eventos do edit
-  FEditCtrl := EditCtrl;
+  FEditCtrl := AEditCtrl;
   FEditKeyDown := FEditCtrl.OnKeyDown;
   FEditKeyPress := FEditCtrl.OnKeyPress;
   FEditKeyUp := FEditCtrl.OnKeyUp;
@@ -130,25 +130,25 @@ begin
 
   FEditControlPress := False;
 
-  inherited;
+  inherited Destroy( );
 end;
 
 procedure TFrmAutoComplete.FormClose( Sender: TObject;
    var Action: TCloseAction );
 begin
-  inherited;
+  inherited FormClose( Sender, Action );
   trmAutoComplete.Enabled := False;
 end;
 
 procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
-  inherited;
+  inherited FormCreate( Sender );
   //
 end;
 
 procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
 begin
-  inherited;
+  inherited FormDestroy( Sender );
   //
 end;
 
@@ -172,89 +172,89 @@ begin
   begin
     case Key of
       VK_RETURN:
-      begin
-        Self.SelectCMD( selEnter );
-        Key := 0;
-      end;
+        begin
+          Self.SelectCMD( selEnter );
+          Key := 0;
+        end;
 
       VK_ESCAPE:
-      begin
-        Self.Close;
-        Key := 0;
-      end;
+        begin
+          Self.Close;
+          Key := 0;
+        end;
 
       VK_UP:
-      begin
-        Self.SelectCMD( selUp );
-        Key := 0;
-      end;
+        begin
+          Self.SelectCMD( selUp );
+          Key := 0;
+        end;
 
       VK_DOWN:
-      begin
-        Self.SelectCMD( selDown );
-        Key := 0;
-      end;
+        begin
+          Self.SelectCMD( selDown );
+          Key := 0;
+        end;
 
       VK_LEFT, VK_RIGHT:
-      begin
-        Self.FindCMD( );
-      end;
+        begin
+          Self.FindCMD( );
+        end;
     end;
   end else begin
     // not visible
     case Key of
 
       VK_RETURN:
-      begin
-        if FEditCtrl.Text <> '' then
         begin
-          FMemoryPosition := FMemoryList.Count;
-          FMemoryList.Add( FEditCtrl.Lines[ FEditCtrl.CaretY - 1 ] );
-          if FMemoryPosition > 100 then
-            FMemoryList.Delete( 0 );
-        end;
-      end;
-
-      VK_SPACE:
-      begin
-        if Shift = [ ssCtrl ] then
-        begin
-          Self.FindCMD( );
-          Key := 0;
-          FEditControlPress := True;
-        end;
-      end;
-
-      VK_PRIOR, VK_NEXT:
-      begin
-        if ( Shift = [ ssCtrl ] ) or ( FMemoryNoCtrl ) then
-        begin
-          c := FMemoryList.Count;
-          if c > 0 then
+          if FEditCtrl.Text <> '' then
           begin
-            // anteriores
-            if ( Key in [ VK_PRIOR, VK_UP ] ) then
-            begin
-              if FMemoryPosition > 0 then
-                Dec( FMemoryPosition )
-              else
-                FMemoryPosition := c - 1;
-            end;
-            // posteriores
-            if ( Key = VK_NEXT ) then
-            begin
-              if FMemoryPosition < c - 1 then
-                Inc( FMemoryPosition )
-              else
-                FMemoryPosition := 0;
-            end;
-            // escreve no edit
-            FEditCtrl.Lines[ FEditCtrl.CaretY - 1 ] :=
-               FMemoryList[ FMemoryPosition ];
-            Key := 0;
+            FMemoryPosition := FMemoryList.Count;
+            FMemoryList.Add( FEditCtrl.Lines[ FEditCtrl.CaretY - 1 ] );
+            if FMemoryPosition > 100 then
+              FMemoryList.Delete( 0 );
           end;
         end;
-      end;
+
+      VK_SPACE:
+        begin
+          if Shift = [ ssCtrl ] then
+          begin
+            Self.FindCMD( );
+            Key := 0;
+            FEditControlPress := True;
+          end;
+        end;
+
+      VK_PRIOR, VK_NEXT:
+        begin
+          if ( Shift = [ ssCtrl ] ) or ( FMemoryNoCtrl ) then
+          begin
+            c := FMemoryList.Count;
+            if c > 0 then
+            begin
+              // anteriores
+              if ( Key in [ VK_PRIOR, VK_UP ] ) then
+              begin
+                if FMemoryPosition > 0 then
+                  Dec( FMemoryPosition )
+                else
+                  FMemoryPosition := c - 1;
+              end;
+              // posteriores
+              if ( Key = VK_NEXT ) then
+              begin
+                if FMemoryPosition < c - 1 then
+                  Inc( FMemoryPosition )
+                else
+                  FMemoryPosition := 0;
+              end;
+              // escreve no edit
+              FEditCtrl.Lines[ FEditCtrl.CaretY - 1 ] :=
+                 FMemoryList[ FMemoryPosition ];
+              Key := 0;
+            end;
+          end;
+        end;
     end;
   end;
 
@@ -286,17 +286,17 @@ begin
       106 { * } , 107 { + } , 109 { - } , 110 { . } , 111 { / } , 187 { = } ,
          186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } , 219 { [ } ,
          220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
-      begin
-        if FEditCtrl.Text <> '' then
-          Self.FindCMD( )
-        else
-          Self.Close;
-      end; // $30..$39,
+        begin
+          if FEditCtrl.Text <> '' then
+            Self.FindCMD( )
+          else
+            Self.Close;
+        end; // $30..$39,
 
       VK_F9:
-      begin
-        ScriptExec( 'Test', FEditCtrl.Lines.Text, nil, False );
-      end;
+        begin
+          ScriptExec( 'Test', FEditCtrl.Lines.Text, nil, False );
+        end;
     end; // case
 
   FEditControlPress := False;
@@ -305,11 +305,11 @@ begin
     FEditKeyUp( Sender, Key, Shift );
 end;
 
-procedure TFrmAutoComplete.IniConfigLoad;
+procedure TFrmAutoComplete.IniConfigLoad( );
 var
   c: Integer;
 begin
-  inherited;
+  inherited IniConfigLoad( );
   for c := 0 to ltvAutoComplete.Columns.Count - 1 do
   begin
     ltvAutoComplete.Columns[ c ].Width := FIniFile.ReadInteger( Self.Name,
@@ -326,7 +326,7 @@ begin
     FIniFile.WriteInteger( Self.Name, 'ColunWidth' + IntToStr( c ),
        ltvAutoComplete.Columns[ c ].Width );
   end;
-  inherited;
+  inherited IniConfigSave( );
 end;
 
 procedure TFrmAutoComplete.ltvAutoCompleteCompare( Sender: TObject;
@@ -354,7 +354,7 @@ procedure TFrmAutoComplete.mniPriorityClick( Sender: TObject );
 var
   N: Integer;
 begin
-  if TryStrToInt( InputBox( 'Prioridade', 'Valor',
+  if TryStrToInt( InputBox( 'Priority', 'Valor',
      ltvAutoComplete.ItemFocused.SubItems[ 1 ] ), N ) then
     SetPriority( N );
 end;
@@ -374,12 +374,12 @@ begin
   Self.SetPriority( Value );
 end;
 
-procedure TFrmAutoComplete.SetPriority( Value: FixedInt );
+procedure TFrmAutoComplete.SetPriority( AValue: FixedInt );
 begin
-  ltvAutoComplete.ItemFocused.SubItems[ 1 ] := IntToStr( Value );
+  ltvAutoComplete.ItemFocused.SubItems[ 1 ] := IntToStr( AValue );
   FMemoryIniFile.WriteInteger( 'AutoComplete',
      ltvAutoComplete.ItemFocused.SubItems[ 0 ] + '.' +
-     ltvAutoComplete.ItemFocused.Caption, Value );
+     ltvAutoComplete.ItemFocused.Caption, AValue );
   ltvAutoComplete.Update( );
   FMemoryIniFile.UpdateFile( );
 end;
@@ -397,46 +397,46 @@ begin
   FormForceShow( Self, False );
 end;
 
-procedure TFrmAutoComplete.ListViewAdd( Caption, Origin: string );
+procedure TFrmAutoComplete.ListViewAdd( ACaption, AOrigin: string );
 var
   ListItem: TListItem;
 begin
-  if Caption <> '' then
+  if ACaption <> '' then
   begin
     ListItem := ltvAutoComplete.Items.Add;
     ListItem.ImageIndex := -1;
-    ListItem.Caption := Caption;
-    ListItem.SubItems.Add( Origin );
+    ListItem.Caption := ACaption;
+    ListItem.SubItems.Add( AOrigin );
     ListItem.SubItems.Add( FMemoryIniFile.ReadString( 'AutoComplete',
-       Origin + '.' + Caption, '0' ) );
+       AOrigin + '.' + ACaption, '0' ) );
     ListItem.Data := nil;
   end;
 end;
 
-procedure TFrmAutoComplete.ListViewAdd( Item: TPGItem );
+procedure TFrmAutoComplete.ListViewAdd( AItem: TPGItem );
 var
   ListItem: TListItem;
 begin
   ListItem := ltvAutoComplete.Items.Add;
   ListItem.ImageIndex := -1;
-  ListItem.Caption := Item.Name;
-  if Assigned( Item.Parent ) then
-    ListItem.SubItems.Add( Item.Parent.Name )
+  ListItem.Caption := AItem.Name;
+  if Assigned( AItem.Parent ) then
+    ListItem.SubItems.Add( AItem.Parent.Name )
   else
     ListItem.SubItems.Add( '' );
   ListItem.SubItems.Add( FMemoryIniFile.ReadString( 'AutoComplete',
      ListItem.SubItems[ 0 ] + '.' + ListItem.Caption, '0' ) );
-  ListItem.Data := Item;
+  ListItem.Data := AItem;
 end;
 
-procedure TFrmAutoComplete.ProcurarComandos( Comando: string );
+procedure TFrmAutoComplete.ProcurarComandos( ACommand: string );
 var
   SubCMD: TArray< string >;
   Item: TPGItem;
   ItemAux: TPGItem;
   c, l: Integer;
 begin
-  SubCMD := SplitEx( Comando, '.' );
+  SubCMD := SplitEx( ACommand, '.' );
   l := Length( SubCMD );
   if l = 1 then
   begin
@@ -463,7 +463,7 @@ begin
   end;
 end;
 
-procedure TFrmAutoComplete.FileNameList( FileName: string );
+procedure TFrmAutoComplete.FileNameList( AFileName: string );
 var
   SearchRec: TSearchRec;
   c: Integer;
@@ -471,7 +471,7 @@ var
 begin
   ChDir( PGofer.Sintatico.DirCurrent );
 
-  c := FindFirst( FileName + '*', faAnyFile, SearchRec );
+  c := FindFirst( AFileName + '*', faAnyFile, SearchRec );
   d := 0;
   while ( c = 0 ) and ( d < PGofer.Sintatico.FileListMax ) do
   begin
@@ -546,7 +546,7 @@ begin
   end;
 end;
 
-procedure TFrmAutoComplete.SelectCMD( Selected: TSelectCMD );
+procedure TFrmAutoComplete.SelectCMD( ASelected: TSelectCMD );
 var
   SelStart, SelConvert, SelInicio, SelFinal, LengthText: Integer;
 begin
@@ -572,29 +572,29 @@ begin
     SelInicio := SelInicio - SelConvert;
 
     // move selecao
-    case Selected of
+    case ASelected of
 
       selUp:
-      begin
-        if ltvAutoComplete.ItemIndex > 0 then
-          ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex - 1;
-      end;
+        begin
+          if ltvAutoComplete.ItemIndex > 0 then
+            ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex - 1;
+        end;
 
       selDown:
-      begin
-        if ltvAutoComplete.ItemIndex < ltvAutoComplete.Items.Count - 1 then
-          ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex + 1;
-      end;
+        begin
+          if ltvAutoComplete.ItemIndex < ltvAutoComplete.Items.Count - 1 then
+            ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex + 1;
+        end;
 
       selEnter:
-      begin
-        FEditCtrl.SelStart := SelInicio;
-        if SelFinal > SelInicio then
-          FEditCtrl.SelLength := SelFinal - SelInicio - 1;
-        FEditCtrl.SelText := ltvAutoComplete.ItemFocused.Caption;
-        Self.PriorityStep( );
-        Self.Close;
-      end;
+        begin
+          FEditCtrl.SelStart := SelInicio;
+          if SelFinal > SelInicio then
+            FEditCtrl.SelLength := SelFinal - SelInicio - 1;
+          FEditCtrl.SelText := ltvAutoComplete.ItemFocused.Caption;
+          Self.PriorityStep( );
+          Self.Close;
+        end;
     end;
 
     ltvAutoComplete.SuperSelected( );

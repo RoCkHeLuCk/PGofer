@@ -8,16 +8,16 @@ uses
   PGofer.Classes, PGofer.Lexico;
 
 type
-  TPGConsoleNotify = procedure( Value: string; Show: Boolean ) of object;
+  TPGConsoleNotify = procedure( AValue: string; AShow: Boolean ) of object;
 
   TPGPilha = class( TPGItem )
-    constructor Create( ItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
   private
     FPilha: TStack< Variant >;
   public
-    procedure Empilhar( Valor: Variant );
-    function Desempilhar( Padrao: Variant ): Variant;
+    procedure Empilhar( AValue: Variant );
+    function Desempilhar( ADefault: Variant ): Variant;
   end;
 
   TGramatica = class( TThread )
@@ -30,24 +30,24 @@ type
     FScript: string;
     FTokenList: TTokenList;
   public
-    constructor Create( Name: string; ItemDad: TPGItem;
-       AutoTerminar: Boolean ); overload;
+    constructor Create( AName: string; AItemDad: TPGItem;
+       ATerminate: Boolean ); overload;
     destructor Destroy( ); override;
     property Pilha: TPGPilha read FPilha;
     property local: TPGItem read FLocal;
     property TokenList: TTokenList read FTokenList;
     property Erro: Boolean read FErro write FErro;
     property Script: string read FScript;
-    procedure ErroAdd( Texto: string );
-    procedure MSGsAdd( Texto: string );
-    procedure SetAlgoritimo( Algoritimo: string );
+    procedure ErroAdd( AText: string );
+    procedure MSGsAdd( AText: string );
+    procedure SetScript( AScript: string );
     procedure SetTokens( TokenList: TTokenList );
   protected
     procedure Execute; override;
   end;
 
-procedure ScriptExec( Name, Texto: string; Nivel: TPGItem = nil;
-   WaitFor: Boolean = False );
+procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
+   AWaitFor: Boolean = False );
 
 var
   DirCurrent: string;
@@ -75,9 +75,9 @@ uses
 
 { TPilha }
 
-constructor TPGPilha.Create( ItemDad: TPGItem );
+constructor TPGPilha.Create( AItemDad: TPGItem );
 begin
-  inherited Create( ItemDad, '$Pilha' );
+  inherited Create( AItemDad, '$Stack' );
   FPilha := TStack< Variant >.Create;
 end;
 
@@ -88,35 +88,35 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGPilha.Empilhar( Valor: Variant );
+procedure TPGPilha.Empilhar( AValue: Variant );
 begin
-  FPilha.Push( Valor );
+  FPilha.Push( AValue );
 end;
 
-function TPGPilha.Desempilhar( Padrao: Variant ): Variant;
+function TPGPilha.Desempilhar( ADefault: Variant ): Variant;
 begin
   if FPilha.Count > 0 then
   begin
     Result := FPilha.Pop;
   end
   else
-    Result := Padrao;
+    Result := ADefault;
 end;
 
 { Gramatica }
 
-constructor TGramatica.Create( Name: string; ItemDad: TPGItem;
-   AutoTerminar: Boolean );
+constructor TGramatica.Create( AName: string; AItemDad: TPGItem;
+   ATerminate: Boolean );
 begin
   inherited Create( True );
-  Self.FreeOnTerminate := AutoTerminar;
+  Self.FreeOnTerminate := ATerminate;
   Self.Priority := tpNormal;
   FConsoleShowMessage := ConsoleMessage;
-  FPai := ItemDad;
+  FPai := AItemDad;
   if Assigned( FPai ) then
-    FLocal := TPGFolder.Create( ItemDad, name )
+    FLocal := TPGFolder.Create( AItemDad, AName )
   else
-    FLocal := TPGFolder.Create( GlobalCollection, name );
+    FLocal := TPGFolder.Create( GlobalCollection, AName );
 
   FPilha := TPGPilha.Create( FLocal );
   FErro := False;
@@ -140,7 +140,7 @@ begin
   inherited Destroy( );
 end;
 
-procedure TGramatica.ErroAdd( Texto: string );
+procedure TGramatica.ErroAdd( AText: string );
 var
   LexicoName: string;
 begin
@@ -154,26 +154,27 @@ begin
     Synchronize(
       procedure
       begin
-        ConsoleNotify( '[' + Self.TokenList.Token.Cordenada.ToString + '] ' +
-           LexicoName + ': ' + Texto, FConsoleShowMessage );
+        ConsoleNotify( FLocal.name + ' [' +
+           Self.TokenList.Token.Cordenada.ToString + '] ' + LexicoName + ': ' +
+           AText, FConsoleShowMessage );
       end );
 end;
 
-procedure TGramatica.MSGsAdd( Texto: string );
+procedure TGramatica.MSGsAdd( AText: string );
 begin
   if Assigned( ConsoleNotify ) then
     Synchronize(
       procedure
       begin
-        ConsoleNotify( Texto, FConsoleShowMessage );
+        ConsoleNotify( AText, FConsoleShowMessage );
       end );
 end;
 
-procedure TGramatica.SetAlgoritimo( Algoritimo: string );
+procedure TGramatica.SetScript( AScript: string );
 var
   Automato: TAutomato;
 begin
-  FScript := Algoritimo;
+  FScript := AScript;
   Automato := TAutomato.Create( );
   FTokenList := Automato.TokenListCreate( FScript );
   Automato.Free;
@@ -192,18 +193,18 @@ begin
   Sentencas( Self );
 end;
 
-procedure ScriptExec( Name, Texto: string; Nivel: TPGItem = nil;
-WaitFor: Boolean = False );
+procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
+AWaitFor: Boolean = False );
 var
   Gramatica: TGramatica;
 begin
-  if not Assigned( Nivel ) then
-    Nivel := GlobalCollection;
+  if not Assigned( ANivel ) then
+    ANivel := GlobalCollection;
 
-  Gramatica := TGramatica.Create( name, Nivel, not WaitFor );
-  Gramatica.SetAlgoritimo( Texto );
+  Gramatica := TGramatica.Create( AName, ANivel, not AWaitFor );
+  Gramatica.SetScript( AScript );
   Gramatica.Start;
-  if WaitFor then
+  if AWaitFor then
   begin
     Gramatica.WaitFor( );
     Gramatica.Free( );

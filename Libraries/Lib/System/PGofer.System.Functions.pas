@@ -16,15 +16,15 @@ type
     FVariantList: TPGItem;
     FScript: TStrings;
     class var FImageIndex: Integer;
-    procedure SetScript( const Value: string );
+    procedure SetScript( AValue: string );
     function GetScript: string;
   public
-    constructor Create( ItemDad: TPGItem; Name: string ); overload;
+    constructor Create( AItemDad: TPGItem; AName: string ); overload;
     destructor Destroy( ); override;
     class var GlobList: TPGItem;
     class function GetImageIndex( ): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
-    procedure Frame( Parent: TObject ); override;
+    procedure Frame( AParent: TObject ); override;
     property Script: string read GetScript write SetScript;
   published
   end;
@@ -47,9 +47,9 @@ uses
 
 { TPGFunction }
 
-constructor TPGFunction.Create( ItemDad: TPGItem; Name: string );
+constructor TPGFunction.Create( AItemDad: TPGItem; AName: string );
 begin
-  inherited;
+  inherited Create( AItemDad, AName );
   FScript := TStringList.Create;
   FTokenList := TTokenList.Create( );
   FVariantList := TPGItem.Create( nil, 'VariantList' );
@@ -108,9 +108,9 @@ begin
   end;
 end;
 
-procedure TPGFunction.Frame( Parent: TObject );
+procedure TPGFunction.Frame( AParent: TObject );
 begin
-  TPGFrameFunction.Create( Self, Parent );
+  TPGFrameFunction.Create( Self, AParent );
 end;
 
 class function TPGFunction.GetImageIndex: Integer;
@@ -120,12 +120,12 @@ end;
 
 function TPGFunction.GetScript: string;
 begin
-    Result := FScript.Text;
+  Result := FScript.Text;
 end;
 
-procedure TPGFunction.SetScript( const Value: string );
+procedure TPGFunction.SetScript( AValue: string );
 begin
-  FScript.Text := Value;
+  FScript.Text := AValue;
   ScriptExec( 'Function: ' + Self.Name, FScript.Text, nil, False );
 end;
 

@@ -13,13 +13,14 @@ type
     FClient: TPGItemCMD;
     FServer: TPGItemCMD;
   public
-    constructor Create( ItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
     property Client: TPGItemCMD read FClient;
     property Server: TPGItemCMD read FServer;
   published
-    function SetTCPIP( NetworkCard, IPAddress, Mask, GateWay: string ): Integer;
-    function GetTCPIP( NetworkCard: string ): string;
+    function SetTCPIP( ANetworkCard, AIPAddress, AMask,
+       AGateWay: string ): Integer;
+    function GetTCPIP( ANetworkCard: string ): string;
   end;
 {$TYPEINFO ON}
 
@@ -33,9 +34,9 @@ uses
 
 { TPGNet }
 
-constructor TPGNet.Create( ItemDad: TPGItem );
+constructor TPGNet.Create( AItemDad: TPGItem );
 begin
-  inherited Create( ItemDad );
+  inherited Create( AItemDad );
   FClient := TPGNetClient.Create( Self );
   FServer := TPGNetServer.Create( Self );
 end;
@@ -47,13 +48,13 @@ begin
   inherited Destroy( );
 end;
 
-function TPGNet.SetTCPIP( NetworkCard, IPAddress, Mask,
-   GateWay: string ): Integer;
+function TPGNet.SetTCPIP( ANetworkCard, AIPAddress, AMask,
+   AGateWay: string ): Integer;
 begin
-  Result := NetSetTCPIP( NetworkCard, IPAddress, Mask, GateWay );
+  Result := NetSetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay );
 end;
 
-function TPGNet.GetTCPIP( NetworkCard: string ): string;
+function TPGNet.GetTCPIP( ANetworkCard: string ): string;
 begin
   // ?????????????
   Result := 'Ainda nao implementado';

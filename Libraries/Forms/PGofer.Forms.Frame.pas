@@ -50,7 +50,7 @@ type
   private
     FItem: TPGForm;
   public
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -62,10 +62,10 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
-constructor TPGFrameForms.Create( Item: TPGItem; Parent: TObject );
+constructor TPGFrameForms.Create( AItem: TPGItem; AParent: TObject );
 begin
-  inherited Create( Item, Parent );
-  FItem := TPGForm( Item );
+  inherited Create( AItem, AParent );
+  FItem := TPGForm( AItem );
   CkbAlphaBlend.Checked := FItem.AlphaBlend;
   EdtAlphaBlendValue.Text := FItem.AlphaBlendValue.ToString;
   CkbEnabled.Checked := FItem.Enabled;

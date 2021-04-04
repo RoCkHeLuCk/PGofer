@@ -12,43 +12,43 @@ type
 {$M+}
   TPGLink = class( TPGItemTrigger )
   private
-    FArquivo: string;
-    FParametro: string;
-    FDiretorio: string;
-    FScriptIni: TStrings;
-    FScriptEnd: TStrings;
-    FEstado: Byte;
-    FPrioridade: Byte;
+    FFile: string;
+    FParameter: string;
+    FDirectory: string;
+    FScriptBefor: TStrings;
+    FScriptAfter: TStrings;
+    FState: Byte;
+    FPriority: Byte;
     FOperation: Byte;
     FCanExecute: Boolean;
     class var FImageIndex: Integer;
     function GetDirExist( ): Boolean;
     function GetFileExist( ): Boolean;
-    function GetScriptEnd: string;
-    function GetScriptIni: string;
-    procedure SetScriptEnd(const Value: string);
-    procedure SetScriptIni(const Value: string);
+    function GetScriptAfter: string;
+    function GetScriptBefor: string;
+    procedure SetScriptAfter( const AValue: string );
+    procedure SetScriptBefor( const AValue: string );
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
   public
-    constructor Create( Name: string; Mirror: TPGItemMirror );
+    constructor Create( AName: string; AMirror: TPGItemMirror );
     destructor Destroy( ); override;
     class var GlobList: TPGItem;
-    procedure Frame( Parent: TObject ); override;
+    procedure Frame( AParent: TObject ); override;
     procedure Triggering( ); override;
   published
-    property Arquivo: string read FArquivo write FArquivo;
-    property Parametro: string read FParametro write FParametro;
-    property Diretorio: string read FDiretorio write FDiretorio;
-    property Estado: Byte read FEstado write FEstado;
-    property Prioridade: Byte read FPrioridade write FPrioridade;
+    property FileName: string read FFile write FFile;
+    property Parameter: string read FParameter write FParameter;
+    property Directory: string read FDirectory write FDirectory;
+    property State: Byte read FState write FState;
+    property Priority: Byte read FPriority write FPriority;
     property Operation: Byte read FOperation write FOperation;
-    property ScriptIni: string read GetScriptIni write SetScriptIni;
-    property ScriptEnd: string read GetScriptEnd write SetScriptEnd;
+    property ScriptBefor: string read GetScriptBefor write SetScriptBefor;
+    property ScriptAfter: string read GetScriptAfter write SetScriptAfter;
     property isFileExist: Boolean read GetFileExist;
     property isDirExist: Boolean read GetDirExist;
-    property CanExecute: Boolean write FCanExecute;
+    property CanExecute: Boolean read FCanExecute write FCanExecute;
   end;
 {$TYPEINFO ON}
 
@@ -62,8 +62,8 @@ type
   protected
     class function GetImageIndex( ): Integer; override;
   public
-    constructor Create( ItemDad: TPGItem; AName: string );
-    procedure Frame( Parent: TObject ); override;
+    constructor Create( AItemDad: TPGItem; AName: string );
+    procedure Frame( AParent: TObject ); override;
   end;
 
 implementation
@@ -80,49 +80,49 @@ uses
 
 { TPGLinks }
 
-constructor TPGLink.Create( Name: string; Mirror: TPGItemMirror );
+constructor TPGLink.Create( AName: string; AMirror: TPGItemMirror );
 begin
-  inherited Create( TPGLink.GlobList, name, Mirror );
+  inherited Create( TPGLink.GlobList, AName, AMirror );
   Self.ReadOnly := False;
-  FArquivo := '';
-  FParametro := '';
-  FDiretorio := '';
-  FEstado := 1;
-  FPrioridade := 3;
+  FFile := '';
+  FParameter := '';
+  FDirectory := '';
+  FState := 1;
+  FPriority := 2;
   FOperation := 0;
-  FScriptIni := TStringList.Create();
-  FScriptEnd := TStringList.Create();
+  FScriptBefor := TStringList.Create( );
+  FScriptAfter := TStringList.Create( );
   FCanExecute := true;
 end;
 
-destructor TPGLink.Destroy;
+destructor TPGLink.Destroy( );
 begin
-  FArquivo := '';
-  FParametro := '';
-  FDiretorio := '';
-  FEstado := 1;
-  FPrioridade := 3;
+  FFile := '';
+  FParameter := '';
+  FDirectory := '';
+  FState := 1;
+  FPriority := 2;
   FOperation := 0;
-  FScriptIni.Free();
-  FScriptEnd.Free();
+  FScriptBefor.Free( );
+  FScriptAfter.Free( );
   FCanExecute := False;
-  inherited;
+  inherited Destroy( );
 end;
 
-procedure TPGLink.Frame( Parent: TObject );
+procedure TPGLink.Frame( AParent: TObject );
 begin
-  inherited Frame( Parent );
-  TPGLinkFrame.Create( Self, Parent );
+  inherited Frame( AParent );
+  TPGLinkFrame.Create( Self, AParent );
 end;
 
 function TPGLink.GetDirExist: Boolean;
 begin
-  Result := DirectoryExists( FileExpandPath( FDiretorio ) );
+  Result := DirectoryExists( FileExpandPath( FDirectory ) );
 end;
 
 function TPGLink.GetFileExist: Boolean;
 begin
-  Result := FileExists( FileExpandPath( FArquivo ) );
+  Result := FileExists( FileExpandPath( FFile ) );
 end;
 
 class function TPGLink.GetImageIndex: Integer;
@@ -130,24 +130,24 @@ begin
   Result := FImageIndex;
 end;
 
-function TPGLink.GetScriptEnd: string;
+function TPGLink.GetScriptAfter: string;
 begin
-    Result := FScriptEnd.Text;
+  Result := FScriptAfter.Text;
 end;
 
-function TPGLink.GetScriptIni: string;
+function TPGLink.GetScriptBefor: string;
 begin
-    Result := FScriptIni.Text;
+  Result := FScriptBefor.Text;
 end;
 
-procedure TPGLink.SetScriptEnd(const Value: string);
+procedure TPGLink.SetScriptAfter( const AValue: string );
 begin
-    FScriptEnd.Text := Value;
+  FScriptAfter.Text := AValue;
 end;
 
-procedure TPGLink.SetScriptIni(const Value: string);
+procedure TPGLink.SetScriptBefor( const AValue: string );
 begin
-    FScriptIni.Text := Value;
+  FScriptBefor.Text := AValue;
 end;
 
 procedure TPGLink.Triggering( );
@@ -160,8 +160,8 @@ var
   ShellExecuteInfoW: TShellExecuteInfo;
 begin
   Self.FCanExecute := true;
-  if Self.ScriptIni <> '' then
-    ScriptExec( 'Link ini: ' + Self.Name, Self.ScriptIni,
+  if Self.ScriptBefor <> '' then
+    ScriptExec( 'Link Befor: ' + Self.Name, Self.ScriptBefor,
        Gramatica.Local, true );
 
   if Self.FCanExecute then
@@ -172,19 +172,18 @@ begin
     ShellExecuteInfoW.fMask := SEE_MASK_NOCLOSEPROCESS;
     ShellExecuteInfoW.Wnd := Application.Handle;
     ShellExecuteInfoW.lpVerb := GetOperationToStr( Self.Operation );
-    ShellExecuteInfoW.lpFile := PWideChar( FileExpandPath( Self.Arquivo ) );
+    ShellExecuteInfoW.lpFile := PWideChar( FileExpandPath( Self.FileName ) );
     ShellExecuteInfoW.lpParameters :=
-       PWideChar( FileExpandPath( Self.Parametro ) );
+       PWideChar( FileExpandPath( Self.Parameter ) );
     ShellExecuteInfoW.lpDirectory :=
-       PWideChar( FileExpandPath( Self.Diretorio ) );
-    ShellExecuteInfoW.nShow := Self.FEstado;
+       PWideChar( FileExpandPath( Self.Directory ) );
+    ShellExecuteInfoW.nShow := Self.FState;
 
     ShellExecuteExW( @ShellExecuteInfoW );
 
     if ShellExecuteInfoW.hProcess <> INVALID_HANDLE_VALUE then
     begin
-      SetPriorityClass( ShellExecuteInfoW.hProcess,
-         GetProcessPri( Prioridade ) );
+      SetPriorityClass( ShellExecuteInfoW.hProcess, GetProcessPri( Priority ) );
     end;
     Gramatica.MSGsAdd( GetShellExMSGToStr( ShellExecuteInfoW.hInstApp ) );
 
@@ -193,8 +192,8 @@ begin
 
     CloseHandle( ShellExecuteInfoW.hProcess );
 
-    if Self.ScriptEnd <> '' then
-      ScriptExec( 'Link end: ' + Self.Name, Self.ScriptEnd,
+    if Self.ScriptAfter <> '' then
+      ScriptExec( 'Link After: ' + Self.Name, Self.ScriptAfter,
          Gramatica.Local, true );
   end;
 end;
@@ -221,28 +220,28 @@ begin
         Link := TPGLink( Id );
 
       if Quantidade >= 8 then
-        Link.ScriptEnd := Gramatica.Pilha.Desempilhar( 0 );
+        Link.ScriptAfter := Gramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 7 then
-        Link.ScriptIni := Gramatica.Pilha.Desempilhar( 0 );
+        Link.ScriptBefor := Gramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade = 6 then
-        Link.Prioridade := Gramatica.Pilha.Desempilhar( 3 );
+        Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
 
       if Quantidade >= 5 then
         Link.Operation := Gramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 4 then
-        Link.Estado := Gramatica.Pilha.Desempilhar( 1 );
+        Link.State := Gramatica.Pilha.Desempilhar( 1 );
 
       if Quantidade >= 3 then
-        Link.Diretorio := Gramatica.Pilha.Desempilhar( '' );
+        Link.Directory := Gramatica.Pilha.Desempilhar( '' );
 
       if Quantidade >= 2 then
-        Link.Parametro := Gramatica.Pilha.Desempilhar( '' );
+        Link.Parameter := Gramatica.Pilha.Desempilhar( '' );
 
       if Quantidade >= 1 then
-        Link.Arquivo := Gramatica.Pilha.Desempilhar( '' );
+        Link.FileName := Gramatica.Pilha.Desempilhar( '' );
     end;
   end
   else
@@ -250,16 +249,16 @@ begin
 end;
 
 { TPGLinkMirror }
-constructor TPGLinkMirror.Create( ItemDad: TPGItem; AName: string );
+constructor TPGLinkMirror.Create( AItemDad: TPGItem; AName: string );
 begin
   AName := TPGItemMirror.TranscendName( AName );
-  inherited Create( ItemDad, TPGLink.Create( AName, Self ) );
+  inherited Create( AItemDad, TPGLink.Create( AName, Self ) );
   Self.ReadOnly := False;
 end;
 
-procedure TPGLinkMirror.Frame( Parent: TObject );
+procedure TPGLinkMirror.Frame( AParent: TObject );
 begin
-  TPGLinkFrame.Create( Self.ItemOriginal, Parent );
+  TPGLinkFrame.Create( Self.ItemOriginal, AParent );
 end;
 
 class function TPGLinkMirror.GetImageIndex: Integer;

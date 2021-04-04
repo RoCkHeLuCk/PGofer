@@ -13,34 +13,34 @@ type
   private
     class var FImageIndex: Integer;
     function GetAlphaBlend( ): Boolean;
-    procedure SetAlphaBlend( AlphaBlend: Boolean );
+    procedure SetAlphaBlend( AAlphaBlend: Boolean );
     function GetAlphaBlendValue( ): Byte;
-    procedure SetAlphaBlendValue( AlphaBlendValue: Byte );
+    procedure SetAlphaBlendValue( AAlphaBlendValue: Byte );
     function GetEnabled( ): Boolean;
-    procedure SetFormEnabled( Value: Boolean );
+    procedure SetFormEnabled( AValue: Boolean );
     function GetHeigth( ): Integer;
-    procedure SetHeigth( Heigth: Integer );
+    procedure SetHeigth( AHeigth: Integer );
     function GetLeft( ): Integer;
-    procedure SetLeft( Left: Integer );
+    procedure SetLeft( ALeft: Integer );
     function GetTop( ): Integer;
-    procedure SetTop( Top: Integer );
+    procedure SetTop( ATop: Integer );
     function GetTransparent( ): Boolean;
-    procedure SetTransparent( Transparent: Boolean );
+    procedure SetTransparent( ATransparent: Boolean );
     function GetTransparentColor( ): Integer;
-    procedure SetTransparentColor( TransparentColor: Integer );
+    procedure SetTransparentColor( ATransparentColor: Integer );
     function GetVisible( ): Boolean;
-    procedure SetVisible( Visible: Boolean );
+    procedure SetVisible( AVisible: Boolean );
     function GetWidth( ): Integer;
-    procedure SetWidth( Width: Integer );
+    procedure SetWidth( AWidth: Integer );
     function GetWindowState( ): Byte;
-    procedure SetWindowState( WindowState: Byte );
+    procedure SetWindowState( AWindowState: Byte );
   protected
     FForm: TForm;
     class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
-    procedure Frame( Parent: TObject ); override;
+    procedure Frame( AParent: TObject ); override;
     procedure Execute( Gramatica: TGramatica ); override;
     class var GlobList: TPGItem;
   published
@@ -52,8 +52,7 @@ type
     property Heigth: Integer read GetHeigth write SetHeigth;
     procedure Hide( );
     property Left: Integer read GetLeft write SetLeft;
-    property name;
-    procedure Show( Focus: Boolean = true );
+    procedure Show( AFocus: Boolean = true );
     property Top: Integer read GetTop write SetTop;
     property Transparent: Boolean read GetTransparent write SetTransparent;
     property TransparentColor: Integer read GetTransparentColor
@@ -94,7 +93,7 @@ end;
 destructor TPGForm.Destroy( );
 begin
   FForm := nil;
-  inherited;
+  inherited Destroy( );
 end;
 
 function TPGForm.GetAlphaBlend( ): Boolean;
@@ -102,9 +101,9 @@ begin
   Result := FForm.AlphaBlend;
 end;
 
-procedure TPGForm.SetAlphaBlend( AlphaBlend: Boolean );
+procedure TPGForm.SetAlphaBlend( AAlphaBlend: Boolean );
 begin
-  FForm.AlphaBlend := AlphaBlend;
+  FForm.AlphaBlend := AAlphaBlend;
 end;
 
 function TPGForm.GetAlphaBlendValue( ): Byte;
@@ -112,9 +111,9 @@ begin
   Result := FForm.AlphaBlendValue;
 end;
 
-procedure TPGForm.SetAlphaBlendValue( AlphaBlendValue: Byte );
+procedure TPGForm.SetAlphaBlendValue( AAlphaBlendValue: Byte );
 begin
-  FForm.AlphaBlendValue := AlphaBlendValue;
+  FForm.AlphaBlendValue := AAlphaBlendValue;
 end;
 
 procedure TPGForm.Close( );
@@ -127,14 +126,14 @@ begin
   Result := FForm.Enabled;
 end;
 
-procedure TPGForm.SetFormEnabled( Value: Boolean );
+procedure TPGForm.SetFormEnabled( AValue: Boolean );
 begin
-  FForm.Enabled := Value;
+  FForm.Enabled := AValue;
 end;
 
-procedure TPGForm.SetHeigth( Heigth: Integer );
+procedure TPGForm.SetHeigth( AHeigth: Integer );
 begin
-  FForm.Height := Heigth;
+  FForm.Height := AHeigth;
 end;
 
 function TPGForm.GetHeigth( ): Integer;
@@ -147,9 +146,9 @@ begin
   Result := FImageIndex;
 end;
 
-procedure TPGForm.SetLeft( Left: Integer );
+procedure TPGForm.SetLeft( ALeft: Integer );
 begin
-  FForm.Left := Left;
+  FForm.Left := ALeft;
 end;
 
 function TPGForm.GetLeft( ): Integer;
@@ -157,14 +156,14 @@ begin
   Result := FForm.Left;
 end;
 
-procedure TPGForm.Show( Focus: Boolean = true );
+procedure TPGForm.Show( AFocus: Boolean = true );
 begin
-  FormForceShow( FForm, Focus );
+  FormForceShow( Self.FForm, AFocus );
 end;
 
-procedure TPGForm.SetTop( Top: Integer );
+procedure TPGForm.SetTop( ATop: Integer );
 begin
-  FForm.Top := Top;
+  FForm.Top := ATop;
 end;
 
 function TPGForm.GetTop( ): Integer;
@@ -172,9 +171,9 @@ begin
   Result := FForm.Top;
 end;
 
-procedure TPGForm.SetTransparent( Transparent: Boolean );
+procedure TPGForm.SetTransparent( ATransparent: Boolean );
 begin
-  FForm.TransparentColor := Transparent;
+  FForm.TransparentColor := ATransparent;
 end;
 
 function TPGForm.GetTransparent( ): Boolean;
@@ -182,9 +181,9 @@ begin
   Result := FForm.TransparentColor;
 end;
 
-procedure TPGForm.SetTransparentColor( TransparentColor: Integer );
+procedure TPGForm.SetTransparentColor( ATransparentColor: Integer );
 begin
-  FForm.TransparentColorValue := TransparentColor;
+  FForm.TransparentColorValue := ATransparentColor;
 end;
 
 function TPGForm.GetTransparentColor( ): Integer;
@@ -192,9 +191,9 @@ begin
   Result := FForm.TransparentColorValue;
 end;
 
-procedure TPGForm.SetVisible( Visible: Boolean );
+procedure TPGForm.SetVisible( AVisible: Boolean );
 begin
-  FForm.Visible := Visible;
+  FForm.Visible := AVisible;
 end;
 
 function TPGForm.GetVisible( ): Boolean;
@@ -202,9 +201,9 @@ begin
   Result := FForm.Visible;
 end;
 
-procedure TPGForm.SetWidth( Width: Integer );
+procedure TPGForm.SetWidth( AWidth: Integer );
 begin
-  FForm.Width := Width;
+  FForm.Width := AWidth;
 end;
 
 function TPGForm.GetWidth( ): Integer;
@@ -212,9 +211,9 @@ begin
   Result := FForm.Width;
 end;
 
-procedure TPGForm.SetWindowState( WindowState: Byte );
+procedure TPGForm.SetWindowState( AWindowState: Byte );
 begin
-  FForm.WindowState := TWindowState( WindowState );
+  FForm.WindowState := TWindowState( AWindowState );
 end;
 
 function TPGForm.GetWindowState( ): Byte;
@@ -244,9 +243,9 @@ begin
     end );
 end;
 
-procedure TPGForm.Frame( Parent: TObject );
+procedure TPGForm.Frame( AParent: TObject );
 begin
-  TPGFrameForms.Create( Self, Parent );
+  TPGFrameForms.Create( Self, AParent );
 end;
 
 { TFormEx }

@@ -40,7 +40,7 @@ type
     procedure IniConfigLoad( ); override;
   public
     property AutoClose: Boolean read GetAutoClose;
-    procedure ConsoleNotifyMessage( Value: string; Show: Boolean );
+    procedure ConsoleNotifyMessage( AValue: string; AShow: Boolean );
   end;
 
 {$M+}
@@ -54,7 +54,7 @@ type
   public
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
-    procedure Frame( Parent: TObject ); override;
+    procedure Frame( AParent: TObject ); override;
   published
     property AutoClose: Boolean read FAutoClose write SetAutoClose;
     procedure Clear( );
@@ -90,7 +90,7 @@ procedure TFrmConsole.FormCreate( Sender: TObject );
 begin
   FItem := TPGFrmConsole.Create( Self );
   PGofer.Sintatico.ConsoleNotify := Self.ConsoleNotifyMessage;
-  inherited;
+  inherited FormCreate( Sender );
 end;
 
 procedure TFrmConsole.FormShow( Sender: TObject );
@@ -113,12 +113,12 @@ end;
 procedure TFrmConsole.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
   TmrConsole.Enabled := False;
-  inherited;
+  inherited FormClose( Sender, Action );
 end;
 
 procedure TFrmConsole.FormDestroy( Sender: TObject );
 begin
-  inherited;
+  inherited FormDestroy( Sender );
   ConsoleNotify := nil;
   FItem := nil;
 end;
@@ -137,7 +137,7 @@ end;
 
 procedure TFrmConsole.IniConfigLoad( );
 begin
-  inherited;
+  inherited IniConfigLoad( );
   FItem.Delay := FIniFile.ReadInteger( Self.Name, 'Delay', FItem.Delay );
   FItem.ShowMessage := FIniFile.ReadBool( Self.Name, 'ShowMessage',
      FItem.ShowMessage );
@@ -150,7 +150,7 @@ begin
   FIniFile.WriteInteger( Self.Name, 'Delay', FItem.Delay );
   FIniFile.WriteBool( Self.Name, 'ShowMessage', FItem.ShowMessage );
   FIniFile.WriteBool( Self.Name, 'AutoClose', FItem.AutoClose );
-  inherited;
+  inherited IniConfigSave( );
 end;
 
 procedure TFrmConsole.BtnFixedClick( Sender: TObject );
@@ -189,12 +189,12 @@ begin
   end;
 end;
 
-procedure TFrmConsole.ConsoleNotifyMessage( Value: string; Show: Boolean );
+procedure TFrmConsole.ConsoleNotifyMessage( AValue: string; AShow: Boolean );
 begin
-  Self.EdtConsole.Lines.Add( Value );
+  Self.EdtConsole.Lines.Add( AValue );
   Self.EdtConsole.Perform( WM_VSCROLL, SB_ENDSCROLL, 0 );
 
-  if Show then
+  if AShow then
   begin
     // ajusta posicao do console
     Self.Left := Application.MainForm.Left;
@@ -206,7 +206,7 @@ end;
 { TPGFrmConsole }
 constructor TPGFrmConsole.Create( AForm: TForm );
 begin
-  inherited;
+  inherited Create( AForm );
   FDelay := 2000;
   FShowMessage := True;
   FAutoClose := True;
@@ -217,12 +217,12 @@ begin
   FDelay := 0;
   FShowMessage := False;
   FAutoClose := False;
-  inherited;
+  inherited Destroy( );
 end;
 
-procedure TPGFrmConsole.Frame( Parent: TObject );
+procedure TPGFrmConsole.Frame( AParent: TObject );
 begin
-  TPGFrameConsole.Create( Self, Parent );
+  TPGFrameConsole.Create( Self, AParent );
 end;
 
 procedure TPGFrmConsole.SetAutoClose( Value: Boolean );

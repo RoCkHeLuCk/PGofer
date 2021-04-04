@@ -18,7 +18,7 @@ type
     FItem: TPGFunction;
     frmAutoComplete: TFrmAutoComplete;
   public
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -30,10 +30,10 @@ implementation
 {$R *.dfm}
 { TPGFrameFunction }
 
-constructor TPGFrameFunction.Create( Item: TPGItem; Parent: TObject );
+constructor TPGFrameFunction.Create( AItem: TPGItem; AParent: TObject );
 begin
-  inherited Create( Item, Parent );
-  FItem := TPGFunction( Item );
+  inherited Create( AItem, AParent );
+  FItem := TPGFunction( AItem );
   EdtScript.Text := FItem.Script;
   frmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;

@@ -23,14 +23,14 @@ type
     FNode: TTreeNode;
     procedure SetParent( AParent: TPGItem );
     function GetCollectDad( ): TPGItemCollect;
-    procedure SetNode( Value: TTreeNode );
+    procedure SetNode( AValue: TTreeNode );
   protected
-    procedure SetName( Name: string ); virtual;
-    procedure SetEnabled( Value: Boolean ); virtual;
-    procedure SetReadOnly( Value: Boolean ); virtual;
+    procedure SetName( AName: string ); virtual;
+    procedure SetEnabled( AValue: Boolean ); virtual;
+    procedure SetReadOnly( AValue: Boolean ); virtual;
     class function GetImageIndex( ): Integer; virtual;
   public
-    constructor Create( AParent: TPGItem; Name: string ); overload;
+    constructor Create( AParent: TPGItem; AName: string ); overload;
     destructor Destroy( ); override;
     property name: string read FName write SetName;
     property Enabled: Boolean read FEnabled write SetEnabled;
@@ -38,9 +38,10 @@ type
     property Parent: TPGItem read FParent write SetParent;
     property Node: TTreeNode read FNode write SetNode;
     property CollectDad: TPGItemCollect read GetCollectDad;
-    procedure Frame( Parent: TObject ); virtual;
-    function FindName( Name: string ): TPGItem;
-    function FindNameList( Name: string; Partial: Boolean ): TArray< TPGItem >;
+    procedure Frame( AParent: TObject ); virtual;
+    function FindName( AName: string ): TPGItem;
+    function FindNameList( AName: string; APartial: Boolean )
+       : TArray< TPGItem >;
   end;
 
   TClassList = class
@@ -50,26 +51,26 @@ type
   public
     constructor Create( ); overload;
     destructor Destroy( ); override;
-    procedure Add( Name: string; Value: TClass );
+    procedure Add( AName: string; AValue: TClass );
     function Count( ): Integer;
-    function GetNameIndex( Index: Integer ): string;
-    function GetClassIndex( Index: Integer ): TClass;
-    function TryGetValue( Name: string; out Value: TClass ): Boolean;
-    function TryGetName( Value: TClass; out Name: string ): Boolean;
+    function GetNameIndex( AIndex: Integer ): string;
+    function GetClassIndex( AIndex: Integer ): TClass;
+    function TryGetValue( AName: string; out OValue: TClass ): Boolean;
+    function TryGetName( AValue: TClass; out OName: string ): Boolean;
   end;
 
   TPGItemCollect = class( TPGItem )
-    constructor Create( AName: string; LoadFile: Boolean = False ); overload;
+    constructor Create( AName: string; ALoadFile: Boolean = False ); overload;
     destructor Destroy( ); override;
   private
     FClassList: TClassList;
     FTreeView: TTreeViewEx;
     FForm: TForm;
     FFileName: string;
-    procedure XMLSaveToFile( FileName: string );
-    procedure XMLSaveToStream( Stream: TStream );
-    procedure XMLLoadFromFile( FileName: string );
-    procedure XMLLoadFromStream( Stream: TStream );
+    procedure XMLSaveToFile( AFileName: string );
+    procedure XMLSaveToStream( AStream: TStream );
+    procedure XMLLoadFromFile( AFileName: string );
+    procedure XMLLoadFromStream( AStream: TStream );
   public
     property TreeView: TTreeViewEx read FTreeView;
     property RegClassList: TClassList read FClassList;
@@ -92,10 +93,10 @@ uses
 
 { TPGItem }
 
-constructor TPGItem.Create( AParent: TPGItem; Name: string );
+constructor TPGItem.Create( AParent: TPGItem; AName: string );
 begin
   inherited Create( True );
-  FName := name;
+  FName := AName;
   FEnabled := True;
   FReadOnly := True;
   FNode := nil;
@@ -136,9 +137,9 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGItem.SetEnabled( Value: Boolean );
+procedure TPGItem.SetEnabled( AValue: Boolean );
 begin
-  FEnabled := Value;
+  FEnabled := AValue;
   if Assigned( FNode ) then
   begin
     FNode.Enabled := FEnabled;
@@ -171,23 +172,23 @@ begin
   end;
 end;
 
-procedure TPGItem.SetReadOnly( Value: Boolean );
+procedure TPGItem.SetReadOnly( AValue: Boolean );
 begin
-  FReadOnly := Value;
+  FReadOnly := AValue;
 end;
 
-procedure TPGItem.SetName( Name: string );
+procedure TPGItem.SetName( AName: string );
 begin
-  FName := name;
+  FName := AName;
   if Assigned( FNode ) then
   begin
     FNode.Text := FName;
   end;
 end;
 
-procedure TPGItem.SetNode( Value: TTreeNode );
+procedure TPGItem.SetNode( AValue: TTreeNode );
 begin
-  FNode := Value;
+  FNode := AValue;
   if Assigned( FNode ) then
   begin
     FNode.Data := Self;
@@ -197,9 +198,9 @@ begin
   end;
 end;
 
-procedure TPGItem.Frame( Parent: TObject );
+procedure TPGItem.Frame( AParent: TObject );
 begin
-  TPGFrame.Create( Self, Parent );
+  TPGFrame.Create( Self, AParent );
 end;
 
 function TPGItem.GetCollectDad: TPGItemCollect;
@@ -217,7 +218,7 @@ begin
   Result := 0;
 end;
 
-function TPGItem.FindName( Name: string ): TPGItem;
+function TPGItem.FindName( AName: string ): TPGItem;
 var
   C: FixedInt;
 begin
@@ -225,13 +226,13 @@ begin
   C := 0;
   while ( C < Self.Count ) and ( not Assigned( Result ) ) do
   begin
-    if SameText( name, Self[ C ].Name ) then
+    if SameText( AName, Self[ C ].Name ) then
       Result := Self[ C ];
     inc( C );
   end;
 end;
 
-function TPGItem.FindNameList( Name: string; Partial: Boolean )
+function TPGItem.FindNameList( AName: string; APartial: Boolean )
    : TArray< TPGItem >;
 var
   Item: TPGItem;
@@ -239,8 +240,9 @@ begin
   SetLength( Result, 0 );
   for Item in Self do
   begin
-    if ( Partial and ( Pos( LowerCase( name ), LowerCase( Item.Name ) ) > 0 ) )
-       or ( not Partial and SameText( name, Item.Name ) ) or ( name = '' ) then
+    if ( APartial and ( Pos( LowerCase( AName ), LowerCase( Item.Name ) ) > 0 )
+       ) or ( not APartial and SameText( AName, Item.Name ) ) or ( AName = '' )
+    then
     begin
       Result := Result + [ Item ];
     end;
@@ -256,7 +258,7 @@ end;
 
 constructor TClassList.Create( );
 begin
-  inherited;
+  inherited Create( );
   Self.FNameList := TList< string >.Create( );
   Self.FClassList := TList< TClass >.Create( );
 end;
@@ -265,41 +267,41 @@ destructor TClassList.Destroy( );
 begin
   Self.FNameList.Free( );
   Self.FClassList.Free( );
-  inherited;
+  inherited Destroy( );
 end;
 
-function TClassList.GetClassIndex( Index: Integer ): TClass;
+function TClassList.GetClassIndex( AIndex: Integer ): TClass;
 begin
-  Result := Self.FClassList[ index ];
+  Result := Self.FClassList[ AIndex ];
 end;
 
-function TClassList.GetNameIndex( Index: Integer ): string;
+function TClassList.GetNameIndex( AIndex: Integer ): string;
 begin
-  Result := Self.FNameList[ index ];
+  Result := Self.FNameList[ AIndex ];
 end;
 
-procedure TClassList.Add( Name: string; Value: TClass );
+procedure TClassList.Add( AName: string; AValue: TClass );
 begin
-  Self.FNameList.Add( name );
-  Self.FClassList.Add( Value );
+  Self.FNameList.Add( AName );
+  Self.FClassList.Add( AValue );
 end;
 
-function TClassList.TryGetName( Value: TClass; out Name: string ): Boolean;
+function TClassList.TryGetName( AValue: TClass; out OName: string ): Boolean;
 begin
-  if Self.FClassList.Contains( Value ) then
+  if Self.FClassList.Contains( AValue ) then
   begin
-    name := Self.FNameList[ Self.FClassList.IndexOf( Value ) ];
+    OName := Self.FNameList[ Self.FClassList.IndexOf( AValue ) ];
     Result := True;
   end
   else
     Result := False;
 end;
 
-function TClassList.TryGetValue( Name: string; out Value: TClass ): Boolean;
+function TClassList.TryGetValue( AName: string; out OValue: TClass ): Boolean;
 begin
-  if Self.FNameList.Contains( name ) then
+  if Self.FNameList.Contains( AName ) then
   begin
-    Value := Self.FClassList[ Self.FNameList.IndexOf( name ) ];
+    OValue := Self.FClassList[ Self.FNameList.IndexOf( AName ) ];
     Result := True;
   end
   else
@@ -308,11 +310,11 @@ end;
 
 { TPGCollectItem }
 
-constructor TPGItemCollect.Create( AName: string; LoadFile: Boolean = False );
+constructor TPGItemCollect.Create( AName: string; ALoadFile: Boolean = False );
 begin
   inherited Create( nil, AName );
   FClassList := TClassList.Create( );
-  if LoadFile then
+  if ALoadFile then
     FFileName := PGofer.Sintatico.DirCurrent + '\' + AName + '.xml'
   else
     FFileName := '';
@@ -325,7 +327,7 @@ begin
     FForm.Free( );
   FClassList.Free( );
   FFileName := '';
-  inherited;
+  inherited Destroy( );
 end;
 
 procedure TPGItemCollect.FormShow;
@@ -410,11 +412,11 @@ begin
     Self.XMLSaveToFile( FFileName );
 end;
 
-procedure TPGItemCollect.XMLSaveToFile( FileName: string );
+procedure TPGItemCollect.XMLSaveToFile( AFileName: string );
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create( FileName, fmCreate );
+  Stream := TFileStream.Create( AFileName, fmCreate );
   try
     Self.XMLSaveToStream( Stream );
   finally
@@ -422,7 +424,7 @@ begin
   end;
 end;
 
-procedure TPGItemCollect.XMLSaveToStream( Stream: TStream );
+procedure TPGItemCollect.XMLSaveToStream( AStream: TStream );
 
   procedure CreateNode( Item: TPGItem; XMLNodeDad: IXMLNode );
   var
@@ -484,15 +486,15 @@ begin
   begin
     CreateNode( Item, XMLRoot );
   end;
-  XMLDocument.SaveToStream( Stream );
+  XMLDocument.SaveToStream( AStream );
   XMLDocument.Active := False;
 end;
 
-procedure TPGItemCollect.XMLLoadFromFile( FileName: string );
+procedure TPGItemCollect.XMLLoadFromFile( AFileName: string );
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create( FileName, fmOpenRead );
+  Stream := TFileStream.Create( AFileName, fmOpenRead );
   try
     Self.XMLLoadFromStream( Stream );
   finally
@@ -500,7 +502,7 @@ begin
   end;
 end;
 
-procedure TPGItemCollect.XMLLoadFromStream( Stream: TStream );
+procedure TPGItemCollect.XMLLoadFromStream( AStream: TStream );
 
   procedure CreateItem( ItemDad: TPGItem; XMLNode: IXMLNode );
   var
@@ -513,17 +515,17 @@ procedure TPGItemCollect.XMLLoadFromStream( Stream: TStream );
     Value: TValue;
     Item: TPGItem;
     ItemOriginal: TPGItem;
-    Name: string;
+    NodeName: string;
   begin
     if ( not FClassList.TryGetValue( XMLNode.NodeName, ClassRegister ) ) or
        ( not XMLNode.HasAttribute( 'Name' ) ) then
       Exit;
 
-    name := XMLNode.Attributes[ 'Name' ];
+    NodeName := XMLNode.Attributes[ 'Name' ];
     RttiContext := TRttiContext.Create( );
     RttiType := RttiContext.GetType( ClassRegister );
     Value := RttiType.GetMethod( 'Create' ).Invoke( ClassRegister,
-       [ ItemDad, name ] );
+       [ ItemDad, NodeName ] );
     Item := TPGItem( Value.AsObject );
 
     if Item is TPGItemMirror then
@@ -553,17 +555,17 @@ procedure TPGItemCollect.XMLLoadFromStream( Stream: TStream );
           try
             case RttiProperty.PropertyType.TypeKind of
               tkInteger:
-              RttiProperty.SetValue( ItemOriginal,
-                 StrToIntDef( XMLNodeProperty.Text, 0 ) );
+                RttiProperty.SetValue( ItemOriginal,
+                   StrToIntDef( XMLNodeProperty.Text, 0 ) );
               tkEnumeration:
-              RttiProperty.SetValue( ItemOriginal,
-                 StrToBoolDef( XMLNodeProperty.Text, False ) );
+                RttiProperty.SetValue( ItemOriginal,
+                   StrToBoolDef( XMLNodeProperty.Text, False ) );
               tkFloat:
-              RttiProperty.SetValue( ItemOriginal,
-                 StrToFloatDef( XMLNodeProperty.Text, 0 ) );
+                RttiProperty.SetValue( ItemOriginal,
+                   StrToFloatDef( XMLNodeProperty.Text, 0 ) );
               tkString, tkLString, tkWString, tkUString:
-              RttiProperty.SetValue( ItemOriginal,
-                 UnicodeString( XMLNodeProperty.Text ) );
+                RttiProperty.SetValue( ItemOriginal,
+                   UnicodeString( XMLNodeProperty.Text ) );
             end;
           except
             raise Exception.Create( 'Erro: "' + XMLNode.NodeName + '", Campo "'
@@ -590,7 +592,7 @@ begin
   Self.Clear;
   XMLDocument := NewXMLDocument;
   try
-    XMLDocument.LoadFromStream( Stream );
+    XMLDocument.LoadFromStream( AStream );
     XMLDocument.Active := True;
     XMLNode := XMLDocument.ChildNodes.FindNode( Self.Name );
     if Assigned( XMLNode ) then

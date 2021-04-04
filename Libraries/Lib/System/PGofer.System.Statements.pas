@@ -52,6 +52,11 @@ type
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
+  TPGWaitFor = class( TPGItemCMD )
+  public
+    procedure Execute( Gramatica: TGramatica ); override;
+  end;
+
   TPGWhile = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
@@ -341,6 +346,29 @@ begin
     Gramatica.ErroAdd( '"(" Esperado.' );
 end;
 
+{ TPGWaitFor }
+
+procedure TPGWaitFor.Execute( Gramatica: TGramatica );
+var
+  LoopContador: Int64;
+  Continuar: Boolean;
+  PositionIni: FixedInt;
+begin
+  LoopContador := 0;
+  PositionIni := Gramatica.TokenList.Position;
+  repeat
+    Gramatica.TokenList.Position := PositionIni;
+    Sleep( 100 );
+    LerParamentros( Gramatica, 1, 1 );
+    Continuar := Gramatica.Pilha.Desempilhar( false );
+    Inc( LoopContador );
+    // verifica e executa novamente
+  until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
+
+  if ( LoopContador >= LoopLimite ) then
+    Gramatica.ErroAdd( 'Loops Excedidos.' );
+end;
+
 { TPGWhile }
 
 procedure TPGWhile.Execute( Gramatica: TGramatica );
@@ -405,6 +433,7 @@ TPGInsert.Create( GlobalItemCommand );
 TPGRead.Create( GlobalItemCommand );
 TPGRepeat.Create( GlobalItemCommand );
 TPGUnDef.Create( GlobalItemCommand );
+TPGWaitFor.Create( GlobalItemCommand );
 TPGWhile.Create( GlobalItemCommand );
 TPGWrite.Create( GlobalItemCommand );
 

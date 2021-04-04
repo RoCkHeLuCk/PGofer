@@ -67,7 +67,7 @@ begin
     TObject( Node.Data ).Free;
     Node.Data := nil;
   end;
-  inherited;
+  inherited Delete( Node );
 end;
 
 procedure TTreeViewEx.DragDrop( Source: TObject; X, Y: Integer );
@@ -83,7 +83,7 @@ begin
   for Node in FSelectionsDrag do
     Node.MoveTo( FTargetDrag, NodeAttach );
 
-  inherited;
+  inherited DragDrop( Source, X, Y );
 end;
 
 procedure TTreeViewEx.DragOver( Source: TObject; X, Y: Integer;
@@ -91,7 +91,7 @@ procedure TTreeViewEx.DragOver( Source: TObject; X, Y: Integer;
 var
   C: Integer;
 begin
-  inherited;
+  inherited DragOver( Source, X, Y, State, Accept );
   try
     FTargetDrag := Self.GetNodeAt( X, Y );
     SetLength( FSelectionsDrag, 0 );
@@ -111,15 +111,15 @@ end;
 procedure TTreeViewEx.DoDropFiles( var msg: TWMDropFiles );
 var
   C, FileCount: Integer;
-  TargetPoint : TPoint;
+  TargetPoint: TPoint;
   FileName: array [ 0 .. MAX_PATH ] of Char;
   FileList: TStrings;
 begin
   if FDropFileAccept and Assigned( FOnDropFiles ) then
   begin
-    if DragQueryPoint(msg.Drop, TargetPoint) then
+    if DragQueryPoint( msg.Drop, TargetPoint ) then
     begin
-      FTargetDrag :=  Self.GetNodeAt( TargetPoint.X, TargetPoint.Y );
+      FTargetDrag := Self.GetNodeAt( TargetPoint.X, TargetPoint.Y );
       FileList := TStringList.Create;
       FileCount := DragQueryFile( msg.Drop, $FFFFFFFF, nil, MAX_PATH );
       for C := 0 to -1 + FileCount do
@@ -139,7 +139,7 @@ begin
   Self.Repaint( );
   FTargetDrag := nil;
   SetLength( FSelectionsDrag, 0 );
-  inherited;
+  inherited DoEndDrag( Target, X, Y );
 end;
 
 procedure TTreeViewEx.SuperSelected( Node: TTreeNode );
@@ -174,9 +174,9 @@ end;
 procedure TTreeViewEx.MouseDown( Button: TMouseButton; Shift: TShiftState;
    X, Y: Integer );
 begin
-    if (not Self.Dragging) then
-       Self.Selected := Self.GetNodeAt(X, Y);
-    inherited;
+  if ( not Self.Dragging ) then
+    Self.Selected := Self.GetNodeAt( X, Y );
+  inherited MouseDown( Button, Shift, X, Y );
 end;
 
 procedure TTreeViewEx.FindText( Text: string; OffSet: Integer = -1 );

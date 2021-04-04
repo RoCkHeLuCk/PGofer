@@ -109,7 +109,8 @@ begin
          ( AuxHotKey.Detect = Byte( FKey.bDetect ) ) ) then
       begin
         AuxHotKey.Triggering( );
-        Inibir := AuxHotKey.Inhibit;
+        if AuxHotKey.Detect <> 2 then
+          Inibir := AuxHotKey.Inhibit;
       end;
 
       if FKey.bDetect in [ kd_Up, kd_Wheel ] then
@@ -132,16 +133,16 @@ begin
   case wParam of
 
     WM_KEYDOWN, WM_SYSKEYDOWN:
-    begin
-      Key.bDetect := kd_Down;
-      Key.wKey := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
-    end;
+      begin
+        Key.bDetect := kd_Down;
+        Key.wKey := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
+      end;
 
     WM_KEYUP, WM_SYSKEYUP:
-    begin
-      Key.bDetect := kd_Up;
-      Key.wKey := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
-    end;
+      begin
+        Key.bDetect := kd_Up;
+        Key.wKey := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
+      end;
     {
       WM_MOUSEMOVE:
       begin
@@ -150,41 +151,41 @@ begin
       end;
     }
     WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN, WM_XBUTTONDOWN:
-    begin
-      Key.bDetect := kd_Down;
-      Key.wKey := wParam;
-    end;
+      begin
+        Key.bDetect := kd_Down;
+        Key.wKey := wParam;
+      end;
 
     WM_LBUTTONUP, WM_RBUTTONUP, WM_MBUTTONUP, WM_XBUTTONUP:
-    begin
-      Key.bDetect := kd_Up;
-      Key.wKey := wParam - 1;
-    end;
+      begin
+        Key.bDetect := kd_Up;
+        Key.wKey := wParam - 1;
+      end;
 
     WM_MOUSEWHEEL, WM_MOUSEHWHEEL:
-    begin
-      Key.bDetect := kd_Wheel;
-      if SmallInt( PMSLLHOOKSTRUCT( lParam ).dwMData shr 16 ) < 0 then
-        Key.wKey := wParam
-      else
-        Key.wKey := wParam - 1;
-    end;
+      begin
+        Key.bDetect := kd_Wheel;
+        if SmallInt( PMSLLHOOKSTRUCT( lParam ).dwMData shr 16 ) < 0 then
+          Key.wKey := wParam
+        else
+          Key.wKey := wParam - 1;
+      end;
   end;
 
   case Key.wKey of
 
     255:
-    begin
-      inc( Key.wKey, PKBDLLHOOKSTRUCT( lParam ).dwScan );
-    end;
+      begin
+        inc( Key.wKey, PKBDLLHOOKSTRUCT( lParam ).dwScan );
+      end;
 
     WM_XBUTTONDOWN:
-    begin
-      if SmallInt( PMouseInput( lParam ).mouseData shr 16 ) > 1 then
-        Key.wKey := wParam + 1
-      else
-        Key.wKey := wParam;
-    end;
+      begin
+        if SmallInt( PMouseInput( lParam ).mouseData shr 16 ) > 1 then
+          Key.wKey := wParam + 1
+        else
+          Key.wKey := wParam;
+      end;
   end;
 end;
 

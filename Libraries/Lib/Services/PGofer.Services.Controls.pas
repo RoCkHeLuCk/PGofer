@@ -62,21 +62,21 @@ function ServiceStatusToDrive( Status: Cardinal ): Integer;
 begin
   case ( Status ) of
     SERVICE_KERNEL_DRIVER:
-    Result := 0;
+      Result := 0;
     SERVICE_FILE_SYSTEM_DRIVER:
-    Result := 1;
+      Result := 1;
     SERVICE_ADAPTER:
-    Result := 2;
+      Result := 2;
     SERVICE_RECOGNIZER_DRIVER:
-    Result := 3;
+      Result := 3;
     SERVICE_WIN32_OWN_PROCESS, 272, 288:
-    Result := 4;
+      Result := 4;
     SERVICE_WIN32_SHARE_PROCESS:
-    Result := 5;
+      Result := 5;
     SERVICE_INTERACTIVE_PROCESS:
-    Result := 6;
+      Result := 6;
   else
-  Result := -1;
+    Result := -1;
   end; // case
 end;
 
@@ -84,21 +84,21 @@ function ServiceStatusToState( Status: Cardinal ): string;
 begin
   case ( Status ) of
     SERVICE_STOPPED:
-    Result := 'Parado';
+      Result := 'Parado';
     SERVICE_START_PENDING:
-    Result := 'Iniciando...';
+      Result := 'Iniciando...';
     SERVICE_STOP_PENDING:
-    Result := 'Parando...';
+      Result := 'Parando...';
     SERVICE_RUNNING:
-    Result := 'Iniciado';
+      Result := 'Iniciado';
     SERVICE_CONTINUE_PENDING:
-    Result := 'Esperando...';
+      Result := 'Esperando...';
     SERVICE_PAUSE_PENDING:
-    Result := 'Pausando...';
+      Result := 'Pausando...';
     SERVICE_PAUSED:
-    Result := 'Pausado';
+      Result := 'Pausado';
   else
-  Result := intToStr( Status );
+    Result := intToStr( Status );
   end; // case
 end;
 
@@ -106,27 +106,27 @@ function ServiceStatusToSystem( Status: Cardinal ): string;
 begin
   case ( Status ) of
     SERVICE_KERNEL_DRIVER:
-    Result := 'Driver Interno';
+      Result := 'Driver Interno';
     SERVICE_FILE_SYSTEM_DRIVER:
-    Result := 'Sistema de Arquivos';
+      Result := 'Sistema de Arquivos';
     SERVICE_ADAPTER:
-    Result := 'Adaptadores';
+      Result := 'Adaptadores';
     SERVICE_RECOGNIZER_DRIVER:
-    Result := 'Driver de Reconhecimento';
+      Result := 'Driver de Reconhecimento';
     SERVICE_DRIVER:
-    Result := 'Driver Geral';
+      Result := 'Driver Geral';
     SERVICE_WIN32_OWN_PROCESS, 272, 288:
-    Result := 'Serviço Comum';
+      Result := 'Serviço Comum';
     SERVICE_WIN32_SHARE_PROCESS:
-    Result := 'Serviço Compartilhado';
+      Result := 'Serviço Compartilhado';
     SERVICE_WIN32:
-    Result := 'Serviço Geral';
+      Result := 'Serviço Geral';
     SERVICE_INTERACTIVE_PROCESS:
-    Result := 'Interação de Processos';
+      Result := 'Interação de Processos';
     SERVICE_TYPE_ALL:
-    Result := 'Todos';
+      Result := 'Todos';
   else
-  Result := intToStr( Status );
+    Result := intToStr( Status );
   end; // case
 end;
 
@@ -134,17 +134,17 @@ function ServiceStatusToConfig( Status: Cardinal ): string;
 begin
   case ( Status ) of
     SERVICE_BOOT_START:
-    Result := 'Boot Automatico';
+      Result := 'Boot Automatico';
     SERVICE_SYSTEM_START:
-    Result := 'Sistema Automatico';
+      Result := 'Sistema Automatico';
     SERVICE_AUTO_START:
-    Result := 'Login Automatico';
+      Result := 'Login Automatico';
     SERVICE_DEMAND_START:
-    Result := 'Manual';
+      Result := 'Manual';
     SERVICE_DISABLED:
-    Result := 'Desabilitado';
+      Result := 'Desabilitado';
   else
-  Result := intToStr( Status );
+    Result := intToStr( Status );
   end;
 end;
 
@@ -167,22 +167,23 @@ begin
     begin
       case ( Control ) of
         1:
-        Result := ControlService( sc_Service, SERVICE_CONTROL_STOP, ss_Status );
+          Result := ControlService( sc_Service, SERVICE_CONTROL_STOP,
+             ss_Status );
         4:
-        begin
-          QueryServiceStatus( sc_Service, ss_Status );
-          if ss_Status.dwCurrentState = SERVICE_PAUSED then
           begin
-            Result := ControlService( sc_Service, SERVICE_CONTROL_CONTINUE,
-               ss_Status );
-          end else begin
-            Tempo := nil;
-            Result := StartService( sc_Service, 0, Tempo );
-          end; // if paused
-        end;
+            QueryServiceStatus( sc_Service, ss_Status );
+            if ss_Status.dwCurrentState = SERVICE_PAUSED then
+            begin
+              Result := ControlService( sc_Service, SERVICE_CONTROL_CONTINUE,
+                 ss_Status );
+            end else begin
+              Tempo := nil;
+              Result := StartService( sc_Service, 0, Tempo );
+            end; // if paused
+          end;
         7:
-        Result := ControlService( sc_Service, SERVICE_CONTROL_PAUSE,
-           ss_Status );
+          Result := ControlService( sc_Service, SERVICE_CONTROL_PAUSE,
+             ss_Status );
       end; // case control
       CloseServiceHandle( sc_Service );
     end; // if service

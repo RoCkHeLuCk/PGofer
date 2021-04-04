@@ -28,7 +28,7 @@ procedure ExpressaoMulDiv( Gramatica: TGramatica );
 procedure ExpressaoPowSqt( Gramatica: TGramatica );
 procedure ExpressaoFator( Gramatica: TGramatica );
 // --------------------------------IDENTIFICADOR-------------------------------//
-function FindID( Item: TPGItem; Name: string ): TPGItem;
+function FindID( AItem: TPGItem; AName: string ): TPGItem;
 function IdentificadorLocalizar( Gramatica: TGramatica ): TPGItem;
 procedure Identificador( Gramatica: TGramatica );
 
@@ -93,9 +93,9 @@ begin
 
         case ( Gramatica.TokenList.Token.Classe ) of
           cmdRes_begin:
-          inc( BeginCount );
+            inc( BeginCount );
           cmdRes_end:
-          Dec( BeginCount );
+            Dec( BeginCount );
         end;
 
         if ( BeginCount <> 0 ) then
@@ -169,9 +169,9 @@ begin
   if ( not Gramatica.Erro ) then
     case Gramatica.TokenList.Token.Classe of
       cmdEOF:
-      ;
+        ;
       cmdUnDeclar:
-      Gramatica.ErroAdd( 'Comando ou valor não reconhecido.' );
+        Gramatica.ErroAdd( 'Comando ou valor não reconhecido.' );
     end;
 end;
 
@@ -198,16 +198,16 @@ begin
   case Gramatica.TokenList.Token.Classe of
 
     cmdEqual, cmdAttrib:
-    ValorFinal( Gramatica );
+      ValorFinal( Gramatica );
 
     cmdRes_begin:
-    ComecoFinal( Gramatica ); // Begin End
+      ComecoFinal( Gramatica ); // Begin End
 
     cmdID:
-    Identificador( Gramatica );
+      Identificador( Gramatica );
 
   else
-  Gramatica.ErroAdd( 'Extrutura não reconhecida.' );
+    Gramatica.ErroAdd( 'Extrutura não reconhecida.' );
   end;
 end;
 
@@ -298,9 +298,9 @@ begin
         // executa a operação matematica
         case Operador of
           cmdAdd:
-          N1 := N1 + N2;
+            N1 := N1 + N2;
           cmdSub:
-          N1 := N1 - N2;
+            N1 := N1 - N2;
         end;
         Gramatica.Pilha.Empilhar( N1 );
       end else begin
@@ -319,11 +319,11 @@ begin
       B2 := S2.ToBoolean;
       case Operador of
         cmdRes_and:
-        B1 := ( B1 and B2 );
+          B1 := ( B1 and B2 );
         cmdRes_or:
-        B1 := ( B1 or B2 );
+          B1 := ( B1 or B2 );
         cmdRes_xor:
-        B1 := ( B1 xor B2 );
+          B1 := ( B1 xor B2 );
       end;
       Gramatica.Pilha.Empilhar( B1 );
     end;
@@ -350,29 +350,29 @@ begin
     // calcula a operação matematica
     case Operador of
       cmdMult:
-      Gramatica.Pilha.Empilhar( N1 * N2 );
+        Gramatica.Pilha.Empilhar( N1 * N2 );
       cmdBar:
-      begin
-        // verifica divisão por 0
-        if N2 <> 0 then
         begin
-          N1 := N1 / N2;
-          Gramatica.Pilha.Empilhar( N1 );
-        end
-        else
-          Gramatica.ErroAdd( 'Divisão por 0.' );
-      end;
+          // verifica divisão por 0
+          if N2 <> 0 then
+          begin
+            N1 := N1 / N2;
+            Gramatica.Pilha.Empilhar( N1 );
+          end
+          else
+            Gramatica.ErroAdd( 'Divisão por 0.' );
+        end;
       cmdRes_mod:
-      begin
-        // verifica divisão por 0
-        if N2 <> 0 then
         begin
-          N1 := Trunc( N1 ) mod Trunc( N2 );
-          Gramatica.Pilha.Empilhar( N1 )
-        end
-        else
-          Gramatica.ErroAdd( 'Divisão por 0.' );
-      end;
+          // verifica divisão por 0
+          if N2 <> 0 then
+          begin
+            N1 := Trunc( N1 ) mod Trunc( N2 );
+            Gramatica.Pilha.Empilhar( N1 )
+          end
+          else
+            Gramatica.ErroAdd( 'Divisão por 0.' );
+        end;
     end;
     ExpressaoMulDiv( Gramatica );
   end;
@@ -401,42 +401,42 @@ begin
       // calcula a operação matematica
       case Operador of
         cmdTone:
-        begin
-          if TryPower( N1, N2, N1 ) then
-            Gramatica.Pilha.Empilhar( N1 )
-          else
-            Gramatica.ErroAdd( 'Potencia Invalida' );
-        end;
+          begin
+            if TryPower( N1, N2, N1 ) then
+              Gramatica.Pilha.Empilhar( N1 )
+            else
+              Gramatica.ErroAdd( 'Potencia Invalida' );
+          end;
         cmdRes_root:
-        begin
-          if TryPower( N1, 1 / N2, N1 ) then
-            Gramatica.Pilha.Empilhar( N1 )
-          else
-            Gramatica.ErroAdd( 'Raiz Invalida' );
-        end;
+          begin
+            if TryPower( N1, 1 / N2, N1 ) then
+              Gramatica.Pilha.Empilhar( N1 )
+            else
+              Gramatica.ErroAdd( 'Raiz Invalida' );
+          end;
         cmdEqual:
-        Gramatica.Pilha.Empilhar( N1 = N2 );
+          Gramatica.Pilha.Empilhar( N1 = N2 );
         cmdMore:
-        Gramatica.Pilha.Empilhar( N1 > N2 );
+          Gramatica.Pilha.Empilhar( N1 > N2 );
         cmdMinor:
-        Gramatica.Pilha.Empilhar( N1 < N2 );
+          Gramatica.Pilha.Empilhar( N1 < N2 );
         cmdMoreEqual:
-        Gramatica.Pilha.Empilhar( N1 >= N2 );
+          Gramatica.Pilha.Empilhar( N1 >= N2 );
         cmdMinorEqual:
-        Gramatica.Pilha.Empilhar( N1 <= N2 );
+          Gramatica.Pilha.Empilhar( N1 <= N2 );
         cmdDifferent:
-        Gramatica.Pilha.Empilhar( N1 <> N2 );
+          Gramatica.Pilha.Empilhar( N1 <> N2 );
       end;
 
     end else begin
       // se nao compara com relação boleana
       case Operador of
         cmdEqual:
-        Gramatica.Pilha.Empilhar( S1 = S2 );
+          Gramatica.Pilha.Empilhar( S1 = S2 );
         cmdDifferent:
-        Gramatica.Pilha.Empilhar( S1 <> S2 );
+          Gramatica.Pilha.Empilhar( S1 <> S2 );
       else
-      Gramatica.ErroAdd( 'Operação não reconhecida.' );
+        Gramatica.ErroAdd( 'Operação não reconhecida.' );
       end;
     end;
     ExpressaoPowSqt( Gramatica );
@@ -448,66 +448,66 @@ begin
   case Gramatica.TokenList.Token.Classe of
 
     cmdID:
-    Identificador( Gramatica ); // comandos
+      Identificador( Gramatica ); // comandos
 
     cmdNumeric, cmdString:
-    begin
-      // empilha texto
-      Gramatica.Pilha.Empilhar( Gramatica.TokenList.Token.Lexema );
-      Gramatica.TokenList.GetNextToken;
-    end;
+      begin
+        // empilha texto
+        Gramatica.Pilha.Empilhar( Gramatica.TokenList.Token.Lexema );
+        Gramatica.TokenList.GetNextToken;
+      end;
 
     cmdSub:
-    begin
-      // atribui valor negativo para numeros
-      Gramatica.TokenList.GetNextToken;
-      ExpressaoFator( Gramatica );
-      Gramatica.Pilha.Empilhar( Gramatica.Pilha.Desempilhar( 0.0 ) * -1 );
-    end;
+      begin
+        // atribui valor negativo para numeros
+        Gramatica.TokenList.GetNextToken;
+        ExpressaoFator( Gramatica );
+        Gramatica.Pilha.Empilhar( Gramatica.Pilha.Desempilhar( 0.0 ) * -1 );
+      end;
 
     cmdLPar:
-    begin
-      // abre parentes.
-      Gramatica.TokenList.GetNextToken;
-      Expressao( Gramatica );
-      // fecha parentes.
-      if Gramatica.TokenList.Token.Classe in [ cmdRPar, cmdEOF, cmdDotComa ]
-      then
-        Gramatica.TokenList.GetNextToken
-      else
-        Gramatica.ErroAdd( '")" Esperado.' );
-    end;
+      begin
+        // abre parentes.
+        Gramatica.TokenList.GetNextToken;
+        Expressao( Gramatica );
+        // fecha parentes.
+        if Gramatica.TokenList.Token.Classe in [ cmdRPar, cmdEOF, cmdDotComa ]
+        then
+          Gramatica.TokenList.GetNextToken
+        else
+          Gramatica.ErroAdd( '")" Esperado.' );
+      end;
 
     cmdRes_not:
-    begin
-      Gramatica.TokenList.GetNextToken;
-      Expressao( Gramatica );
-      Gramatica.Pilha.Empilhar
-         ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
-    end;
+      begin
+        Gramatica.TokenList.GetNextToken;
+        Expressao( Gramatica );
+        Gramatica.Pilha.Empilhar
+           ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
+      end;
   else
-  Gramatica.ErroAdd( 'Expressão Invalida.' );
+    Gramatica.ErroAdd( 'Expressão Invalida.' );
   end;
 end;
 
 // -----------------------------IDENTIFICADOR----------------------------------//
-function FindID( Item: TPGItem; Name: string ): TPGItem;
+function FindID( AItem: TPGItem; AName: string ): TPGItem;
 begin
   Result := nil;
-  if Assigned( Item ) then
+  if Assigned( AItem ) then
   begin
-    if Item = GlobalCollection then
+    if AItem = GlobalCollection then
     begin
-      for Item in GlobalCollection do
+      for AItem in GlobalCollection do
       begin
-        Result := Item.FindName( name );
+        Result := AItem.FindName( AName );
         if Assigned( Result ) then
           exit;
       end;
     end else begin
-      Result := Item.FindName( name );
-      if not Assigned( Result ) and Assigned( Item.Parent ) then
-        Result := FindID( Item.Parent, name );
+      Result := AItem.FindName( AName );
+      if not Assigned( Result ) and Assigned( AItem.Parent ) then
+        Result := FindID( AItem.Parent, AName );
     end;
   end;
 end;

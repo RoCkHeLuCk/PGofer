@@ -2,7 +2,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
   Width = 401
   Height = 275
   Constraints.MinHeight = 250
-  OnExit = MmoTeclasExit
+  OnExit = MmoHotKeysExit
   ExplicitWidth = 401
   ExplicitHeight = 275
   inherited SplitterItem: TSplitter
@@ -31,7 +31,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
     DesignSize = (
       401
       221)
-    object LblDetectar: TLabel [1]
+    object LblDetect: TLabel [1]
       Left = 110
       Top = 118
       Width = 59
@@ -40,22 +40,22 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Alignment = taRightJustify
       AutoSize = False
       BiDiMode = bdLeftToRight
-      Caption = 'Detectar:'
+      Caption = 'Detect:'
       ParentBiDiMode = False
     end
     inherited EdtName: TEditEx
       Width = 326
       ExplicitWidth = 326
     end
-    object GrbTeclas: TGroupBox
+    object GrbHotKeys: TGroupBox
       Left = 5
       Top = 33
       Width = 390
       Height = 72
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'Teclas'
+      Caption = 'HotKeys'
       TabOrder = 1
-      object MmoTeclas: TMemo
+      object MmoHotKeys: TMemo
         Left = 2
         Top = 15
         Width = 386
@@ -79,24 +79,24 @@ inherited PGFrameHotKey: TPGFrameHotKey
         WantReturns = False
         WordWrap = False
         StyleElements = []
-        OnEnter = MmoTeclasEnter
-        OnExit = MmoTeclasExit
-        OnMouseEnter = MmoTeclasEnter
-        OnMouseLeave = MmoTeclasExit
+        OnEnter = MmoHotKeysEnter
+        OnExit = MmoHotKeysExit
+        OnMouseEnter = MmoHotKeysEnter
+        OnMouseLeave = MmoHotKeysExit
       end
     end
-    object BtnClear: TButton
+    object BtnClean: TButton
       Left = 10
       Top = 113
       Width = 94
       Height = 26
-      Caption = 'Limpar'
+      Caption = 'Clean'
       ImageIndex = 6
       TabOrder = 2
       TabStop = False
-      OnClick = BtnClearClick
+      OnClick = BtnCleanClick
     end
-    object CmbDetectar: TComboBox
+    object CmbDetect: TComboBox
       Left = 175
       Top = 115
       Width = 96
@@ -105,23 +105,23 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Style = csDropDownList
       ItemIndex = 0
       TabOrder = 3
-      Text = 'Pressionar'
-      OnChange = CmbDetectarChange
+      Text = 'Press'
+      OnChange = CmbDetectChange
       Items.Strings = (
-        'Pressionar'
-        'Pressionado'
-        'Soltar'
+        'Press'
+        'Pressed'
+        'Drop'
         'Wheel')
     end
-    object CkbInibir: TCheckBox
+    object CkbInhibit: TCheckBox
       Left = 295
       Top = 117
       Width = 98
       Height = 17
       Hint = 'Bloqueia a tecla detectada'
-      Caption = 'Inibir Teclas'
+      Caption = 'Inhibit last key'
       TabOrder = 4
-      OnClick = CkbInibirClick
+      OnClick = CkbInhibitClick
     end
     object GrbScript: TGroupBox
       AlignWithMargins = True

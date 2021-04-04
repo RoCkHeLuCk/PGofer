@@ -13,16 +13,17 @@ type
   published
     function FileToPID( FileName: string ): Cardinal;
     function PIDToFile( PID: Cardinal ): string;
-    function GetPriority( PID: Cardinal ): Byte;
+    function GetPriority( PID: string ): Byte;
     function GetForeground( ): Cardinal;
-    function Kill( PID: Cardinal ): Boolean;
-    function SetPriority( PID: Cardinal; Priority: Byte ): Boolean;
+    function Kill( PID: string ): Boolean;
+    function SetPriority( PID: string; Priority: Byte ): Boolean;
   end;
 {$TYPEINFO ON}
 
 implementation
 
 uses
+  System.SysUtils,
   PGofer.Sintatico, PGofer.Process.Controls;
 
 { TPGProcess }
@@ -42,19 +43,34 @@ begin
   Result := ProcessGetForeground( );
 end;
 
-function TPGProcess.GetPriority( PID: Cardinal ): Byte;
+function TPGProcess.GetPriority( PID: string ): Byte;
+var
+  iPID: Cardinal;
 begin
-  Result := ProcessGetPriority( PID );
+  if TryStrToUInt( PID, iPID ) then
+    Result := ProcessGetPriority( iPID )
+  else
+    Result := ProcessGetPriority( ProcessFileToPID( string( PID ) ) );
 end;
 
-function TPGProcess.Kill( PID: Cardinal ): Boolean;
+function TPGProcess.Kill( PID: string ): Boolean;
+var
+  iPID: Cardinal;
 begin
-  Result := ProcessKill( PID );
+  if TryStrToUInt( PID, iPID ) then
+    Result := ProcessKill( iPID )
+  else
+    Result := ProcessKill( ProcessFileToPID( string( PID ) ) );
 end;
 
-function TPGProcess.SetPriority( PID: Cardinal; Priority: Byte ): Boolean;
+function TPGProcess.SetPriority( PID: string; Priority: Byte ): Boolean;
+var
+  iPID: Cardinal;
 begin
-  Result := ProcessSetPriority( PID, Priority );
+  if TryStrToUInt( PID, iPID ) then
+    Result := ProcessSetPriority( iPID, Priority )
+  else
+    Result := ProcessSetPriority( ProcessFileToPID( string( PID ) ), Priority );
 end;
 
 initialization

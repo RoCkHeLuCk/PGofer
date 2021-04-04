@@ -79,13 +79,13 @@ begin
   else
     Self.AlphaSort;
 
-  inherited;
+  inherited ColClick( Column );
 end;
 
 procedure TListViewEx.DoEndDrag( Target: TObject; X, Y: Integer );
 begin
   Self.Repaint;
-  inherited;
+  inherited DoEndDrag( Target, X, Y );
 end;
 
 procedure TListViewEx.Delete( Item: TListItem );
@@ -95,7 +95,7 @@ begin
     TObject( Item.Data ).Free;
     Item.Data := nil;
   end;
-  inherited;
+  inherited Delete( Item );
 end;
 
 procedure TListViewEx.DragDrop( Source: TObject; X, Y: Integer );
@@ -132,7 +132,7 @@ begin
     SourceItem[ Count ].Free;
   end;
 
-  inherited;
+  inherited DragDrop( Source, X, Y );
 end;
 
 procedure TListViewEx.MouseDown( Button: TMouseButton; Shift: TShiftState;
@@ -140,7 +140,7 @@ procedure TListViewEx.MouseDown( Button: TMouseButton; Shift: TShiftState;
 begin
   if ( not Self.Dragging ) then
     Self.Selected := Self.GetItemAt( X, Y );
-  inherited;
+  inherited MouseDown( Button, Shift, X, Y );
 end;
 
 procedure TListViewEx.SuperSelected( Item: TListItem );

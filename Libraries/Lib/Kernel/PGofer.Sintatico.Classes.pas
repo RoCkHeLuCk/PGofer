@@ -31,12 +31,12 @@ type
     procedure RttiCreate( );
   protected
     class function GetImageIndex( ): Integer; override;
-    procedure RttiExecute( Gramatica: TGramatica; Item: TPGItemCMD );
+    procedure RttiExecute( Gramatica: TGramatica; AItem: TPGItemCMD );
   public
-    constructor Create( ItemDad: TPGItem; Name: string = '' ); overload;
+    constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
     destructor Destroy( ); override;
     procedure Execute( Gramatica: TGramatica ); virtual;
-    // procedure AttributeAdd(AttType: TPGAttributeType; Value: String);
+    // procedure AttributeAdd(AAttType: TPGAttributeType; AValue: String);
     // property AttributeList: TObjectList<TPGRttiAttribute>
     // read FAttributeList;
     function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
@@ -47,12 +47,12 @@ type
   TPGFolder = class( TPGItemCMD )
   private
     function GetExpanded( ): Boolean;
-    procedure SetExpanded( Value: Boolean );
+    procedure SetExpanded( AValue: Boolean );
     class var FImageIndex: Integer;
   protected
     class function GetImageIndex( ): Integer; override;
   public
-    constructor Create( ItemDad: TPGItem; Name: string = '' ); overload;
+    constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
   published
     property _Expanded: Boolean read GetExpanded write SetExpanded;
   end;
@@ -80,22 +80,22 @@ uses
   end;
 }
 { TPGItemCMD }
-constructor TPGItemCMD.Create( ItemDad: TPGItem; Name: string = '' );
+constructor TPGItemCMD.Create( AItemDad: TPGItem; AName: string = '' );
 begin
-  if name = '' then
-    name := copy( Self.ClassName, 4, Length( Self.ClassName ) );
+  if AName = '' then
+    AName := copy( Self.ClassName, 4, Length( Self.ClassName ) );
 
-  inherited Create( ItemDad, name );
+  inherited Create( AItemDad, AName );
   // FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
   Self.RttiCreate( );
 end;
 
 {
-  constructor TPGItemCMD.Create(ItemDad: TPGItem; Name: String; Attrib: Boolean);
+  constructor TPGItemCMD.Create(AItemDad: TPGItem; AName: String; AAttrib: Boolean);
   begin
-  inherited Create(ItemDad, Name);
+  inherited Create(AItemDad, AName);
   FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
-  if Attrib then
+  if AAttrib then
   Self.RttiCreate();
   end;
 }
@@ -194,7 +194,7 @@ begin
   RttiContext.Free;
 end;
 
-procedure TPGItemCMD.RttiExecute( Gramatica: TGramatica; Item: TPGItemCMD );
+procedure TPGItemCMD.RttiExecute( Gramatica: TGramatica; AItem: TPGItemCMD );
 var
   RttiContext: TRttiContext;
   RttiType: TRttiType;
@@ -208,14 +208,14 @@ var
   ItemAux: TPGItemCMD;
 begin
   RttiContext := TRttiContext.Create( );
-  RttiType := RttiContext.GetType( Item.ClassType );
+  RttiType := RttiContext.GetType( AItem.ClassType );
 
   RttiProperty := RttiType.GetProperty( Gramatica.TokenList.Token.Lexema );
   if Assigned( RttiProperty ) and ( RttiProperty.Visibility in [ mvPublished ] )
   then
   begin
     if RttiProperty.IsReadable then
-      Valor := RttiProperty.GetValue( Item );
+      Valor := RttiProperty.GetValue( AItem );
 
     Aux := ConvertValueToVatiant( Valor, RttiProperty.PropertyType.TypeKind );
     Aux := Atribuicao( Gramatica, Aux );
@@ -224,7 +224,7 @@ begin
       Valor := ConvertVatiantToValue( Aux, RttiProperty.PropertyType.TypeKind );
 
       if RttiProperty.IsWritable then
-        RttiProperty.SetValue( Item, Valor );
+        RttiProperty.SetValue( AItem, Valor );
     end;
   end else begin
     RttiMethods := RttiType.GetMethod( Gramatica.TokenList.Token.Lexema );
@@ -246,17 +246,17 @@ begin
 
         if Assigned( RttiMethods.ReturnType ) then
         begin
-          Valor := RttiMethods.Invoke( Item, Valores );
+          Valor := RttiMethods.Invoke( AItem, Valores );
           Aux := ConvertValueToVatiant( Valor,
              RttiMethods.ReturnType.TypeKind );
           Gramatica.Pilha.Empilhar( Aux );
         end
         else
-          RttiMethods.Invoke( Item, Valores );
+          RttiMethods.Invoke( AItem, Valores );
       end;
     end else begin
       ItemAux := TPGItemCMD
-         ( Item.FindName( Gramatica.TokenList.Token.Lexema ) );
+         ( AItem.FindName( Gramatica.TokenList.Token.Lexema ) );
       if Assigned( ItemAux ) then
       begin
         ItemAux.Execute( Gramatica );
@@ -275,9 +275,9 @@ end;
 
 { TPGFolder }
 
-constructor TPGFolder.Create( ItemDad: TPGItem; Name: string );
+constructor TPGFolder.Create( AItemDad: TPGItem; AName: string );
 begin
-  inherited;
+  inherited Create( AItemDad, AName );
   Self.ReadOnly := False;
 end;
 
@@ -294,16 +294,17 @@ begin
   Result := FImageIndex;
 end;
 
-procedure TPGFolder.SetExpanded( Value: Boolean );
+procedure TPGFolder.SetExpanded( AValue: Boolean );
 begin
   if Assigned( Node ) then
-    Node.Expanded := Value;
+    Node.Expanded := AValue;
 end;
 
 initialization
-  TriggersCollect.RegisterClass( 'Folder', TPGFolder );
-  TPGItemCMD.FImageIndex := GlogalImageList.AddIcon( 'Method' );
-  TPGFolder.FImageIndex := GlogalImageList.AddIcon( 'Folder' );
+
+TriggersCollect.RegisterClass( 'Folder', TPGFolder );
+TPGItemCMD.FImageIndex := GlogalImageList.AddIcon( 'Method' );
+TPGFolder.FImageIndex := GlogalImageList.AddIcon( 'Folder' );
 
 finalization
 

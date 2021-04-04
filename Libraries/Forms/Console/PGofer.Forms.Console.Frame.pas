@@ -23,7 +23,7 @@ type
   private
     FItem: TPGFrmConsole;
   public
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -45,10 +45,10 @@ begin
   FItem.ShowMessage := ckbShowMessage.Checked;
 end;
 
-constructor TPGFrameConsole.Create( Item: TPGItem; Parent: TObject );
+constructor TPGFrameConsole.Create( AItem: TPGItem; AParent: TObject );
 begin
-  inherited;
-  FItem := TPGFrmConsole( Item );
+  inherited Create( AItem, AParent );
+  FItem := TPGFrmConsole( AItem );
   edtDelay.Text := FItem.Delay.ToString;
   ckbShowMessage.Checked := FItem.ShowMessage;
   ckbAutoClose.Checked := FItem.AutoClose;
@@ -57,7 +57,7 @@ end;
 destructor TPGFrameConsole.Destroy;
 begin
   FItem := nil;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TPGFrameConsole.edtDelayExit( Sender: TObject );

@@ -101,28 +101,29 @@ begin
   // mouse
   case Key of
     VK_LBUTTON:
-    if Push then
-      Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0 )
-    else
-      Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_LEFTUP, 0, 0, 0, 0 );
+      if Push then
+        Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0 )
+      else
+        Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_LEFTUP, 0, 0, 0, 0 );
 
     VK_RBUTTON:
-    if Push then
-      Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0 )
-    else
-      Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0 );
+      if Push then
+        Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0 )
+      else
+        Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0 );
 
     VK_MBUTTON:
+      if Push then
+        Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_MIDDLEDOWN,
+           0, 0, 0, 0 )
+      else
+        Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0 );
+  else
     if Push then
-      Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_MIDDLEDOWN, 0, 0, 0, 0 )
+      keybd_event( Key, OemKeyScan( Key ), KEYEVENTF_EXTENDEDKEY, 0 )
     else
-      Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0 );
-  else
-  if Push then
-    keybd_event( Key, OemKeyScan( Key ), KEYEVENTF_EXTENDEDKEY, 0 )
-  else
-    keybd_event( Key, OemKeyScan( Key ), KEYEVENTF_EXTENDEDKEY or
-       KEYEVENTF_KEYUP, 0 );
+      keybd_event( Key, OemKeyScan( Key ), KEYEVENTF_EXTENDEDKEY or
+         KEYEVENTF_KEYUP, 0 );
   end; // case
 end;
 
@@ -141,268 +142,268 @@ begin
   case KeyCode of
     { Keyboard }
     $000:
-    Result := 'KEYNULL';
+      Result := 'KEYNULL';
     $001:
-    Result := 'LBUTTON';
+      Result := 'LBUTTON';
     $002:
-    Result := 'RBUTTON';
+      Result := 'RBUTTON';
     $003:
-    Result := 'CANCEL';
+      Result := 'CANCEL';
     $004:
-    Result := 'MBUTTON';
+      Result := 'MBUTTON';
     $005:
-    Result := 'BUTTON1';
+      Result := 'BUTTON1';
     $006:
-    Result := 'BUTTON2';
+      Result := 'BUTTON2';
     $007:
-    Result := 'BUTTON3';
+      Result := 'BUTTON3';
     $008:
-    Result := 'BACK';
+      Result := 'BACK';
     $009:
-    Result := 'TAB';
+      Result := 'TAB';
     // $00A..$00B : Result:='UNDEF0A';
     $00C:
-    Result := 'CLEAR';
+      Result := 'CLEAR';
     $00D:
-    Result := 'RETURN';
+      Result := 'RETURN';
     // $00E-00F : Result:='UNDEF0E';
     $010:
-    Result := 'SHIFT';
+      Result := 'SHIFT';
     $011:
-    Result := 'CONTROL';
+      Result := 'CONTROL';
     $012:
-    Result := 'ALT';
+      Result := 'ALT';
     $013:
-    Result := 'PAUSE';
+      Result := 'PAUSE';
     $014:
-    Result := 'CAPITAL';
+      Result := 'CAPITAL';
     $015:
-    Result := 'KANA';
+      Result := 'KANA';
     // $016 : Result:='UNDEF16';
     $017:
-    Result := 'JUNJA';
+      Result := 'JUNJA';
     $018:
-    Result := 'FINAL';
+      Result := 'FINAL';
     $019:
-    Result := 'HANJA';
+      Result := 'HANJA';
     // $01A : Result:='UNDEF1A';
     $01B:
-    Result := 'ESCAPE';
+      Result := 'ESCAPE';
     $01C:
-    Result := 'CONVERT';
+      Result := 'CONVERT';
     $01D:
-    Result := 'NONCONVERT';
+      Result := 'NONCONVERT';
     $01E:
-    Result := 'ACCEPT';
+      Result := 'ACCEPT';
     $01F:
-    Result := 'MODECHANGE';
+      Result := 'MODECHANGE';
     $020:
-    Result := 'SPACE';
+      Result := 'SPACE';
     $021:
-    Result := 'PAGEUP';
+      Result := 'PAGEUP';
     $022:
-    Result := 'PAGEDOWN';
+      Result := 'PAGEDOWN';
     $023:
-    Result := 'END';
+      Result := 'END';
     $024:
-    Result := 'HOME';
+      Result := 'HOME';
     $025:
-    Result := 'LEFT';
+      Result := 'LEFT';
     $026:
-    Result := 'UP';
+      Result := 'UP';
     $027:
-    Result := 'RIGHT';
+      Result := 'RIGHT';
     $028:
-    Result := 'DOWN';
+      Result := 'DOWN';
     $029:
-    Result := 'SELECT';
+      Result := 'SELECT';
     $02A:
-    Result := 'PRINT';
+      Result := 'PRINT';
     $02B:
-    Result := 'EXECUTE';
+      Result := 'EXECUTE';
     $02C:
-    Result := 'PRTSCREEN';
+      Result := 'PRTSCREEN';
     $02D:
-    Result := 'INSERT';
+      Result := 'INSERT';
     $02E:
-    Result := 'DELETE';
+      Result := 'DELETE';
     $02F:
-    Result := 'HELP';
+      Result := 'HELP';
     // $030..$039,
     // $03A..$05A : Result:=Char( MapVirtualKeyEx(KeyCode, MAPVK_VK_TO_CHAR, GetKeyboardLayout(0)) );
     $05B:
-    Result := 'LWIN';
+      Result := 'LWIN';
     $05C:
-    Result := 'RWIN';
+      Result := 'RWIN';
     $05D:
-    Result := 'APPS';
+      Result := 'APPS';
     // $05E : Result:='UNDEF5E';
     $05F:
-    Result := 'SLEEP';
+      Result := 'SLEEP';
     $060 .. $069:
-    Result := 'NUMPAD' + Char( KeyCode - $30 );
+      Result := 'NUMPAD' + Char( KeyCode - $30 );
     $06A:
-    Result := 'NUMPAD_MULT';
+      Result := 'NUMPAD_MULT';
     $06B:
-    Result := 'NUMPAD_ADD';
+      Result := 'NUMPAD_ADD';
     $06C:
-    Result := 'NUMPAD_SEPAR';
+      Result := 'NUMPAD_SEPAR';
     $06D:
-    Result := 'NUMPAD_SUB';
+      Result := 'NUMPAD_SUB';
     $06E:
-    Result := 'NUMPAD_DEC';
+      Result := 'NUMPAD_DEC';
     $06F:
-    Result := 'NUMPAD_DIV';
+      Result := 'NUMPAD_DIV';
     $070 .. $087:
-    Result := 'F' + IntToStr( KeyCode - $6F );
+      Result := 'F' + IntToStr( KeyCode - $6F );
     // $088..$08F : Result:='UNDEF88';
     $090:
-    Result := 'NUMLOCK';
+      Result := 'NUMLOCK';
     $091:
-    Result := 'SCROLL';
+      Result := 'SCROLL';
     $092:
-    Result := 'JISHO';
+      Result := 'JISHO';
     $093:
-    Result := 'MASHU';
+      Result := 'MASHU';
     $094:
-    Result := 'TOUROKU';
+      Result := 'TOUROKU';
     $095:
-    Result := 'LOYA';
+      Result := 'LOYA';
     $096:
-    Result := 'ROYA';
+      Result := 'ROYA';
     // $097..$09F : Result:='UNDEF97';
     $0A0:
-    Result := 'LSHIFT';
+      Result := 'LSHIFT';
     $0A1:
-    Result := 'RSHIFT';
+      Result := 'RSHIFT';
     $0A2:
-    Result := 'LCONTROL';
+      Result := 'LCONTROL';
     $0A3:
-    Result := 'RCONTROL';
+      Result := 'RCONTROL';
     $0A4:
-    Result := 'LALT';
+      Result := 'LALT';
     $0A5:
-    Result := 'RALT';
+      Result := 'RALT';
     $0A6:
-    Result := 'BROWSER_BACK';
+      Result := 'BROWSER_BACK';
     $0A7:
-    Result := 'BROWSER_FORWARD';
+      Result := 'BROWSER_FORWARD';
     $0A8:
-    Result := 'BROWSER_REFRESH';
+      Result := 'BROWSER_REFRESH';
     $0A9:
-    Result := 'BROWSER_STOP';
+      Result := 'BROWSER_STOP';
     $0AA:
-    Result := 'BROWSER_SEARCH';
+      Result := 'BROWSER_SEARCH';
     $0AB:
-    Result := 'BROWSER_FAVORITES';
+      Result := 'BROWSER_FAVORITES';
     $0AC:
-    Result := 'BROWSER_HOME';
+      Result := 'BROWSER_HOME';
     $0AD:
-    Result := 'VOLUME_MUTE';
+      Result := 'VOLUME_MUTE';
     $0AE:
-    Result := 'VOLUME_DOWN';
+      Result := 'VOLUME_DOWN';
     $0AF:
-    Result := 'VOLUME_UP';
+      Result := 'VOLUME_UP';
     $0B0:
-    Result := 'MEDIA_NEXT_TRACK';
+      Result := 'MEDIA_NEXT_TRACK';
     $0B1:
-    Result := 'MEDIA_PREV_TRACK';
+      Result := 'MEDIA_PREV_TRACK';
     $0B2:
-    Result := 'MEDIA_STOP';
+      Result := 'MEDIA_STOP';
     $0B3:
-    Result := 'MEDIA_PLAY_PAUSE';
+      Result := 'MEDIA_PLAY_PAUSE';
     $0B4:
-    Result := 'LAUNCH_MAIL';
+      Result := 'LAUNCH_MAIL';
     $0B5:
-    Result := 'LAUNCH_MEDIA_SELECT';
+      Result := 'LAUNCH_MEDIA_SELECT';
     $0B6:
-    Result := 'LAUNCH_APP1';
+      Result := 'LAUNCH_APP1';
     $0B7:
-    Result := 'LAUNCH_APP2';
+      Result := 'LAUNCH_APP2';
     // $0B8..$0B9 : Result:='UNDEFB8';
     // $0BA : Result:=Char( MapVirtualKeyEx(KeyCode, MAPVK_VK_TO_CHAR, GetKeyboardLayout(0)) );
     $0BB:
-    Result := 'ADD';
+      Result := 'ADD';
     $0BC:
-    Result := 'COMMA';
+      Result := 'COMMA';
     $0BD:
-    Result := 'MINUS';
+      Result := 'MINUS';
     $0BE:
-    Result := 'PERIOD';
+      Result := 'PERIOD';
     // $0BF..$0E4 : Result:=Char( MapVirtualKeyEx(KeyCode, MAPVK_VK_TO_CHAR, GetKeyboardLayout(0)) );
     $0E5:
-    Result := 'PROCESSKEY';
+      Result := 'PROCESSKEY';
     // $0E6 : Result:=Char( MapVirtualKeyEx(KeyCode, MAPVK_VK_TO_CHAR, GetKeyboardLayout(0)) );
     $0E7:
-    Result := 'PACKET';
+      Result := 'PACKET';
     // $0E8..$0F5 : Result:=Char( MapVirtualKeyEx(KeyCode, MAPVK_VK_TO_CHAR, GetKeyboardLayout(0)) );
     $0F6:
-    Result := 'ATTN';
+      Result := 'ATTN';
     $0F7:
-    Result := 'CRSEL';
+      Result := 'CRSEL';
     $0F8:
-    Result := 'EXSEL';
+      Result := 'EXSEL';
     $0F9:
-    Result := 'EREOF';
+      Result := 'EREOF';
     $0FA:
-    Result := 'PLAY';
+      Result := 'PLAY';
     $0FB:
-    Result := 'ZOOM';
+      Result := 'ZOOM';
     $0FC:
-    Result := 'NONAME';
+      Result := 'NONAME';
     $0FD:
-    Result := 'PA1';
+      Result := 'PA1';
     $0FE:
-    Result := 'OEM_CLEAR';
+      Result := 'OEM_CLEAR';
     $0FF:
-    Result := 'LAUNCH_APP3';
+      Result := 'LAUNCH_APP3';
 
     $030 .. $039, $03A .. $05A, $0BA, $0BF .. $0E4, $0E6, $0E8 .. $0F5:
-    Result := Char( MapVirtualKeyEx( KeyCode, MAPVK_VK_TO_CHAR,
-       GetKeyboardLayout( 0 ) ) );
+      Result := Char( MapVirtualKeyEx( KeyCode, MAPVK_VK_TO_CHAR,
+         GetKeyboardLayout( 0 ) ) );
 
     { Mouse }
 
     $200:
-    Result := 'MOUSEMOVE';
+      Result := 'MOUSEMOVE';
 
     // $201 : Result:='LBUTTONDOWN';
     // $202 : Result:='LBUTTONUP';
     $201 .. $202:
-    Result := 'LBUTTON';
+      Result := 'LBUTTON';
     // $203 : Result:='LBUTTONDBLCLK';
 
     // $204 : Result:='RBUTTONDOWN';
     // $205 : Result:='RBUTTONUP';
     $204 .. $205:
-    Result := 'RBUTTON';
+      Result := 'RBUTTON';
     // $206 : Result:='RBUTTONDBLCLK';
 
     // $207 : Result:='MBUTTONDOWN';
     // $208 : Result:='MBUTTONUP';
     $207 .. $208:
-    Result := 'MBUTTON';
+      Result := 'MBUTTON';
     // $209 : Result:='MBUTTONDBLCLK';
 
     $209:
-    Result := 'VWHEELDOWN';
+      Result := 'VWHEELDOWN';
     $20A:
-    Result := 'VWHEELUP';
+      Result := 'VWHEELUP';
 
     // $20B : Result:='XBUTTONDOWN';
     // $20C : Result:='XBUTTONUP';
     $20B:
-    Result := 'XBUTTON1';
+      Result := 'XBUTTON1';
     $20C:
-    Result := 'XBUTTON2';
+      Result := 'XBUTTON2';
     // $20D : Result:='XBUTTONDBLCLK';
 
     $20D:
-    Result := 'HWHEELRIGHT';
+      Result := 'HWHEELRIGHT';
     $20E:
-    Result := 'HWHEELLEFT';
+      Result := 'HWHEELLEFT';
   else
-  Result := 'CODE_0h' + IntToHex( KeyCode, 2 );
+    Result := 'CODE_0h' + IntToHex( KeyCode, 2 );
   end;
 end;
 

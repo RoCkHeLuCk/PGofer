@@ -96,7 +96,7 @@ class procedure TPGVariantDeclare.DeclaraNivel1( Gramatica: TGramatica;
 var
   Titulo: string;
   ID: TPGItem;
-  Valor: Variant;
+  vValue: Variant;
 begin
   ID := IdentificadorLocalizar( Gramatica );
   if ( not Assigned( ID ) ) or ( ID is TPGVariant ) then
@@ -108,21 +108,21 @@ begin
       Gramatica.TokenList.GetNextToken;
       Expressao( Gramatica );
       if not Gramatica.Erro then
-        Valor := Gramatica.Pilha.Desempilhar( '' )
+        vValue := Gramatica.Pilha.Desempilhar( '' )
       else
         Exit;
     end
     else
-      Valor := '';
+      vValue := '';
 
     if ( not Assigned( ID ) ) or ( ( Nivel <> TPGVariant.GlobList ) and
        ( ID.Parent <> Nivel ) ) then
     begin
-      TPGVariant.Create( Nivel, Titulo, Valor, Constant );
+      TPGVariant.Create( Nivel, Titulo, vValue, Constant );
     end else begin
       with TPGVariant( ID ) do
       begin
-        Value := Valor;
+        Value := vValue;
         Gramatica.MSGsAdd( 'Redeclare: ' + name );
       end;
     end;

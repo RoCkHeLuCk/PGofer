@@ -19,17 +19,17 @@ type
     FScript: TStrings;
     class var FImageIndex: Integer;
     function GetKeysHex( ): string;
-    procedure SetKeysHex( Value: string );
+    procedure SetKeysHex( AValue: string );
     function GetScript: string;
-    procedure SetScript(const Value: string);
+    procedure SetScript( const AValue: string );
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
   public
-    constructor Create( Name: string; Mirror: TPGItemMirror ); overload;
+    constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
     destructor Destroy( ); override;
     class var GlobList: TPGItem;
-    procedure Frame( Parent: TObject ); override;
+    procedure Frame( AParent: TObject ); override;
     property Keys: TList< Word > read FKeys;
     function GetKeysName( ): string;
     class function LocateHotKeys( Keys: TList< Word > ): TPGHotKey;
@@ -51,8 +51,8 @@ type
   protected
     class function GetImageIndex( ): Integer; override;
   public
-    constructor Create( ItemDad: TPGItem; AName: string ); overload;
-    procedure Frame( Parent: TObject ); override;
+    constructor Create( AItemDad: TPGItem; AName: string ); overload;
+    procedure Frame( AParent: TObject ); override;
   end;
 
 implementation
@@ -66,9 +66,9 @@ uses
 
 { TPGHotKeyMain }
 
-constructor TPGHotKey.Create( Name: string; Mirror: TPGItemMirror );
+constructor TPGHotKey.Create( AName: string; AMirror: TPGItemMirror );
 begin
-  inherited Create( TPGHotKey.GlobList, name, Mirror );
+  inherited Create( TPGHotKey.GlobList, AName, AMirror );
   Self.ReadOnly := False;
   FKeys := TList< Word >.Create;
   FDetect := 0;
@@ -84,7 +84,7 @@ begin
   FKeys.Clear;
   FKeys.Free;
   FKeys := nil;
-  inherited;
+  inherited Destroy( );
 end;
 
 procedure TPGHotKey.ExecutarNivel1( Gramatica: TGramatica );
@@ -92,9 +92,9 @@ begin
   ScriptExec( 'HotKey: ' + Self.Name, Self.Script, Gramatica.Local );
 end;
 
-procedure TPGHotKey.Frame( Parent: TObject );
+procedure TPGHotKey.Frame( AParent: TObject );
 begin
-  TPGFrameHotKey.Create( Self, Parent );
+  TPGFrameHotKey.Create( Self, AParent );
 end;
 
 class function TPGHotKey.GetImageIndex: Integer;
@@ -111,25 +111,25 @@ begin
     Result := Result + IntToHex( Key, 3 );
 end;
 
-procedure TPGHotKey.SetKeysHex( Value: string );
+procedure TPGHotKey.SetKeysHex( AValue: string );
 var
   c: SmallInt;
   Key: Word;
 begin
   FKeys.Clear;
-  c := low( Value );
-  while c + 2 <= high( Value ) do
+  c := low( AValue );
+  while c + 2 <= high( AValue ) do
   begin
-    Key := StrToInt( '$' + copy( Value, c, 3 ) );
+    Key := StrToInt( '$' + copy( AValue, c, 3 ) );
     if not FKeys.Contains( Key ) then
       FKeys.Add( Key );
     inc( c, 3 );
   end;
 end;
 
-procedure TPGHotKey.SetScript(const Value: string);
+procedure TPGHotKey.SetScript( const AValue: string );
 begin
-    FScript.Text := Value;
+  FScript.Text := AValue;
 end;
 
 procedure TPGHotKey.Triggering( );
@@ -153,7 +153,7 @@ end;
 
 function TPGHotKey.GetScript: string;
 begin
-    Result := FScript.Text;
+  Result := FScript.Text;
 end;
 
 class function TPGHotKey.LocateHotKeys( Keys: TList< Word > ): TPGHotKey;
@@ -177,18 +177,15 @@ begin
       if AuxHotKeys.Enabled and ( AuxHotKeys.FKeys.Count = KeysCount ) and
          ( AuxHotKeys.Script <> '' ) then
       begin
-        if KeysCount = AuxHotKeys.Keys.Count then
+        D := 0;
+        Find := True;
+        while ( D < KeysCount ) and ( Find ) do
         begin
-          D := 0;
-          Find := True;
-          while ( D < KeysCount ) and ( Find ) do
-          begin
-            Find := AuxHotKeys.FKeys[ D ] = Keys[ D ];
-            inc( D );
-          end;
-          if Find then
-            Result := AuxHotKeys;
+          Find := AuxHotKeys.FKeys[ D ] = Keys[ D ];
+          inc( D );
         end;
+        if Find then
+          Result := AuxHotKeys;
       end;
       inc( c );
     end;
@@ -236,16 +233,16 @@ end;
 
 { TPGHotKeysMirror }
 
-constructor TPGHotKeyMirror.Create( ItemDad: TPGItem; AName: string );
+constructor TPGHotKeyMirror.Create( AItemDad: TPGItem; AName: string );
 begin
   AName := TPGItemMirror.TranscendName( AName, TPGHotKey.GlobList );
-  inherited Create( ItemDad, TPGHotKey.Create( AName, Self ) );
+  inherited Create( AItemDad, TPGHotKey.Create( AName, Self ) );
   Self.ReadOnly := False;
 end;
 
-procedure TPGHotKeyMirror.Frame( Parent: TObject );
+procedure TPGHotKeyMirror.Frame( AParent: TObject );
 begin
-  TPGFrameHotKey.Create( Self.ItemOriginal, Parent );
+  TPGFrameHotKey.Create( Self.ItemOriginal, AParent );
 end;
 
 class function TPGHotKeyMirror.GetImageIndex: Integer;

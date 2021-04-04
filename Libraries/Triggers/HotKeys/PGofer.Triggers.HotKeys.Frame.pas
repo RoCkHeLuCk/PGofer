@@ -14,19 +14,19 @@ uses
 type
   TPGFrameHotKey = class( TPGFrame )
     PpmNull: TPopupMenu;
-    GrbTeclas: TGroupBox;
-    MmoTeclas: TMemo;
-    BtnClear: TButton;
-    LblDetectar: TLabel;
-    CmbDetectar: TComboBox;
-    CkbInibir: TCheckBox;
+    GrbHotKeys: TGroupBox;
+    MmoHotKeys: TMemo;
+    BtnClean: TButton;
+    LblDetect: TLabel;
+    CmbDetect: TComboBox;
+    CkbInhibit: TCheckBox;
     GrbScript: TGroupBox;
     EdtScript: TRichEditEx;
-    procedure CkbInibirClick( Sender: TObject );
-    procedure CmbDetectarChange( Sender: TObject );
-    procedure MmoTeclasEnter( Sender: TObject );
-    procedure MmoTeclasExit( Sender: TObject );
-    procedure BtnClearClick( Sender: TObject );
+    procedure CkbInhibitClick( Sender: TObject );
+    procedure CmbDetectChange( Sender: TObject );
+    procedure MmoHotKeysEnter( Sender: TObject );
+    procedure MmoHotKeysExit( Sender: TObject );
+    procedure BtnCleanClick( Sender: TObject );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
@@ -39,7 +39,7 @@ type
        : NativeInt; stdcall; static;
 {$HINTS ON}
   public
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -74,26 +74,26 @@ begin
       end;
     end;
 
-    PGFrameHotKey.MmoTeclas.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
+    PGFrameHotKey.MmoHotKeys.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
   end;
   Result := CallNextHookEx( 0, Code, wParam, lParam );
 end;
 
-constructor TPGFrameHotKey.Create( Item: TPGItem; Parent: TObject );
+constructor TPGFrameHotKey.Create( AItem: TPGItem; AParent: TObject );
 begin
-  inherited Create( Item, Parent );
-  FItem := TPGHotKey( Item );
-  CmbDetectar.ItemIndex := FItem.Detect;
-  CkbInibir.Checked := FItem.Inhibit;
+  inherited Create( AItem, AParent );
+  FItem := TPGHotKey( AItem );
+  CmbDetect.ItemIndex := FItem.Detect;
+  CkbInhibit.Checked := FItem.Inhibit;
   EdtScript.Lines.Text := FItem.Script;
-  MmoTeclas.Lines.Text := FItem.GetKeysName( );
+  MmoHotKeys.Lines.Text := FItem.GetKeysName( );
   FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;
 
 destructor TPGFrameHotKey.Destroy;
 begin
   FFrmAutoComplete.Free( );
-  MmoTeclas.OnExit( Self );
+  MmoHotKeys.OnExit( Self );
   FItem := nil;
   inherited Destroy( );
 end;
@@ -106,7 +106,7 @@ begin
     EdtName.Color := clRed;
   end else begin
     EdtName.Color := clWindow;
-    inherited;
+    inherited EdtNameKeyUp( Sender, Key, Shift );
   end;
 end;
 
@@ -116,34 +116,34 @@ begin
   FItem.Script := EdtScript.Lines.Text;
 end;
 
-procedure TPGFrameHotKey.BtnClearClick( Sender: TObject );
+procedure TPGFrameHotKey.BtnCleanClick( Sender: TObject );
 begin
   FItem.Keys.Clear;
-  MmoTeclas.Clear;
+  MmoHotKeys.Clear;
 end;
 
-procedure TPGFrameHotKey.CkbInibirClick( Sender: TObject );
+procedure TPGFrameHotKey.CkbInhibitClick( Sender: TObject );
 begin
-  FItem.Inhibit := CkbInibir.Checked;
+  FItem.Inhibit := CkbInhibit.Checked;
 end;
 
-procedure TPGFrameHotKey.CmbDetectarChange( Sender: TObject );
+procedure TPGFrameHotKey.CmbDetectChange( Sender: TObject );
 begin
-  FItem.Detect := CmbDetectar.ItemIndex;
+  FItem.Detect := CmbDetect.ItemIndex;
 end;
 
-procedure TPGFrameHotKey.MmoTeclasEnter( Sender: TObject );
+procedure TPGFrameHotKey.MmoHotKeysEnter( Sender: TObject );
 begin
   PGFrameHotKey := Self;
-  MmoTeclas.Color := clRed;
+  MmoHotKeys.Color := clRed;
 {$IFNDEF DEBUG}
   THookProc.EnableHoot( TPGFrameHotKey.LowLevelProc );
 {$ENDIF}
 end;
 
-procedure TPGFrameHotKey.MmoTeclasExit( Sender: TObject );
+procedure TPGFrameHotKey.MmoHotKeysExit( Sender: TObject );
 begin
-  MmoTeclas.Color := clBtnFace;
+  MmoHotKeys.Color := clBtnFace;
 {$IFNDEF DEBUG}
   THookProc.EnableHoot( );
 {$ENDIF}

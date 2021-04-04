@@ -16,50 +16,50 @@ inherited PGLinkFrame: TPGLinkFrame
     Constraints.MinHeight = 310
     Constraints.MinWidth = 0
     ExplicitHeight = 310
-    object LblArquivo: TLabel [0]
+    object LblFile: TLabel [0]
       Left = 5
       Top = 36
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Arquivo:'
+      Caption = 'File:'
     end
-    object LblParametro: TLabel [1]
+    object LblParameter: TLabel [1]
       Left = 5
       Top = 63
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Parametros:'
+      Caption = 'Parameter:'
     end
-    object LblDiretorio: TLabel [2]
+    object LblDirectory: TLabel [2]
       Left = 5
       Top = 90
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Diretorio:'
+      Caption = 'Path:'
     end
-    object LblEstado: TLabel [3]
+    object LblState: TLabel [3]
       Left = 5
       Top = 117
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Estado:'
+      Caption = 'State:'
     end
-    object LblPrioridade: TLabel [4]
+    object LblPriority: TLabel [4]
       Left = 5
       Top = 144
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Prioridade:'
+      Caption = 'Priority:'
     end
     object LblOperation: TLabel [5]
       Left = 195
@@ -69,18 +69,18 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       Anchors = [akTop, akRight]
       AutoSize = False
-      Caption = 'Opera'#231#227'o:'
+      Caption = 'Operation:'
     end
-    object EdtArquivo: TEdit [7]
+    object EdtFile: TEdit [7]
       Left = 70
       Top = 33
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      OnChange = EdtArquivoChange
+      OnChange = EdtFileChange
     end
-    object BtnArquivo: TButton [8]
+    object BtnFile: TButton [8]
       Left = 366
       Top = 33
       Width = 29
@@ -88,27 +88,27 @@ inherited PGLinkFrame: TPGLinkFrame
       Anchors = [akTop, akRight]
       Caption = '...'
       TabOrder = 1
-      OnClick = BtnArquivoClick
+      OnClick = BtnFileClick
     end
-    object EdtParametro: TEdit [9]
+    object EdtPatameter: TEdit [9]
       Left = 70
       Top = 60
       Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
-      OnChange = EdtParametroChange
+      OnChange = EdtPatameterChange
     end
-    object EdtDiretorio: TEdit [10]
+    object EdtDiretory: TEdit [10]
       Left = 70
       Top = 87
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
-      OnChange = EdtDiretorioChange
+      OnChange = EdtDiretoryChange
     end
-    object BtnDiretorio: TButton [11]
+    object BtnDiretory: TButton [11]
       Left = 366
       Top = 87
       Width = 29
@@ -116,9 +116,9 @@ inherited PGLinkFrame: TPGLinkFrame
       Anchors = [akTop, akRight]
       Caption = '...'
       TabOrder = 4
-      OnClick = BtnDiretorioClick
+      OnClick = BtnDiretoryClick
     end
-    object CmbEstado: TComboBox [12]
+    object CmbState: TComboBox [12]
       Left = 70
       Top = 114
       Width = 119
@@ -127,14 +127,14 @@ inherited PGLinkFrame: TPGLinkFrame
       ItemIndex = 1
       TabOrder = 5
       Text = 'Normal'
-      OnChange = CmbEstadoChange
+      OnChange = CmbStateChange
       Items.Strings = (
-        'Oculto'
+        'Hiden'
         'Normal'
-        'Minimizado'
-        'Maxmizado')
+        'Minimized'
+        'Maxmized')
     end
-    object CmbPrioridade: TComboBox [13]
+    object CmbPriority: TComboBox [13]
       Left = 70
       Top = 141
       Width = 119
@@ -143,14 +143,14 @@ inherited PGLinkFrame: TPGLinkFrame
       ItemIndex = 2
       TabOrder = 6
       Text = 'Normal'
-      OnChange = CmbPrioridadeChange
+      OnChange = CmbPriorityChange
       Items.Strings = (
-        'Baixa'
-        'Abaixo do Normal'
+        'Low'
+        'Below Normal'
         'Normal'
-        'Acima do Normal'
-        'Alta'
-        'Tempo Real')
+        'Above Normal'
+        'High'
+        'Real time')
     end
     object BtnTest: TButton [14]
       Left = 269
@@ -204,20 +204,17 @@ inherited PGLinkFrame: TPGLinkFrame
         Beveled = True
         ExplicitTop = 94
       end
-      object GrbScriptIni: TGroupBox
+      object GrbScriptBefore: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 394
         Height = 62
         Align = alClient
-        Caption = 'Script Inicio (Run: F9)'
+        Caption = 'Script Before (Run: F9)'
         Constraints.MinHeight = 60
         TabOrder = 0
-        ExplicitLeft = 6
-        ExplicitTop = 14
-        ExplicitHeight = 61
-        object EdtScriptIni: TRichEditEx
+        object EdtScriptBefore: TRichEditEx
           Left = 2
           Top = 15
           Width = 390
@@ -233,23 +230,20 @@ inherited PGLinkFrame: TPGLinkFrame
           TabOrder = 0
           WantTabs = True
           Zoom = 100
-          OnChange = EdtScriptIniChange
-          ExplicitHeight = 43
+          OnChange = EdtScriptBeforeChange
         end
       end
-      object GpbScriptEnd: TGroupBox
+      object GpbScriptAfter: TGroupBox
         AlignWithMargins = True
         Left = 3
         Top = 79
         Width = 394
         Height = 60
         Align = alBottom
-        Caption = 'Script Final (Run: F9)'
+        Caption = 'Script After (Run: F9)'
         Constraints.MinHeight = 60
         TabOrder = 1
-        ExplicitLeft = 5
-        ExplicitTop = 86
-        object EdtScriptEnd: TRichEditEx
+        object EdtScriptAfter: TRichEditEx
           Left = 2
           Top = 15
           Width = 390
@@ -265,8 +259,7 @@ inherited PGLinkFrame: TPGLinkFrame
           TabOrder = 0
           WantTabs = True
           Zoom = 100
-          OnChange = EdtScriptEndChange
-          ExplicitHeight = 45
+          OnChange = EdtScriptAfterChange
         end
       end
     end

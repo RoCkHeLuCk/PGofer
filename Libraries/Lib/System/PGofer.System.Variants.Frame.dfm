@@ -7,16 +7,12 @@ inherited PGFrameVariants: TPGFrameVariants
   end
   inherited grbAbout: TGroupBox
     Top = 71
-    ExplicitTop = 132
-    inherited rceAbout: TRichEdit
-      ExplicitHeight = 23
-    end
   end
   inherited pnlItem: TPanel
     Height = 60
     Constraints.MinHeight = 60
     Constraints.MinWidth = 0
-    ExplicitHeight = 121
+    ExplicitHeight = 60
     object LblValue: TLabel [0]
       Left = 5
       Top = 36
@@ -24,16 +20,16 @@ inherited PGFrameVariants: TPGFrameVariants
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      Caption = 'Valor:'
+      Caption = 'Value:'
     end
-    object edtValue: TEdit [2]
+    object EdtValue: TEdit [2]
       Left = 70
       Top = 33
       Width = 324
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      OnChange = edtValueChange
+      OnChange = EdtValueChange
     end
     inherited EdtName: TEditEx
       TabOrder = 1

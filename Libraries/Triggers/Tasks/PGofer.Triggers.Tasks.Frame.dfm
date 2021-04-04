@@ -8,15 +8,12 @@ inherited PGTaskFrame: TPGTaskFrame
   inherited grbAbout: TGroupBox
     Top = 172
     ExplicitTop = 172
-    inherited rceAbout: TRichEdit
-      ExplicitHeight = 23
-    end
   end
   inherited pnlItem: TPanel
     Height = 161
     Constraints.MinHeight = 160
     ExplicitHeight = 161
-    object LblTipo: TLabel [1]
+    object LblTrigger: TLabel [1]
       Left = 5
       Top = 36
       Width = 59
@@ -25,36 +22,36 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       BiDiMode = bdLeftToRight
-      Caption = 'Tipo:'
+      Caption = 'Trigger:'
       ParentBiDiMode = False
     end
     object lblDate: TLabel [2]
       Left = 207
-      Top = 37
+      Top = 36
       Width = 59
       Height = 13
       Hint = 'Forma de detectar a Tarefa'
       Alignment = taRightJustify
       AutoSize = False
       BiDiMode = bdLeftToRight
-      Caption = 'Data:'
+      Caption = 'Date:'
       Enabled = False
       ParentBiDiMode = False
     end
     object lblTime: TLabel [3]
       Left = 207
-      Top = 64
+      Top = 63
       Width = 59
       Height = 13
       Hint = 'Forma de detectar a Tarefa'
       Alignment = taRightJustify
       AutoSize = False
       BiDiMode = bdLeftToRight
-      Caption = 'Hora:'
+      Caption = 'Time:'
       Enabled = False
       ParentBiDiMode = False
     end
-    object lblRepeat: TLabel [4]
+    object lblOccurrence: TLabel [4]
       Left = 5
       Top = 63
       Width = 59
@@ -63,25 +60,24 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       BiDiMode = bdLeftToRight
-      Caption = 'Repetir:'
+      Caption = 'Occurrence:'
       Enabled = False
       ParentBiDiMode = False
     end
-    object CmbTipo: TComboBox
+    object CmbTrigger: TComboBox
       Left = 70
       Top = 33
       Width = 119
       Height = 21
-      Hint = 'Forma de detectar a Tarefa'
       Style = csDropDownList
       ItemIndex = 0
       TabOrder = 1
-      Text = 'Inicializando '
-      OnChange = CmbTipoChange
+      Text = 'Initializing'
+      OnChange = CmbTriggerChange
       Items.Strings = (
-        'Inicializando '
-        'Finalizando'
-        'Desligando')
+        'Initializing'
+        'Finishing'
+        'Turning off')
     end
     object GrbScript: TGroupBox
       AlignWithMargins = True
@@ -98,6 +94,12 @@ inherited PGTaskFrame: TPGTaskFrame
         Width = 386
         Height = 57
         Align = alClient
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
         WantTabs = True
@@ -132,7 +134,7 @@ inherited PGTaskFrame: TPGTaskFrame
       ParseInput = True
       TabOrder = 4
     end
-    object edtRepeat: TEditEx
+    object edtOccurrence: TEditEx
       Left = 70
       Top = 60
       Width = 51
@@ -143,12 +145,12 @@ inherited PGTaskFrame: TPGTaskFrame
       RegExamples = reNone
       RegExpression = '^\d*$'
     end
-    object updRepeat: TUpDown
+    object updOccurrence: TUpDown
       Left = 121
       Top = 60
       Width = 16
       Height = 21
-      Associate = edtRepeat
+      Associate = edtOccurrence
       Enabled = False
       Max = 255
       TabOrder = 6

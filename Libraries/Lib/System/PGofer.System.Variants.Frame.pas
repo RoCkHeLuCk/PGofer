@@ -11,14 +11,14 @@ uses
 type
   TPGFrameVariants = class( TPGFrame )
     LblValue: TLabel;
-    edtValue: TEdit;
-    procedure edtValueChange( Sender: TObject );
+    EdtValue: TEdit;
+    procedure EdtValueChange( Sender: TObject );
   private
     { Private declarations }
     FItem: TPGVariant;
   public
     { Public declarations }
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -30,12 +30,12 @@ implementation
 {$R *.dfm}
 { TPGFrameVariants }
 
-constructor TPGFrameVariants.Create( Item: TPGItem; Parent: TObject );
+constructor TPGFrameVariants.Create( AItem: TPGItem; AParent: TObject );
 begin
-  inherited Create( Item, Parent );
-  FItem := TPGVariant( Item );
-  edtValue.Text := FItem.Value;
-  edtValue.ReadOnly := FItem.Constant;
+  inherited Create( AItem, AParent );
+  FItem := TPGVariant( AItem );
+  EdtValue.Text := FItem.Value;
+  EdtValue.ReadOnly := FItem.Constant;
 end;
 
 destructor TPGFrameVariants.Destroy;
@@ -44,9 +44,9 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGFrameVariants.edtValueChange( Sender: TObject );
+procedure TPGFrameVariants.EdtValueChange( Sender: TObject );
 begin
-  FItem.Value := edtValue.Text;
+  FItem.Value := EdtValue.Text;
 end;
 
 end.

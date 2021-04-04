@@ -19,7 +19,7 @@ type
     procedure SetRegExample( Value: TRegExample );
     procedure SetRegExp( Value: string );
   protected
-    procedure KeyPress( var Key: Char ); override;
+    procedure KeyPress( var AKey: Char ); override;
   public
     { Public declarations }
   published
@@ -45,36 +45,36 @@ end;
 
 { TEditEx }
 
-procedure TEditEx.KeyPress( var Key: Char );
+procedure TEditEx.KeyPress( var AKey: Char );
 var
   NewText: string;
   SelStart, SelLength: Integer;
 begin
-  case Key of
+  case AKey of
     #8, #46:
-    begin
+      begin
 
-    end;
+      end;
 
     #13:
-    begin
-      if Assigned( Self.OnExit ) then
-        Self.OnExit( Self );
-    end;
+      begin
+        if Assigned( Self.OnExit ) then
+          Self.OnExit( Self );
+      end;
   else
-  if FExpression = '' then
-    FExpression := '/w';
+    if FExpression = '' then
+      FExpression := '/w';
 
-  NewText := Self.Text;
-  SelStart := Self.GetSelStart + 1;
-  SelLength := Self.GetSelLength;
-  if SelLength > 0 then
-    Delete( NewText, SelStart, SelLength );
-  Insert( Key, NewText, SelStart );
-  if not FRegExp.IsMatch( NewText ) then
-    Key := #0;
+    NewText := Self.Text;
+    SelStart := Self.GetSelStart + 1;
+    SelLength := Self.GetSelLength;
+    if SelLength > 0 then
+      Delete( NewText, SelStart, SelLength );
+    Insert( AKey, NewText, SelStart );
+    if not FRegExp.IsMatch( NewText ) then
+      AKey := #0;
   end;
-  inherited;
+  inherited KeyPress( AKey );
 end;
 
 procedure TEditEx.SetRegExample( Value: TRegExample );
@@ -82,21 +82,21 @@ begin
   FRegExample := Value;
   case Value of
     reAll:
-    FExpression := '.';
+      FExpression := '.';
     reWord:
-    FExpression := '\w';
+      FExpression := '\w';
     reUnsignedInt:
-    FExpression := '^\d*$';
+      FExpression := '^\d*$';
     reSignedInt:
-    FExpression := '^-?\d*$';
+      FExpression := '^-?\d*$';
     reUnsignedFloat:
-    FExpression := '^\d*\,?\d*$';
+      FExpression := '^\d*\,?\d*$';
     reSignedFloat:
-    FExpression := '^-?\d*\,?\d*$';
+      FExpression := '^-?\d*\,?\d*$';
     reLetter:
-    FExpression := '^[A-Za-z]*$';
+      FExpression := '^[A-Za-z]*$';
     reID:
-    FExpression := '^[A-Za-z_]+\w*$';
+      FExpression := '^[A-Za-z_]+\w*$';
   end;
   FRegExp.Create( FExpression );
 end;

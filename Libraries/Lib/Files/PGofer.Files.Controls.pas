@@ -117,21 +117,21 @@ function GetOperationToStr( Operation: Byte ): PWideChar;
 begin
   case Operation of
     0:
-    Result := 'open';
+      Result := 'open';
     1:
-    Result := 'edit';
+      Result := 'edit';
     2:
-    Result := 'explore';
+      Result := 'explore';
     3:
-    Result := 'find';
+      Result := 'find';
     4:
-    Result := 'print';
+      Result := 'print';
     5:
-    Result := 'properties';
+      Result := 'properties';
     6:
-    Result := 'runas';
+      Result := 'runas';
   else
-  Result := 'open';
+    Result := 'open';
   end;
 end;
 
@@ -139,19 +139,19 @@ function GetProcessPri( Prioridade: Byte ): Word;
 begin
   case Prioridade of
     0:
-    Result := IDLE_PRIORITY_CLASS;
+      Result := IDLE_PRIORITY_CLASS;
     1:
-    Result := BELOW_NORMAL_PRIORITY_CLASS;
+      Result := BELOW_NORMAL_PRIORITY_CLASS;
     2:
-    Result := NORMAL_PRIORITY_CLASS;
+      Result := NORMAL_PRIORITY_CLASS;
     3:
-    Result := ABOVE_NORMAL_PRIORITY_CLASS;
+      Result := ABOVE_NORMAL_PRIORITY_CLASS;
     4:
-    Result := HIGH_PRIORITY_CLASS;
+      Result := HIGH_PRIORITY_CLASS;
     5:
-    Result := REALTIME_PRIORITY_CLASS;
+      Result := REALTIME_PRIORITY_CLASS;
   else
-  Result := NORMAL_PRIORITY_CLASS;
+    Result := NORMAL_PRIORITY_CLASS;
   end;
 end;
 
@@ -159,33 +159,33 @@ function GetShellExMSGToStr( InstApp: Cardinal ): string;
 begin
   case InstApp of
     0:
-    Result := 'Erro: Memoria cheia.';
+      Result := 'Erro: Memoria cheia.';
     SE_ERR_FNF:
-    Result := 'Erro: Arquivo não encontrado.';
+      Result := 'Erro: Arquivo não encontrado.';
     SE_ERR_PNF:
-    Result := 'Erro: Diretorio não encontrado.';
+      Result := 'Erro: Diretorio não encontrado.';
     SE_ERR_ACCESSDENIED:
-    Result := 'Erro: Acesso negado.';
+      Result := 'Erro: Acesso negado.';
     SE_ERR_OOM:
-    Result := 'Erro: Memoria cheia.';
+      Result := 'Erro: Memoria cheia.';
     SE_ERR_DLLNOTFOUND:
-    Result := 'Erro: Dll não encontrado.';
+      Result := 'Erro: Dll não encontrado.';
     SE_ERR_SHARE:
-    Result := 'Erro: Compartilhamento não encontrado.';
+      Result := 'Erro: Compartilhamento não encontrado.';
     SE_ERR_ASSOCINCOMPLETE:
-    Result := 'Erro: Associação incompleta.';
+      Result := 'Erro: Associação incompleta.';
     SE_ERR_DDETIMEOUT:
-    Result := 'Erro: Tempo escotado.';
+      Result := 'Erro: Tempo escotado.';
     SE_ERR_DDEFAIL:
-    Result := 'Erro: Falha no acesso.';
+      Result := 'Erro: Falha no acesso.';
     SE_ERR_DDEBUSY:
-    Result := 'Erro: Debuger.';
+      Result := 'Erro: Debuger.';
     SE_ERR_NOASSOC:
-    Result := 'Erro: Nada associado.';
+      Result := 'Erro: Nada associado.';
     33, 42:
-    Result := 'OK: Executado com exito.';
+      Result := 'OK: Executado com exito.';
   else
-  Result := 'Erro: Executar Numero: "' + InstApp.ToString + '".';
+    Result := 'Erro: Executar Numero: "' + InstApp.ToString + '".';
   end;
 end;
 

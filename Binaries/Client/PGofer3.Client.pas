@@ -81,7 +81,7 @@ end;
 
 procedure TFrmPGofer.FormCreate( Sender: TObject );
 begin
-  inherited;
+  inherited FormCreate( Sender );
   Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
   Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
@@ -110,19 +110,19 @@ end;
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
   FormAutoSize( );
-  inherited;
+  inherited FormClose( Sender, Action );
 end;
 
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
   FFrmAutoComplete.Free( );
-  inherited;
+  inherited FormDestroy( Sender );
 end;
 
 procedure TFrmPGofer.FormShow( Sender: TObject );
 begin
   FormAutoSize( );
-  inherited;
+  // inherited FormShow( Sender );
 end;
 
 procedure TFrmPGofer.FormAutoSize( );
@@ -171,23 +171,23 @@ begin
   if ( not FFrmAutoComplete.Visible ) and ( Shift = [ ] ) then
     case Key of
       VK_RETURN:
-      begin
-        if ( EdtScript.Text <> '' ) then
         begin
-          ScriptExec( 'Main', EdtScript.Text );
-          EdtScript.Clear;
+          if ( EdtScript.Text <> '' ) then
+          begin
+            ScriptExec( 'Main', EdtScript.Text );
+            EdtScript.Clear;
 
-          if FrmConsole.AutoClose then
-            Self.Hide;
-          Key := 0;
-          EdtScript.OnChange( nil );
+            if FrmConsole.AutoClose then
+              Self.Hide;
+            Key := 0;
+            EdtScript.OnChange( nil );
+          end;
         end;
-      end;
 
       VK_ESCAPE:
-      begin
-        Self.Hide;
-      end;
+        begin
+          Self.Hide;
+        end;
     end;
 end;
 

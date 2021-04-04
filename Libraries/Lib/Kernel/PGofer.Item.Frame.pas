@@ -24,7 +24,7 @@ type
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
   public
-    constructor Create( Item: TPGItem; Parent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -33,14 +33,14 @@ implementation
 {$R *.dfm}
 
 uses
-   PGofer.Sintatico;
+  PGofer.Sintatico;
 
-constructor TPGFrame.Create( Item: TPGItem; Parent: TObject );
+constructor TPGFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( nil );
-  Self.Parent := TWinControl( Parent );
+  Self.Parent := TWinControl( AParent );
   Self.Align := alClient;
-  FItem := Item;
+  FItem := AItem;
   EdtName.Text := FItem.Name;
   EdtName.ReadOnly := FItem.ReadOnly;
   EdtName.ParentColor := FItem.ReadOnly;

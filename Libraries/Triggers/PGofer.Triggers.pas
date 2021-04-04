@@ -13,10 +13,10 @@ type
     FItemMirror: TPGItemMirror;
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); virtual; abstract;
-    procedure SetName( Name: string ); override;
+    procedure SetName( AName: string ); override;
   public
-    constructor Create( ItemDad: TPGItem; Name: string;
-       ItemMirror: TPGItemMirror ); overload;
+    constructor Create( AItemDad: TPGItem; AName: string;
+       AItemMirror: TPGItemMirror ); overload;
     destructor Destroy( ); override;
     property ItemMirror: TPGItemMirror read FItemMirror;
     procedure Execute( Gramatica: TGramatica ); override;
@@ -27,12 +27,12 @@ type
   private
     FItemOriginal: TPGItemTrigger;
   public
-    constructor Create( ItemDad: TPGItem;
-       ItemOriginal: TPGItemTrigger ); overload;
+    constructor Create( AItemDad: TPGItem;
+       AItemOriginal: TPGItemTrigger ); overload;
     destructor Destroy( ); override;
     property ItemOriginal: TPGItemTrigger read FItemOriginal;
     class function TranscendName( AName: string;
-       ItemList: TPGItem = nil ): string;
+       AItemList: TPGItem = nil ): string;
   end;
 
 implementation
@@ -44,11 +44,11 @@ uses
 
 { TPGItemTrigger }
 
-constructor TPGItemTrigger.Create( ItemDad: TPGItem; Name: string;
-   ItemMirror: TPGItemMirror );
+constructor TPGItemTrigger.Create( AItemDad: TPGItem; AName: string;
+   AItemMirror: TPGItemMirror );
 begin
-  inherited Create( ItemDad, name );
-  FItemMirror := ItemMirror;
+  inherited Create( AItemDad, AName );
+  FItemMirror := AItemMirror;
 end;
 
 destructor TPGItemTrigger.Destroy( );
@@ -58,14 +58,14 @@ begin
     FItemMirror.FItemOriginal := nil;
     FItemMirror.Free( );
   end;
-  inherited;
+  inherited Destroy( );
 end;
 
-procedure TPGItemTrigger.SetName( Name: string );
+procedure TPGItemTrigger.SetName( AName: string );
 begin
-  inherited;
+  inherited SetName( AName );
   if Assigned( FItemMirror ) then
-    FItemMirror.Name := name;
+    FItemMirror.Name := AName;
 end;
 
 procedure TPGItemTrigger.Execute( Gramatica: TGramatica );
@@ -82,11 +82,11 @@ end;
 
 { TPGItemMirror }
 
-constructor TPGItemMirror.Create( ItemDad: TPGItem;
-   ItemOriginal: TPGItemTrigger );
+constructor TPGItemMirror.Create( AItemDad: TPGItem;
+   AItemOriginal: TPGItemTrigger );
 begin
-  inherited Create( ItemDad, ItemOriginal.Name );
-  FItemOriginal := ItemOriginal;
+  inherited Create( AItemDad, AItemOriginal.Name );
+  FItemOriginal := AItemOriginal;
 end;
 
 destructor TPGItemMirror.Destroy( );
@@ -96,11 +96,11 @@ begin
     FItemOriginal.FItemMirror := nil;
     FItemOriginal.Free;
   end;
-  inherited;
+  inherited Destroy( );
 end;
 
 class function TPGItemMirror.TranscendName( AName: string;
-   ItemList: TPGItem = nil ): string;
+   AItemList: TPGItem = nil ): string;
 var
   C: Word;
 begin
@@ -116,9 +116,9 @@ begin
     AName := 'New';
 
   Result := AName;
-  if Assigned( ItemList ) and ( ItemList <> GlobalCollection ) then
+  if Assigned( AItemList ) and ( AItemList <> GlobalCollection ) then
   begin
-    while Assigned( ItemList.FindName( Result ) ) do
+    while Assigned( AItemList.FindName( Result ) ) do
     begin
       inc( C );
       Result := AName + IntToStr( C );

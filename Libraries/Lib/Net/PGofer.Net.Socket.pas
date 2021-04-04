@@ -25,7 +25,7 @@ type
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
   public
-    constructor Create( ItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -34,7 +34,7 @@ type
     property MaxConnect: Word read FMaxConnect write FMaxConnect;
     property PassWord: string read FPassWord write FPassWord;
     property Port: Word read GetPort write SetPort;
-    function SendMessage( Text: string ): Integer;
+    function SendMessage( AText: string ): Integer;
   end;
 {$TYPEINFO ON}
 {$M+}
@@ -59,7 +59,7 @@ type
     procedure ConsoleSendMSG( Value: string );
 
   public
-    constructor Create( ItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -67,7 +67,7 @@ type
     property ConsoleMessage: Boolean read FConsoleMessage write FConsoleMessage;
     property PassWord: string read FPassWord write FPassWord;
     property Port: Word read GetPort write SetPort;
-    function SendCommand( Text: string ): Integer;
+    function SendCommand( AText: string ): Integer;
   end;
 {$TYPEINFO ON}
 
@@ -85,9 +85,9 @@ begin
     Self.ConsoleSendMSG( Value );
 end;
 
-constructor TPGNetServer.Create( ItemDad: TPGItem );
+constructor TPGNetServer.Create( AItemDad: TPGItem );
 begin
-  inherited Create( ItemDad, 'Server' );
+  inherited Create( AItemDad, 'Server' );
 
   FServer := TServerSocket.Create( nil );
   FServer.OnAccept := Self.OnClientConnect;
@@ -128,9 +128,9 @@ begin
   FServer.Port := Port;
 end;
 
-function TPGNetServer.SendMessage( Text: string ): Integer;
+function TPGNetServer.SendMessage( AText: string ): Integer;
 begin
-  Result := FServer.Socket.SendText( AnsiString( Text ) );
+  Result := FServer.Socket.SendText( AnsiString( AText ) );
 end;
 
 procedure TPGNetServer.OnClientConnect( Sender: TObject;
@@ -226,9 +226,9 @@ begin
     Self.ConsoleSendMSG( Value );
 end;
 
-constructor TPGNetClient.Create( ItemDad: TPGItem );
+constructor TPGNetClient.Create( AItemDad: TPGItem );
 begin
-  inherited Create( ItemDad, 'Client' );
+  inherited Create( AItemDad, 'Client' );
 
   FClient := TClientSocket.Create( nil );
   FClient.OnConnecting := Self.OnClientConnecting;
@@ -248,7 +248,7 @@ begin
   FClient.OnRead := nil;
   FClient.OnError := nil;
   FClient.Free;
-  inherited;
+  inherited Destroy( );
 end;
 
 function TPGNetClient.GetActive: Boolean;
@@ -281,9 +281,9 @@ begin
   FClient.Port := Port;
 end;
 
-function TPGNetClient.SendCommand( Text: string ): Integer;
+function TPGNetClient.SendCommand( AText: string ): Integer;
 begin
-  Result := FClient.Socket.SendText( AnsiString( Text ) );
+  Result := FClient.Socket.SendText( AnsiString( AText ) );
 end;
 
 procedure TPGNetClient.OnClientConnect( Sender: TObject;

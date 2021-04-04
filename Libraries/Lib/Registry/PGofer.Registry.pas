@@ -11,7 +11,7 @@ type
   private
     FEnvironment: TPGItemCMD;
   public
-    constructor Create( ItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
     property Environment: TPGItemCMD read FEnvironment;
   published
@@ -28,16 +28,16 @@ uses
 
 { TPGRegistry }
 
-constructor TPGRegistry.Create( ItemDad: TPGItem );
+constructor TPGRegistry.Create( AItemDad: TPGItem );
 begin
-  inherited Create( ItemDad );
+  inherited Create( AItemDad );
   FEnvironment := TPGRegistryEnvironment.Create( Self, 'Environment' );
 end;
 
 destructor TPGRegistry.Destroy( );
 begin
   FEnvironment.Free( );
-  inherited;
+  inherited Destroy( );
 end;
 
 function TPGRegistry.Delete( RootKey: NativeUInt;

@@ -21,19 +21,19 @@ function NetErrorToStr( Error: TErrorEvent ): string;
 begin
   case Error of
     eeGeneral:
-    Result := 'General';
+      Result := 'General';
     eeSend:
-    Result := 'Send';
+      Result := 'Send';
     eeReceive:
-    Result := 'Receive';
+      Result := 'Receive';
     eeConnect:
-    Result := 'Connect';
+      Result := 'Connect';
     eeDisconnect:
-    Result := 'Disconnect';
+      Result := 'Disconnect';
     eeAccept:
-    Result := 'Accept';
+      Result := 'Accept';
     eeLookup:
-    Result := 'Lookup';
+      Result := 'Lookup';
   end;
 end;
 

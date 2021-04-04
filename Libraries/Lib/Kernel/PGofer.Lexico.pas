@@ -195,7 +195,7 @@ end;
 
 constructor TTokenList.Create( );
 begin
-  inherited Create;
+  inherited Create( );
   FTokenList := TTokens.Create( True );
   FTokenPosition := 0;
 end;
@@ -204,7 +204,7 @@ destructor TTokenList.Destroy;
 begin
   FreeAndNil( FTokenList );
   FTokenPosition := 0;
-  inherited Destroy;
+  inherited Destroy( );
 end;
 
 procedure TTokenList.Assign( TokenList: TTokenList );
@@ -282,7 +282,7 @@ end;
 
 constructor TAutomato.Create( );
 begin
-  inherited Create;
+  inherited Create( );
   FLexema.Lexema := '';
   FLexema.Classe := cmdUnDeclar;
   FLexema.Cordenada.Zero;
@@ -359,31 +359,31 @@ begin
     case FFita.Cabeça of
 
       'B', 'b':
-      begin
-        IncCabeça( False );
-        while ReadCharInSet( cBinary, True ) do;
-        if ( FLexema.Lexema <> '' ) and ( TryBinToInt64( FLexema.Lexema, iAux ) )
-        then
         begin
-          FLexema.Lexema := iAux;
-          FLexema.Classe := cmdNumeric;
+          IncCabeça( False );
+          while ReadCharInSet( cBinary, True ) do;
+          if ( FLexema.Lexema <> '' ) and
+             ( TryBinToInt64( FLexema.Lexema, iAux ) ) then
+          begin
+            FLexema.Lexema := iAux;
+            FLexema.Classe := cmdNumeric;
+          end;
+          Exit;
         end;
-        Exit;
-      end;
 
       'H', 'h':
-      begin
-        IncCabeça( False );
-        FLexema.Lexema := '$';
-        while ReadCharInSet( cHexadec, True ) do;
-        if ( FLexema.Lexema <> '' ) and ( TryStrToInt64( FLexema.Lexema, iAux ) )
-        then
         begin
-          FLexema.Lexema := iAux;
-          FLexema.Classe := cmdNumeric;
+          IncCabeça( False );
+          FLexema.Lexema := '$';
+          while ReadCharInSet( cHexadec, True ) do;
+          if ( FLexema.Lexema <> '' ) and
+             ( TryStrToInt64( FLexema.Lexema, iAux ) ) then
+          begin
+            FLexema.Lexema := iAux;
+            FLexema.Classe := cmdNumeric;
+          end;
+          Exit;
         end;
-        Exit;
-      end;
 
     end;
   end;
@@ -407,38 +407,38 @@ begin
       // verifica o caracter
       case FFita.Cabeça of
         'y':
-        FLexema.Lexema := FLexema.Lexema + 'e-24';
+          FLexema.Lexema := FLexema.Lexema + 'e-24';
         'z':
-        FLexema.Lexema := FLexema.Lexema + 'e-21';
+          FLexema.Lexema := FLexema.Lexema + 'e-21';
         'a':
-        FLexema.Lexema := FLexema.Lexema + 'e-18';
+          FLexema.Lexema := FLexema.Lexema + 'e-18';
         'f':
-        FLexema.Lexema := FLexema.Lexema + 'e-15';
+          FLexema.Lexema := FLexema.Lexema + 'e-15';
         'p':
-        FLexema.Lexema := FLexema.Lexema + 'e-12';
+          FLexema.Lexema := FLexema.Lexema + 'e-12';
         'n':
-        FLexema.Lexema := FLexema.Lexema + 'e-9';
+          FLexema.Lexema := FLexema.Lexema + 'e-9';
         'u':
-        FLexema.Lexema := FLexema.Lexema + 'e-6';
+          FLexema.Lexema := FLexema.Lexema + 'e-6';
         'm':
-        FLexema.Lexema := FLexema.Lexema + 'e-3';
+          FLexema.Lexema := FLexema.Lexema + 'e-3';
         // ' ' :
         'k':
-        FLexema.Lexema := FLexema.Lexema + 'e3';
+          FLexema.Lexema := FLexema.Lexema + 'e3';
         'M':
-        FLexema.Lexema := FLexema.Lexema + 'e6';
+          FLexema.Lexema := FLexema.Lexema + 'e6';
         'G':
-        FLexema.Lexema := FLexema.Lexema + 'e9';
+          FLexema.Lexema := FLexema.Lexema + 'e9';
         'T':
-        FLexema.Lexema := FLexema.Lexema + 'e12';
+          FLexema.Lexema := FLexema.Lexema + 'e12';
         'P':
-        FLexema.Lexema := FLexema.Lexema + 'e15';
+          FLexema.Lexema := FLexema.Lexema + 'e15';
         'E':
-        FLexema.Lexema := FLexema.Lexema + 'e18';
+          FLexema.Lexema := FLexema.Lexema + 'e18';
         'Z':
-        FLexema.Lexema := FLexema.Lexema + 'e21';
+          FLexema.Lexema := FLexema.Lexema + 'e21';
         'Y':
-        FLexema.Lexema := FLexema.Lexema + 'e24';
+          FLexema.Lexema := FLexema.Lexema + 'e24';
       end;
       IncCabeça( False );
     end;
@@ -486,107 +486,107 @@ begin
     case string( FLexema.Lexema )[ 1 ] of
 
       '.':
-      FLexema.Classe := cmdDot;
+        FLexema.Classe := cmdDot;
 
       ':':
-      begin
-        if ReadCharInSet( [ '=' ], True ) then
-          FLexema.Classe := cmdAttrib
-        else if ReadCharInSet( [ '\' ], True ) then
-          FLexema.Classe := cmdDriver
-        else
-          FLexema.Classe := cmd2Dot;
-      end;
+        begin
+          if ReadCharInSet( [ '=' ], True ) then
+            FLexema.Classe := cmdAttrib
+          else if ReadCharInSet( [ '\' ], True ) then
+            FLexema.Classe := cmdDriver
+          else
+            FLexema.Classe := cmd2Dot;
+        end;
 
       ';':
-      FLexema.Classe := cmdDotComa;
+        FLexema.Classe := cmdDotComa;
 
       ',':
-      FLexema.Classe := cmdComa;
+        FLexema.Classe := cmdComa;
 
       '=':
-      FLexema.Classe := cmdEqual;
+        FLexema.Classe := cmdEqual;
 
       '>':
-      begin
-        if ReadCharInSet( [ '=' ], True ) then
-          FLexema.Classe := cmdMoreEqual
-        else
-          FLexema.Classe := cmdMore;
-      end;
+        begin
+          if ReadCharInSet( [ '=' ], True ) then
+            FLexema.Classe := cmdMoreEqual
+          else
+            FLexema.Classe := cmdMore;
+        end;
 
       '<':
-      begin
-        if ReadCharInSet( [ '=' ], True ) then
-          FLexema.Classe := cmdMinorEqual
-        else if ReadCharInSet( [ '>' ], True ) then
-          FLexema.Classe := cmdDifferent
-        else
-          FLexema.Classe := cmdMinor;
-      end;
+        begin
+          if ReadCharInSet( [ '=' ], True ) then
+            FLexema.Classe := cmdMinorEqual
+          else if ReadCharInSet( [ '>' ], True ) then
+            FLexema.Classe := cmdDifferent
+          else
+            FLexema.Classe := cmdMinor;
+        end;
 
       '+':
-      FLexema.Classe := cmdAdd;
+        FLexema.Classe := cmdAdd;
 
       '-':
-      FLexema.Classe := cmdSub;
+        FLexema.Classe := cmdSub;
 
       '*':
-      FLexema.Classe := cmdMult;
+        FLexema.Classe := cmdMult;
 
       '/':
-      begin
-        if ReadCharInSet( [ '/' ], True ) then
-          Comentario( [ #0, #13 ] )
-        else
-          FLexema.Classe := cmdBar;
-      end;
+        begin
+          if ReadCharInSet( [ '/' ], True ) then
+            Comentario( [ #0, #13 ] )
+          else
+            FLexema.Classe := cmdBar;
+        end;
 
       '\':
-      begin
-        if ReadCharInSet( [ '\' ], True ) then
-          FLexema.Classe := cmdNetwork
-        else
-          FLexema.Classe := cmdCtrBar;
-      end;
+        begin
+          if ReadCharInSet( [ '\' ], True ) then
+            FLexema.Classe := cmdNetwork
+          else
+            FLexema.Classe := cmdCtrBar;
+        end;
 
       '(':
-      FLexema.Classe := cmdLPar;
+        FLexema.Classe := cmdLPar;
 
       ')':
-      FLexema.Classe := cmdRPar;
+        FLexema.Classe := cmdRPar;
 
       '[':
-      FLexema.Classe := cmdLBrack;
+        FLexema.Classe := cmdLBrack;
 
       ']':
-      FLexema.Classe := cmdRBrack;
+        FLexema.Classe := cmdRBrack;
 
       '!':
-      FLexema.Classe := cmdExclam;
+        FLexema.Classe := cmdExclam;
 
       '@':
-      FLexema.Classe := cmdArroba;
+        FLexema.Classe := cmdArroba;
 
       '%':
-      FLexema.Classe := cmdPercent;
+        FLexema.Classe := cmdPercent;
 
       '^':
-      FLexema.Classe := cmdTone;
+        FLexema.Classe := cmdTone;
 
       '&':
-      FLexema.Classe := cmdAnd;
+        FLexema.Classe := cmdAnd;
 
       '?':
-      FLexema.Classe := cmdQuery;
+        FLexema.Classe := cmdQuery;
 
       '|':
-      FLexema.Classe := cmdPipe;
+        FLexema.Classe := cmdPipe;
 
       '$':
-      FLexema.Classe := cmdDolar;
+        FLexema.Classe := cmdDolar;
     else
-    FLexema.Classe := cmdUnDeclar;
+      FLexema.Classe := cmdUnDeclar;
     end;
 end;
 
@@ -609,27 +609,27 @@ begin
     case FFita.Cabeça of
 
       #0:
-      Fim( );
+        Fim( );
 
       #9, #10, #11, #13, ' ':
-      Ignorados( );
+        Ignorados( );
 
       '{':
-      Comentario( [ #0, '}' ] );
+        Comentario( [ #0, '}' ] );
 
       '#':
-      Caracter( );
+        Caracter( );
 
       '0' .. '9':
-      Numero( );
+        Numero( );
 
       'A' .. 'Z', 'a' .. 'z', 'À' .. 'ÿ':
-      Identificadores( );
+        Identificadores( );
 
       #39, '"':
-      Texto( );
+        Texto( );
     else
-    Simbolos( );
+      Simbolos( );
     end; // case
 
     if FLexema.Classe <> cmdIgnore then
@@ -646,9 +646,9 @@ begin
     case TokenList.Token.Classe of
       cmdDotComa, cmdRes_begin, cmdRes_do, cmdRes_downto, cmdRes_else,
          cmdRes_end, cmdRes_then:
-      begin
-        Result := Result + #10#13;
-      end;
+        begin
+          Result := Result + #10#13;
+        end;
     end;
 
     TokenList.GetNextToken;

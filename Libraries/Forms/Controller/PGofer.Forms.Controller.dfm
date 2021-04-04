@@ -71,7 +71,7 @@ object FrmController: TFrmController
         TabOrder = 0
         OnKeyPress = EdtFindKeyPress
       end
-      object btnRecall: TButton
+      object BtnRecall: TButton
         Left = 151
         Top = 3
         Width = 26
@@ -79,7 +79,7 @@ object FrmController: TFrmController
         Anchors = [akTop, akRight, akBottom]
         Caption = '>>'
         TabOrder = 1
-        OnClick = btnRecallClick
+        OnClick = BtnRecallClick
       end
     end
     object PnlButton: TPanel
@@ -91,42 +91,42 @@ object FrmController: TFrmController
       Constraints.MinWidth = 178
       ParentColor = True
       TabOrder = 1
-      object btnAlphaSort: TButton
+      object BtnAlphaSort: TButton
         Left = 2
         Top = 2
         Width = 43
         Height = 32
         Caption = 'AZ'
-        DropDownMenu = ppmAlphaSort
+        DropDownMenu = PpmAlphaSort
         Style = bsSplitButton
         TabOrder = 0
         WordWrap = True
-        OnClick = mniAZClick
+        OnClick = MniAZClick
       end
-      object btnCreate: TButton
+      object BtnCreate: TButton
         Left = 108
         Top = 2
         Width = 69
         Height = 32
         Caption = 'Create'
-        DropDownMenu = ppmCreate
+        DropDownMenu = PpmCreate
         Style = bsSplitButton
         TabOrder = 1
         Visible = False
         WordWrap = True
         OnClick = onCreateItemPopUpClick
       end
-      object btnEdit: TButton
+      object BtnEdit: TButton
         Left = 46
         Top = 2
         Width = 61
         Height = 32
         Caption = 'Edit'
-        DropDownMenu = ppmEdit
+        DropDownMenu = PpmEdit
         Style = bsSplitButton
         TabOrder = 2
         WordWrap = True
-        OnClick = mniDeleteClick
+        OnClick = MniDeleteClick
       end
     end
     object TrvController: TTreeViewEx
@@ -141,7 +141,7 @@ object FrmController: TFrmController
       Indent = 19
       MultiSelect = True
       MultiSelectStyle = [msControlSelect, msShiftSelect, msVisibleOnly, msSiblingOnly]
-      PopupMenu = ppmConttroler
+      PopupMenu = PpmConttroler
       ReadOnly = True
       RightClickSelect = True
       RowSelect = True
@@ -169,55 +169,55 @@ object FrmController: TFrmController
     ParentColor = True
     TabOrder = 1
   end
-  object ppmAlphaSort: TPopupMenu
+  object PpmAlphaSort: TPopupMenu
     Left = 12
     Top = 36
-    object mniAZ: TMenuItem
+    object MniAZ: TMenuItem
       Caption = 'AZ'
       ShortCut = 16449
-      OnClick = mniAZClick
+      OnClick = MniAZClick
     end
-    object mniZA: TMenuItem
+    object MniZA: TMenuItem
       Caption = 'ZA'
       ShortCut = 16474
-      OnClick = mniZAClick
+      OnClick = MniZAClick
     end
-    object mniN1: TMenuItem
+    object MniN1: TMenuItem
       Caption = '-'
     end
-    object mniAlphaSortFolder: TMenuItem
+    object MniAlphaSortFolder: TMenuItem
       Caption = 'Pastas Primeiro'
       Checked = True
-      OnClick = mniAlphaSortFolderClick
+      OnClick = MniAlphaSortFolderClick
     end
   end
-  object ppmCreate: TPopupMenu
+  object PpmCreate: TPopupMenu
     Left = 68
     Top = 36
   end
-  object ppmEdit: TPopupMenu
+  object PpmEdit: TPopupMenu
     Left = 40
     Top = 36
-    object mniExpand: TMenuItem
+    object MniExpand: TMenuItem
       Caption = 'Expand All'
       ShortCut = 16453
-      OnClick = mniExpandClick
+      OnClick = MniExpandClick
     end
-    object mniUnExpand: TMenuItem
+    object MniUnExpand: TMenuItem
       Caption = 'UnExpand All'
       ShortCut = 16469
-      OnClick = mniUnExpandClick
+      OnClick = MniUnExpandClick
     end
-    object N1: TMenuItem
+    object MniN2: TMenuItem
       Caption = '-'
     end
-    object mniDelete: TMenuItem
+    object MniDelete: TMenuItem
       Caption = 'Delete Selected'
       ShortCut = 16430
-      OnClick = mniDeleteClick
+      OnClick = MniDeleteClick
     end
   end
-  object ppmConttroler: TPopupMenu
+  object PpmConttroler: TPopupMenu
     Left = 96
     Top = 36
   end

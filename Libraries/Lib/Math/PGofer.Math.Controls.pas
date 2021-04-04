@@ -73,38 +73,38 @@ begin
 
     case c of
       0:
-      Result := Result + 'y';
+        Result := Result + 'y';
       1:
-      Result := Result + 'z';
+        Result := Result + 'z';
       2:
-      Result := Result + 'a';
+        Result := Result + 'a';
       3:
-      Result := Result + 'f';
+        Result := Result + 'f';
       4:
-      Result := Result + 'p';
+        Result := Result + 'p';
       5:
-      Result := Result + 'n';
+        Result := Result + 'n';
       6:
-      Result := Result + 'u';
+        Result := Result + 'u';
       7:
-      Result := Result + 'm';
+        Result := Result + 'm';
       // 8 :
       9:
-      Result := Result + 'k';
+        Result := Result + 'k';
       10:
-      Result := Result + 'M';
+        Result := Result + 'M';
       11:
-      Result := Result + 'G';
+        Result := Result + 'G';
       12:
-      Result := Result + 'T';
+        Result := Result + 'T';
       13:
-      Result := Result + 'P';
+        Result := Result + 'P';
       14:
-      Result := Result + 'E';
+        Result := Result + 'E';
       15:
-      Result := Result + 'Z';
+        Result := Result + 'Z';
       16:
-      Result := Result + 'Y';
+        Result := Result + 'Y';
     end;
   end
   else

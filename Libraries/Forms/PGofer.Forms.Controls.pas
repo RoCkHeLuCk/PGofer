@@ -40,8 +40,8 @@ begin
     Result := False;
     // procura parametros e envia mensagem
     if FindCmdLineSwitch( 'Duplicate', True ) then
-      Result := True;
-    if FindCmdLineSwitch( 'Hide', True ) then
+      Result := True
+    else if FindCmdLineSwitch( 'Hide', True ) then
       SendMessage( H, WM_PG_HIDE, 0, 0 )
     else if FindCmdLineSwitch( 'NoFocus', True ) then
       SendMessage( H, WM_PG_NOFOCUS, 0, 0 )
@@ -86,6 +86,7 @@ begin
     Form.Visible := True;
     ThisThreadID := SWP_NOACTIVATE or SWP_NOMOVE or SWP_NOSIZE;
   end;
+
   try
     C := BeginDeferWindowPos( 1 );
     C := DeferWindowPos( C, Form.Handle, HWND_TOPMOST, Form.Left, Form.Top,
@@ -150,48 +151,48 @@ var
 begin
   case AMessage.Msg of
     WM_PG_HIDE:
-    begin
-      Application.ShowMainForm := False;
-      Application.MainForm.Hide;
-    end;
+      begin
+        Application.ShowMainForm := False;
+        Application.MainForm.Hide;
+      end;
 
     WM_PG_NOFOCUS:
-    begin
-      FormForceShow( Application.MainForm, False );
-      if Assigned( Application.MainForm.OnActivate ) then
-        Application.MainForm.OnActivate( nil );
-    end;
+      begin
+        FormForceShow( Application.MainForm, False );
+        if Assigned( Application.MainForm.OnActivate ) then
+          Application.MainForm.OnActivate( nil );
+      end;
 
     WM_PG_SETFOCUS:
-    begin
-      FormForceShow( Application.MainForm, True );
-    end;
+      begin
+        FormForceShow( Application.MainForm, True );
+      end;
 
     WM_PG_CLOSE:
-    begin
-      Application.Terminate;
-    end;
+      begin
+        Application.Terminate;
+      end;
 
     WM_PG_SCRIPT:
-    begin
-      Buffer := StrAlloc( AMessage.WParam + 1 );
-      GlobalGetAtomName( AMessage.LParam, Buffer, AMessage.WParam + 1 );
-      Parametro := StrPas( Buffer );
-      StrDispose( Buffer );
-      GlobalDeleteAtom( AMessage.LParam );
-      ScriptExec( 'External', Parametro, nil, False );
-    end;
+      begin
+        Buffer := StrAlloc( AMessage.WParam + 1 );
+        GlobalGetAtomName( AMessage.LParam, Buffer, AMessage.WParam + 1 );
+        Parametro := StrPas( Buffer );
+        StrDispose( Buffer );
+        GlobalDeleteAtom( AMessage.LParam );
+        ScriptExec( 'External', Parametro, nil, False );
+      end;
 
     WM_MOUSEACTIVATE:
-    begin
-      AMessage.Result := MA_NOACTIVATE;
-    end;
+      begin
+        AMessage.Result := MA_NOACTIVATE;
+      end;
 
     WM_NCLBUTTONDOWN:
-    begin
-      if TWMNCLButtonDown( AMessage ).HitTest = HTCAPTION then
-        Application.BringToFront;
-    end;
+      begin
+        if TWMNCLButtonDown( AMessage ).HitTest = HTCAPTION then
+          Application.BringToFront;
+      end;
   end;
 end;
 

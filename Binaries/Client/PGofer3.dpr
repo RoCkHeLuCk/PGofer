@@ -90,8 +90,6 @@ uses
      in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Links.Frame
      in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame} ,
-  PGofer.Triggers.Links.ThreadLoadImage
-     in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ThreadLoadImage.pas',
   PGofer.Triggers.Tasks.Frame
      in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame} ,
   PGofer.Triggers.Tasks

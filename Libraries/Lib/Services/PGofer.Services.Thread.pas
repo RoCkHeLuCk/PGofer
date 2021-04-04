@@ -7,8 +7,7 @@ uses
 
 type
   TThreadService = class( TThread )
-    constructor Create( const Host: string; const Item: TListItem;
-       const Config: Cardinal );
+    constructor Create( AHost: string; AItem: TListItem; AConfig: Cardinal );
   private
     { Private declarations }
     HostA: string;
@@ -27,17 +26,17 @@ uses
 
 { TThreadLoadImage }
 // ----------------------------------------------------------------------------//
-constructor TThreadService.Create( const Host: string; const Item: TListItem;
-   const Config: Cardinal );
+constructor TThreadService.Create( AHost: string; AItem: TListItem;
+   AConfig: Cardinal );
 begin
   // cria thread
   inherited Create( true );
   Priority := tpIdle;
   FreeOnTerminate := true;
 
-  HostA := Host;
-  ItemA := Item;
-  ConfigA := Config;
+  HostA := AHost;
+  ItemA := AItem;
+  ConfigA := AConfig;
 end;
 
 // ----------------------------------------------------------------------------//
