@@ -22,7 +22,7 @@ begin
         Application.Initialize;
         Application.MainFormOnTaskbar := True;
         Application.CreateForm(TFrmAutoKeysA, FrmAutoKeysA);
-        AfterInitialize(FrmAutoKeysA.Handle,WM_PG_NOFOCUS);
+  AfterInitialize(FrmAutoKeysA.Handle,WM_PG_NOFOCUS);
         Application.Run;
     end;
 end.

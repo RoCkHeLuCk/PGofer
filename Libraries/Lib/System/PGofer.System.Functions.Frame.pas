@@ -13,7 +13,8 @@ type
   TPGFrameFunction = class( TPGFrame )
     gpbScript: TGroupBox;
     EdtScript: TRichEditEx;
-    procedure EdtScriptExit( Sender: TObject );
+    procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     FItem: TPGFunction;
     frmAutoComplete: TFrmAutoComplete;
@@ -40,12 +41,14 @@ end;
 
 destructor TPGFrameFunction.Destroy;
 begin
+  FItem.CompileScript();
   FItem := nil;
   frmAutoComplete.Free;
   inherited Destroy( );
 end;
 
-procedure TPGFrameFunction.EdtScriptExit( Sender: TObject );
+procedure TPGFrameFunction.EdtScriptKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 begin
   FItem.Script := EdtScript.Text;
 end;

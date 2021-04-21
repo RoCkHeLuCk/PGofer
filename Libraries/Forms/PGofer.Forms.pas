@@ -3,9 +3,10 @@ unit PGofer.Forms;
 interface
 
 uses
-  System.Classes, System.IniFiles,
+  System.Classes,
   Vcl.Forms,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
+  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Component.Form;
 
 type
 {$M+}
@@ -35,7 +36,7 @@ type
     function GetWindowState( ): Byte;
     procedure SetWindowState( AWindowState: Byte );
   protected
-    FForm: TForm;
+    FForm: TFormEx;
     class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AForm: TForm ); reintroduce;
@@ -63,17 +64,6 @@ type
   end;
 {$TYPEINFO ON}
 
-  TFormEx = class( TForm )
-  private
-  protected
-    FIniFile: TIniFile;
-    procedure IniConfigSave( ); virtual;
-    procedure IniConfigLoad( ); virtual;
-  public
-    procedure FormCreate( Sender: TObject );
-    procedure FormClose( Sender: TObject; var Action: TCloseAction );
-    procedure FormDestroy( Sender: TObject );
-  end;
 
 implementation
 
@@ -87,7 +77,7 @@ uses
 constructor TPGForm.Create( AForm: TForm );
 begin
   inherited Create( TPGForm.GlobList, AForm.Name );
-  FForm := AForm;
+  FForm := TFormEx( AForm );
 end;
 
 destructor TPGForm.Destroy( );
@@ -158,7 +148,7 @@ end;
 
 procedure TPGForm.Show( AFocus: Boolean = true );
 begin
-  FormForceShow( Self.FForm, AFocus );
+   Self.FForm.ForceShow( AFocus );
 end;
 
 procedure TPGForm.SetTop( ATop: Integer );
@@ -246,54 +236,6 @@ end;
 procedure TPGForm.Frame( AParent: TObject );
 begin
   TPGFrameForms.Create( Self, AParent );
-end;
-
-{ TFormEx }
-
-procedure TFormEx.FormCreate( Sender: TObject );
-begin
-  FIniFile := TIniFile.Create( PGofer.Sintatico.IniConfigFile );
-  Self.IniConfigLoad( );
-end;
-
-procedure TFormEx.FormClose( Sender: TObject; var Action: TCloseAction );
-begin
-  Self.IniConfigSave( );
-end;
-
-procedure TFormEx.FormDestroy( Sender: TObject );
-begin
-  Self.IniConfigSave( );
-  FIniFile.Free;
-end;
-
-procedure TFormEx.IniConfigLoad( );
-begin
-  Self.Left := FIniFile.ReadInteger( Self.Name, 'Left', Self.Left );
-  Self.Top := FIniFile.ReadInteger( Self.Name, 'Top', Self.Top );
-  Self.ClientWidth := FIniFile.ReadInteger( Self.Name, 'Width',
-     Self.ClientWidth );
-  Self.ClientHeight := FIniFile.ReadInteger( Self.Name, 'Height',
-     Self.ClientHeight );
-  Self.MakeFullyVisible( Self.Monitor );
-  if FIniFile.ReadBool( Self.Name, 'Maximized', False ) then
-    Self.WindowState := wsMaximized;
-end;
-
-procedure TFormEx.IniConfigSave( );
-begin
-  Self.MakeFullyVisible( Self.Monitor );
-  if Self.WindowState <> wsMaximized then
-  begin
-    FIniFile.WriteInteger( Self.Name, 'Left', Self.Left );
-    FIniFile.WriteInteger( Self.Name, 'Top', Self.Top );
-    FIniFile.WriteInteger( Self.Name, 'Width', Self.ClientWidth );
-    FIniFile.WriteInteger( Self.Name, 'Height', Self.ClientHeight );
-    FIniFile.WriteBool( Self.Name, 'Maximized', False );
-  end
-  else
-    FIniFile.WriteBool( Self.Name, 'Maximized', true );
-  FIniFile.UpdateFile;
 end;
 
 initialization

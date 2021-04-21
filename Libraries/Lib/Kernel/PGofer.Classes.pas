@@ -356,7 +356,9 @@ procedure TPGItemCollect.TreeViewAttach( );
       Node := Item.Parent.Node
     else
       Node := nil;
+
     Item.Node := FTreeView.Items.AddChild( Node, Item.Name );
+
     for ItemChild in Item do
       NodeAttach( ItemChild );
   end;

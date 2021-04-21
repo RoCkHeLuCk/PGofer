@@ -25,34 +25,8 @@ inherited PGTaskFrame: TPGTaskFrame
       Caption = 'Trigger:'
       ParentBiDiMode = False
     end
-    object lblDate: TLabel [2]
-      Left = 207
-      Top = 36
-      Width = 59
-      Height = 13
-      Hint = 'Forma de detectar a Tarefa'
-      Alignment = taRightJustify
-      AutoSize = False
-      BiDiMode = bdLeftToRight
-      Caption = 'Date:'
-      Enabled = False
-      ParentBiDiMode = False
-    end
-    object lblTime: TLabel [3]
-      Left = 207
-      Top = 63
-      Width = 59
-      Height = 13
-      Hint = 'Forma de detectar a Tarefa'
-      Alignment = taRightJustify
-      AutoSize = False
-      BiDiMode = bdLeftToRight
-      Caption = 'Time:'
-      Enabled = False
-      ParentBiDiMode = False
-    end
-    object lblOccurrence: TLabel [4]
-      Left = 5
+    object lblOccurrence: TLabel [2]
+      Left = 137
       Top = 63
       Width = 59
       Height = 13
@@ -61,13 +35,24 @@ inherited PGTaskFrame: TPGTaskFrame
       AutoSize = False
       BiDiMode = bdLeftToRight
       Caption = 'Occurrence:'
-      Enabled = False
+      ParentBiDiMode = False
+    end
+    object LblRepeat: TLabel [3]
+      Left = 13
+      Top = 63
+      Width = 51
+      Height = 13
+      Hint = 'Forma de detectar a Tarefa'
+      Alignment = taRightJustify
+      AutoSize = False
+      BiDiMode = bdLeftToRight
+      Caption = 'Repeat:'
       ParentBiDiMode = False
     end
     object CmbTrigger: TComboBox
       Left = 70
       Top = 33
-      Width = 119
+      Width = 100
       Height = 21
       Style = csDropDownList
       ItemIndex = 0
@@ -97,8 +82,9 @@ inherited PGTaskFrame: TPGTaskFrame
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'Courier New'
         Font.Style = []
+        HideSelection = False
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0
@@ -107,53 +93,48 @@ inherited PGTaskFrame: TPGTaskFrame
         OnKeyUp = EdtScriptKeyUp
       end
     end
-    object dtpDate: TDateTimePicker
-      Left = 272
-      Top = 33
-      Width = 123
+    object EdtOccurrence: TEditEx
+      Left = 202
+      Top = 60
+      Width = 45
       Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      Date = 44277.868612233800000000
-      Time = 44277.868612233800000000
-      ShowCheckbox = True
-      Enabled = False
-      ParseInput = True
       TabOrder = 3
-    end
-    object dtpTime: TDateTimePicker
-      Left = 272
-      Top = 60
-      Width = 123
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      Date = 44277.868612233800000000
-      Time = 44277.868612233800000000
-      ShowCheckbox = True
-      Enabled = False
-      Kind = dtkTime
-      ParseInput = True
-      TabOrder = 4
-    end
-    object edtOccurrence: TEditEx
-      Left = 70
-      Top = 60
-      Width = 51
-      Height = 21
-      Enabled = False
-      TabOrder = 5
       Text = '0'
+      OnExit = EdtOccurrenceExit
+      OnKeyUp = EdtOccurrenceKeyUp
       RegExamples = reNone
       RegExpression = '^\d*$'
     end
     object updOccurrence: TUpDown
-      Left = 121
+      Left = 247
       Top = 60
       Width = 16
       Height = 21
-      Associate = edtOccurrence
-      Enabled = False
-      Max = 255
+      Associate = EdtOccurrence
+      Max = 999999999
+      TabOrder = 4
+      OnChangingEx = updOccurrenceChangingEx
+    end
+    object EdtRepeat: TEditEx
+      Left = 70
+      Top = 60
+      Width = 45
+      Height = 21
+      TabOrder = 5
+      Text = '0'
+      OnKeyUp = EdtRepeatKeyUp
+      RegExamples = reNone
+      RegExpression = '^\d*$'
+    end
+    object UpdRepeat: TUpDown
+      Left = 115
+      Top = 60
+      Width = 16
+      Height = 21
+      Associate = EdtRepeat
+      Max = 999999999
       TabOrder = 6
+      OnChangingEx = UpdRepeatChangingEx
     end
   end
 end

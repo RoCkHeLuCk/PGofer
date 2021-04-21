@@ -43,10 +43,11 @@ object FrmAutoComplete: TFrmAutoComplete
       item
         Caption = 'Priority'
       end>
-    FlatScrollBars = True
     HideSelection = False
+    ReadOnly = True
     RowSelect = True
     PopupMenu = ppmAutoComplete
+    ShowColumnHeaders = False
     SortType = stBoth
     TabOrder = 0
     ViewStyle = vsReport

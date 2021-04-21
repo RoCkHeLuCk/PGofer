@@ -46,6 +46,7 @@ type
 
   TPGFolder = class( TPGItemCMD )
   private
+    FExpanded: Boolean;
     function GetExpanded( ): Boolean;
     procedure SetExpanded( AValue: Boolean );
     class var FImageIndex: Integer;
@@ -257,7 +258,7 @@ begin
     end else begin
       ItemAux := TPGItemCMD
          ( AItem.FindName( Gramatica.TokenList.Token.Lexema ) );
-      if Assigned( ItemAux ) then
+      if Assigned( ItemAux ) and (ItemAux is TPGItemCMD) then
       begin
         ItemAux.Execute( Gramatica );
       end
@@ -283,10 +284,9 @@ end;
 
 function TPGFolder.GetExpanded: Boolean;
 begin
-  if Assigned( Node ) then
-    Result := Node.Expanded
-  else
-    Result := False;
+  Result := FExpanded;
+  // if Assigned( Node ) then
+  // Result := Node.Expanded
 end;
 
 class function TPGFolder.GetImageIndex: Integer;
@@ -296,8 +296,9 @@ end;
 
 procedure TPGFolder.SetExpanded( AValue: Boolean );
 begin
+  FExpanded := AValue;
   if Assigned( Node ) then
-    Node.Expanded := AValue;
+    Node.Expanded := FExpanded;
 end;
 
 initialization

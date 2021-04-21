@@ -126,7 +126,7 @@ inherited PGFrameForms: TPGFrameForms
       Associate = EdtAlphaBlendValue
       Max = 255
       TabOrder = 1
-      OnChanging = UpdAlphaBlendValueChanging
+      OnChangingEx = UpdAlphaBlendValueChangingEx
     end
     object CkbEnabled: TCheckBox [10]
       Left = 244
@@ -205,7 +205,7 @@ inherited PGFrameForms: TPGFrameForms
       Height = 21
       TabOrder = 9
       Text = '0'
-      OnExit = EdtAlphaBlendValueExit
+      OnKeyUp = EdtAlphaBlendValueKeyUp
       RegExamples = reNone
       RegExpression = '^\d*$'
     end
@@ -215,7 +215,7 @@ inherited PGFrameForms: TPGFrameForms
       Width = 76
       Height = 21
       TabOrder = 10
-      OnExit = EdtHeigthExit
+      OnKeyUp = EdtHeigthKeyUp
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end
@@ -225,7 +225,7 @@ inherited PGFrameForms: TPGFrameForms
       Width = 76
       Height = 21
       TabOrder = 11
-      OnExit = EdtTopExit
+      OnKeyUp = EdtTopKeyUp
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end
@@ -235,7 +235,7 @@ inherited PGFrameForms: TPGFrameForms
       Width = 76
       Height = 21
       TabOrder = 12
-      OnExit = EdtWidthExit
+      OnKeyUp = EdtWidthKeyUp
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end
@@ -245,7 +245,7 @@ inherited PGFrameForms: TPGFrameForms
       Width = 76
       Height = 21
       TabOrder = 13
-      OnExit = EdtLeftExit
+      OnKeyUp = EdtLeftKeyUp
       RegExamples = reNone
       RegExpression = '^-?\d*$'
     end

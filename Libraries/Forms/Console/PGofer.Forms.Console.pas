@@ -5,7 +5,8 @@ interface
 uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
-  PGofer.Forms, Vcl.StdCtrls, Vcl.ComCtrls, PGofer.Component.RichEdit;
+  PGofer.Forms, Vcl.StdCtrls, Vcl.ComCtrls, PGofer.Component.RichEdit,
+  PGofer.Component.Form;
 
 type
   TPGFrmConsole = class;
@@ -41,6 +42,7 @@ type
   public
     property AutoClose: Boolean read GetAutoClose;
     procedure ConsoleNotifyMessage( AValue: string; AShow: Boolean );
+    procedure ForceShow( AFocus: Boolean ); override;
   end;
 
 {$M+}
@@ -99,6 +101,12 @@ begin
   Self.TmrConsole.Interval := FItem.Delay;
   Self.BtnFixed.Down := ( not FItem.AutoClose );
   Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
+end;
+
+procedure TFrmConsole.ForceShow(AFocus: Boolean);
+begin
+  FItem.AutoClose := not AFocus;
+  inherited ForceShow(AFocus);
 end;
 
 procedure TFrmConsole.FormActivate( Sender: TObject );
@@ -191,16 +199,21 @@ end;
 
 procedure TFrmConsole.ConsoleNotifyMessage( AValue: string; AShow: Boolean );
 begin
-  Self.EdtConsole.Lines.Add( AValue );
-  Self.EdtConsole.Perform( WM_VSCROLL, SB_ENDSCROLL, 0 );
+  TThread.Synchronize( nil,
+    procedure
+    begin
+      Self.EdtConsole.Lines.Add( AValue );
+      Self.EdtConsole.DisplayY := Self.EdtConsole.Height;
 
-  if AShow then
-  begin
-    // ajusta posicao do console
-    Self.Left := Application.MainForm.Left;
-    Self.Top := Application.MainForm.Top + Application.MainForm.Height;
-    FormForceShow( Self, False );
-  end;
+      if AShow then
+      begin
+        // ajusta posicao do console
+        Self.Left := Application.MainForm.Left;
+        Self.Top := Application.MainForm.Top + Application.MainForm.Height;
+        Self.ForceShow( False );
+        Application.ProcessMessages();
+      end;
+    end );
 end;
 
 { TPGFrmConsole }

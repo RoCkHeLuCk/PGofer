@@ -48,6 +48,7 @@ type
 
 procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
    AWaitFor: Boolean = False );
+function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
 
 var
   DirCurrent: string;
@@ -209,6 +210,23 @@ begin
     Gramatica.WaitFor( );
     Gramatica.Free( );
   end;
+end;
+
+function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
+var
+  Texto: TStringList;
+begin
+  if FileExists( FileName ) then
+  begin
+    Texto := TStringList.Create;
+    Texto.LoadFromFile( FileName );
+    ScriptExec( 'FileScript: ' + ExtractFileName( FileName ),
+       Texto.Text, nil, Esperar );
+    Texto.Free;
+    Result := True;
+  end
+  else
+    Result := False;
 end;
 
 initialization

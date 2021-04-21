@@ -22,7 +22,7 @@ type
 implementation
 
 uses
-  PGofer.Services, PGofer.Services.Controls;
+  PGofer.Services.Controls;
 
 { TThreadLoadImage }
 // ----------------------------------------------------------------------------//

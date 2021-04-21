@@ -6,7 +6,8 @@ uses
   System.Classes,
   Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Menus,
-  PGofer.ImageList, PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView;
+  PGofer.ImageList, PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView,
+  PGofer.Component.Form;
 
 type
   TFrmController = class( TFormEx )
@@ -123,7 +124,6 @@ procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
   inherited FormClose( Sender, Action );
   FrameHide( );
-  FCollectItem.UpdateToFile( );
   FCollectItem.TreeViewDetach( );
 end;
 

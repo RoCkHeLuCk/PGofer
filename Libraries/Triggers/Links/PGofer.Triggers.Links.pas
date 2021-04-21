@@ -19,6 +19,7 @@ type
     FState: Byte;
     FPriority: Byte;
     FOperation: Byte;
+    FCaptureMsg: Boolean;
     FCanExecute: Boolean;
     class var FImageIndex: Integer;
     function GetDirExist( ): Boolean;
@@ -27,7 +28,7 @@ type
     function GetScriptBefor: string;
     procedure SetScriptAfter( AValue: string );
     procedure SetScriptBefor( AValue: string );
-    procedure ThreadExecute( AWaitFor: Boolean );
+    procedure ThreadExecute( AWaitFor: Boolean; AParam: string );
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
@@ -44,6 +45,7 @@ type
     property State: Byte read FState write FState;
     property Priority: Byte read FPriority write FPriority;
     property Operation: Byte read FOperation write FOperation;
+    property CaptureMsg: Boolean read FCaptureMsg write FCaptureMsg;
     property ScriptBefor: string read GetScriptBefor write SetScriptBefor;
     property ScriptAfter: string read GetScriptAfter write SetScriptAfter;
     property isFileExist: Boolean read GetFileExist;
@@ -71,6 +73,7 @@ implementation
 
 uses
   System.SysUtils,
+  PGofer.Lexico,
   PGofer.Sintatico.Controls,
   PGofer.Files.Controls,
   PGofer.Triggers.Links.Frame,
@@ -149,11 +152,11 @@ begin
   FScriptBefor.Text := AValue;
 end;
 
-procedure TPGLink.ThreadExecute( AWaitFor: Boolean );
+procedure TPGLink.ThreadExecute( AWaitFor: Boolean; AParam: string );
 var
   LinkThread: TLinkThread;
 begin
-  LinkThread := TLinkThread.Create( Self, not AWaitFor );
+  LinkThread := TLinkThread.Create( Self, AParam, not AWaitFor );
   LinkThread.Start;
   if AWaitFor then
   begin
@@ -164,17 +167,34 @@ end;
 
 procedure TPGLink.Triggering( );
 begin
-  Self.ThreadExecute( False );
+  Self.ThreadExecute( False, Self.FParameter );
 end;
 
 procedure TPGLink.WaitFor( );
 begin
-  Self.ThreadExecute( true );
+  Self.ThreadExecute( true, Self.FParameter );
 end;
 
 procedure TPGLink.ExecutarNivel1( Gramatica: TGramatica );
+var
+  VParam: string;
 begin
-  Self.ThreadExecute( False );
+  if Gramatica.TokenList.Token.Classe = cmdLPar then
+  begin
+    Gramatica.TokenList.GetNextToken;
+    Expressao( Gramatica );
+    if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
+    begin
+      VParam := Gramatica.Pilha.Desempilhar( '' );
+      if not Gramatica.Erro then
+        Self.ThreadExecute( False, VParam );
+
+      Gramatica.TokenList.GetNextToken;
+    end
+    else
+      Gramatica.ErroAdd( '")" Esperado.' )
+  end else if not Gramatica.Erro then
+    Self.ThreadExecute( False, Self.FParameter );
 end;
 
 { TPGLinkDec }

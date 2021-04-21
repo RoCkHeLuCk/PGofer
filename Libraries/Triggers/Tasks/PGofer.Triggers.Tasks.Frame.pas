@@ -3,7 +3,7 @@ unit PGofer.Triggers.Tasks.Frame;
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.SysUtils,
   Winapi.Windows,
   Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
@@ -16,19 +16,27 @@ type
     LblTrigger: TLabel;
     CmbTrigger: TComboBox;
     GrbScript: TGroupBox;
-    dtpDate: TDateTimePicker;
-    dtpTime: TDateTimePicker;
-    lblDate: TLabel;
-    lblTime: TLabel;
-    edtOccurrence: TEditEx;
+    EdtOccurrence: TEditEx;
     updOccurrence: TUpDown;
     lblOccurrence: TLabel;
     EdtScript: TRichEditEx;
+    LblRepeat: TLabel;
+    EdtRepeat: TEditEx;
+    UpdRepeat: TUpDown;
     procedure CmbTriggerChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
        Shift: TShiftState );
+    procedure EdtOccurrenceExit(Sender: TObject);
+    procedure EdtRepeatKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure EdtOccurrenceKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+    procedure UpdRepeatChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection);
+    procedure updOccurrenceChangingEx(Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection);
   private
     FItem: TPGTask;
     FFrmAutoComplete: TFrmAutoComplete;
@@ -48,6 +56,8 @@ begin
   FItem := TPGTask( AItem );
   CmbTrigger.ItemIndex := FItem.Trigger;
   EdtScript.Lines.Text := FItem.Script;
+  EdtRepeat.Text := FItem.Repeats.ToString;
+  EdtOccurrence.Text := FItem.Occurrence.ToString;
   FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
 end;
 
@@ -70,10 +80,39 @@ begin
   end;
 end;
 
+procedure TPGTaskFrame.EdtOccurrenceExit(Sender: TObject);
+begin
+  FItem.Occurrence := StrToInt( EdtOccurrence.Text );
+end;
+
+procedure TPGTaskFrame.EdtOccurrenceKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  FItem.Occurrence := StrToInt( EdtOccurrence.Text );
+end;
+
+procedure TPGTaskFrame.EdtRepeatKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  FItem.Repeats := StrToInt( EdtRepeat.Text );
+end;
+
 procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
   FItem.Script := EdtScript.Lines.Text;
+end;
+
+procedure TPGTaskFrame.updOccurrenceChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+begin
+  FItem.Occurrence := NewValue;
+end;
+
+procedure TPGTaskFrame.UpdRepeatChangingEx(Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+begin
+  FItem.Repeats := NewValue;
 end;
 
 procedure TPGTaskFrame.CmbTriggerChange( Sender: TObject );

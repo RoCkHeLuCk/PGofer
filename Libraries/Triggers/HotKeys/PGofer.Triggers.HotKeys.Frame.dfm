@@ -141,8 +141,9 @@ inherited PGFrameHotKey: TPGFrameHotKey
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'Courier New'
         Font.Style = []
+        HideSelection = False
         ParentFont = False
         ScrollBars = ssBoth
         TabOrder = 0

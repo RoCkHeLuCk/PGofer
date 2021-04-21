@@ -26,6 +26,7 @@ type
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
     property Script: string read GetScript write SetScript;
+    procedure CompileScript();
   published
   end;
 {$TYPEINFO ON}
@@ -46,6 +47,11 @@ uses
   PGofer.ImageList;
 
 { TPGFunction }
+
+procedure TPGFunction.CompileScript();
+begin
+  ScriptExec( 'Function: ' + Self.Name, FScript.Text, nil, False );
+end;
 
 constructor TPGFunction.Create( AItemDad: TPGItem; AName: string );
 begin
@@ -126,7 +132,6 @@ end;
 procedure TPGFunction.SetScript( AValue: string );
 begin
   FScript.Text := AValue;
-  ScriptExec( 'Function: ' + Self.Name, FScript.Text, nil, False );
 end;
 
 { TPGFunctionDeclare }
@@ -203,7 +208,7 @@ initialization
 
 TPGFunctionDeclare.Create( GlobalItemCommand, 'Function' );
 TPGFunction.GlobList := TPGFolder.Create( GlobalCollection, 'Functions' );
-TPGFunction.FImageIndex := GlogalImageList.AddIcon( 'Variants' );
+TPGFunction.FImageIndex := GlogalImageList.AddIcon( 'Function' );
 
 finalization
 

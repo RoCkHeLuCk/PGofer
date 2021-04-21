@@ -12,7 +12,6 @@ type
 
   TEditEx = class( TEdit )
   private
-    { Private declarations }
     FRegExample: TRegExample;
     FExpression: string;
     FRegExp: TRegEx;
@@ -21,9 +20,7 @@ type
   protected
     procedure KeyPress( var AKey: Char ); override;
   public
-    { Public declarations }
   published
-    { Published declarations }
     property RegExamples: TRegExample read FRegExample write SetRegExample
        default reAll;
     property RegExpression: string read FExpression write SetRegExp;

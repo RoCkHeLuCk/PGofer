@@ -3,39 +3,44 @@ unit PGofer.Sound.Controls;
 interface
 
 uses
-  PGofer.Sound.DevApi;
+  PGofer.Sound.MMDevApi;
 
-function SoundCreateInstance( SoundDriver: Cardinal;
-   var endpointVolume: IAudioEndpointVolume ): Boolean;
+function SoundCreateInstance( SoundDriver: Cardinal ): IAudioEndpointVolume;
 function SoundPlayFile( FileName: string; Flag: Cardinal ): Boolean;
 function SoundSetMute( SoundDriver: Cardinal ): Integer;
 function SoundVolumeStepUp( SoundDriver: Cardinal ): Integer;
 function SoundVolumeStepDown( SoundDriver: Cardinal ): Integer;
 function SoundGetVolume( SoundDriver: Cardinal ): Integer;
 function SoundSetVolume( SoundDriver: Cardinal; Value: Extended ): Integer;
+function SoundGetDevList( ): string;
+function SoundSetDevice( SoundDriver: Cardinal; AValue: Cardinal ): Boolean;
 
 implementation
 
 uses
-  WinApi.MMSystem, WinApi.ActiveX, System.SysUtils;
+  System.Classes, WinApi.MMSystem, WinApi.ActiveX, System.SysUtils;
 
-function SoundCreateInstance( SoundDriver: Cardinal;
-   var endpointVolume: IAudioEndpointVolume ): Boolean;
+function SoundCreateInstance( SoundDriver: Cardinal ): IAudioEndpointVolume;
 var
   deviceEnumerator: IMMDeviceEnumerator;
   defaultDevice: IMMDevice;
+  EndPoint: IAudioEndpointVolume;
 begin
-  try
-    CoCreateInstance( CLASS_IMMDeviceEnumerator, nil, CLSCTX_INPROC_SERVER,
-       IID_IMMDeviceEnumerator, deviceEnumerator );
-    deviceEnumerator.GetDefaultAudioEndpoint( eRender, SoundDriver,
-       defaultDevice );
-    defaultDevice.Activate( IID_IAudioEndpointVolume, CLSCTX_INPROC_SERVER, nil,
-       endpointVolume );
-    Result := ( endpointVolume <> nil );
-  except
-    Result := False;
-  end;
+  EndPoint := nil;
+  TThread.Synchronize( nil,
+    procedure
+    begin
+      try
+        CoCreateInstance( CLASS_IMMDeviceEnumerator, nil, CLSCTX_INPROC_SERVER,
+           IID_IMMDeviceEnumerator, deviceEnumerator );
+        deviceEnumerator.GetDefaultAudioEndpoint( eRender, SoundDriver,
+           defaultDevice );
+        defaultDevice.Activate( IID_IAudioEndpointVolume, CLSCTX_INPROC_SERVER,
+           nil, EndPoint );
+      except
+      end;
+    end );
+  Result := EndPoint;
 end;
 
 function SoundPlayFile( FileName: string; Flag: Cardinal ): Boolean;
@@ -45,17 +50,18 @@ end;
 
 function SoundSetMute( SoundDriver: Cardinal ): Integer;
 var
-  endpointVolume: IAudioEndpointVolume;
+  EndPoint: IAudioEndpointVolume;
   Mudo: Boolean;
   Volume: Cardinal;
 begin
   if ( Win32MajorVersion >= 6 ) then
   begin
-    if ( SoundCreateInstance( SoundDriver, endpointVolume ) ) then
+    EndPoint := SoundCreateInstance( SoundDriver );
+    if Assigned( EndPoint ) then
     begin
-      endpointVolume.GetMute( Mudo );
+      EndPoint.GetMute( Mudo );
       Mudo := not Mudo;
-      Result := endpointVolume.SetMute( Mudo, nil );
+      Result := EndPoint.SetMute( Mudo, nil );
     end
     else
       Result := 0;
@@ -71,14 +77,15 @@ end;
 
 function SoundVolumeStepUp( SoundDriver: Cardinal ): Integer;
 var
-  endpointVolume: IAudioEndpointVolume;
+  EndPoint: IAudioEndpointVolume;
   Volume: Cardinal;
 begin
   Result := 0;
   if ( Win32MajorVersion >= 6 ) then
   begin
-    if ( SoundCreateInstance( SoundDriver, endpointVolume ) ) then
-      Result := endpointVolume.VolumeStepUp( nil );
+    EndPoint := SoundCreateInstance( SoundDriver );
+    if Assigned( EndPoint ) then
+      Result := EndPoint.VolumeStepUp( nil );
   end else begin
     waveOutGetVolume( SoundDriver, @Volume );
     if Volume < $F0F0 then
@@ -88,14 +95,15 @@ end;
 
 function SoundVolumeStepDown( SoundDriver: Cardinal ): Integer;
 var
-  endpointVolume: IAudioEndpointVolume;
+  EndPoint: IAudioEndpointVolume;
   Volume: Cardinal;
 begin
   Result := 0;
   if ( Win32MajorVersion >= 6 ) then
   begin
-    if ( SoundCreateInstance( SoundDriver, endpointVolume ) ) then
-      Result := endpointVolume.VolumeStepDown( nil )
+    EndPoint := SoundCreateInstance( SoundDriver );
+    if Assigned( EndPoint ) then
+      Result := EndPoint.VolumeStepDown( nil )
   end else begin
     waveOutGetVolume( SoundDriver, @Volume );
     if Volume > $0F0F then
@@ -105,15 +113,16 @@ end;
 
 function SoundGetVolume( SoundDriver: Cardinal ): Integer;
 var
-  endpointVolume: IAudioEndpointVolume;
+  EndPoint: IAudioEndpointVolume;
   Volume: Single;
   Volume2: Cardinal;
 begin
   if ( Win32MajorVersion >= 6 ) then
   begin
-    if ( SoundCreateInstance( SoundDriver, endpointVolume ) ) then
+    EndPoint := SoundCreateInstance( SoundDriver );
+    if Assigned( EndPoint ) then
     begin
-      endpointVolume.GetMasterVolumeLevelScaler( Volume );
+      EndPoint.GetMasterVolumeLevelScaler( Volume );
       Result := Trunc( Volume * 100 );
     end
     else
@@ -126,16 +135,17 @@ end;
 
 function SoundSetVolume( SoundDriver: Cardinal; Value: Extended ): Integer;
 var
-  endpointVolume: IAudioEndpointVolume;
+  EndPoint: IAudioEndpointVolume;
   Volume: Single;
   Volume2: Cardinal;
 begin
   if ( Win32MajorVersion >= 6 ) then
   begin
-    if ( SoundCreateInstance( SoundDriver, endpointVolume ) ) then
+    EndPoint := SoundCreateInstance( SoundDriver );
+    if Assigned( EndPoint ) then
     begin
       Volume := ( Value / 100 );
-      Result := endpointVolume.SetMasterVolumeLevelScalar( Volume, nil );
+      Result := EndPoint.SetMasterVolumeLevelScalar( Volume, nil );
     end
     else
       Result := 0;
@@ -143,6 +153,32 @@ begin
     Volume2 := ( Trunc( Value ) * 65535 ) div 100;
     Result := waveOutSetVolume( SoundDriver, Volume2 );
   end;
+end;
+
+function SoundGetDevList( ): string;
+var
+  WaveOutCaps: TWaveOutCaps;
+  c: Integer;
+begin
+  Result := '';
+  for c := 0 to WaveOutGetNumDevs do
+  begin
+    waveOutGetDevCaps( c, @WaveOutCaps, sizeof( WaveOutCaps ) );
+    Result := Result + IntToStr( c ) + ': ' + WaveOutCaps.szPname + #13#10;
+  end;
+end;
+
+function SoundSetDevice( SoundDriver: Cardinal; AValue: Cardinal ): Boolean;
+var
+  Resposta : Boolean;
+begin
+  TThread.Synchronize( nil,
+    procedure
+    begin
+      Resposta := waveOutMessage( HWAVEIN( WAVE_MAPPER ),
+         DRVM_MAPPER_PREFERRED_SET, SoundDriver, AValue ) = MMSYSERR_NOERROR;
+    end );
+  Result := Resposta;
 end;
 
 end.
