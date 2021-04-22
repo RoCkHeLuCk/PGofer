@@ -72,6 +72,11 @@ type
     procedure MniBootAutomaticoClick( Sender: TObject );
     procedure MniIniciarClick( Sender: TObject );
     procedure MniGerarScriptClick( Sender: TObject );
+<<<<<<< HEAD
+=======
+    procedure LtvServicesChange( Sender: TObject; Item: TListItem;
+       Change: TItemChange );
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     procedure MniConectarClick( Sender: TObject );
     procedure MniDeletarClick( Sender: TObject );
     procedure MniSelecionarTudoClick( Sender: TObject );
@@ -84,6 +89,7 @@ type
     procedure btnFilterClick(Sender: TObject);
     procedure BtnDescriptionClick(Sender: TObject);
     procedure BtnSearchClick(Sender: TObject);
+<<<<<<< HEAD
     procedure LtvServicesSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure LtvServicesCompare(Sender: TObject; Item1, Item2: TListItem;
@@ -94,6 +100,11 @@ type
     FHostHandle: SC_Handle;
     FSort : Boolean;
     FColumn: Byte;
+=======
+  private
+    FHostName: string;
+    FHostHandle: SC_Handle;
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     function FilterTipe( ): Cardinal;
     function FilterState( ): Cardinal;
     function FilterAcesso( ): Cardinal;
@@ -254,10 +265,17 @@ var
   Service: SC_Handle;
   nBytesNeeded, nServices, nResumeHandle: Cardinal;
   ssa: PSvcA;
+<<<<<<< HEAD
 
   sConfig: Pointer;
   pConfig: PQueryServiceConfig;
 
+=======
+
+  sConfig: Pointer;
+  pConfig: PQueryServiceConfig;
+
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
   Item: TListItem;
   Filtrodeacesso: Cardinal;
 
@@ -350,14 +368,20 @@ begin
 
   StbSercive.Panels[ 1 ].Text := 'Total de Serviços: ' +
      FormatFloat( '0', LtvServices.Items.Count );
+<<<<<<< HEAD
   LtvServices.AlphaSort;
+=======
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
 end;
 
 procedure TFrmServices.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
+<<<<<<< HEAD
   FColumn := 0;
   FSort := False;
+=======
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
   FHostName := 'LocalHost';
 end;
 
@@ -369,6 +393,7 @@ begin
 end;
 
 procedure TFrmServices.FormShow( Sender: TObject );
+<<<<<<< HEAD
 begin
   FHostHandle := OpenSCManager( PChar( FHostName ), nil,
      SC_MANAGER_ENUMERATE_SERVICE );
@@ -466,6 +491,105 @@ begin
   LtvServices.ViewStyle := TViewStyle( TMenuItem( Sender ).tag );
 end;
 
+=======
+begin
+  FHostHandle := OpenSCManager( PChar( FHostName ), nil,
+     SC_MANAGER_ENUMERATE_SERVICE );
+  MniUpdate.Click;
+end;
+
+procedure TFrmServices.FormClose( Sender: TObject; var Action: TCloseAction );
+begin
+  inherited FormClose( Sender, Action );
+  //
+end;
+
+procedure TFrmServices.IniConfigLoad( );
+  procedure CarregarFiltro( CheckListBox: TCheckListBox; Padrao: Boolean );
+  var
+    c: byte;
+  begin
+    for c := 0 to CheckListBox.Count - 1 do
+      CheckListBox.Checked[ c ] := FIniFile.ReadBool( Self.Name,
+         'Service_' + CheckListBox.Name + '_' + FormatFloat( '00', c ),
+         Padrao );
+  end;
+
+begin
+  inherited IniConfigLoad( );
+
+  GrbDercription.Height := FIniFile.ReadInteger( Self.Name, 'Dercription',
+     GrbDercription.Height );
+  if FIniFile.ReadBool( Self.Name, 'DercriptionHide', False) then
+     btnDescription.Click;
+
+  GrbFilter.Height := FIniFile.ReadInteger( Self.Name, 'Filter',
+     GrbFilter.Height );
+  if FIniFile.ReadBool( Self.Name, 'FilterHide', False) then
+     btnFilter.Click;
+
+  CarregarFiltro( ClbStatus, True );
+  CarregarFiltro( ClbConfig, True );
+  CarregarFiltro( ClbType, True );
+  CarregarFiltro( ClbAccess, False );
+  LtvServices.IniConfigLoad( FIniFile );
+end;
+
+procedure TFrmServices.IniConfigSave( );
+  procedure SalvarFiltro( CheckListBox: TCheckListBox );
+  var
+    c: byte;
+  begin
+    for c := 0 to CheckListBox.Count - 1 do
+      FIniFile.WriteBool( Self.Name, 'Service_' + CheckListBox.Name + '_' +
+         FormatFloat( '00', c ), CheckListBox.Checked[ c ] );
+  end;
+
+begin
+  if BtnDescription.Tag = 0 then
+  begin
+     FIniFile.WriteBool( Self.Name, 'DercriptionHide', False );
+     FIniFile.WriteInteger( Self.Name, 'Dercription', GrbDercription.Height );
+  end else begin
+     FIniFile.WriteBool( Self.Name, 'DercriptionHide', True );
+     FIniFile.WriteInteger( Self.Name, 'Dercription', btnDescription.Tag );
+  end;
+
+  if btnFilter.Tag = 0 then
+  begin
+     FIniFile.WriteBool( Self.Name, 'FilterHide', False );
+     FIniFile.WriteInteger( Self.Name, 'Filter', GrbFilter.Height );
+  end else begin
+     FIniFile.WriteBool( Self.Name, 'FilterHide', True );
+     FIniFile.WriteInteger( Self.Name, 'Filter', btnFilter.Tag );
+  end;
+
+  SalvarFiltro( ClbStatus );
+  SalvarFiltro( ClbConfig );
+  SalvarFiltro( ClbType );
+  SalvarFiltro( ClbAccess );
+  LtvServices.IniConfigSave( FIniFile );
+  inherited IniConfigSave( );
+end;
+
+procedure TFrmServices.MinNomeInternoClick( Sender: TObject );
+begin
+  ClipBoardCopyFromText( LtvServices.ItemFocused.SubItems[ 4 ] );
+end;
+
+procedure TFrmServices.MniUpdateClick( Sender: TObject );
+begin
+  LtvServices.Clear;
+  MemDescription.Clear;
+  ServiceUpdate( );
+end;
+
+procedure TFrmServices.MniIconsClick( Sender: TObject );
+begin
+  LtvServices.ViewStyle := TViewStyle( TMenuItem( Sender ).tag );
+end;
+
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
 procedure TFrmServices.MniBootAutomaticoClick( Sender: TObject );
 var
   c: Word;
@@ -581,6 +705,7 @@ begin
     Script.Free;
     ShowMessage( 'Script Grerado.' );
   end; // if save
+<<<<<<< HEAD
 end;
 
 procedure TFrmServices.LtvServicesColumnClick(Sender: TObject;
@@ -614,6 +739,16 @@ begin
   if Selected then
     MemDescription.Text := ServiceGetDesciption( FHostName,
        Item.SubItems[ 4 ] );
+=======
+end;
+
+procedure TFrmServices.LtvServicesChange( Sender: TObject; Item: TListItem;
+   Change: TItemChange );
+begin
+  if LtvServices.ItemFocused <> nil then
+    MemDescription.Text := ServiceGetDesciption( FHostName,
+       LtvServices.ItemFocused.SubItems[ 4 ] );
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
 end;
 
 procedure TFrmServices.MniConectarClick( Sender: TObject );

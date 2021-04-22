@@ -167,8 +167,13 @@
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppEnableHighDPI>true</AppEnableHighDPI>
+<<<<<<< HEAD
         <VerInfo_Build>35</VerInfo_Build>
         <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.35;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+=======
+        <VerInfo_Build>34</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.34;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
         <VerInfo_Debug>false</VerInfo_Debug>
         <VerInfo_PreRelease>false</VerInfo_PreRelease>
         <VerInfo_Locale>1033</VerInfo_Locale>

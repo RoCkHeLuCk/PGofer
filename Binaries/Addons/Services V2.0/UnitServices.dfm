@@ -2,8 +2,13 @@ object FrmServices: TFrmServices
   Left = 493
   Top = 105
   Caption = 'Services'
+<<<<<<< HEAD
   ClientHeight = 323
   ClientWidth = 617
+=======
+  ClientHeight = 318
+  ClientWidth = 615
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 625
@@ -40,27 +45,29 @@ object FrmServices: TFrmServices
   object Splitter1: TSplitter
     Left = 0
     Top = 175
-    Width = 617
+    Width = 615
     Height = 4
     Cursor = crVSplit
     Align = alTop
     Beveled = True
     ExplicitTop = 177
+    ExplicitWidth = 617
   end
   object Splitter2: TSplitter
     Left = 0
     Top = 130
-    Width = 617
+    Width = 615
     Height = 4
     Cursor = crVSplit
     Align = alTop
     Beveled = True
     ExplicitTop = 132
+    ExplicitWidth = 617
   end
   object GrbFilter: TGroupBox
     Left = 0
     Top = 0
-    Width = 617
+    Width = 615
     Height = 130
     Align = alTop
     Caption = '         Filter'
@@ -184,8 +191,13 @@ object FrmServices: TFrmServices
   object GrbList: TGroupBox
     Left = 0
     Top = 179
+<<<<<<< HEAD
     Width = 617
     Height = 88
+=======
+    Width = 615
+    Height = 83
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     Align = alClient
     Caption = 'Lista'
     Constraints.MinHeight = 10
@@ -193,8 +205,13 @@ object FrmServices: TFrmServices
     object LtvServices: TListViewEx
       Left = 2
       Top = 15
+<<<<<<< HEAD
       Width = 613
       Height = 71
+=======
+      Width = 611
+      Height = 66
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
       Align = alClient
       Columns = <
         item
@@ -248,7 +265,7 @@ object FrmServices: TFrmServices
   object GrbDercription: TGroupBox
     Left = 0
     Top = 134
-    Width = 617
+    Width = 615
     Height = 41
     Align = alTop
     Caption = '         Descri'#231#227'o'
@@ -257,7 +274,7 @@ object FrmServices: TFrmServices
     object MemDescription: TMemo
       Left = 2
       Top = 15
-      Width = 613
+      Width = 611
       Height = 24
       Align = alClient
       Alignment = taCenter
@@ -278,8 +295,13 @@ object FrmServices: TFrmServices
   end
   object StbSercive: TStatusBar
     Left = 0
+<<<<<<< HEAD
     Top = 304
     Width = 617
+=======
+    Top = 299
+    Width = 615
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     Height = 19
     Panels = <
       item
@@ -293,13 +315,23 @@ object FrmServices: TFrmServices
   end
   object GrbSearch: TGroupBox
     Left = 0
+<<<<<<< HEAD
     Top = 267
     Width = 617
+=======
+    Top = 262
+    Width = 615
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     Height = 37
     Align = alBottom
     Caption = 'Procurar'
     Constraints.MinHeight = 10
     TabOrder = 4
+<<<<<<< HEAD
+=======
+    ExplicitLeft = 8
+    ExplicitTop = 256
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     object LblWords: TLabel
       Left = 10
       Top = 15
@@ -345,7 +377,11 @@ object FrmServices: TFrmServices
     Left = 40
     Top = 72
     Bitmap = {
+<<<<<<< HEAD
       494C01010800C400CC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+=======
+      494C01010800C400C40010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+>>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
