@@ -10,7 +10,8 @@ uses
   Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus,
   PGofer.Forms,
   PGofer.Forms.AutoComplete, Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Component.RichEdit;
+  PGofer.Component.RichEdit,
+  PGofer.Component.Form;
 
 type
   TFrmPGofer = class( TFormEx )
@@ -218,7 +219,7 @@ end;
 
 procedure TFrmPGofer.TryPGoferClick( Sender: TObject );
 begin
-  FormForceShow( FrmPGofer, True );
+  FrmPGofer.ForceShow( True );
 end;
 
 end.

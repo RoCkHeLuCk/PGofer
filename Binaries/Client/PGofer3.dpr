@@ -29,7 +29,7 @@ uses
   PGofer.Services.Thread in '..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas',
   PGofer.Sound in '..\..\Libraries\Lib\Sound\PGofer.Sound.pas',
   PGofer.Sound.Controls in '..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas',
-  PGofer.Sound.DevApi in '..\..\Libraries\Lib\Sound\PGofer.Sound.DevApi.pas',
+  PGofer.Sound.MMDevApi in '..\..\Libraries\Lib\Sound\PGofer.Sound.MMDevApi.pas',
   PGofer.System in '..\..\Libraries\Lib\System\PGofer.System.pas',
   PGofer.System.Controls in '..\..\Libraries\Lib\System\PGofer.System.Controls.pas',
   PGofer.System.Statements in '..\..\Libraries\Lib\System\PGofer.System.Statements.pas',
@@ -41,10 +41,6 @@ uses
   PGofer.Utils in '..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas',
   PGofer.Types in '..\..\Libraries\Lib\PGUtils\PGofer.Types.pas',
   PGofer.ZLib in '..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas',
-  PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
-  PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
-  PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
-  PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
   PGofer.Forms.Frame in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFrameForms: TFrame},
@@ -61,6 +57,11 @@ uses
   PGofer.Triggers.Links.Thread in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Thread.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
+  PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
+  PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
+  PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
+  PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
+  PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   Winapi.Windows,
   Vcl.Forms,
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
@@ -82,8 +83,8 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    GlobalCollection.LoadFileAndForm( );
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );

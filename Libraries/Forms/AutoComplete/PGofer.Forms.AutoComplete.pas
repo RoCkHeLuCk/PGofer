@@ -7,7 +7,7 @@ uses
   System.Classes, System.SysUtils, System.IniFiles,
   Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
   PGofer.Classes, PGofer.Forms, PGofer.Component.ListView,
-  PGofer.Component.RichEdit;
+  PGofer.Component.RichEdit, PGofer.Component.Form;
 
 type
   TSelectCMD = ( selUp, selDown, selEnter );
@@ -42,6 +42,8 @@ type
     FMemoryList: TStringList;
     FMemoryPosition: Integer;
     FEditControlPress: Boolean;
+    FCommandCompare: string;
+    FCommandCompareLength: Integer;
     procedure ListViewAdd( ACaption, AOrigin: string ); overload;
     procedure ListViewAdd( AItem: TPGItem ); overload;
     procedure PriorityStep( );
@@ -51,6 +53,9 @@ type
     procedure FindCMD( );
     procedure SelectCMD( ASelected: TSelectCMD );
     procedure ShowAutoComplete( );
+    procedure SetCommandCompare( AValue: string );
+    property CommandCompare: string read FCommandCompare
+       write SetCommandCompare;
   protected
     procedure CreateWindowHandle( const Params: TCreateParams ); override;
     procedure IniConfigSave( ); override;
@@ -306,26 +311,14 @@ begin
 end;
 
 procedure TFrmAutoComplete.IniConfigLoad( );
-var
-  c: Integer;
 begin
   inherited IniConfigLoad( );
-  for c := 0 to ltvAutoComplete.Columns.Count - 1 do
-  begin
-    ltvAutoComplete.Columns[ c ].Width := FIniFile.ReadInteger( Self.Name,
-       'ColunWidth' + IntToStr( c ), ltvAutoComplete.Columns[ c ].Width );
-  end;
+  ltvAutoComplete.IniConfigLoad( FIniFile );
 end;
 
 procedure TFrmAutoComplete.IniConfigSave;
-var
-  c: Integer;
 begin
-  for c := 0 to ltvAutoComplete.Columns.Count - 1 do
-  begin
-    FIniFile.WriteInteger( Self.Name, 'ColunWidth' + IntToStr( c ),
-       ltvAutoComplete.Columns[ c ].Width );
-  end;
+  ltvAutoComplete.IniConfigSave( FIniFile );
   inherited IniConfigSave( );
 end;
 
@@ -333,16 +326,40 @@ procedure TFrmAutoComplete.ltvAutoCompleteCompare( Sender: TObject;
    Item1, Item2: TListItem; Data: Integer; var Compare: Integer );
 var
   v1, v2: Integer;
+  b1, b2: Boolean;
 begin
-  if Assigned( Item1 ) and Assigned( Item2 ) and ( Item1.SubItems.Count > 1 )
-     and ( Item2.SubItems.Count > 1 ) then
+
+  v1 := 0;
+  b1 := false;
+  if Assigned( Item1 ) then
   begin
-    TryStrToInt( Item1.SubItems[ 1 ], v1 );
-    TryStrToInt( Item2.SubItems[ 1 ], v2 );
-    Compare := v2 - v1;
-  end
-  else
-    Compare := 0;
+    if ( Item1.SubItems.Count > 1 ) then
+      TryStrToInt( Item1.SubItems[ 1 ], v1 );
+
+    b1 := SameText( Copy( Item1.Caption, LowString, FCommandCompareLength ),
+       FCommandCompare );
+  end;
+
+  v2 := 0;
+  b2 := false;
+  if Assigned( Item2 ) then
+  begin
+    if ( Item2.SubItems.Count > 1 ) then
+      TryStrToInt( Item2.SubItems[ 1 ], v2 );
+
+    b2 := SameText( Copy( Item2.Caption, LowString, FCommandCompareLength ),
+       FCommandCompare );
+  end;
+
+
+  if b1 xor b2 then
+  begin
+    if b1 then
+       Compare := 0
+    else
+       Compare := 1;
+  end else
+     Compare := v2 - v1;
 end;
 
 procedure TFrmAutoComplete.ltvAutoCompleteDblClick( Sender: TObject );
@@ -374,6 +391,12 @@ begin
   Self.SetPriority( Value );
 end;
 
+procedure TFrmAutoComplete.SetCommandCompare( AValue: string );
+begin
+  FCommandCompare := AValue;
+  FCommandCompareLength := FCommandCompare.Length;
+end;
+
 procedure TFrmAutoComplete.SetPriority( AValue: FixedInt );
 begin
   ltvAutoComplete.ItemFocused.SubItems[ 1 ] := IntToStr( AValue );
@@ -392,9 +415,9 @@ begin
   Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + FEditCtrl.CharHeight + 2;
   Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
   trmAutoComplete.Enabled := True;
-  FormForceShow( Self, True );
+  Self.ForceShow( True );
   FEditCtrl.SetFocus;
-  FormForceShow( Self, False );
+  Self.ForceShow( False );
 end;
 
 procedure TFrmAutoComplete.ListViewAdd( ACaption, AOrigin: string );
@@ -447,6 +470,7 @@ begin
         ListViewAdd( ItemAux );
       end;
     end;
+    CommandCompare := SubCMD[ 0 ];
   end else begin
     Item := GlobalCollection;
     c := 0;
@@ -460,6 +484,8 @@ begin
       begin
         ListViewAdd( ItemAux );
       end;
+
+    CommandCompare := SubCMD[ c ];
   end;
 end;
 
@@ -486,6 +512,7 @@ begin
 
   FindClose( SearchRec );
   ChDir( PGofer.Sintatico.DirCurrent );
+  CommandCompare := ExtractFileName( AFileName );
 end;
 
 procedure TFrmAutoComplete.FindCMD( );
@@ -497,6 +524,7 @@ var
   SelStart: Integer;
 begin
   // limpa tudo
+  ltvAutoComplete.OnCompare := nil;
   ltvAutoComplete.Items.Clear( );
 
   // pega a posição do cursor texto
@@ -537,6 +565,8 @@ begin
   // se encotrou seleciona no auto complete
   if ( ltvAutoComplete.Items.Count > 0 ) then
   begin
+    ltvAutoComplete.OnCompare := ltvAutoCompleteCompare;
+    ltvAutoComplete.AlphaSort;
     ShowAutoComplete( );
     ltvAutoComplete.SuperSelected( ltvAutoComplete.Items[ 0 ] );
     FEditCtrl.SetFocus;

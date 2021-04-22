@@ -1,0 +1,165 @@
+unit PGofer.Component.Form;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes, System.IniFiles,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+
+type
+  TFormEx = class( TForm )
+    procedure FormCreate( Sender: TObject );
+    procedure FormClose( Sender: TObject; var Action: TCloseAction );
+    procedure FormDestroy( Sender: TObject );
+  private
+  protected
+    FIniFile: TIniFile;
+    FIniFileName: String;
+    procedure IniConfigSave( ); virtual;
+    procedure IniConfigLoad( ); virtual;
+  public
+    procedure ForceShow( AFocus: Boolean ); virtual;
+  published
+    property IniFileName: String read FIniFileName write FIniFileName;
+  end;
+
+procedure Register;
+
+implementation
+
+procedure Register;
+begin
+  RegisterComponents( 'PGofer', [ TFormEx ] );
+end;
+
+{$R *.dfm}
+{ TFormEx }
+
+procedure TFormEx.FormCreate( Sender: TObject );
+begin
+  FIniFile := TIniFile.Create( ExtractFilePath( ParamStr( 0 ) ) + 'Config.ini' );
+  Self.IniConfigLoad( );
+end;
+
+procedure TFormEx.FormClose( Sender: TObject; var Action: TCloseAction );
+begin
+  Self.IniConfigSave( );
+end;
+
+procedure TFormEx.FormDestroy( Sender: TObject );
+begin
+  Self.IniConfigSave( );
+  FIniFile.Free;
+end;
+
+procedure TFormEx.IniConfigLoad( );
+begin
+  Self.Left := FIniFile.ReadInteger( Self.Name, 'Left', Self.Left );
+  Self.Top := FIniFile.ReadInteger( Self.Name, 'Top', Self.Top );
+  Self.ClientWidth := FIniFile.ReadInteger( Self.Name, 'Width',
+     Self.ClientWidth );
+  Self.ClientHeight := FIniFile.ReadInteger( Self.Name, 'Height',
+     Self.ClientHeight );
+  Self.MakeFullyVisible( Self.Monitor );
+  if FIniFile.ReadBool( Self.Name, 'Maximized', False ) then
+    Self.WindowState := wsMaximized;
+end;
+
+procedure TFormEx.IniConfigSave( );
+begin
+  Self.MakeFullyVisible( Self.Monitor );
+  if Self.WindowState <> wsMaximized then
+  begin
+    FIniFile.WriteInteger( Self.Name, 'Left', Self.Left );
+    FIniFile.WriteInteger( Self.Name, 'Top', Self.Top );
+    FIniFile.WriteInteger( Self.Name, 'Width', Self.ClientWidth );
+    FIniFile.WriteInteger( Self.Name, 'Height', Self.ClientHeight );
+    FIniFile.WriteBool( Self.Name, 'Maximized', False );
+  end
+  else
+    FIniFile.WriteBool( Self.Name, 'Maximized', true );
+  FIniFile.UpdateFile;
+end;
+
+
+procedure TFormEx.ForceShow( AFocus: Boolean );
+var
+  ForegroundThreadID: Cardinal;
+  ThisThreadID: Cardinal;
+  timeout: Cardinal;
+  C: NativeInt;
+begin
+  // WS_OVERLAPPED or WS_EX_OVERLAPPEDWINDOW sobreposta
+  // WS_EX_APPWINDOW visivilidade
+  // WS_EX_TOPMOST SetWindowPos
+  if AFocus then
+  begin
+    Self.Show;
+    ShowWindow( Self.Handle, Integer( Self.WindowState ) );
+    SetForegroundWindow( Self.Handle );
+    ThisThreadID := SWP_SHOWWINDOW or SWP_NOMOVE or SWP_NOSIZE;
+  end else begin
+    Self.Visible := True;
+    ThisThreadID := SWP_NOACTIVATE or SWP_NOMOVE or SWP_NOSIZE;
+  end;
+
+  try
+    C := BeginDeferWindowPos( 1 );
+    C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
+       Self.Width, Self.Height, ThisThreadID );
+    EndDeferWindowPos( C );
+  except
+    // windows bugado do carai.
+  end;
+
+  SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
+     Self.Height, ThisThreadID );
+
+  if AFocus then
+  begin
+    BringWindowToTop( Self.Handle );
+    Self.SetFocus;
+
+    if IsIconic( Self.Handle ) then
+      ShowWindow( Self.Handle, SW_RESTORE );
+
+    if ( ( Win32Platform = VER_PLATFORM_WIN32_NT ) and ( Win32MajorVersion > 4 )
+       ) or ( ( Win32Platform = VER_PLATFORM_WIN32_WINDOWS ) and
+       ( ( Win32MajorVersion > 4 ) or ( ( Win32MajorVersion = 4 ) and
+       ( Win32MinorVersion > 0 ) ) ) ) then
+    begin
+      ForegroundThreadID := GetWindowThreadProcessID
+         ( GetForegroundWindow, nil );
+      ThisThreadID := GetWindowThreadProcessID( Self.Handle, nil );
+      if AttachThreadInput( ThisThreadID, ForegroundThreadID, True ) then
+      begin
+        BringWindowToTop( Self.Handle );
+        SetForegroundWindow( Self.Handle );
+        AttachThreadInput( ThisThreadID, ForegroundThreadID, False );
+      end;
+      SystemParametersInfo( $2000, 0, @timeout, 0 );
+      SystemParametersInfo( $2001, 0, Pointer( 0 ), SPIF_SENDCHANGE );
+      BringWindowToTop( Self.Handle );
+      SetForegroundWindow( Self.Handle );
+      SystemParametersInfo( $2001, 0, Pointer( timeout ), SPIF_SENDCHANGE );
+    end else begin
+      BringWindowToTop( Self.Handle );
+      // SetForegroundWindow(Self.Handle);
+    end;
+
+    // focusedThreadID := GetWindowThreadProcessID(wh, nil);
+    // if AttachThreadInput(GetCurrentThreadID, focusedThreadID, true) then
+    // try
+    // Windows.SetFocus(h);
+    // finally
+    // AttachThreadInput(GetCurrentThreadID, focusedThreadID, false);
+    // end;
+    // PostMessage(edit2.handle,WM_SETFOCUS,0,0);
+  end;
+
+  Self.MakeFullyVisible( Self.Monitor );
+end;
+
+
+end.

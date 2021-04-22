@@ -25,7 +25,6 @@ package PGoferComponent;
 {$IMAGEBASE $400000}
 {$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
-{$DESCRIPTION 'PGoferComponent'}
 {$IMPLICITBUILD ON}
 
 requires
@@ -40,6 +39,7 @@ contains
   Pgofer.Component.Edit in '..\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\Source\PGofer.Component.TreeView.pas',
-  PGofer.Component.RichEdit in '..\Source\PGofer.Component.RichEdit.pas';
+  PGofer.Component.RichEdit in '..\Source\PGofer.Component.RichEdit.pas',
+  PGofer.Component.Form in '..\Source\PGofer.Component.Form.pas' {FormEx};
 
 end.

@@ -119,6 +119,10 @@
         <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=AutoKeys;FileVersion=1.0.0.8;InternalName=TAutoKeys;LegalCopyright=Freeware;LegalTrademarks=;OriginalFilename=AutoKeys;ProductName=AutoKeys;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Build>8</VerInfo_Build>
         <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <Icon_MainIcon>..\..\..\Documents\Imagens\Teclado.ico</Icon_MainIcon>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <AppEnableHighDPI>true</AppEnableHighDPI>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <Icon_MainIcon>..\..\..\Documentos\Imagens\Skins\AutoKeys.ico</Icon_MainIcon>
@@ -147,6 +151,7 @@
         </DCCReference>
         <DCCReference Include="..\..\Lib\PGofer.TreeView.pas"/>
         <DCCReference Include="..\..\Lib\PGofer.Controls.pas"/>
+        <None Include="AutoKeys.dpr"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -218,12 +223,24 @@
                     <Source Name="MainSource">AutoKeys.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k210.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp210.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="Win32\Debug\AutoKeys.exe" Configuration="Debug" Class="ProjectOutput"/>
+                <DeployFile LocalName="Win32\Release\AutoKeys.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>AutoKeys.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="AutoKeys.dpr" Configuration="Release" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployClass Name="AdditionalDebugSymbols">
                     <Platform Name="iOSSimulator">
                         <Operation>1</Operation>

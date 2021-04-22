@@ -18,7 +18,6 @@ function FileControl( FileName, FileAlter: string;
 function FileGetSize( FileName: string ): Int64;
 function FileLoadFromText( FileName: string ): string;
 function FileSaveToText( FileName, Value: string ): Boolean;
-function FileScript( FileName: string; Esperar: Boolean ): Boolean;
 function FileListDir( MaskName: string; ExcludeExt: Boolean = False ): string;
 function FileOpenDialog( const Dir: string ): string;
 function FileDirDialog( Dir: string ): string;
@@ -39,8 +38,7 @@ uses
 {$WARN UNIT_PLATFORM OFF}
   Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
   WinApi.ShellApi, WinApi.ShlwApi,
-  System.SysUtils, System.Classes,
-  PGofer.Sintatico;
+  System.SysUtils, System.Classes;
 {$WARN UNIT_PLATFORM ON}
 
 function DateTimeToFileTime( DateTime: TDateTime ): PFileTime;
@@ -278,23 +276,6 @@ begin
       Result := False;
     end;
   end;
-end;
-
-function FileScript( FileName: string; Esperar: Boolean ): Boolean;
-var
-  Texto: TStringList;
-begin
-  if FileExists( FileName ) then
-  begin
-    Texto := TStringList.Create;
-    Texto.LoadFromFile( FileName );
-    ScriptExec( 'FileScript: ' + FileExtractOnlyFileName( FileName ),
-       Texto.Text, nil, Esperar );
-    Texto.Free;
-    Result := True;
-  end
-  else
-    Result := False;
 end;
 
 function FileListDir( MaskName: string; ExcludeExt: Boolean = False ): string;

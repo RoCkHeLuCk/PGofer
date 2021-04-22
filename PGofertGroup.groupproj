@@ -9,6 +9,12 @@
         <Projects Include="Libraries\Componet\Package\PGoferComponent.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="Binaries\Addons\Services V2.0\Services.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Binaries\Addons\Launcher\Launcher.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -35,14 +41,32 @@
     <Target Name="PGoferComponent:Make">
         <MSBuild Projects="Libraries\Componet\Package\PGoferComponent.dproj" Targets="Make"/>
     </Target>
+    <Target Name="Services">
+        <MSBuild Projects="Binaries\Addons\Services V2.0\Services.dproj"/>
+    </Target>
+    <Target Name="Services:Clean">
+        <MSBuild Projects="Binaries\Addons\Services V2.0\Services.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Services:Make">
+        <MSBuild Projects="Binaries\Addons\Services V2.0\Services.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Launcher">
+        <MSBuild Projects="Binaries\Addons\Launcher\Launcher.dproj"/>
+    </Target>
+    <Target Name="Launcher:Clean">
+        <MSBuild Projects="Binaries\Addons\Launcher\Launcher.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Launcher:Make">
+        <MSBuild Projects="Binaries\Addons\Launcher\Launcher.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="PGofer3;PGoferComponent"/>
+        <CallTarget Targets="PGofer3;PGoferComponent;Services;Launcher"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="PGofer3:Clean;PGoferComponent:Clean"/>
+        <CallTarget Targets="PGofer3:Clean;PGoferComponent:Clean;Services:Clean;Launcher:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="PGofer3:Make;PGoferComponent:Make"/>
+        <CallTarget Targets="PGofer3:Make;PGoferComponent:Make;Services:Make;Launcher:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

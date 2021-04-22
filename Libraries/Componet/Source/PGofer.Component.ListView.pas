@@ -3,31 +3,32 @@ unit Pgofer.Component.ListView;
 interface
 
 uses
-  System.Classes, System.SysUtils, Vcl.Controls, Vcl.ComCtrls,
+  System.Classes, System.SysUtils, System.IniFiles,
+  Vcl.Controls, Vcl.ComCtrls,
   WinApi.Windows, WinApi.CommCtrl;
 
 type
   TListViewEx = class( TListView )
   private
-    { Private declarations }
+    //FSort: Boolean;
     FOwnsObjectsData: Boolean;
     FColumnAlphaSort: Boolean;
-    FSort: Boolean;
   protected
-    { Protected declarations }
-    procedure ColClick( Column: TListColumn ); override;
+    //procedure ColClick( Column: TListColumn ); override;
     procedure DoEndDrag( Target: TObject; X, Y: Integer ); override;
     procedure Delete( Item: TListItem ); override;
     procedure MouseDown( Button: TMouseButton; Shift: TShiftState;
        X, Y: Integer ); override;
   public
-    { Public declarations }
     procedure DragDrop( Source: TObject; X, Y: Integer ); override;
     procedure DeleteSelect( );
     function isSelectWork( ): Boolean;
-    procedure FindText( Text: string; OffSet: Integer = -1 );
+    procedure FindText( Text: string; SubItem: Boolean = False;
+       OffSet: Integer = -1);
     procedure SuperSelected( Item: TListItem ); overload;
     procedure SuperSelected( ); overload;
+    procedure IniConfigSave( AIniFile: TIniFile );
+    procedure IniConfigLoad( AIniFile: TIniFile );
   published
     { Published declarations }
     property OwnsObjectsData: Boolean read FOwnsObjectsData
@@ -46,28 +47,38 @@ begin
 end;
 
 { TListViewEx }
-
+{
 procedure TListViewEx.ColClick( Column: TListColumn );
 
   function AZSort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
   begin
-    if lParam < 0 then
-      Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) )
-    else
-      Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
-         PChar( Item2.SubItems[ lParam ] ) );
+    if Assigned(Item1) and Assigned(Item2)
+    and (Item1 is TListItem) and (Item2 is TListItem) then
+    begin
+      if lParam < 0 then
+        Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) )
+      else
+        Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
+           PChar( Item2.SubItems[ lParam ] ) );
+    end else
+       Result := 0;
   end;
 
   function ZASort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
   begin
-    if lParam < 0 then
-      Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) ) * -1
-    else
-      Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
-         PChar( Item2.SubItems[ lParam ] ) ) * -1;
+    if Assigned(Item1) and Assigned(Item2) then
+    begin
+      if lParam < 0 then
+        Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) ) * -1
+      else
+        Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
+           PChar( Item2.SubItems[ lParam ] ) ) * -1;
+    end else
+       Result := 0;
   end;
 
 begin
+
   FSort := not FSort;
   if ( not Assigned( Self.OnCompare ) ) or ( FColumnAlphaSort ) then
   begin
@@ -81,7 +92,7 @@ begin
 
   inherited ColClick( Column );
 end;
-
+}
 procedure TListViewEx.DoEndDrag( Target: TObject; X, Y: Integer );
 begin
   Self.Repaint;
@@ -145,9 +156,13 @@ end;
 
 procedure TListViewEx.SuperSelected( Item: TListItem );
 begin
-  Item.Selected := true;
-  Item.MakeVisible( true );
-  Item.Focused := true;
+  if Assigned( Item ) then
+  begin
+    Self.Scroll( Item.Position.X, Item.Position.y);
+    Item.Selected := true;
+    Item.MakeVisible( true );
+    Item.Focused := true;
+  end;
 end;
 
 procedure TListViewEx.SuperSelected( );
@@ -171,7 +186,8 @@ begin
   Result := ( Assigned( Selected ) and Assigned( Selected.Data ) );
 end;
 
-procedure TListViewEx.FindText( Text: string; OffSet: Integer = -1 );
+procedure TListViewEx.FindText( Text: string;  SubItem: Boolean = False;
+     OffSet: Integer = -1 );
 var
   Count: Integer;
 begin
@@ -184,8 +200,9 @@ begin
   end;
 
   Self.ClearSelection;
+
   Count := OffSet;
-  while ( Count < Items.Count ) do
+  while ( Count < Self.Items.Count ) do
   begin
     if ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].Caption ) ) > 0 ) or
        ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].SubItems.Text ) ) > 0 )
@@ -208,6 +225,28 @@ begin
       Exit;
     end;
     inc( Count );
+  end;
+end;
+
+procedure TListViewEx.IniConfigLoad(AIniFile: TIniFile);
+var
+  c: Integer;
+begin
+  for c := 0 to Self.Columns.Count - 1 do
+  begin
+    Self.Columns[ c ].Width := AIniFile.ReadInteger( Self.Name,
+       'ColunWidth' + IntToStr( c ), Self.Columns[ c ].Width );
+  end;
+end;
+
+procedure TListViewEx.IniConfigSave(AIniFile: TIniFile);
+var
+  c: Integer;
+begin
+  for c := 0 to Self.Columns.Count - 1 do
+  begin
+    AIniFile.WriteInteger( Self.Name, 'ColunWidth' + IntToStr( c ),
+       Self.Columns[ c ].Width );
   end;
 end;
 

@@ -23,8 +23,8 @@ type
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
     property Constant: Boolean read FConstant;
-  published
     property Value: Variant read FValue write FValue;
+  published
   end;
 {$TYPEINFO ON}
 

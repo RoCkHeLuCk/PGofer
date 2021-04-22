@@ -169,7 +169,7 @@ end;
 
 function TPGFile.Script( FileName: string; Esperar: Boolean ): Boolean;
 begin
-  Result := FileScript( FileName, Esperar );
+  Result := FileScriptExec( FileName, Esperar );
 end;
 
 function TPGFile.Search( FileName, DirList: string ): string;

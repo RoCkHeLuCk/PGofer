@@ -253,9 +253,9 @@ end;
 initialization
 
 TPGHotKeyDeclare.Create( GlobalItemCommand, 'HotKey' );
-TPGHotKey.GlobList := TPGFolder.Create( GlobalItemTrigger, 'HotKey' );
+TPGHotKey.GlobList := TPGFolder.Create( GlobalItemTrigger, 'HotKeys' );
 
-TriggersCollect.RegisterClass( 'HotKeys', TPGHotKeyMirror );
+TriggersCollect.RegisterClass( 'HotKey', TPGHotKeyMirror );
 TPGHotKey.FImageIndex := GlogalImageList.AddIcon( 'HotKey' );
 
 finalization

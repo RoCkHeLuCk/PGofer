@@ -7,6 +7,7 @@ inherited PGFrameVariants: TPGFrameVariants
   end
   inherited grbAbout: TGroupBox
     Top = 71
+    ExplicitTop = 71
   end
   inherited pnlItem: TPanel
     Height = 60
@@ -29,7 +30,7 @@ inherited PGFrameVariants: TPGFrameVariants
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      OnChange = EdtValueChange
+      OnKeyUp = EdtValueKeyUp
     end
     inherited EdtName: TEditEx
       TabOrder = 1

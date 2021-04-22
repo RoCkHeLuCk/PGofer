@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Cluster Version="1.0">
-  <TPGHotKeys Name="HotKeys" Enabled="true">
-    <HotKeysHex Type="string">2010570450520530440A2</HotKeysHex>
-    <Detect Type="Byte">0</Detect>
-    <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string"></Script>
-  </TPGHotKeys>
-</Cluster>

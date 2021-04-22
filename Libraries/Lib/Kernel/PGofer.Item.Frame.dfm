@@ -27,7 +27,6 @@ object PGFrame: TPGFrame
     Caption = 'About'
     Constraints.MinHeight = 40
     TabOrder = 0
-    ExplicitTop = 71
     object rceAbout: TRichEdit
       Left = 2
       Top = 15

@@ -1,21 +1,25 @@
 inherited PGLinkFrame: TPGLinkFrame
-  Height = 364
-  Constraints.MinHeight = 200
-  ExplicitHeight = 364
+  Height = 370
+  Constraints.MinHeight = 370
+  ExplicitHeight = 370
   inherited SplitterItem: TSplitter
-    Top = 310
+    Top = 316
+    MinSize = 1
     ExplicitTop = 200
     ExplicitWidth = 416
   end
   inherited grbAbout: TGroupBox
-    Top = 321
+    Top = 327
+    Anchors = []
     ExplicitTop = 321
   end
   inherited pnlItem: TPanel
-    Height = 310
-    Constraints.MinHeight = 310
+    Height = 170
+    Align = alTop
+    Anchors = []
+    Constraints.MinHeight = 170
     Constraints.MinWidth = 0
-    ExplicitHeight = 310
+    ExplicitHeight = 170
     object LblFile: TLabel [0]
       Left = 5
       Top = 36
@@ -78,7 +82,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 0
-      OnChange = EdtFileChange
+      OnKeyUp = EdtFileKeyUp
     end
     object BtnFile: TButton [8]
       Left = 366
@@ -97,7 +101,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
-      OnChange = EdtPatameterChange
+      OnKeyUp = EdtPatameterKeyUp
     end
     object EdtDiretory: TEdit [10]
       Left = 70
@@ -106,7 +110,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
-      OnChange = EdtDiretoryChange
+      OnKeyUp = EdtDiretoryKeyUp
     end
     object BtnDiretory: TButton [11]
       Left = 366
@@ -153,9 +157,9 @@ inherited PGLinkFrame: TPGLinkFrame
         'Real time')
     end
     object BtnTest: TButton [14]
-      Left = 269
+      Left = 340
       Top = 141
-      Width = 127
+      Width = 56
       Height = 21
       Anchors = [akTop, akRight]
       Caption = 'Test'
@@ -185,82 +189,108 @@ inherited PGLinkFrame: TPGLinkFrame
     inherited EdtName: TEditEx
       TabOrder = 9
     end
-    object pnlScript: TPanel
-      Left = 0
-      Top = 168
-      Width = 400
-      Height = 142
-      Align = alBottom
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      BevelOuter = bvNone
+    object ckbCapture: TCheckBox
+      Left = 209
+      Top = 143
+      Width = 97
+      Height = 17
+      Caption = 'CaptureMsg'
       TabOrder = 10
-      object Splitter1: TSplitter
-        Left = 0
-        Top = 68
-        Width = 400
-        Height = 8
-        Cursor = crVSplit
-        Align = alBottom
-        Beveled = True
-        ExplicitTop = 94
-      end
-      object GrbScriptBefore: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 394
-        Height = 62
+      OnClick = ckbCaptureClick
+    end
+  end
+  object pnlScript: TPanel
+    Left = 0
+    Top = 170
+    Width = 400
+    Height = 146
+    Align = alClient
+    Anchors = []
+    BevelOuter = bvNone
+    Constraints.MinHeight = 145
+    UseDockManager = False
+    Locked = True
+    ShowCaption = False
+    TabOrder = 2
+    ExplicitHeight = 145
+    object Splitter1: TSplitter
+      Left = 0
+      Top = 72
+      Width = 400
+      Height = 8
+      Cursor = crVSplit
+      Align = alTop
+      AutoSnap = False
+      Beveled = True
+      MinSize = 1
+      OnCanResize = Splitter1CanResize
+      ExplicitLeft = 3
+      ExplicitTop = 69
+    end
+    object GrbScriptBefore: TGroupBox
+      AlignWithMargins = True
+      Left = 3
+      Top = 3
+      Width = 394
+      Height = 66
+      Align = alTop
+      Anchors = [akTop]
+      Caption = 'Script Before (Run: F9)'
+      Constraints.MinHeight = 60
+      TabOrder = 0
+      ExplicitHeight = 202
+      object EdtScriptBefore: TRichEditEx
+        Left = 2
+        Top = 15
+        Width = 390
+        Height = 49
         Align = alClient
-        Caption = 'Script Before (Run: F9)'
-        Constraints.MinHeight = 60
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Courier New'
+        Font.Style = []
+        HideSelection = False
+        ParentFont = False
+        ScrollBars = ssBoth
         TabOrder = 0
-        object EdtScriptBefore: TRichEditEx
-          Left = 2
-          Top = 15
-          Width = 390
-          Height = 45
-          Align = alClient
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          ScrollBars = ssBoth
-          TabOrder = 0
-          WantTabs = True
-          Zoom = 100
-          OnChange = EdtScriptBeforeChange
-        end
+        WantTabs = True
+        Zoom = 100
+        OnKeyUp = EdtScriptBeforeKeyUp
+        ExplicitLeft = 3
+        ExplicitHeight = 109
       end
-      object GpbScriptAfter: TGroupBox
-        AlignWithMargins = True
-        Left = 3
-        Top = 79
-        Width = 394
-        Height = 60
-        Align = alBottom
-        Caption = 'Script After (Run: F9)'
-        Constraints.MinHeight = 60
-        TabOrder = 1
-        object EdtScriptAfter: TRichEditEx
-          Left = 2
-          Top = 15
-          Width = 390
-          Height = 43
-          Align = alClient
-          Font.Charset = ANSI_CHARSET
-          Font.Color = clWindowText
-          Font.Height = -11
-          Font.Name = 'Tahoma'
-          Font.Style = []
-          ParentFont = False
-          ScrollBars = ssBoth
-          TabOrder = 0
-          WantTabs = True
-          Zoom = 100
-          OnChange = EdtScriptAfterChange
-        end
+    end
+    object GrbScriptAfter: TGroupBox
+      AlignWithMargins = True
+      Left = 3
+      Top = 83
+      Width = 394
+      Height = 60
+      Align = alClient
+      Anchors = [akBottom]
+      Caption = 'Script After (Run: F9)'
+      Constraints.MinHeight = 60
+      TabOrder = 1
+      ExplicitTop = 80
+      object EdtScriptAfter: TRichEditEx
+        Left = 2
+        Top = 15
+        Width = 390
+        Height = 43
+        Align = alClient
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Courier New'
+        Font.Style = []
+        HideSelection = False
+        ParentFont = False
+        ScrollBars = ssBoth
+        TabOrder = 0
+        WantTabs = True
+        Zoom = 100
+        OnKeyUp = EdtScriptAfterKeyUp
       end
     end
   end

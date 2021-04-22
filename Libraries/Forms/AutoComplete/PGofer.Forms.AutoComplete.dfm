@@ -5,9 +5,10 @@ object FrmAutoComplete: TFrmAutoComplete
   Caption = 'FrmAutoComplete'
   ClientHeight = 50
   ClientWidth = 200
-  Color = clBtnFace
+  Color = clWindow
   Constraints.MinHeight = 50
   Constraints.MinWidth = 200
+  Ctl3D = False
   DefaultMonitor = dmDesktop
   ParentFont = True
   FormStyle = fsStayOnTop
@@ -43,10 +44,11 @@ object FrmAutoComplete: TFrmAutoComplete
       item
         Caption = 'Priority'
       end>
-    FlatScrollBars = True
     HideSelection = False
+    ReadOnly = True
     RowSelect = True
     PopupMenu = ppmAutoComplete
+    ShowColumnHeaders = False
     SortType = stBoth
     TabOrder = 0
     ViewStyle = vsReport

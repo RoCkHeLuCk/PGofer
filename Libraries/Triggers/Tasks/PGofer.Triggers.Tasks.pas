@@ -12,8 +12,8 @@ type
 {$M+}
   TPGTask = class( TPGItemTrigger )
   private
-    FDateTime: TDateTime;
-    FOccurrence: Word;
+    FOccurrence: Cardinal;
+    FRepeat: Cardinal;
     FScript: TStrings;
     FTrigger: Byte;
     class var FImageIndex: Integer;
@@ -30,6 +30,8 @@ type
     class procedure Working( AType: Byte; AWaitFor: Boolean = False );
     procedure Triggering( ); override;
   published
+    property Occurrence: Cardinal read FOccurrence write FOccurrence;
+    property Repeats: Cardinal read FRepeat write FRepeat;
     property Script: string read GetScript write SetScript;
     property Trigger: Byte read FTrigger write FTrigger;
   end;
@@ -63,7 +65,6 @@ begin
   inherited Create( TPGTask.GlobList, AName, AMirror );
   Self.ReadOnly := False;
   FScript := TStringList.Create( );
-  FDateTime := 0;
   FOccurrence := 0;
   FTrigger := 0;
 end;
@@ -71,7 +72,6 @@ end;
 destructor TPGTask.Destroy( );
 begin
   FScript.Free;
-  FDateTime := 0;
   FOccurrence := 0;
   FTrigger := 0;
   inherited Destroy( );
@@ -110,13 +110,19 @@ end;
 
 class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );
 var
-  Item: TPGItem;
+  Item: TPGTask;
+  C : Integer;
 begin
-  for Item in TPGTask.GlobList do
+  for C := 0 to TPGTask.GlobList.Count-1 do
   begin
-    if ( TPGTask( Item ).Trigger = AType ) and Item.Enabled then
+    Item := TPGTask( TPGTask.GlobList[c] );
+    if ( Item.Trigger = AType )
+    and (Item.Enabled)
+    and ((Item.Repeats = 0 ) or (Item.Occurrence < Item.Repeats)) then
     begin
       ScriptExec( 'Task: ' + Item.Name, TPGTask( Item ).Script, nil, AWaitFor );
+      Item.Occurrence := Item.Occurrence + 1;
+      Item.CollectDad.UpdateToFile();
     end;
   end;
 end;
@@ -135,7 +141,7 @@ begin
   if ( not Assigned( id ) ) or ( id is TPGTask ) then
   begin
     Titulo := Gramatica.TokenList.Token.Lexema;
-    Quantidade := LerParamentros( Gramatica, 1, 2 );
+    Quantidade := LerParamentros( Gramatica, 1, 3 );
     if not Gramatica.Erro then
     begin
       if ( not Assigned( id ) ) then
@@ -143,7 +149,10 @@ begin
       else
         Task := TPGTask( id );
 
-      if Quantidade = 2 then
+      if Quantidade = 3 then
+        Task.Repeats := Gramatica.Pilha.Desempilhar( 0 );
+
+      if Quantidade >= 2 then
         Task.Trigger := Gramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 1 then
