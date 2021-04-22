@@ -123,13 +123,10 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
-<<<<<<< HEAD
         <VerInfo_Build>9</VerInfo_Build>
         <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.9;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
-=======
         <VerInfo_Build>8</VerInfo_Build>
         <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.8;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
->>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>

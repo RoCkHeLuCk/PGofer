@@ -28,6 +28,7 @@ type
     function GetTimeModify( FileName: string ): string;
     function LoadFromText( FileName: string ): string;
     function MkDir( Directory: string ): Boolean;
+    function MkLink( Origin, Destine: string; Flag: Word ): Boolean;
     function Move( FileFrom, FileTo: string; Flags: Word ): Integer;
     function FileDialog( Directory: string ): string;
     function DirDialog( Directory: string ): string;
@@ -130,6 +131,12 @@ begin
   finally
     Result := DirectoryExists( Directory, False );
   end;
+end;
+
+function TPGFile.MkLink(Origin, Destine: string; Flag: Word): Boolean;
+begin
+    Result := CreateSymbolicLinkW( PWideChar(Destine), PWideChar(Origin),
+        Cardinal(Flag) );
 end;
 
 function TPGFile.Move( FileFrom, FileTo: string; Flags: Word ): Integer;

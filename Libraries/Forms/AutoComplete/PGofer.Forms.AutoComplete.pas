@@ -328,8 +328,6 @@ var
   v1, v2: Integer;
   b1, b2: Boolean;
 begin
-<<<<<<< HEAD
-
   v1 := 0;
   b1 := false;
   if Assigned( Item1 ) then
@@ -361,28 +359,6 @@ begin
        Compare := 1;
   end else
      Compare := v2 - v1;
-=======
-  v1 := 0;
-  v2 := 0;
-  if Assigned( Item1 ) and Assigned( Item2 ) then
-  begin
-    if ( Item1.SubItems.Count > 1 ) and ( Item2.SubItems.Count > 1 ) then
-    begin
-      TryStrToInt( Item1.SubItems[ 1 ], v1 );
-      TryStrToInt( Item2.SubItems[ 1 ], v2 );
-    end;
-
-    if ( SameText( Copy( Item1.Caption, LowString, FCommandCompareLength ),
-       FCommandCompare ) ) then
-      Inc(v1);
-
-    if ( SameText( Copy( Item2.Caption, LowString, FCommandCompareLength ),
-       FCommandCompare ) ) then
-      Inc(v2);
-
-  end;
-  Compare := v2 - v1;
->>>>>>> c3c63536427a8e61ccb4830f4dee68a022344625
 end;
 
 procedure TFrmAutoComplete.ltvAutoCompleteDblClick( Sender: TObject );

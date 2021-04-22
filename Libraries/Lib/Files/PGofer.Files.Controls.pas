@@ -27,10 +27,17 @@ function FileGetCreateTime( FileName: string ): string;
 function FileGetModifyTime( FileName: string ): string;
 function FileGetAcessTime( FileName: string ): string;
 function FileExtractOnlyFileName( const FileName: string ): string;
+
+function CreateSymbolicLinkW( lpSymlinkFileName: PWideChar;
+   lpTargetFileName: PWideChar; dwFlags: DWORD ): Boolean; stdcall;
+   external 'kernel32';
+
 {$WARN SYMBOL_PLATFORM ON}
 function GetOperationToStr( Operation: Byte ): PWideChar;
 function GetProcessPri( Prioridade: Byte ): Word;
 function GetShellExMSGToStr( InstApp: Cardinal ): string;
+
+
 
 implementation
 
