@@ -174,8 +174,7 @@ begin
     while ( c < ListCount ) and ( not Find ) do
     begin
       AuxHotKeys := TPGHotKey( TPGHotKey.GlobList[ c ] );
-      if AuxHotKeys.Enabled and ( AuxHotKeys.FKeys.Count = KeysCount ) and
-         ( AuxHotKeys.Script <> '' ) then
+      if AuxHotKeys.Enabled and ( AuxHotKeys.FKeys.Count = KeysCount ) then
       begin
         D := 0;
         Find := True;

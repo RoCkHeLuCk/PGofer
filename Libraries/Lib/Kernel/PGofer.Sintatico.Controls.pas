@@ -114,7 +114,8 @@ begin
         Gramatica.TokenList.GetNextToken;
     end;
   end else begin
-    while not( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdDotComa ] ) do
+    while not( Gramatica.TokenList.Token.Classe
+    in [ cmdEOF, cmdDotComa, cmdRes_else ] ) do
     begin
       if Assigned( TokenList ) then
         TokenList.AssignToken( Gramatica.TokenList.Token );

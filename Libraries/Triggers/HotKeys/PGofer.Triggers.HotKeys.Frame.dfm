@@ -105,12 +105,12 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Style = csDropDownList
       ItemIndex = 0
       TabOrder = 3
-      Text = 'Press'
+      Text = 'Down'
       OnChange = CmbDetectChange
       Items.Strings = (
+        'Down'
         'Press'
-        'Pressed'
-        'Drop'
+        'Up'
         'Wheel')
     end
     object CkbInhibit: TCheckBox

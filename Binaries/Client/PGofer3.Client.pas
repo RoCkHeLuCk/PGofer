@@ -123,7 +123,6 @@ end;
 procedure TFrmPGofer.FormShow( Sender: TObject );
 begin
   FormAutoSize( );
-  // inherited FormShow( Sender );
 end;
 
 procedure TFrmPGofer.FormAutoSize( );

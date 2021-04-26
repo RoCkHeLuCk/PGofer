@@ -69,7 +69,11 @@ begin
         if Key.bDetect in [ kd_Down, kd_Wheel ] then
         begin
           if not( PGFrameHotKey.FItem.Keys.Contains( Key.wKey ) ) then
+          begin
             PGFrameHotKey.FItem.Keys.Add( Key.wKey );
+            PGFrameHotKey.CkbInhibit.Checked := False;
+            PGFrameHotKey.FItem.Inhibit := False;
+          end;
         end;
       end;
     end;
@@ -130,6 +134,14 @@ end;
 procedure TPGFrameHotKey.CmbDetectChange( Sender: TObject );
 begin
   FItem.Detect := CmbDetect.ItemIndex;
+  if FItem.Detect = 2 then
+  begin
+     CkbInhibit.Checked := False;
+     CkbInhibit.Enabled := False;
+     FItem.Inhibit := False;
+  end else begin
+     CkbInhibit.Enabled := True;
+  end;
 end;
 
 procedure TPGFrameHotKey.MmoHotKeysEnter( Sender: TObject );

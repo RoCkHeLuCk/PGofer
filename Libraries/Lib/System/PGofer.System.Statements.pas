@@ -204,21 +204,22 @@ begin
       else
         EncontrarFim( Gramatica,
            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+
+      // verifica se tem ELSE
+      if ( not Gramatica.Erro ) and
+         ( Gramatica.TokenList.Token.Classe = cmdRes_else ) then
+      begin
+        Gramatica.TokenList.GetNextToken;
+        if not Continuar then
+          Comandos( Gramatica )
+        else
+          EncontrarFim( Gramatica,
+             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+      end;
+
     end
     else
       Gramatica.ErroAdd( '"Then" Esperado.' );
-
-    // verifica se tem ELSE
-    if ( not Gramatica.Erro ) and
-       ( Gramatica.TokenList.Token.Classe = cmdRes_else ) then
-    begin
-      Gramatica.TokenList.GetNextToken;
-      if not Continuar then
-        Comandos( Gramatica )
-      else
-        EncontrarFim( Gramatica,
-           ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
-    end;
   end
   else
     Gramatica.ErroAdd( '"Expressão Booleana" Esperado.' );

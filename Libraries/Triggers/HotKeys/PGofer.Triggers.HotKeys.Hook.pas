@@ -32,7 +32,7 @@ type
   PMSLLHOOKSTRUCT = ^TMSLLHOOKSTRUCT;
 
   TLowLevelProc = function( Code: Integer; wParam: wParam; lParam: lParam )
-     : LRESULT; stdcall;
+    : LRESULT; stdcall;
 
   TKey = record
     wKey: Word;
@@ -44,12 +44,12 @@ type
     class var FKBHook: HHook;
     class var FMBHook: HHook;
     class var FKey: TKey;
-    class var FShootKeys: TList< Word >;
+    class var FShootKeys: TList<Word>;
     class function LowLevelProc( Code: Integer; wParam: wParam; lParam: lParam )
-       : LRESULT; stdcall; static;
+      : LRESULT; stdcall; static;
   public
     class procedure CalcVirtualKey( wParam: wParam; lParam: lParam;
-       var Key: TKey );
+      var Key: TKey );
     class procedure EnableHoot( LLProc: TLowLevelProc = nil );
     class procedure DisableHoot( );
   end;
@@ -84,12 +84,12 @@ begin
 end;
 
 class function THookProc.LowLevelProc( Code: Integer; wParam: wParam;
-   lParam: lParam ): LRESULT;
+  lParam: lParam ): LRESULT;
 var
-  AuxHotKey: TPGHotKey;
-  Inibir: Boolean;
+  VHotKey: TPGHotKey;
+  VInhibit: Boolean;
 begin
-  Inibir := False;
+  VInhibit := False;
   if ( Code = HC_ACTION ) then
   begin
     CalcVirtualKey( wParam, lParam, FKey );
@@ -103,14 +103,17 @@ begin
           FShootKeys.Add( FKey.wKey );
       end;
 
-      AuxHotKey := TPGHotKey.LocateHotKeys( FShootKeys );
-      if Assigned( AuxHotKey ) and
-         ( ( FKey.bDetect = kd_Wheel ) or
-         ( AuxHotKey.Detect = Byte( FKey.bDetect ) ) ) then
+      VHotKey := TPGHotKey.LocateHotKeys( FShootKeys );
+      if Assigned( VHotKey ) then
       begin
-        AuxHotKey.Triggering( );
-        if AuxHotKey.Detect <> 2 then
-          Inibir := AuxHotKey.Inhibit;
+        if (( FKey.bDetect = kd_Wheel )
+        or ( VHotKey.Detect = Byte( FKey.bDetect ) )) then
+        begin
+          VHotKey.Triggering( );
+          if (VHotKey.Detect <> Byte( kd_Up ))
+          and (FKey.wKey = VHotKey.Keys.Last) then
+            VInhibit := VHotKey.Inhibit;
+        end;
       end;
 
       if FKey.bDetect in [ kd_Up, kd_Wheel ] then
@@ -118,14 +121,14 @@ begin
     end;
   end;
 
-  if Inibir then
+  if VInhibit then
     Result := -1
   else
     Result := CallNextHookEx( 0, Code, wParam, lParam );
 end;
 
 class procedure THookProc.CalcVirtualKey( wParam: wParam; lParam: lParam;
-   var Key: TKey );
+  var Key: TKey );
 begin
   Key.wKey := 0;
   Key.bDetect := kd_Down;
@@ -191,7 +194,7 @@ end;
 
 initialization
 
-THookProc.FShootKeys := TList< Word >.Create( );
+THookProc.FShootKeys := TList<Word>.Create( );
 {$IFNDEF DEBUG}
 THookProc.EnableHoot( );
 {$ENDIF}

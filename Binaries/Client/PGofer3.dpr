@@ -64,6 +64,8 @@ uses
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   Winapi.Windows,
   Vcl.Forms,
+  Vcl.Themes,
+  Vcl.Styles,
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
@@ -83,8 +85,8 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  GlobalCollection.LoadFileAndForm( );
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );

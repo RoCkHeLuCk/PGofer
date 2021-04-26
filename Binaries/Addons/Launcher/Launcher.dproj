@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>Launcher.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Debug</Config>
+        <Config Condition="'$(Config)'==''">Release</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -123,10 +123,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_Build>9</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.9;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
-        <VerInfo_Build>8</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.8;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.10;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>10</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -145,6 +143,8 @@
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <UWP_DelphiLogo44>..\..\..\Documents\Imagens\Launcher 44px.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>..\..\..\Documents\Imagens\Launcher 150px.png</UWP_DelphiLogo150>
+        <VerInfo_Build>1</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.1;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

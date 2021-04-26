@@ -16,7 +16,8 @@ const
   WM_PG_HOTHEYUPD = WM_USER + 7;
 
 function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
-function FormBeforeInitialize( Classe: PWideChar; DefaultWM: Cardinal ) : Boolean;
+function FormBeforeInitialize( Classe: PWideChar; DefaultWM: Cardinal )
+  : Boolean;
 procedure OnMessage( var AMessage: TMessage );
 procedure SendScript( Text: string );
 procedure LinkUpdate( );
@@ -24,10 +25,10 @@ procedure LinkUpdate( );
 implementation
 
 uses
-   System.SysUtils,
-   WinApi.Windows,
-   Vcl.Forms,
-   PGofer.Sintatico, PGofer.Sintatico.Controls;
+  System.SysUtils,
+  WinApi.Windows,
+  Vcl.Forms,
+  PGofer.Sintatico, PGofer.Sintatico.Controls;
 
 function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
 var
@@ -49,9 +50,9 @@ begin
     else if FindCmdLineSwitch( 'Close', True ) then
       SendMessage( H, WM_PG_CLOSE, 0, 0 )
     else if FindCmdLineSwitch( 'Script', Parametro, True,
-       [ clstValueNextParam, clstValueAppended ] ) then
+      [ clstValueNextParam, clstValueAppended ] ) then
       SendMessage( H, WM_PG_SCRIPT, Length( Parametro ),
-         GlobalAddAtom( PChar( Parametro ) ) )
+        GlobalAddAtom( PChar( Parametro ) ) )
     else
       SendMessage( H, DefaultWM, 0, 0 );
   end
@@ -60,7 +61,7 @@ begin
 end;
 
 function FormBeforeInitialize( Classe: PWideChar; DefaultWM: Cardinal )
-   : Boolean;
+  : Boolean;
 begin
   Result := FormAfterInitialize( FindWindow( Classe, nil ), DefaultWM );
 end;
@@ -79,16 +80,14 @@ begin
 
     WM_PG_NOFOCUS:
       begin
-        //????????????????????????
-        //FormForceShow( Application.MainForm, False );
+        Application.MainForm.Visible := True;
         if Assigned( Application.MainForm.OnActivate ) then
           Application.MainForm.OnActivate( nil );
       end;
 
     WM_PG_SETFOCUS:
       begin
-        //?????????????????????????
-        //FormForceShow( Application.MainForm, True );
+        Application.MainForm.Show;
       end;
 
     WM_PG_CLOSE:
@@ -126,7 +125,7 @@ begin
   H := FindWindow( 'TFrmPGofer', nil );
   if ( H <> 0 ) then
     SendMessage( H, WM_PG_SCRIPT, Length( Text ),
-       GlobalAddAtom( PChar( Text ) ) );
+      GlobalAddAtom( PChar( Text ) ) );
 end;
 
 procedure LinkUpdate( );
