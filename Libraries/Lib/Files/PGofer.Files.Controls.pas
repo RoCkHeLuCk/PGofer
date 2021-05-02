@@ -35,7 +35,7 @@ function CreateSymbolicLinkW( lpSymlinkFileName: PWideChar;
 {$WARN SYMBOL_PLATFORM ON}
 function GetOperationToStr( Operation: Byte ): PWideChar;
 function GetProcessPri( Prioridade: Byte ): Word;
-function GetShellExMSGToStr( InstApp: Cardinal ): string;
+function GetShellExMSGToStr( InstApp: Cardinal; AErrorOnly: Boolean ): string;
 
 
 
@@ -160,8 +160,9 @@ begin
   end;
 end;
 
-function GetShellExMSGToStr( InstApp: Cardinal ): string;
+function GetShellExMSGToStr( InstApp: Cardinal; AErrorOnly: Boolean ): string;
 begin
+  Result := '';
   case InstApp of
     0:
       Result := 'Erro: Memoria cheia.';
@@ -188,7 +189,10 @@ begin
     SE_ERR_NOASSOC:
       Result := 'Erro: Nada associado.';
     33, 42:
-      Result := 'OK: Executado com exito.';
+    begin
+      if not AErrorOnly then
+         Result := 'OK: Executado com exito.';
+    end
   else
     Result := 'Erro: Executar Numero: "' + InstApp.ToString + '".';
   end;
@@ -221,7 +225,7 @@ begin
     SetPriorityClass( ShellExecuteInfoW.hProcess, GetProcessPri( Prioridade ) );
   end;
 
-  Result := GetShellExMSGToStr( ShellExecuteInfoW.hInstApp );
+  Result := GetShellExMSGToStr( ShellExecuteInfoW.hInstApp, True );
 end;
 
 function FileControl( FileName, FileAlter: string;

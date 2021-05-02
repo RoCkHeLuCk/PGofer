@@ -15,13 +15,13 @@ type
   private
   protected
     FIniFile: TIniFile;
-    FIniFileName: String;
+    FIniFileName: string;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
   public
     procedure ForceShow( AFocus: Boolean ); virtual;
   published
-    property IniFileName: String read FIniFileName write FIniFileName;
+    property IniFileName: string read FIniFileName write FIniFileName;
   end;
 
 procedure Register;
@@ -38,7 +38,8 @@ end;
 
 procedure TFormEx.FormCreate( Sender: TObject );
 begin
-  FIniFile := TIniFile.Create( ExtractFilePath( ParamStr( 0 ) ) + 'Config.ini' );
+  FIniFile := TIniFile.Create( ExtractFilePath( ParamStr( 0 ) ) +
+    'Config.ini' );
   Self.IniConfigLoad( );
 end;
 
@@ -58,9 +59,9 @@ begin
   Self.Left := FIniFile.ReadInteger( Self.Name, 'Left', Self.Left );
   Self.Top := FIniFile.ReadInteger( Self.Name, 'Top', Self.Top );
   Self.ClientWidth := FIniFile.ReadInteger( Self.Name, 'Width',
-     Self.ClientWidth );
+    Self.ClientWidth );
   Self.ClientHeight := FIniFile.ReadInteger( Self.Name, 'Height',
-     Self.ClientHeight );
+    Self.ClientHeight );
   Self.MakeFullyVisible( Self.Monitor );
   if FIniFile.ReadBool( Self.Name, 'Maximized', False ) then
     Self.WindowState := wsMaximized;
@@ -82,7 +83,6 @@ begin
   FIniFile.UpdateFile;
 end;
 
-
 procedure TFormEx.ForceShow( AFocus: Boolean );
 var
   ForegroundThreadID: Cardinal;
@@ -100,21 +100,25 @@ begin
     SetForegroundWindow( Self.Handle );
     ThisThreadID := SWP_SHOWWINDOW or SWP_NOMOVE or SWP_NOSIZE;
   end else begin
-    Self.Visible := True;
-    ThisThreadID := SWP_NOACTIVATE or SWP_NOMOVE or SWP_NOSIZE;
+    Self.Visible := true;
+    ThisThreadID := SWP_NOACTIVATE or SWP_SHOWWINDOW or SWP_NOMOVE or
+      SWP_NOSIZE;
   end;
 
   try
     C := BeginDeferWindowPos( 1 );
-    C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
-       Self.Width, Self.Height, ThisThreadID );
+    //C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
+    // Self.Width, Self.Height, ThisThreadID );
+    C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, 0, 0, 0, 0,
+      ThisThreadID );
     EndDeferWindowPos( C );
   except
     // windows bugado do carai.
   end;
 
-  SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
-     Self.Height, ThisThreadID );
+  //SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
+  //  Self.Height, ThisThreadID );
+  SetWindowPos( Self.Handle, HWND_TOPMOST, 0, 0, 0, 0, ThisThreadID );
 
   if AFocus then
   begin
@@ -124,15 +128,15 @@ begin
     if IsIconic( Self.Handle ) then
       ShowWindow( Self.Handle, SW_RESTORE );
 
-    if ( ( Win32Platform = VER_PLATFORM_WIN32_NT ) and ( Win32MajorVersion > 4 )
-       ) or ( ( Win32Platform = VER_PLATFORM_WIN32_WINDOWS ) and
-       ( ( Win32MajorVersion > 4 ) or ( ( Win32MajorVersion = 4 ) and
-       ( Win32MinorVersion > 0 ) ) ) ) then
-    begin
+//    if ( ( Win32Platform = VER_PLATFORM_WIN32_NT ) and ( Win32MajorVersion > 4 )
+//      ) or ( ( Win32Platform = VER_PLATFORM_WIN32_WINDOWS ) and
+//      ( ( Win32MajorVersion > 4 ) or ( ( Win32MajorVersion = 4 ) and
+//      ( Win32MinorVersion > 0 ) ) ) ) then
+//    begin
       ForegroundThreadID := GetWindowThreadProcessID
-         ( GetForegroundWindow, nil );
+        ( GetForegroundWindow, nil );
       ThisThreadID := GetWindowThreadProcessID( Self.Handle, nil );
-      if AttachThreadInput( ThisThreadID, ForegroundThreadID, True ) then
+      if AttachThreadInput( ThisThreadID, ForegroundThreadID, true ) then
       begin
         BringWindowToTop( Self.Handle );
         SetForegroundWindow( Self.Handle );
@@ -143,10 +147,10 @@ begin
       BringWindowToTop( Self.Handle );
       SetForegroundWindow( Self.Handle );
       SystemParametersInfo( $2001, 0, Pointer( timeout ), SPIF_SENDCHANGE );
-    end else begin
-      BringWindowToTop( Self.Handle );
-      // SetForegroundWindow(Self.Handle);
-    end;
+//    end else begin
+//      BringWindowToTop( Self.Handle );
+//      // SetForegroundWindow(Self.Handle);
+//    end;
 
     // focusedThreadID := GetWindowThreadProcessID(wh, nil);
     // if AttachThreadInput(GetCurrentThreadID, focusedThreadID, true) then
@@ -160,6 +164,5 @@ begin
 
   Self.MakeFullyVisible( Self.Monitor );
 end;
-
 
 end.

@@ -22,9 +22,9 @@ type
     procedure FormKeyPress( Sender: TObject; var Key: Char );
     procedure TmrConsoleTimer( Sender: TObject );
     procedure PnlArrastarMouseDown( Sender: TObject; Button: TMouseButton;
-       Shift: TShiftState; X, Y: Integer );
+      Shift: TShiftState; X, Y: Integer );
     procedure PnlArrastarMouseMove( Sender: TObject; Shift: TShiftState;
-       X, Y: Integer );
+      X, Y: Integer );
     procedure BtnFixedClick( Sender: TObject );
     procedure FormShow( Sender: TObject );
     procedure FormCreate( Sender: TObject );
@@ -41,11 +41,12 @@ type
     procedure IniConfigLoad( ); override;
   public
     property AutoClose: Boolean read GetAutoClose;
-    procedure ConsoleNotifyMessage( AValue: string; AShow: Boolean );
+    procedure ConsoleNotifyMessage( AThread: TThread; AValue: string;
+      ANewLine, AShow: Boolean );
     procedure ForceShow( AFocus: Boolean ); override;
   end;
 
-{$M+}
+  {$M+}
 
   TPGFrmConsole = class( TPGForm )
   private
@@ -63,7 +64,7 @@ type
     property Delay: Cardinal read FDelay write FDelay;
     property ShowMessage: Boolean read FShowMessage write FShowMessage;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 var
   FrmConsole: TFrmConsole;
@@ -84,7 +85,7 @@ begin
   inherited CreateWindowHandle( Params );
   SetWindowLong( Self.Handle, GWL_STYLE, WS_SIZEBOX );
   SetWindowLong( Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
-     WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW );
+    WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW );
   Application.AddPopupForm( Self );
 end;
 
@@ -103,10 +104,10 @@ begin
   Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
 end;
 
-procedure TFrmConsole.ForceShow(AFocus: Boolean);
+procedure TFrmConsole.ForceShow( AFocus: Boolean );
 begin
   FItem.AutoClose := not AFocus;
-  inherited ForceShow(AFocus);
+  inherited ForceShow( AFocus );
 end;
 
 procedure TFrmConsole.FormActivate( Sender: TObject );
@@ -148,9 +149,9 @@ begin
   inherited IniConfigLoad( );
   FItem.Delay := FIniFile.ReadInteger( Self.Name, 'Delay', FItem.Delay );
   FItem.ShowMessage := FIniFile.ReadBool( Self.Name, 'ShowMessage',
-     FItem.ShowMessage );
+    FItem.ShowMessage );
   FItem.AutoClose := FIniFile.ReadBool( Self.Name, 'AutoClose',
-     FItem.AutoClose );
+    FItem.AutoClose );
 end;
 
 procedure TFrmConsole.IniConfigSave( );
@@ -172,13 +173,13 @@ procedure TFrmConsole.TmrConsoleTimer( Sender: TObject );
 begin
   // fechar se o mouse estiver fora do form
   if ( ( Mouse.CursorPos.X < Left ) or ( Mouse.CursorPos.Y < Top ) or
-     ( Mouse.CursorPos.X > Left + Width ) or
-     ( Mouse.CursorPos.Y > Top + Height ) ) and ( Self.Visible ) then
+    ( Mouse.CursorPos.X > Left + Width ) or ( Mouse.CursorPos.Y > Top + Height )
+    ) and ( Self.Visible ) then
     Hide;
 end;
 
 procedure TFrmConsole.PnlArrastarMouseDown( Sender: TObject;
-   Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
 begin
   if Shift = [ ssLeft ] then
   begin
@@ -188,7 +189,7 @@ begin
 end;
 
 procedure TFrmConsole.PnlArrastarMouseMove( Sender: TObject; Shift: TShiftState;
-   X, Y: Integer );
+  X, Y: Integer );
 begin
   if Shift = [ ssLeft ] then
   begin
@@ -197,23 +198,28 @@ begin
   end;
 end;
 
-procedure TFrmConsole.ConsoleNotifyMessage( AValue: string; AShow: Boolean );
+procedure TFrmConsole.ConsoleNotifyMessage( AThread: TThread; AValue: string;
+  ANewLine, AShow: Boolean );
 begin
-  TThread.Synchronize( nil,
-    procedure
-    begin
-      Self.EdtConsole.Lines.Add( AValue );
-      Self.EdtConsole.DisplayY := Self.EdtConsole.Height;
-
-      if AShow then
+  TThread.Synchronize( AThread,
+      procedure
       begin
-        // ajusta posicao do console
-        Self.Left := Application.MainForm.Left;
-        Self.Top := Application.MainForm.Top + Application.MainForm.Height;
-        Self.ForceShow( False );
-        Application.ProcessMessages();
-      end;
-    end );
+        if ANewLine then
+           Self.EdtConsole.Lines.Append( AValue )
+        else
+           Self.EdtConsole.Text := Self.EdtConsole.Text + AValue;
+
+        Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Count;
+
+        if AShow then
+        begin
+          Self.Left := Application.MainForm.Left;
+          Self.Top := Application.MainForm.Top + Application.MainForm.Height;
+          Self.ForceShow( False );
+          Application.ProcessMessages( );
+        end;
+      end
+  );
 end;
 
 { TPGFrmConsole }

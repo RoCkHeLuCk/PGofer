@@ -8,7 +8,7 @@ uses
   PGofer.Triggers;
 
 type
-{$M+}
+  {$M+}
   TPGLink = class( TPGItemTrigger )
   private
     FFile: string;
@@ -29,6 +29,7 @@ type
     procedure SetScriptAfter( AValue: string );
     procedure SetScriptBefor( AValue: string );
     procedure ThreadExecute( AWaitFor: Boolean; AParam: string );
+    function GetIsRunning: Boolean;
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     class function GetImageIndex( ): Integer; override;
@@ -51,9 +52,11 @@ type
     property isFileExist: Boolean read GetFileExist;
     property isDirExist: Boolean read GetDirExist;
     property CanExecute: Boolean read FCanExecute write FCanExecute;
+    property isRunning: Boolean read GetIsRunning;
     procedure WaitFor( );
+    function KillMe( ): Boolean;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
   TPGLinkDeclare = class( TPGItemCMD )
   public
@@ -76,6 +79,7 @@ uses
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
   PGofer.Files.Controls,
+  PGofer.Process.Controls,
   PGofer.Triggers.Links.Frame,
   PGofer.Triggers.Links.Thread,
   PGofer.ImageList;
@@ -122,6 +126,11 @@ begin
   Result := DirectoryExists( FileExpandPath( FDirectory ) );
 end;
 
+function TPGLink.GetIsRunning( ): Boolean;
+begin
+  Result := ProcessFileToPID( ExtractFileName( FFile ) ) <> 0;
+end;
+
 function TPGLink.GetFileExist: Boolean;
 begin
   Result := FileExists( FileExpandPath( FFile ) );
@@ -140,6 +149,11 @@ end;
 function TPGLink.GetScriptBefor: string;
 begin
   Result := FScriptBefor.Text;
+end;
+
+function TPGLink.KillMe( ): Boolean;
+begin
+  Result := ProcessKill( ProcessFileToPID( ExtractFileName( FFile ) ) );
 end;
 
 procedure TPGLink.SetScriptAfter( AValue: string );

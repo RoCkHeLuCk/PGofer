@@ -2,7 +2,7 @@ unit PGofer.Process.Controls;
 
 interface
 
-function ProcessFileToPID( const FileName: string ): Cardinal;
+function ProcessFileToPID( AFileName: string ): THandle;
 function ProcessPIDToFile( const PID: Cardinal ): string;
 function ProcessKill( const PID: Cardinal ): Boolean;
 function ProcessSetPriority( const PID, Priority: Cardinal ): Boolean;
@@ -14,7 +14,7 @@ implementation
 uses
   Winapi.Windows, Winapi.PsApi, System.SysUtils;
 
-function ProcessFileToPID( const FileName: string ): Cardinal;
+function ProcessFileToPID( AFileName: string ): THandle;
 var
   PID: array [ 0 .. 1023 ] of Cardinal;
   aModule: array [ 0 .. 299 ] of Char;
@@ -37,7 +37,7 @@ begin
         then
         begin
           GetModuleFilenameEx( hProcess, hModul, aModule, SizeOf( aModule ) );
-          if SameText( ExtractFileName( aModule ), FileName ) then
+          if SameText( ExtractFileName( aModule ), AFileName ) then
           begin
             Result := PID[ C ];
             C := cProcesses;

@@ -11,7 +11,7 @@ inherited PGLinkFrame: TPGLinkFrame
   inherited grbAbout: TGroupBox
     Top = 327
     Anchors = []
-    ExplicitTop = 321
+    ExplicitTop = 327
   end
   inherited pnlItem: TPanel
     Height = 170
@@ -212,7 +212,6 @@ inherited PGLinkFrame: TPGLinkFrame
     Locked = True
     ShowCaption = False
     TabOrder = 2
-    ExplicitHeight = 145
     object Splitter1: TSplitter
       Left = 0
       Top = 72
@@ -238,7 +237,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Caption = 'Script Before (Run: F9)'
       Constraints.MinHeight = 60
       TabOrder = 0
-      ExplicitHeight = 202
       object EdtScriptBefore: TRichEditEx
         Left = 2
         Top = 15
@@ -257,8 +255,6 @@ inherited PGLinkFrame: TPGLinkFrame
         WantTabs = True
         Zoom = 100
         OnKeyUp = EdtScriptBeforeKeyUp
-        ExplicitLeft = 3
-        ExplicitHeight = 109
       end
     end
     object GrbScriptAfter: TGroupBox
@@ -272,7 +268,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Caption = 'Script After (Run: F9)'
       Constraints.MinHeight = 60
       TabOrder = 1
-      ExplicitTop = 80
       object EdtScriptAfter: TRichEditEx
         Left = 2
         Top = 15

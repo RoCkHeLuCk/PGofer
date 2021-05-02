@@ -135,6 +135,7 @@ object FrmConsole: TFrmConsole
       HideSelection = False
       ParentCtl3D = False
       ParentFont = False
+      ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 1
       Zoom = 100

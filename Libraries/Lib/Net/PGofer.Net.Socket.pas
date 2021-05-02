@@ -82,7 +82,7 @@ uses
 procedure TPGNetServer.ConsoleSendMSG( Value: string );
 begin
   if Assigned( ConsoleNotify ) then
-    Self.ConsoleSendMSG( Value );
+    ConsoleNotify(nil, Value, True, ConsoleMessage );
 end;
 
 constructor TPGNetServer.Create( AItemDad: TPGItem );
@@ -223,7 +223,7 @@ end;
 procedure TPGNetClient.ConsoleSendMSG( Value: string );
 begin
   if Assigned( ConsoleNotify ) then
-    Self.ConsoleSendMSG( Value );
+    ConsoleNotify(nil, Value, True, ConsoleMessage );
 end;
 
 constructor TPGNetClient.Create( AItemDad: TPGItem );

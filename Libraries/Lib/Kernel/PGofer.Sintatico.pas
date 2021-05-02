@@ -8,13 +8,14 @@ uses
   PGofer.Classes, PGofer.Lexico;
 
 type
-  TPGConsoleNotify = procedure( AValue: string; AShow: Boolean ) of object;
+  TPGConsoleNotify = procedure( AThread: TThread; AValue: string;
+    ANewLine, AShow: Boolean ) of object;
 
   TPGPilha = class( TPGItem )
     constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
   private
-    FPilha: TStack< Variant >;
+    FPilha: TStack<Variant>;
   public
     procedure Empilhar( AValue: Variant );
     function Desempilhar( ADefault: Variant ): Variant;
@@ -33,10 +34,10 @@ type
     procedure Execute; override;
   public
     constructor Create( AName: string; AItemDad: TPGItem;
-       ATerminate: Boolean ); overload;
+      ATerminate: Boolean ); overload;
     destructor Destroy( ); override;
     property Pilha: TPGPilha read FPilha;
-    property Local: TPGItem read FLocal;
+    property local: TPGItem read FLocal;
     property TokenList: TTokenList read FTokenList;
     property Erro: Boolean read FErro write FErro;
     property Script: string read FScript;
@@ -47,7 +48,7 @@ type
   end;
 
 procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
-   AWaitFor: Boolean = False );
+  AWaitFor: Boolean = False );
 function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
 
 var
@@ -79,7 +80,7 @@ uses
 constructor TPGPilha.Create( AItemDad: TPGItem );
 begin
   inherited Create( AItemDad, '$Stack' );
-  FPilha := TStack< Variant >.Create;
+  FPilha := TStack<Variant>.Create;
 end;
 
 destructor TPGPilha.Destroy( );
@@ -107,7 +108,7 @@ end;
 { Gramatica }
 
 constructor TGramatica.Create( AName: string; AItemDad: TPGItem;
-   ATerminate: Boolean );
+  ATerminate: Boolean );
 begin
   inherited Create( True );
   Self.FreeOnTerminate := ATerminate;
@@ -152,23 +153,15 @@ begin
   else
     LexicoName := '"' + LexicoName + '" ';
   if Assigned( ConsoleNotify ) then
-    Synchronize(
-      procedure
-      begin
-        ConsoleNotify( FLocal.name + ' [' +
-           Self.TokenList.Token.Cordenada.ToString + '] ' + LexicoName + ': ' +
-           AText, FConsoleShowMessage );
-      end );
+    ConsoleNotify( Self, FLocal.name + ' [' +
+      Self.TokenList.Token.Cordenada.ToString + '] ' + LexicoName + ': ' +
+      AText, True, FConsoleShowMessage );
 end;
 
 procedure TGramatica.MSGsAdd( AText: string );
 begin
   if Assigned( ConsoleNotify ) then
-    Synchronize(
-      procedure
-      begin
-        ConsoleNotify( AText, FConsoleShowMessage );
-      end );
+     ConsoleNotify(Self, AText, True, FConsoleShowMessage );
 end;
 
 procedure TGramatica.SetScript( AScript: string );
@@ -220,8 +213,8 @@ begin
   begin
     Texto := TStringList.Create;
     Texto.LoadFromFile( FileName );
-    ScriptExec( 'FileScript: ' + ExtractFileName( FileName ),
-       Texto.Text, nil, Esperar );
+    ScriptExec( 'FileScript: ' + ExtractFileName( FileName ), Texto.Text, nil,
+      Esperar );
     Texto.Free;
     Result := True;
   end

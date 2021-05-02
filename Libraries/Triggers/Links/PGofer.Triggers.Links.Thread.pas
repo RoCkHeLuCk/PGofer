@@ -17,7 +17,7 @@ type
     procedure Execute; override;
   public
     constructor Create( ALink: TPGLink; AParam: string;
-       ATerminate: Boolean ); overload;
+      ATerminate: Boolean ); overload;
     destructor Destroy( ); override;
   end;
 
@@ -33,7 +33,7 @@ uses
 { TLinkThread }
 
 constructor TLinkThread.Create( ALink: TPGLink; AParam: string;
-   ATerminate: Boolean );
+  ATerminate: Boolean );
 begin
   inherited Create( True );
   Self.FreeOnTerminate := ATerminate;
@@ -130,13 +130,14 @@ begin
     ProcessInfo := default ( TProcessInformation );
 
     if CreateProcessW( PWideChar( FileExpandPath( FLink.FileName ) ),
-       PWideChar( '"' + FileExpandPath( FLink.FileName ) + '" ' +
-       FileExpandPath( FParam ) ), @SecurityAttribute, @SecurityAttribute, True,
-       GetProcessPri( FLink.Priority ), nil,
-       PWideChar( FileExpandPath( FLink.Directory ) ), StartupInfo, ProcessInfo )
+      PWideChar( '"' + FileExpandPath( FLink.FileName ) + '" ' +
+      FileExpandPath( FParam ) ), @SecurityAttribute, @SecurityAttribute, True,
+      GetProcessPri( FLink.Priority ), nil,
+      PWideChar( FileExpandPath( FLink.Directory ) ), StartupInfo, ProcessInfo )
     then
     begin
       pBuffer := AllocMem( CReadBuffer + 1 );
+      ConsoleNotify( Self, 'Link ' + FLink.Name + ' : ', True, ConsoleMessage );
 
       repeat
         dRunning := WaitForSingleObject( ProcessInfo.hProcess, 100 );
@@ -146,13 +147,7 @@ begin
           pBuffer[ dRead ] := #0;
 
           OemToAnsi( pBuffer, pBuffer );
-
-          Self.Synchronize(
-            procedure
-            begin
-              ConsoleNotify( 'Link ' + FLink.Name + ' : ' + string( pBuffer ),
-                 ConsoleMessage );
-            end );
+          ConsoleNotify( Self, string( pBuffer ), False, ConsoleMessage );
         until ( dRead < CReadBuffer );
       until ( dRunning <> WAIT_TIMEOUT );
 
@@ -169,6 +164,7 @@ end;
 procedure TLinkThread.ShellExec( );
 var
   ShellExecuteInfoW: TShellExecuteInfo;
+  sText: string;
 begin
   FillChar( ShellExecuteInfoW, SizeOf( TShellExecuteInfoW ), #0 );
 
@@ -179,7 +175,7 @@ begin
   ShellExecuteInfoW.lpFile := PWideChar( FileExpandPath( FLink.FileName ) );
   ShellExecuteInfoW.lpParameters := PWideChar( FileExpandPath( FParam ) );
   ShellExecuteInfoW.lpDirectory :=
-     PWideChar( FileExpandPath( FLink.Directory ) );
+    PWideChar( FileExpandPath( FLink.Directory ) );
   ShellExecuteInfoW.nShow := FLink.State;
 
   ShellExecuteExW( @ShellExecuteInfoW );
@@ -187,20 +183,18 @@ begin
   if ShellExecuteInfoW.hProcess <> INVALID_HANDLE_VALUE then
   begin
     SetPriorityClass( ShellExecuteInfoW.hProcess,
-       GetProcessPri( FLink.Priority ) );
+      GetProcessPri( FLink.Priority ) );
   end;
 
-  Self.Synchronize(
-    procedure
-    begin
-      ConsoleNotify( 'Link ' + FLink.Name + ' : ' +
-         GetShellExMSGToStr( ShellExecuteInfoW.hInstApp ), ConsoleMessage );
-    end );
+  sText := GetShellExMSGToStr( ShellExecuteInfoW.hInstApp, True );
+  if sText <> '' then
+    ConsoleNotify( Self, 'Link ' + FLink.Name + ' : ' + sText, True,
+      ConsoleMessage );
 
   if ( FLink.ScriptAfter <> '' ) or ( not Self.FreeOnTerminate ) then
   begin
     while WaitForSingleObject( ShellExecuteInfoW.hProcess, 500 ) <>
-       WAIT_OBJECT_0 do;
+      WAIT_OBJECT_0 do;
   end;
 
   CloseHandle( ShellExecuteInfoW.hProcess );

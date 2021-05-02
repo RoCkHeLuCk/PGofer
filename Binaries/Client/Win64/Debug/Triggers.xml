@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">3</Occurrence>
+    <Occurrence Type="Cardinal">6</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">if FrmPGofer.Visible then
    FrmPGofer.Hide
@@ -16,4 +16,28 @@ else
     <Inhibit Type="Boolean">False</Inhibit>
     <Script Type="string"></Script>
   </HotKey>
+  <Link Name="calc" Enabled="true" ReadOnly="false">
+    <FileName Type="string">%SystemRoot%\SysWOW64\calc.exe</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string">%SystemRoot%\SysWOW64\</Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <Operation Type="Byte">0</Operation>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <Link Name="ping" Enabled="true" ReadOnly="false">
+    <FileName Type="string">%SystemRoot%\SysWOW64\PING.EXE</FileName>
+    <Parameter Type="string">-t 10.1.1.1</Parameter>
+    <Directory Type="string">%SystemRoot%\SysWOW64\</Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <Operation Type="Byte">0</Operation>
+    <CaptureMsg Type="Boolean">True</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
 </Triggers>

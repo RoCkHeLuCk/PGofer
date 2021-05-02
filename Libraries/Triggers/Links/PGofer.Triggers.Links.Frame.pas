@@ -60,6 +60,8 @@ type
     FItem: TPGLink;
     FFrmAutoCompleteBefore: TFrmAutoComplete;
     FFrmAutoCompleteAfter: TFrmAutoComplete;
+    procedure isFileName();
+    procedure isDirectory();
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
@@ -78,6 +80,36 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
+constructor TPGLinkFrame.Create( AItem: TPGItem; AParent: TObject );
+begin
+  inherited Create( AItem, AParent );
+  FItem := TPGLink( AItem );
+
+  EdtFile.Text := FItem.FileName;
+  isFileName();
+
+  EdtPatameter.Text := FItem.Parameter;
+  EdtDiretory.Text := FItem.Directory;
+  isDirectory();
+
+  CmbState.ItemIndex := FItem.State;
+  CmbPriority.ItemIndex := FItem.Priority;
+  CmbOperation.ItemIndex := FItem.Operation;
+  ckbCapture.Checked := FItem.CaptureMsg;
+  EdtScriptBefore.Lines.Text := FItem.ScriptBefor;
+  EdtScriptAfter.Lines.Text := FItem.ScriptAfter;
+  FFrmAutoCompleteBefore := TFrmAutoComplete.Create( EdtScriptBefore );
+  FFrmAutoCompleteAfter := TFrmAutoComplete.Create( EdtScriptAfter );
+end;
+
+destructor TPGLinkFrame.Destroy;
+begin
+  FItem := nil;
+  FFrmAutoCompleteBefore.Free( );
+  FFrmAutoCompleteAfter.Free( );
+  inherited Destroy( );
+end;
+
 procedure TPGLinkFrame.BtnFileClick( Sender: TObject );
 begin
   OpdLinks.Title := 'File';
@@ -91,6 +123,8 @@ begin
     FItem.Directory := FileUnExpandPath( ExtractFilePath( OpdLinks.FileName ) );
     EdtFile.Text := FItem.FileName;
     EdtDiretory.Text := FItem.Directory;
+    isFileName();
+    isDirectory();
   end;
 end;
 
@@ -98,6 +132,7 @@ procedure TPGLinkFrame.BtnDiretoryClick( Sender: TObject );
 begin
   FItem.Directory := FileUnExpandPath( FileDirDialog( EdtDiretory.Text ) );
   EdtDiretory.Text := FItem.Directory;
+  isDirectory();
 end;
 
 procedure TPGLinkFrame.BtnTestClick( Sender: TObject );
@@ -134,49 +169,18 @@ begin
   FItem.Priority := CmbPriority.ItemIndex;
 end;
 
-constructor TPGLinkFrame.Create( AItem: TPGItem; AParent: TObject );
-begin
-  inherited Create( AItem, AParent );
-  FItem := TPGLink( AItem );
-  EdtFile.Text := FItem.FileName;
-  EdtPatameter.Text := FItem.Parameter;
-  EdtDiretory.Text := FItem.Directory;
-  CmbState.ItemIndex := FItem.State;
-  CmbPriority.ItemIndex := FItem.Priority;
-  CmbOperation.ItemIndex := FItem.Operation;
-  ckbCapture.Checked := FItem.CaptureMsg;
-  EdtScriptBefore.Lines.Text := FItem.ScriptBefor;
-  EdtScriptAfter.Lines.Text := FItem.ScriptAfter;
-  FFrmAutoCompleteBefore := TFrmAutoComplete.Create( EdtScriptBefore );
-  FFrmAutoCompleteAfter := TFrmAutoComplete.Create( EdtScriptAfter );
-end;
-
-destructor TPGLinkFrame.Destroy;
-begin
-  FItem := nil;
-  FFrmAutoCompleteBefore.Free( );
-  FFrmAutoCompleteAfter.Free( );
-  inherited Destroy( );
-end;
-
 procedure TPGLinkFrame.EdtFileKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
   FItem.FileName := EdtFile.Text;
-  if FItem.isFileExist then
-    EdtFile.Color := clWindow
-  else
-    EdtFile.Color := clRed;
+  isFileName();
 end;
 
 procedure TPGLinkFrame.EdtDiretoryKeyUp( Sender: TObject; var Key: Word;
    Shift: TShiftState );
 begin
   FItem.Directory := EdtDiretory.Text;
-  if FItem.isDirExist then
-    EdtDiretory.Color := clWindow
-  else
-    EdtDiretory.Color := clRed;
+  isDirectory();
 end;
 
 procedure TPGLinkFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
@@ -221,6 +225,22 @@ begin
   FIniFile.WriteInteger( Self.ClassName, 'Scripts',
      Self.GrbScriptAfter.Height );
   inherited IniConfigSave( );
+end;
+
+procedure TPGLinkFrame.isDirectory;
+begin
+  if FItem.isDirExist then
+    EdtDiretory.Color := clWindow
+  else
+    EdtDiretory.Color := clRed;
+end;
+
+procedure TPGLinkFrame.isFileName;
+begin
+  if FItem.isFileExist then
+    EdtFile.Color := clWindow
+  else
+    EdtFile.Color := clRed;
 end;
 
 procedure TPGLinkFrame.Splitter1CanResize( Sender: TObject;
