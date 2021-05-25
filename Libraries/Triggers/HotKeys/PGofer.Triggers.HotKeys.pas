@@ -134,7 +134,7 @@ end;
 
 procedure TPGHotKey.Triggering( );
 begin
-  ScriptExec( 'HotKey: ' + Self.Name, Self.Script, nil );
+  ScriptExec( 'HotKey: ' + Self.Name, Self.Script, nil, False );
 end;
 
 function TPGHotKey.GetKeysName( ): string;
@@ -165,8 +165,9 @@ var
   Find: Boolean;
 begin
   Result := nil;
+
   KeysCount := Keys.Count;
-  if KeysCount > 0 then
+  if KeysCount > 1 then
   begin
     ListCount := TPGHotKey.GlobList.Count;
     Find := False;

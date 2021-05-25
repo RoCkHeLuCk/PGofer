@@ -26,7 +26,7 @@ type
     mniGlobals: TMenuItem;
     mniTriggers: TMenuItem;
     procedure EdtScriptKeyDown( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure FormCreate( Sender: TObject );
     procedure FormDestroy( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
@@ -34,20 +34,22 @@ type
     procedure FormCloseQuery( Sender: TObject; var CanClose: Boolean );
     procedure PopUpClick( Sender: TObject );
     procedure FormMouseDown( Sender: TObject; Button: TMouseButton;
-       Shift: TShiftState; X, Y: Integer );
+      Shift: TShiftState; X, Y: Integer );
     procedure FormMouseMove( Sender: TObject; Shift: TShiftState;
-       X, Y: Integer );
+      X, Y: Integer );
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
   private
     FMouse: TPoint;
+    FHotKey: ATOM;
     FFrmAutoComplete: TFrmAutoComplete;
     procedure FormAutoSize( );
   protected
     procedure CreateWindowHandle( const Params: TCreateParams ); override;
     procedure OnQueryEndSession( var Msg: TWMQueryEndSession );
-       message WM_QueryEndSession;
+      message WM_QueryEndSession;
     procedure WndProc( var Message: TMessage ); override;
+    procedure WMHotKey( var Message: TWMHotKey ); message WM_HOTKEY;
   public
   end;
 
@@ -71,7 +73,13 @@ begin
   inherited CreateWindowHandle( Params );
   SetWindowLong( Self.Handle, GWL_STYLE, WS_SIZEBOX );
   SetWindowLong( Self.Handle, GWL_EXSTYLE, WS_EX_TOOLWINDOW and
-     not WS_EX_APPWINDOW );
+    not WS_EX_APPWINDOW );
+end;
+
+procedure TFrmPGofer.WMHotKey( var Message: TWMHotKey );
+begin
+  if message.HotKey = FHotKey then
+    FrmPGofer.ForceShow( True );
 end;
 
 procedure TFrmPGofer.WndProc( var Message: TMessage );
@@ -89,6 +97,9 @@ begin
   FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
   FFrmAutoComplete.MemoryNoCtrl := True;
   TPGForm.Create( Self );
+
+  FHotKey := GlobalAddAtom( 'FrmPGofer' );
+  RegisterHotKey( Self.Handle, FHotKey, MOD_WIN or MOD_NOREPEAT , 71 );
 end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
@@ -117,6 +128,7 @@ end;
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
   FFrmAutoComplete.Free( );
+  UnRegisterHotKey( Self.Handle, FHotKey );
   inherited FormDestroy( Sender );
 end;
 
@@ -166,7 +178,7 @@ begin
 end;
 
 procedure TFrmPGofer.EdtScriptKeyDown( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   if ( not FFrmAutoComplete.Visible ) and ( Shift = [ ] ) then
     case Key of
@@ -192,7 +204,7 @@ begin
 end;
 
 procedure TFrmPGofer.FormMouseDown( Sender: TObject; Button: TMouseButton;
-   Shift: TShiftState; X, Y: Integer );
+  Shift: TShiftState; X, Y: Integer );
 begin
   if Shift = [ ssLeft ] then
   begin
@@ -202,7 +214,7 @@ begin
 end;
 
 procedure TFrmPGofer.FormMouseMove( Sender: TObject; Shift: TShiftState;
-   X, Y: Integer );
+  X, Y: Integer );
 begin
   if Shift = [ ssLeft ] then
   begin

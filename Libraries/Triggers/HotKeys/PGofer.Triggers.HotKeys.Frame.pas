@@ -28,16 +28,16 @@ type
     procedure MmoHotKeysExit( Sender: TObject );
     procedure BtnCleanClick( Sender: TObject );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
   private
     FItem: TPGHotKey;
     FFrmAutoComplete: TFrmAutoComplete;
-{$HINTS OFF}
+    {$HINTS OFF}
     class function LowLevelProc( Code: Integer; wParam: wParam; lParam: lParam )
-       : NativeInt; stdcall; static;
-{$HINTS ON}
+      : NativeInt; stdcall; static;
+    {$HINTS ON}
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -49,21 +49,31 @@ var
 implementation
 
 uses
-  PGofer.Triggers.HotKeys.Hook;
+  WinApi.Messages, PGofer.Triggers.HotKeys.Hook;
 
 {$R *.dfm}
 { TPGFrameHotKey }
 
 class function TPGFrameHotKey.LowLevelProc( Code: Integer; wParam: wParam;
-   lParam: lParam ): NativeInt;
+  lParam: lParam ): NativeInt;
 var
+  ParamInput : TParamInput;
   Key: TKey;
 begin
-  if Assigned( PGFrameHotKey.FItem ) then
+  if ( Code = HC_ACTION ) then
   begin
-    if ( Code = HC_ACTION ) then
+    if Assigned( PGFrameHotKey.FItem ) then
     begin
-      THookProc.CalcVirtualKey( wParam, lParam, Key );
+      ParamInput.wParam := wParam;
+      if wParam < WM_MOUSEFIRST then
+      begin
+        ParamInput.dwVkData := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
+        ParamInput.dwScan := PKBDLLHOOKSTRUCT( lParam ).dwScan;
+      end else begin
+        ParamInput.dwVkData := PMSLLHOOKSTRUCT( lParam ).dwMData;
+      end;
+
+      Key := TKey.CalcVirtualKey( ParamInput );
       if Key.wKey > 0 then
       begin
         if Key.bDetect in [ kd_Down, kd_Wheel ] then
@@ -76,9 +86,8 @@ begin
           end;
         end;
       end;
+      PGFrameHotKey.MmoHotKeys.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
     end;
-
-    PGFrameHotKey.MmoHotKeys.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
   end;
   Result := CallNextHookEx( 0, Code, wParam, lParam );
 end;
@@ -103,7 +112,7 @@ begin
 end;
 
 procedure TPGFrameHotKey.EdtNameKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   if FItem.isItemExist( EdtName.Text, True ) then
   begin
@@ -115,7 +124,7 @@ begin
 end;
 
 procedure TPGFrameHotKey.EdtScriptKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.Script := EdtScript.Lines.Text;
 end;
@@ -136,29 +145,31 @@ begin
   FItem.Detect := CmbDetect.ItemIndex;
   if FItem.Detect = 2 then
   begin
-     CkbInhibit.Checked := False;
-     CkbInhibit.Enabled := False;
-     FItem.Inhibit := False;
+    CkbInhibit.Checked := False;
+    CkbInhibit.Enabled := False;
+    FItem.Inhibit := False;
   end else begin
-     CkbInhibit.Enabled := True;
+    CkbInhibit.Enabled := True;
   end;
 end;
 
 procedure TPGFrameHotKey.MmoHotKeysEnter( Sender: TObject );
 begin
-  PGFrameHotKey := Self;
-  MmoHotKeys.Color := clRed;
-{$IFNDEF DEBUG}
-  THookProc.EnableHoot( TPGFrameHotKey.LowLevelProc );
-{$ENDIF}
+  if HOOK_ENABLED then
+  begin
+    PGFrameHotKey := Self;
+    MmoHotKeys.Color := clRed;
+    THotKeyThread.EnableHook( TPGFrameHotKey.LowLevelProc );
+  end;
 end;
 
 procedure TPGFrameHotKey.MmoHotKeysExit( Sender: TObject );
 begin
-  MmoHotKeys.Color := clBtnFace;
-{$IFNDEF DEBUG}
-  THookProc.EnableHoot( );
-{$ENDIF}
+  if HOOK_ENABLED then
+  begin
+    MmoHotKeys.Color := clBtnFace;
+    THotKeyThread.EnableHook( );
+  end;
 end;
 
 end.

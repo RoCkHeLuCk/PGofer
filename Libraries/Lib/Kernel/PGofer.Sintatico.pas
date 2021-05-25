@@ -70,6 +70,8 @@ var
   CanOff: Boolean = False;
   CanClose: Boolean = True;
 
+  HookQueueMaxCount: Integer = 0;
+
 implementation
 
 uses
@@ -161,7 +163,7 @@ end;
 procedure TGramatica.MSGsAdd( AText: string );
 begin
   if Assigned( ConsoleNotify ) then
-     ConsoleNotify(Self, AText, True, FConsoleShowMessage );
+    ConsoleNotify( Self, AText, True, FConsoleShowMessage );
 end;
 
 procedure TGramatica.SetScript( AScript: string );
@@ -188,7 +190,7 @@ begin
 end;
 
 procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
-AWaitFor: Boolean = False );
+  AWaitFor: Boolean = False );
 var
   Gramatica: TGramatica;
 begin

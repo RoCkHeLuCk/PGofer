@@ -143,8 +143,8 @@
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <UWP_DelphiLogo44>..\..\..\Documents\Imagens\Launcher 44px.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>..\..\..\Documents\Imagens\Launcher 150px.png</UWP_DelphiLogo150>
-        <VerInfo_Build>1</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.1;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>3</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.3;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

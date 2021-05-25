@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">6</Occurrence>
+    <Occurrence Type="Cardinal">19</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">if FrmPGofer.Visible then
    FrmPGofer.Hide
@@ -11,10 +11,11 @@ else
     <Trigger Type="Byte">0</Trigger>
   </Task>
   <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
-    <HotKeysHex Type="string"></HotKeysHex>
+    <HotKeysHex Type="string">0A2047</HotKeysHex>
     <Detect Type="Byte">2</Detect>
     <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string"></Script>
+    <Script Type="string">Write('foi');
+</Script>
   </HotKey>
   <Link Name="calc" Enabled="true" ReadOnly="false">
     <FileName Type="string">%SystemRoot%\SysWOW64\calc.exe</FileName>
