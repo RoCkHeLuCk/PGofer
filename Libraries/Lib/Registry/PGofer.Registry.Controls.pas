@@ -5,12 +5,22 @@ interface
 function RegistryDelete( RootKey: NativeUInt; OpenKey, Key: string ): Boolean;
 function RegistryRead( RootKey: NativeUInt; OpenKey, Key: string ): string;
 function RegistryWrite( RootKey: NativeUInt;
-   OpenKey, Key, Value: string ): Boolean;
+  OpenKey, Key, Value: string ): Boolean;
+
+function RegistryEnvironmentDelete( Key: string ): Boolean;
+function RegistryEnvironmentRead( Key: string ): string;
+function RegistryEnvironmentWrite( Key, Value: string ): Boolean;
+function RegistryEnvironmentAdd( Key, Value: string ): Boolean;
+function RegistryEnvironmentRemove( Key, Value: string ): Boolean;
 
 implementation
 
 uses
-  System.Win.Registry;
+  Winapi.Windows, Winapi.Messages, System.Win.Registry;
+
+const
+  REG_ENVIRONMENT_LOCATION =
+    'System\CurrentControlSet\Control\Session Manager\Environment';
 
 function RegistryDelete( RootKey: NativeUInt; OpenKey, Key: string ): Boolean;
 var
@@ -52,7 +62,7 @@ begin
 end;
 
 function RegistryWrite( RootKey: NativeUInt;
-   OpenKey, Key, Value: string ): Boolean;
+  OpenKey, Key, Value: string ): Boolean;
 var
   Reg: TRegistry;
 begin
@@ -70,6 +80,58 @@ begin
   finally
     Reg.free;
   end;
+end;
+
+function RegistryEnvironmentDelete( Key: string ): Boolean;
+begin
+  if Key <> '' then
+    Result := RegistryDelete( HKEY_LOCAL_MACHINE,
+      REG_ENVIRONMENT_LOCATION, Key )
+  else
+    Result := False;
+end;
+
+function RegistryEnvironmentRead( Key: string ): string;
+begin
+  Result := RegistryRead( HKEY_LOCAL_MACHINE, REG_ENVIRONMENT_LOCATION, Key );
+end;
+
+function RegistryEnvironmentWrite( Key, Value: string ): Boolean;
+begin
+  Result := RegistryWrite( HKEY_LOCAL_MACHINE, REG_ENVIRONMENT_LOCATION,
+    Key, Value );
+
+  // SendMessage(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
+  // LPARAM(PChar('Environment')));
+  SendMessageTimeout( HWND_BROADCAST, WM_SETTINGCHANGE, 0,
+    LPARAM( PChar( 'Environment' ) ), SMTO_ABORTIFHUNG, 5000, nil );
+end;
+
+function RegistryEnvironmentAdd( Key, Value: string ): Boolean;
+var
+  Content: string;
+begin
+  Content := RegistryEnvironmentRead( Key );
+  if Pos( Value, Content ) = -1 then
+    Result := RegistryEnvironmentWrite( Key, Content + Value )
+  else
+    Result := False;
+end;
+
+function RegistryEnvironmentRemove( Key, Value: string ): Boolean;
+var
+  Content: string;
+  I: Integer;
+begin
+  Content := RegistryEnvironmentRead( Key );
+  I := Pos( Value, Content );
+  if I <> -1 then
+  begin
+    System.Delete( Content, I, Length( Value ) );
+    Result := RegistryEnvironmentWrite( Key, Content );
+  end
+  else
+    Result := False;
 end;
 
 end.
