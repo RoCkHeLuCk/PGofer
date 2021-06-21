@@ -41,7 +41,8 @@ type
     procedure EdtScriptChange( Sender: TObject );
   private
     FMouse: TPoint;
-    FHotKey: ATOM;
+    FHotKey_FrmPGofer: ATOM;
+    FHotKey_ToggleHook: ATOM;
     FFrmAutoComplete: TFrmAutoComplete;
     procedure FormAutoSize( );
   protected
@@ -63,7 +64,8 @@ uses
   PGofer.Sintatico,
   PGofer.System.Controls,
   PGofer.Forms.Controls, PGofer.Forms.Console,
-  PGofer.Triggers.Links, PGofer.Triggers.Tasks;
+  PGofer.Triggers.Links, PGofer.Triggers.Tasks,
+  PGofer.Triggers.HotKeys.Hook;
 
 {$R *.dfm}
 { TFrmPGofer3 }
@@ -78,8 +80,21 @@ end;
 
 procedure TFrmPGofer.WMHotKey( var Message: TWMHotKey );
 begin
-  if message.HotKey = FHotKey then
+
+  if message.HotKey = FHotKey_FrmPGofer then
     FrmPGofer.ForceShow( True );
+
+  if message.HotKey = FHotKey_ToggleHook then
+  begin
+    if THotKeyThread.isEnableHook then
+    begin
+      THotKeyThread.DisableHook( );
+      ConsoleNotify(nil, 'Hook Disable', true, true);
+    end else begin
+      THotKeyThread.EnableHook( );
+      ConsoleNotify(nil, 'Hook Enabled', true, true);
+    end;
+  end;
 end;
 
 procedure TFrmPGofer.WndProc( var Message: TMessage );
@@ -98,8 +113,13 @@ begin
   FFrmAutoComplete.MemoryNoCtrl := True;
   TPGForm.Create( Self );
 
-  FHotKey := GlobalAddAtom( 'FrmPGofer' );
-  RegisterHotKey( Self.Handle, FHotKey, MOD_WIN or MOD_NOREPEAT , 71 );
+  FHotKey_FrmPGofer := GlobalAddAtom( 'FrmPGofer' );
+  RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
+
+  FHotKey_ToggleHook := GlobalAddAtom( 'ToggleHook' );
+  RegisterHotKey( Self.Handle, FHotKey_ToggleHook,
+    MOD_WIN or MOD_NOREPEAT, 72 );
+
 end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
@@ -128,7 +148,7 @@ end;
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
   FFrmAutoComplete.Free( );
-  UnRegisterHotKey( Self.Handle, FHotKey );
+  UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
   inherited FormDestroy( Sender );
 end;
 

@@ -66,7 +66,9 @@ uses
   Vcl.Forms,
   Vcl.Themes,
   Vcl.Styles,
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
+  PGofer.Triggers.HotKeys.RawInput in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.RawInput.pas',
+  PGofer.Triggers.HotKeys.MMRawInput in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.MMRawInput.pas';
 
 {$R *.res}
 
@@ -85,8 +87,8 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    GlobalCollection.LoadFileAndForm( );
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );

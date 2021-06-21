@@ -12,11 +12,13 @@ uses
   System.SyncObjs,
   System.Generics.Collections;
 
-  {$IFDEF DEBUG}
-    const HOOK_ENABLED : Boolean = False;
-  {$ELSE}
-    const HOOK_ENABLED : Boolean = True;
-  {$ENDIF}
+{$IFDEF DEBUG}
+  const
+    HOOK_ENABLED: Boolean = False;
+{$ELSE}
+  const
+    HOOK_ENABLED: Boolean = True;
+{$ENDIF}
 
 type
 
@@ -76,16 +78,17 @@ type
       lParam: lParam ): LRESULT; stdcall; static; inline;
     class function MBLowLevelProc( Code: Integer; wParam: wParam;
       lParam: lParam ): LRESULT; stdcall; static; inline;
+    class function GetEnableHook( ): Boolean; static;
   protected
     procedure Execute; override;
   public
     class procedure EnableHook( LLProc: TLowLevelProc = nil ); static;
     class procedure DisableHook( ); static;
+    class property isEnableHook: Boolean read GetEnableHook;
     constructor Create( ); overload;
     destructor Destroy( ); override;
     procedure Terminate( ); overload;
   end;
-
 
 implementation
 
@@ -180,10 +183,16 @@ end;
 class procedure THotKeyThread.DisableHook( );
 begin
   if THotKeyThread.FKBHook > 0 then
+  begin
     UnHookWindowsHookEx( THotKeyThread.FKBHook );
+    THotKeyThread.FKBHook := 0;
+  end;
 
   if THotKeyThread.FMBHook > 0 then
+  begin
     UnHookWindowsHookEx( THotKeyThread.FMBHook );
+    THotKeyThread.FMBHook := 0;
+  end;
 
   if Assigned( THotKeyThread.FHotKeyThread ) then
   begin
@@ -277,7 +286,7 @@ end;
 constructor THotKeyThread.Create( );
 begin
   Self.FParam := TQueue<TParamInput>.Create( );
-  //Self.FParam.Capacity := 10;
+  // Self.FParam.Capacity := 10;
   Self.FShootKeys := TList<Word>.Create( );
   Self.FEvent := TEvent.Create( nil, False, False, 'HotKeyEvent' );
   Self.FEvent.ResetEvent;
@@ -325,9 +334,14 @@ begin
   end;
 end;
 
+class function THotKeyThread.GetEnableHook( ): Boolean;
+begin
+  Result := ( THotKeyThread.FKBHook > 0 );
+end;
+
 procedure THotKeyThread.KBEnqueue( AwParam: wParam; AlParam: lParam );
 var
-  ParamInput : TParamInput;
+  ParamInput: TParamInput;
 begin
   ParamInput.wParam := AwParam;
   ParamInput.dwVkData := PKBDLLHOOKSTRUCT( AlParam ).dwVkCode;
@@ -338,7 +352,7 @@ end;
 
 procedure THotKeyThread.MBEnqueue( AwParam: wParam; AlParam: lParam );
 var
-  ParamInput : TParamInput;
+  ParamInput: TParamInput;
 begin
   ParamInput.wParam := AwParam;
   ParamInput.dwVkData := PMSLLHOOKSTRUCT( AlParam ).dwMData;
@@ -356,7 +370,7 @@ begin
   begin
 
     if Self.FParam.Count > PGofer.Sintatico.HookQueueMaxCount then
-       PGofer.Sintatico.HookQueueMaxCount := Self.FParam.Count;
+      PGofer.Sintatico.HookQueueMaxCount := Self.FParam.Count;
 
     Key := TKey.CalcVirtualKey( Self.FParam.Dequeue( ) );
 
@@ -392,10 +406,12 @@ begin
 end;
 
 initialization
-  if HOOK_ENABLED then
-     THotKeyThread.EnableHook( );
+
+if HOOK_ENABLED then
+  THotKeyThread.EnableHook( );
 
 finalization
-  THotKeyThread.DisableHook( );
+
+THotKeyThread.DisableHook( );
 
 end.
