@@ -118,7 +118,7 @@ begin
 
   FHotKey_ToggleHook := GlobalAddAtom( 'ToggleHook' );
   RegisterHotKey( Self.Handle, FHotKey_ToggleHook,
-    MOD_WIN or MOD_NOREPEAT, 72 );
+    MOD_WIN, 72 );
 
 end;
 

@@ -13,20 +13,22 @@ uses
   System.Generics.Collections;
 
 {$IFDEF DEBUG}
-  const
-    HOOK_ENABLED: Boolean = False;
+
+const
+  HOOK_ENABLED: Boolean = False;
 {$ELSE}
-  const
-    HOOK_ENABLED: Boolean = True;
-{$ENDIF}
+
+const
+  HOOK_ENABLED: Boolean = True;
+  {$ENDIF}
 
 type
 
   TKDState = ( kd_Down, kd_Press, kd_Up, kd_Wheel );
 
   tagKBDLLHOOKSTRUCT = packed record
-    dwVkCode: DWORD; // sim
-    dwScan: DWORD; // sim
+    dwVkCode: DWORD;
+    dwScan: DWORD;
     dwFlags: DWORD;
     dwTime: DWORD;
     iExInfo: ULONG_PTR;
@@ -38,7 +40,7 @@ type
   tagMSLLHOOKSTRUCT = record
     dx: LongInt;
     dy: LongInt;
-    dwMData: DWORD; // sim
+    dwMData: DWORD;
     dwFlags: DWORD;
     dwTime: DWORD;
     dwExInfo: ULONG_PTR;
@@ -78,6 +80,8 @@ type
       lParam: lParam ): LRESULT; stdcall; static; inline;
     class function MBLowLevelProc( Code: Integer; wParam: wParam;
       lParam: lParam ): LRESULT; stdcall; static; inline;
+    class function SubLowLevelProc( AwParam: wParam; AlParam: lParam ): Boolean;
+      stdcall; static; inline;
     class function GetEnableHook( ): Boolean; static;
   protected
     procedure Execute; override;
@@ -217,76 +221,56 @@ begin
   Result := CallNextHookEx( 0, Code, wParam, lParam );
 end;
 
+class function THotKeyThread.SubLowLevelProc( AwParam: wParam;
+  AlParam: lParam ): Boolean;
+var
+  ParamInput: TParamInput;
+  Key: TKey;
+  VHotKey: TPGHotKey;
+begin
+  ParamInput.wParam := wParam;
+  if wParam < WM_MOUSEFIRST then
+  begin
+    ParamInput.dwVkData := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
+    ParamInput.dwScan := PKBDLLHOOKSTRUCT( lParam ).dwScan;
+  end else begin
+    ParamInput.dwVkData := PMSLLHOOKSTRUCT( lParam ).dwMData;
+  end;
 
-// class procedure THookProc.SubLowLevelProc( AwParam: wParam; AlParam: lParam );
-// var
-// Key: TKey;
-// VHotKey: TPGHotKey;
-// Stopwatch: TStopwatch;
-// begin
-// Stopwatch := TStopwatch.Create;
-// Stopwatch.Start;
-//
-// CalcVirtualKey( AwParam, AlParam, Key );
-//
-// if Stopwatch.Elapsed.Ticks > PGofer.Sintatico.ElapsedTimeOut then
-// begin
-// ConsoleNotify( nil, 'Error: HotKey Timeout Calc: Elapsed ' +
-// Stopwatch.Elapsed.Ticks.ToString, True, True );
-// Exit;
-// end;
-// Stopwatch.StartNew;
-//
-// if Key.wKey > 0 then
-// begin
-// if Key.bDetect in [ kd_Down, kd_Wheel ] then
-// begin
-// if ( FShootKeys.Contains( Key.wKey ) ) then
-// Key.bDetect := kd_Press
-// else
-// FShootKeys.Add( Key.wKey );
-// end;
-//
-// VHotKey := TPGHotKey.LocateHotKeys( FShootKeys );
-// if Stopwatch.Elapsed.Ticks > PGofer.Sintatico.ElapsedTimeOut then
-// begin
-// ConsoleNotify( nil, 'Error: HotKey Timeout Locate: Elapsed ' +
-// Stopwatch.Elapsed.Ticks.ToString, True, True );
-// FShootKeys.Clear;
-// Exit;
-// end;
-// Stopwatch.StartNew;
-//
-// if Assigned( VHotKey ) then
-// begin
-// if ( ( Key.bDetect = kd_Wheel ) or
-// ( VHotKey.Detect = Byte( Key.bDetect ) ) ) then
-// begin
-// VHotKey.Triggering( );
-// if Stopwatch.Elapsed.Ticks > PGofer.Sintatico.ElapsedTimeOut then
-// begin
-// ConsoleNotify( nil, 'Error: HotKey Timeout Trigger: Elapsed ' +
-// Stopwatch.Elapsed.Ticks.ToString, True, True );
-// FShootKeys.Clear;
-// Exit;
-// end;
-// // if ( VHotKey.Detect <> Byte( kd_Up ) )
-// // // and( FKey.wKey = VHotKey.Keys.Last )
-// // and ( VHotKey.Inhibit ) then
-// // Result := True;
-// end;
-// end;
-//
-// if Key.bDetect in [ kd_Up, kd_Wheel ] then
-// FShootKeys.Remove( Key.wKey );
-// end;
-// Stopwatch.Stop;
-// end;
+  Key := TKey.CalcVirtualKey( AwParam, AlParam, Key );
+  Result := False;
+  if Key.wKey > 0 then
+  begin
+    if Key.bDetect in [ kd_Down, kd_Wheel ] then
+    begin
+      if ( FShootKeys.Contains( Key.wKey ) ) then
+        Key.bDetect := kd_Press
+      else
+        FShootKeys.Add( Key.wKey );
+    end;
+
+    VHotKey := TPGHotKey.LocateHotKeys( FShootKeys );
+
+    if Assigned( VHotKey ) then
+    begin
+      if ( ( Key.bDetect = kd_Wheel ) or
+        ( VHotKey.Detect = Byte( Key.bDetect ) ) ) then
+      begin
+        VHotKey.Triggering( );
+        if ( VHotKey.Detect <> Byte( kd_Up ) ) and
+          ( Key.wKey = VHotKey.Keys.Last ) and ( VHotKey.Inhibit ) then
+          Result := True;
+      end;
+    end;
+
+    if Key.bDetect in [ kd_Up, kd_Wheel ] then
+      FShootKeys.Remove( Key.wKey );
+  end;
+end;
 
 constructor THotKeyThread.Create( );
 begin
   Self.FParam := TQueue<TParamInput>.Create( );
-  // Self.FParam.Capacity := 10;
   Self.FShootKeys := TList<Word>.Create( );
   Self.FEvent := TEvent.Create( nil, False, False, 'HotKeyEvent' );
   Self.FEvent.ResetEvent;

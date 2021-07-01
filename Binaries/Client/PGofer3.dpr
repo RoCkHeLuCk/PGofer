@@ -66,9 +66,7 @@ uses
   Vcl.Forms,
   Vcl.Themes,
   Vcl.Styles,
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
-  PGofer.Triggers.HotKeys.RawInput in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.RawInput.pas',
-  PGofer.Triggers.HotKeys.MMRawInput in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.MMRawInput.pas';
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
 
