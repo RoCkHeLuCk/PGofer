@@ -4,12 +4,12 @@ interface
 
 uses
   System.Classes,
-  Winapi.Windows,
   Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Classes, PGofer.Triggers.HotKeys, PGofer.Item.Frame,
+  PGofer.Classes, PGofer.Item.Frame, PGofer.Triggers.HotKeys,
   PGofer.Forms.AutoComplete,
-  PGofer.Component.Edit, PGofer.Component.RichEdit;
+  PGofer.Component.Edit, PGofer.Component.RichEdit,
+  PGofer.Triggers.HotKeys.Controls;
 
 type
   TPGFrameHotKey = class( TPGFrame )
@@ -35,8 +35,7 @@ type
     FItem: TPGHotKey;
     FFrmAutoComplete: TFrmAutoComplete;
     {$HINTS OFF}
-    class function LowLevelProc( Code: Integer; wParam: wParam; lParam: lParam )
-      : NativeInt; stdcall; static;
+    procedure OnProcessKeys( AParamInput: TParamInput );
     {$HINTS ON}
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
@@ -49,48 +48,13 @@ var
 implementation
 
 uses
-  WinApi.Messages, PGofer.Triggers.HotKeys.Hook;
+  Winapi.Messages,
+  PGofer.Triggers.HotKeys.Hook,
+  PGofer.Triggers.HotKeys.RawInput,
+  PGofer.Triggers.HotKeys.Async;
 
 {$R *.dfm}
 { TPGFrameHotKey }
-
-class function TPGFrameHotKey.LowLevelProc( Code: Integer; wParam: wParam;
-  lParam: lParam ): NativeInt;
-var
-  ParamInput : TParamInput;
-  Key: TKey;
-begin
-  if ( Code = HC_ACTION ) then
-  begin
-    if Assigned( PGFrameHotKey.FItem ) then
-    begin
-      ParamInput.wParam := wParam;
-      if wParam < WM_MOUSEFIRST then
-      begin
-        ParamInput.dwVkData := PKBDLLHOOKSTRUCT( lParam ).dwVkCode;
-        ParamInput.dwScan := PKBDLLHOOKSTRUCT( lParam ).dwScan;
-      end else begin
-        ParamInput.dwVkData := PMSLLHOOKSTRUCT( lParam ).dwMData;
-      end;
-
-      Key := TKey.CalcVirtualKey( ParamInput );
-      if Key.wKey > 0 then
-      begin
-        if Key.bDetect in [ kd_Down, kd_Wheel ] then
-        begin
-          if not( PGFrameHotKey.FItem.Keys.Contains( Key.wKey ) ) then
-          begin
-            PGFrameHotKey.FItem.Keys.Add( Key.wKey );
-            PGFrameHotKey.CkbInhibit.Checked := False;
-            PGFrameHotKey.FItem.Inhibit := False;
-          end;
-        end;
-      end;
-      PGFrameHotKey.MmoHotKeys.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
-    end;
-  end;
-  Result := CallNextHookEx( 0, Code, wParam, lParam );
-end;
 
 constructor TPGFrameHotKey.Create( AItem: TPGItem; AParent: TObject );
 begin
@@ -155,20 +119,42 @@ end;
 
 procedure TPGFrameHotKey.MmoHotKeysEnter( Sender: TObject );
 begin
-  if HOOK_ENABLED then
-  begin
-    PGFrameHotKey := Self;
-    MmoHotKeys.Color := clRed;
-    THotKeyThread.EnableHook( TPGFrameHotKey.LowLevelProc );
+  PGFrameHotKey := Self;
+  MmoHotKeys.Color := clRed;
+  case INPUT_TYPE of
+      HOOK : HookInput.SetProcessKeys( OnProcessKeys );
+      RAW  : RawInput.SetProcessKeys( OnProcessKeys );
+      ASYNC : AsyncInput.SetProcessKeys( OnProcessKeys );
   end;
 end;
 
 procedure TPGFrameHotKey.MmoHotKeysExit( Sender: TObject );
 begin
-  if HOOK_ENABLED then
+  MmoHotKeys.Color := clBtnFace;
+  case INPUT_TYPE of
+      HOOK : HookInput.SetProcessKeys( nil );
+      RAW  : RawInput.SetProcessKeys( nil );
+      ASYNC : AsyncInput.SetProcessKeys( nil );
+  end;
+end;
+
+procedure TPGFrameHotKey.OnProcessKeys( AParamInput: TParamInput );
+var
+  Key: TKey;
+begin
+  Key := TKey.CalcVirtualKey( AParamInput );
+  if Key.wKey > 0 then
   begin
-    MmoHotKeys.Color := clBtnFace;
-    THotKeyThread.EnableHook( );
+    if Key.bDetect in [ kd_Down, kd_Wheel ] then
+    begin
+      if not( PGFrameHotKey.FItem.Keys.Contains( Key.wKey ) ) then
+      begin
+        PGFrameHotKey.FItem.Keys.Add( Key.wKey );
+        PGFrameHotKey.CkbInhibit.Checked := False;
+        PGFrameHotKey.FItem.Inhibit := False;
+      end;
+    end;
+    PGFrameHotKey.MmoHotKeys.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
   end;
 end;
 

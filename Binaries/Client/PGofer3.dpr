@@ -50,8 +50,13 @@ uses
   PGofer.Forms.Console in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas' {FrmConsole},
   PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
   PGofer.Triggers.HotKeys in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas',
+  PGofer.Triggers.HotKeys.Controls in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Controls.pas',
   PGofer.Triggers.HotKeys.Frame in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas' {PGFrameHotKey: TFrame},
-  PGofer.Triggers.HotKeys.Hook in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Hook.pas',
+  PGofer.Triggers.HotKeys.MMHook in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMHook.pas',
+  PGofer.Triggers.HotKeys.Hook in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.Hook.pas',
+  PGofer.Triggers.HotKeys.MMRawInput in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMRawInput.pas',
+  PGofer.Triggers.HotKeys.RawInput in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.RawInput.pas',
+  PGofer.Triggers.HotKeys.Async in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.Async.pas',
   PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
   PGofer.Triggers.Links.Thread in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Thread.pas',
@@ -64,8 +69,6 @@ uses
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   Winapi.Windows,
   Vcl.Forms,
-  Vcl.Themes,
-  Vcl.Styles,
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
@@ -85,8 +88,8 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  GlobalCollection.LoadFileAndForm( );
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );

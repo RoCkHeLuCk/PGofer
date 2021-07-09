@@ -42,15 +42,14 @@ type
   private
     FMouse: TPoint;
     FHotKey_FrmPGofer: ATOM;
-    FHotKey_ToggleHook: ATOM;
     FFrmAutoComplete: TFrmAutoComplete;
     procedure FormAutoSize( );
   protected
     procedure CreateWindowHandle( const Params: TCreateParams ); override;
     procedure OnQueryEndSession( var Msg: TWMQueryEndSession );
       message WM_QueryEndSession;
-    procedure WndProc( var Message: TMessage ); override;
-    procedure WMHotKey( var Message: TWMHotKey ); message WM_HOTKEY;
+    procedure WndProc( var MSG: TMessage ); override;
+    procedure WMHotKey( var MSG: TWMHotKey ); message WM_HOTKEY;
   public
   end;
 
@@ -78,29 +77,16 @@ begin
     not WS_EX_APPWINDOW );
 end;
 
-procedure TFrmPGofer.WMHotKey( var Message: TWMHotKey );
+procedure TFrmPGofer.WMHotKey( var MSG: TWMHotKey );
 begin
-
-  if message.HotKey = FHotKey_FrmPGofer then
+  if MSG.HotKey = FHotKey_FrmPGofer then
     FrmPGofer.ForceShow( True );
-
-  if message.HotKey = FHotKey_ToggleHook then
-  begin
-    if THotKeyThread.isEnableHook then
-    begin
-      THotKeyThread.DisableHook( );
-      ConsoleNotify(nil, 'Hook Disable', true, true);
-    end else begin
-      THotKeyThread.EnableHook( );
-      ConsoleNotify(nil, 'Hook Enabled', true, true);
-    end;
-  end;
 end;
 
-procedure TFrmPGofer.WndProc( var Message: TMessage );
+procedure TFrmPGofer.WndProc( var MSG: TMessage );
 begin
-  OnMessage( message );
-  inherited WndProc( message );
+  OnMessage( MSG );
+  inherited WndProc( MSG );
 end;
 
 procedure TFrmPGofer.FormCreate( Sender: TObject );
@@ -115,11 +101,6 @@ begin
 
   FHotKey_FrmPGofer := GlobalAddAtom( 'FrmPGofer' );
   RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
-
-  FHotKey_ToggleHook := GlobalAddAtom( 'ToggleHook' );
-  RegisterHotKey( Self.Handle, FHotKey_ToggleHook,
-    MOD_WIN, 72 );
-
 end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );

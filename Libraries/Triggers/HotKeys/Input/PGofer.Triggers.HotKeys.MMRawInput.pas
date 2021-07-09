@@ -19,7 +19,6 @@ type
 
 function GET_RAWINPUT_CODE_WPARAM( wParam: wParam ): DWORD;
 {$EXTERNALSYM GET_RAWINPUT_CODE_WPARAM}
-
 //
 // The input is in the regular message flow,
 // the app is required to call DefWindowProc
@@ -65,6 +64,8 @@ type
 
 const
 
+  RAWINPUTHEADERSIZE = SizeOf( TRawInputHeader );
+
   HID_USAGE_PAGE_GENERIC = $1;
   {$EXTERNALSYM HID_USAGE_PAGE_GENERIC}
   HID_USAGE_GENERIC_MOUSE = $2;
@@ -77,8 +78,6 @@ const
   {$EXTERNALSYM HID_USAGE_GENERIC_KEYBOARD}
   HID_USAGE_PAGE_TELEPHONY = $B;
   {$EXTERNALSYM HID_USAGE_PAGE_TELEPHONY}
-
-
   RIM_TYPEMOUSE = 0;
   {$EXTERNALSYM RIM_TYPEMOUSE}
   RIM_TYPEKEYBOARD = 1;
@@ -314,7 +313,6 @@ function RAWINPUT_ALIGN( x: Pointer ): Pointer;
 {$EXTERNALSYM RAWINPUT_ALIGN}
 function NEXTRAWINPUTBLOCK( ptr: PRAWINPUT ): PRAWINPUT;
 {$EXTERNALSYM NEXTRAWINPUTBLOCK}
-
 //
 // Flags for GetRawInputData
 //
@@ -327,7 +325,6 @@ const
 function GetRawInputData( HRAWINPUT: HRAWINPUT; uiCommand: UINT; pData: Pointer;
   var pcbSize: UINT; cbSizeHeader: UINT ): UINT; stdcall;
 {$EXTERNALSYM GetRawInputData}
-
 //
 // Raw Input Device Information
 //
@@ -432,7 +429,6 @@ function GetRawInputDeviceInfo( hDevice: THANDLE; uiCommand: UINT;
   pData: Pointer; var pcbSize: UINT ): UINT; stdcall;
 {$EXTERNALSYM GetRawInputDeviceInfo}
 {$ENDIF}
-
 //
 // Raw Input Bulk Read: GetRawInputBuffer
 //
@@ -440,7 +436,6 @@ function GetRawInputDeviceInfo( hDevice: THANDLE; uiCommand: UINT;
 function GetRawInputBuffer( pData: PRAWINPUT; var pcbSize: UINT;
   cbSizeHeader: UINT ): UINT; stdcall;
 {$EXTERNALSYM GetRawInputBuffer}
-
 //
 // Raw Input request APIs
 //

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">19</Occurrence>
+    <Occurrence Type="Cardinal">43</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">if FrmPGofer.Visible then
    FrmPGofer.Hide
@@ -12,7 +12,7 @@ else
   </Task>
   <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
     <HotKeysHex Type="string">0A2047</HotKeysHex>
-    <Detect Type="Byte">2</Detect>
+    <Detect Type="Byte">0</Detect>
     <Inhibit Type="Boolean">False</Inhibit>
     <Script Type="string">Write('foi');
 </Script>
@@ -41,4 +41,11 @@ else
     <ScriptAfter Type="string"></ScriptAfter>
     <CanExecute Type="Boolean">True</CanExecute>
   </Link>
+  <HotKey Name="HotKey1" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string">001004002</HotKeysHex>
+    <Detect Type="Byte">3</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string">Write('asdf');
+</Script>
+  </HotKey>
 </Triggers>

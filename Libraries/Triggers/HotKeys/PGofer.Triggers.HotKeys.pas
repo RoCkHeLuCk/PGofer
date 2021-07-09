@@ -6,7 +6,7 @@ uses
   System.Classes,
   System.Generics.Collections,
   PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
-  PGofer.Triggers, PGofer.Triggers.HotKeys.Hook;
+  PGofer.Triggers;
 
 type
 
@@ -81,6 +81,7 @@ begin
   FDetect := 0;
   FInhibit := False;
   FScript.Free;
+  FScript := nil;
   FKeys.Clear;
   FKeys.Free;
   FKeys := nil;
