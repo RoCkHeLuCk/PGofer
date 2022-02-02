@@ -10,10 +10,10 @@ uses
 
 type
 
-{$M+}
+  {$M+}
   TPGHotKey = class( TPGItemTrigger )
   private
-    FKeys: TList< Word >;
+    FKeys: TList<Word>;
     FDetect: Byte;
     FInhibit: Boolean;
     FScript: TStrings;
@@ -30,9 +30,9 @@ type
     destructor Destroy( ); override;
     class var GlobList: TPGItem;
     procedure Frame( AParent: TObject ); override;
-    property Keys: TList< Word > read FKeys;
+    property Keys: TList<Word> read FKeys;
     function GetKeysName( ): string;
-    class function LocateHotKeys( Keys: TList< Word > ): TPGHotKey;
+    class function LocateHotKeys( Keys: TList<Word> ): TPGHotKey;
     procedure Triggering( ); override;
   published
     property HotKeysHex: string read GetKeysHex write SetKeysHex;
@@ -40,7 +40,7 @@ type
     property Inhibit: Boolean read FInhibit write FInhibit;
     property Script: string read GetScript write SetScript;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
   TPGHotKeyDeclare = class( TPGItemCMD )
   public
@@ -70,7 +70,7 @@ constructor TPGHotKey.Create( AName: string; AMirror: TPGItemMirror );
 begin
   inherited Create( TPGHotKey.GlobList, AName, AMirror );
   Self.ReadOnly := False;
-  FKeys := TList< Word >.Create;
+  FKeys := TList<Word>.Create;
   FDetect := 0;
   FInhibit := False;
   FScript := TStringList.Create;
@@ -157,7 +157,7 @@ begin
   Result := FScript.Text;
 end;
 
-class function TPGHotKey.LocateHotKeys( Keys: TList< Word > ): TPGHotKey;
+class function TPGHotKey.LocateHotKeys( Keys: TList<Word> ): TPGHotKey;
 var
   KeysCount: SmallInt;
   ListCount: SmallInt;

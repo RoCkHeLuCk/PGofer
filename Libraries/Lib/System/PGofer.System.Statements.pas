@@ -132,14 +132,14 @@ begin
     Variavel.Execute( Gramatica );
     VarInicio := Variavel.Value;
     if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe
-       in [ cmdRes_downto, cmdRes_to ] ) then
+      in [ cmdRes_downto, cmdRes_to ] ) then
     begin
       Decrecente := ( Gramatica.TokenList.Token.Classe = cmdRes_downto );
       Gramatica.TokenList.GetNextToken;
       Expressao( Gramatica );
       VarLimite := Gramatica.Pilha.Desempilhar( 0 );
       if ( not Gramatica.Erro ) and
-         ( Gramatica.TokenList.Token.Classe = cmdRes_do ) then
+        ( Gramatica.TokenList.Token.Classe = cmdRes_do ) then
       begin
         Gramatica.TokenList.GetNextToken;
         PositionIni := Gramatica.TokenList.Position;
@@ -147,8 +147,8 @@ begin
         begin
           LoopContador := 0;
           while ( not Gramatica.Erro ) and ( LoopContador < LoopLimite ) and
-             ( ( ( not Decrecente ) and ( VarInicio <= VarLimite ) ) or
-             ( ( Decrecente ) and ( VarInicio >= VarLimite ) ) ) do
+            ( ( ( not Decrecente ) and ( VarInicio <= VarLimite ) ) or
+            ( ( Decrecente ) and ( VarInicio >= VarLimite ) ) ) do
           begin
             Gramatica.TokenList.Position := PositionIni;
             Comandos( Gramatica );
@@ -170,7 +170,7 @@ begin
         end
         else
           EncontrarFim( Gramatica,
-             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end
       else
         Gramatica.ErroAdd( '"Do" esperado.' );
@@ -203,18 +203,18 @@ begin
         Comandos( Gramatica )
       else
         EncontrarFim( Gramatica,
-           ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+          ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
 
       // verifica se tem ELSE
       if ( not Gramatica.Erro ) and
-         ( Gramatica.TokenList.Token.Classe = cmdRes_else ) then
+        ( Gramatica.TokenList.Token.Classe = cmdRes_else ) then
       begin
         Gramatica.TokenList.GetNextToken;
         if not Continuar then
           Comandos( Gramatica )
         else
           EncontrarFim( Gramatica,
-             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end;
 
     end
@@ -383,7 +383,7 @@ begin
   LoopContador := 0;
   Continuar := True;
   while ( Continuar ) and ( not Gramatica.Erro ) and
-     ( LoopContador < LoopLimite ) do
+    ( LoopContador < LoopLimite ) do
   begin
     Gramatica.TokenList.Position := PositionIni;
     // Expressao
@@ -399,7 +399,7 @@ begin
           Comandos( Gramatica )
         else
           EncontrarFim( Gramatica,
-             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end
       else
         Gramatica.ErroAdd( '"Do" esperado.' );

@@ -1,13 +1,16 @@
 object FrmController: TFrmController
   Left = 480
   Top = 386
-  BorderStyle = bsSizeToolWin
+  Margins.Left = 0
+  Margins.Top = 0
+  Margins.Right = 0
+  Margins.Bottom = 0
+  BorderIcons = [biSystemMenu]
   Caption = 'Controller'
-  ClientHeight = 137
-  ClientWidth = 585
+  ClientHeight = 261
+  ClientWidth = 602
   Color = clBtnFace
-  Constraints.MinHeight = 165
-  Constraints.MinWidth = 190
+  Constraints.MinHeight = 300
   DefaultMonitor = dmDesktop
   ParentFont = True
   OldCreateOrder = False
@@ -21,12 +24,18 @@ object FrmController: TFrmController
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object Splitter1: TSplitter
+  object SptController: TSplitter
     Left = 180
     Top = 0
     Width = 5
-    Height = 137
+    Height = 261
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
     Beveled = True
+    OnCanResize = SptControllerCanResize
+    OnMoved = SptControllerMoved
     ExplicitLeft = 241
     ExplicitHeight = 536
   end
@@ -34,29 +43,38 @@ object FrmController: TFrmController
     Left = 0
     Top = 0
     Width = 180
-    Height = 137
+    Height = 261
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
     Align = alLeft
+    BevelOuter = bvNone
     Constraints.MinWidth = 180
     ParentColor = True
     TabOrder = 0
     object PnlFind: TPanel
-      Left = 1
-      Top = 1
-      Width = 178
+      Left = 0
+      Top = 0
+      Width = 180
       Height = 28
       Align = alTop
-      Constraints.MinWidth = 178
+      BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
-      DesignSize = (
-        178
-        28)
       object EdtFind: TButtonedEdit
-        Left = 3
-        Top = 3
-        Width = 146
-        Height = 21
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        AlignWithMargins = True
+        Left = 2
+        Top = 2
+        Width = 152
+        Height = 24
+        Margins.Left = 2
+        Margins.Top = 2
+        Margins.Right = 0
+        Margins.Bottom = 2
+        Align = alClient
+        BevelInner = bvNone
+        BevelOuter = bvNone
         LeftButton.DisabledImageIndex = 0
         LeftButton.Enabled = False
         LeftButton.HotImageIndex = 0
@@ -70,32 +88,48 @@ object FrmController: TFrmController
         RightButton.Visible = True
         TabOrder = 0
         OnKeyPress = EdtFindKeyPress
+        ExplicitHeight = 21
       end
       object BtnRecall: TButton
-        Left = 151
-        Top = 3
-        Width = 26
-        Height = 23
-        Anchors = [akTop, akRight, akBottom]
+        AlignWithMargins = True
+        Left = 155
+        Top = 1
+        Width = 24
+        Height = 26
+        Margins.Left = 1
+        Margins.Top = 1
+        Margins.Right = 1
+        Margins.Bottom = 1
+        Align = alRight
         Caption = '>>'
         TabOrder = 1
         OnClick = BtnRecallClick
       end
     end
     object PnlButton: TPanel
-      Left = 1
-      Top = 100
-      Width = 178
+      Left = 0
+      Top = 225
+      Width = 180
       Height = 36
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Align = alBottom
-      Constraints.MinWidth = 178
+      BevelOuter = bvNone
       ParentColor = True
       TabOrder = 1
       object BtnAlphaSort: TButton
-        Left = 2
-        Top = 2
-        Width = 43
-        Height = 32
+        AlignWithMargins = True
+        Left = 1
+        Top = 1
+        Width = 44
+        Height = 34
+        Margins.Left = 1
+        Margins.Top = 1
+        Margins.Right = 0
+        Margins.Bottom = 1
+        Align = alLeft
         Caption = 'AZ'
         DropDownMenu = PpmAlphaSort
         Style = bsSplitButton
@@ -104,10 +138,16 @@ object FrmController: TFrmController
         OnClick = MniAZClick
       end
       object BtnCreate: TButton
-        Left = 108
-        Top = 2
+        AlignWithMargins = True
+        Left = 109
+        Top = 1
         Width = 69
-        Height = 32
+        Height = 34
+        Margins.Left = 1
+        Margins.Top = 1
+        Margins.Right = 0
+        Margins.Bottom = 1
+        Align = alLeft
         Caption = 'Create'
         DropDownMenu = PpmCreate
         Style = bsSplitButton
@@ -117,10 +157,16 @@ object FrmController: TFrmController
         OnClick = onCreateItemPopUpClick
       end
       object BtnEdit: TButton
+        AlignWithMargins = True
         Left = 46
-        Top = 2
-        Width = 61
-        Height = 32
+        Top = 1
+        Width = 62
+        Height = 34
+        Margins.Left = 1
+        Margins.Top = 1
+        Margins.Right = 0
+        Margins.Bottom = 1
+        Align = alLeft
         Caption = 'Edit'
         DropDownMenu = PpmEdit
         Style = bsSplitButton
@@ -130,13 +176,18 @@ object FrmController: TFrmController
       end
     end
     object TrvController: TTreeViewEx
+      AlignWithMargins = True
       Left = 1
       Top = 29
       Width = 178
-      Height = 71
+      Height = 195
+      Margins.Left = 1
+      Margins.Top = 1
+      Margins.Right = 1
+      Margins.Bottom = 1
       Align = alClient
-      Constraints.MinHeight = 70
-      Constraints.MinWidth = 178
+      BevelInner = bvNone
+      BevelOuter = bvNone
       HideSelection = False
       Indent = 19
       MultiSelect = True
@@ -147,6 +198,7 @@ object FrmController: TFrmController
       RowSelect = True
       TabOrder = 2
       OnCompare = TrvControllerCompare
+      OnCustomDrawItem = TrvControllerCustomDrawItem
       OnDragDrop = TrvControllerDragDrop
       OnDragOver = TrvControllerDragOver
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
@@ -157,17 +209,26 @@ object FrmController: TFrmController
       OnDropFiles = TrvControllerDropFiles
     end
   end
-  object PnlFrame: TPanel
+  object PnlFrame: TScrollBox
     Left = 185
     Top = 0
-    Width = 400
-    Height = 137
+    Width = 417
+    Height = 261
+    Margins.Left = 0
+    Margins.Top = 0
+    Margins.Right = 0
+    Margins.Bottom = 0
+    HorzScrollBar.Smooth = True
+    VertScrollBar.Smooth = True
     Align = alClient
-    Caption = 'Nenhum item selecionado!'
-    Constraints.MinHeight = 135
-    Constraints.MinWidth = 400
-    ParentColor = True
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    BorderStyle = bsNone
+    Constraints.MinWidth = 417
+    ParentBackground = True
     TabOrder = 1
+    OnMouseWheelDown = PnlFrameMouseWheelDown
+    OnMouseWheelUp = PnlFrameMouseWheelUp
   end
   object PpmAlphaSort: TPopupMenu
     Left = 12

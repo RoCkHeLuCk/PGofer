@@ -123,15 +123,15 @@ end;
 initialization
 
 {$IFDEF DEBUG}
-if INPUT_TYPE = HOOK then
-   HookInput := THookInput.Create();
+if INPUT_TYPE = Hook then
+  HookInput := THookInput.Create( );
 {$ENDIF}
 
 finalization
 
 {$IFDEF DEBUG}
-if INPUT_TYPE = HOOK then
-   HookInput.Free();
+if INPUT_TYPE = Hook then
+  HookInput.Free( );
 {$ENDIF}
 
 end.

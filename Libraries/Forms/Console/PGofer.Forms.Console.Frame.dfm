@@ -1,33 +1,19 @@
 inherited PGFrameConsole: TPGFrameConsole
-  Width = 400
-  Height = 404
-  ExplicitWidth = 400
-  ExplicitHeight = 404
-  inherited SplitterItem: TSplitter
-    Top = 282
-    Width = 400
-    ExplicitTop = 282
-    ExplicitWidth = 400
-  end
+  Height = 337
+  ExplicitHeight = 337
   inherited grbAbout: TGroupBox
-    Top = 293
-    Width = 394
-    Height = 108
-    ExplicitTop = 293
-    ExplicitWidth = 394
-    ExplicitHeight = 108
+    Top = 283
+    Height = 60
+    ExplicitTop = 281
+    ExplicitHeight = 53
     inherited rceAbout: TRichEdit
-      Width = 390
-      Height = 91
-      ExplicitWidth = 390
-      ExplicitHeight = 91
+      Height = 43
+      ExplicitHeight = 36
     end
   end
   inherited pnlItem: TPanel
-    Width = 400
-    Height = 282
-    ExplicitWidth = 400
-    ExplicitHeight = 282
+    Height = 280
+    ExplicitHeight = 280
     object lblDelay: TLabel [8]
       Left = 5
       Top = 257
@@ -84,8 +70,10 @@ inherited PGFrameConsole: TPGFrameConsole
       TabOrder = 18
     end
   end
+  inherited sptAbout: TPanel
+    Top = 330
+  end
   inherited cldTrasparentColor: TColorDialog
     Left = 164
-    Top = 64
   end
 end

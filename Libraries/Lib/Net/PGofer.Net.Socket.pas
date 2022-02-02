@@ -6,7 +6,7 @@ uses
   System.Win.ScktComp, PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
-{$M+}
+  {$M+}
   TPGNetServer = class( TPGItemCMD )
   private
     FServer: TServerSocket;
@@ -21,7 +21,7 @@ type
     procedure OnClientConnect( Sender: TObject; Socket: TCustomWinSocket );
     procedure OnClientDisconnect( Sender: TObject; Socket: TCustomWinSocket );
     procedure OnClientError( Sender: TObject; Socket: TCustomWinSocket;
-       ErrorEvent: TErrorEvent; var ErrorCode: Integer );
+      ErrorEvent: TErrorEvent; var ErrorCode: Integer );
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
   public
@@ -36,8 +36,8 @@ type
     property Port: Word read GetPort write SetPort;
     function SendMessage( AText: string ): Integer;
   end;
-{$TYPEINFO ON}
-{$M+}
+  {$TYPEINFO ON}
+  {$M+}
 
   TPGNetClient = class( TPGItemCMD )
   private
@@ -54,7 +54,7 @@ type
     procedure OnClientConnecting( Sender: TObject; Socket: TCustomWinSocket );
     procedure OnClientDisconnect( Sender: TObject; Socket: TCustomWinSocket );
     procedure OnClientError( Sender: TObject; Socket: TCustomWinSocket;
-       ErrorEvent: TErrorEvent; var ErrorCode: Integer );
+      ErrorEvent: TErrorEvent; var ErrorCode: Integer );
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
 
@@ -69,7 +69,7 @@ type
     property Port: Word read GetPort write SetPort;
     function SendCommand( AText: string ): Integer;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
@@ -82,7 +82,7 @@ uses
 procedure TPGNetServer.ConsoleSendMSG( Value: string );
 begin
   if Assigned( ConsoleNotify ) then
-    ConsoleNotify(nil, Value, True, ConsoleMessage );
+    ConsoleNotify( nil, Value, True, ConsoleMessage );
 end;
 
 constructor TPGNetServer.Create( AItemDad: TPGItem );
@@ -134,7 +134,7 @@ begin
 end;
 
 procedure TPGNetServer.OnClientConnect( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 var
   Texto: string;
 begin
@@ -158,7 +158,7 @@ begin
 end;
 
 procedure TPGNetServer.OnClientDisconnect( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 var
   Texto: string;
 begin
@@ -169,19 +169,19 @@ begin
 end;
 
 procedure TPGNetServer.OnClientError( Sender: TObject; Socket: TCustomWinSocket;
-   ErrorEvent: TErrorEvent; var ErrorCode: Integer );
+  ErrorEvent: TErrorEvent; var ErrorCode: Integer );
 var
   Texto: string;
 begin
   Texto := 'Net Error [' + Socket.RemoteAddress + ']: ' +
-     NetErrorToStr( ErrorEvent ) + ' Code: ' + IntToStr( ErrorCode );
+    NetErrorToStr( ErrorEvent ) + ' Code: ' + IntToStr( ErrorCode );
   Self.ConsoleSendMSG( Texto );
   if FLog then
     NetLogSrvSocket( Texto );
 end;
 
 procedure TPGNetServer.OnClientRead( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 var
   Texto: string;
 begin
@@ -197,14 +197,14 @@ begin
       Socket.Data := Socket;
       if FLog then
         NetLogSrvSocket( 'Client Accepted [' + Socket.RemoteAddress +
-           '] Password: ' + Texto );
+          '] Password: ' + Texto );
     end else begin
       Self.ConsoleSendMSG( 'Client Denided: Invalid Password.' );
       Socket.SendText( 'Invalid Password.' );
       Socket.Close;
       if FLog then
         NetLogSrvSocket( 'Client Denided [' + Socket.RemoteAddress +
-           '] Invalid Password: ' + Texto );
+          '] Invalid Password: ' + Texto );
     end;
   end else begin
     if Texto <> '' then
@@ -213,7 +213,7 @@ begin
       ScriptExec( 'Remote: ' + Socket.RemoteAddress, Texto );
       if FLog then
         NetLogSrvSocket( 'Client [' + Socket.RemoteAddress + '] Resceive Text: '
-           + Texto );
+          + Texto );
     end;
   end;
 end;
@@ -223,7 +223,7 @@ end;
 procedure TPGNetClient.ConsoleSendMSG( Value: string );
 begin
   if Assigned( ConsoleNotify ) then
-    ConsoleNotify(nil, Value, True, ConsoleMessage );
+    ConsoleNotify( nil, Value, True, ConsoleMessage );
 end;
 
 constructor TPGNetClient.Create( AItemDad: TPGItem );
@@ -287,36 +287,36 @@ begin
 end;
 
 procedure TPGNetClient.OnClientConnect( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 begin
   Self.ConsoleSendMSG( 'Connect to Server.' );
   FClient.Socket.SendText( AnsiString( FPassWord ) );
 end;
 
 procedure TPGNetClient.OnClientConnecting( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 begin
   Self.ConsoleSendMSG( 'Connecting to Server...' );
 end;
 
 procedure TPGNetClient.OnClientDisconnect( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 begin
   Self.ConsoleSendMSG( 'Disconnect from Server...' );
 end;
 
 procedure TPGNetClient.OnClientError( Sender: TObject; Socket: TCustomWinSocket;
-   ErrorEvent: TErrorEvent; var ErrorCode: Integer );
+  ErrorEvent: TErrorEvent; var ErrorCode: Integer );
 var
   Texto: string;
 begin
   Texto := 'Net Error [' + Socket.RemoteAddress + ']: ' +
-     NetErrorToStr( ErrorEvent ) + ' Code: ' + IntToStr( ErrorCode );
+    NetErrorToStr( ErrorEvent ) + ' Code: ' + IntToStr( ErrorCode );
   Self.ConsoleSendMSG( Texto );
 end;
 
 procedure TPGNetClient.OnClientRead( Sender: TObject;
-   Socket: TCustomWinSocket );
+  Socket: TCustomWinSocket );
 begin
   Self.ConsoleSendMSG( 'Message from Server: ' + string( Socket.ReceiveText ) );
 end;

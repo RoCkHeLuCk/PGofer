@@ -36,7 +36,7 @@ type
     FItem: TPGFrmConsole;
     function GetAutoClose( ): Boolean;
   protected
-    procedure CreateWindowHandle( const Params: TCreateParams ); override;
+    procedure CreateParams( var AParams: TCreateParams ); override;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
@@ -79,14 +79,12 @@ uses
   PGofer.Forms.Console.Frame;
 
 { TFrmConsole }
-
-procedure TFrmConsole.CreateWindowHandle( const Params: TCreateParams );
+procedure TFrmConsole.CreateParams( var AParams: TCreateParams );
 begin
-  inherited CreateWindowHandle( Params );
-  SetWindowLong( Self.Handle, GWL_STYLE, WS_SIZEBOX );
-  SetWindowLong( Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
-    WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW );
+  inherited;
+  AParams.ExStyle := WS_EX_NOACTIVATE;
   Application.AddPopupForm( Self );
+  Self.ForceResizable := True;
 end;
 
 procedure TFrmConsole.FormCreate( Sender: TObject );
@@ -201,25 +199,23 @@ end;
 procedure TFrmConsole.ConsoleNotifyMessage( AThread: TThread; AValue: string;
   ANewLine, AShow: Boolean );
 begin
-  TThread.Synchronize( AThread,
-      procedure
+  TThread.Synchronize( AThread, procedure
+    begin
+      if ANewLine then
+        Self.EdtConsole.Lines.Append( AValue )
+      else
+        Self.EdtConsole.Text := Self.EdtConsole.Text + AValue;
+
+      Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Count;
+
+      if AShow then
       begin
-        if ANewLine then
-           Self.EdtConsole.Lines.Append( AValue )
-        else
-           Self.EdtConsole.Text := Self.EdtConsole.Text + AValue;
-
-        Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Count;
-
-        if AShow then
-        begin
-          Self.Left := Application.MainForm.Left;
-          Self.Top := Application.MainForm.Top + Application.MainForm.Height;
-          Self.ForceShow( False );
-          Application.ProcessMessages( );
-        end;
-      end
-  );
+        Self.Left := Application.MainForm.Left;
+        Self.Top := Application.MainForm.Top + Application.MainForm.Height;
+        Self.ForceShow( False );
+        Application.ProcessMessages( );
+      end;
+    end );
 end;
 
 { TPGFrmConsole }

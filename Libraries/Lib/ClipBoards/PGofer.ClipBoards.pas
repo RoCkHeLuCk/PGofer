@@ -6,7 +6,7 @@ uses
   PGofer.Sintatico.Classes;
 
 type
-{$M+}
+  {$M+}
   TPGClipBoard = class( TPGItemCMD )
   private
   public
@@ -18,7 +18,7 @@ type
     function PasteToText( ): string;
     function SaveToFile( FileName: string ): Boolean;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 

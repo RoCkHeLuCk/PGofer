@@ -40,15 +40,18 @@ type
     procedure CmbWindowStateChange( Sender: TObject );
     procedure BtnCloseClick( Sender: TObject );
     procedure BtnShowClick( Sender: TObject );
-    procedure EdtHeigthKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure EdtTopKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure EdtWidthKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure EdtLeftKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure EdtAlphaBlendValueKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure UpdAlphaBlendValueChangingEx(Sender: TObject;
-      var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+    procedure EdtHeigthKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
+    procedure EdtTopKeyUp( Sender: TObject; var Key: Word; Shift: TShiftState );
+    procedure EdtWidthKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
+    procedure EdtLeftKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
+    procedure EdtAlphaBlendValueKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
+    procedure UpdAlphaBlendValueChangingEx( Sender: TObject;
+      var AllowChange: Boolean; NewValue: Integer;
+      Direction: TUpDownDirection );
   private
     FItem: TPGForm;
   public
@@ -122,32 +125,32 @@ begin
   FItem.WindowState := CmbWindowState.ItemIndex;
 end;
 
-procedure TPGFrameForms.EdtAlphaBlendValueKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameForms.EdtAlphaBlendValueKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.AlphaBlendValue := StrToInt( EdtAlphaBlendValue.Text );
 end;
 
-procedure TPGFrameForms.EdtHeigthKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameForms.EdtHeigthKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Heigth := StrToInt( EdtHeigth.Text );
 end;
 
-procedure TPGFrameForms.EdtLeftKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameForms.EdtLeftKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Left := StrToInt( EdtLeft.Text );
 end;
 
-procedure TPGFrameForms.EdtTopKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameForms.EdtTopKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Top := StrToInt( EdtTop.Text );
 end;
 
-procedure TPGFrameForms.EdtWidthKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameForms.EdtWidthKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Width := StrToInt( EdtWidth.Text );
 end;
@@ -162,8 +165,8 @@ begin
   end;
 end;
 
-procedure TPGFrameForms.UpdAlphaBlendValueChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+procedure TPGFrameForms.UpdAlphaBlendValueChangingEx( Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
 begin
   FItem.AlphaBlendValue := NewValue;
 end;

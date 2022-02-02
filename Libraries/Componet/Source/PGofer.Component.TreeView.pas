@@ -17,31 +17,31 @@ type
     FOwnsObjectsData: Boolean;
     FAttachMode: TNodeAttachMode;
     FTargetDrag: TTreeNode;
-    FSelectionsDrag: TArray< TTreeNode >;
+    FSelectionsDrag: TArray<TTreeNode>;
     procedure DoDropFiles( var msg: TWMDropFiles ); message WM_DROPFILES;
     procedure SetDropFileAccept( AValue: Boolean );
   protected
     procedure Delete( Node: TTreeNode ); override;
     procedure DoEndDrag( Target: TObject; X, Y: Integer ); override;
     procedure MouseDown( Button: TMouseButton; Shift: TShiftState;
-       X, Y: Integer ); override;
+      X, Y: Integer ); override;
   public
     procedure DragOver( Source: TObject; X, Y: Integer; State: TDragState;
-       var Accept: Boolean ); override;
+      var Accept: Boolean ); override;
     procedure DragDrop( Source: TObject; X, Y: Integer ); override;
     procedure DeleteSelect( );
     function isSelectWork( ): Boolean;
     procedure FindText( Text: string; OffSet: Integer = -1 );
     procedure SuperSelected( Node: TTreeNode );
     property TargetDrag: TTreeNode read FTargetDrag write FTargetDrag;
-    property SelectionsDrag: TArray< TTreeNode > read FSelectionsDrag;
+    property SelectionsDrag: TArray<TTreeNode> read FSelectionsDrag;
   published
     property OwnsObjectsData: Boolean read FOwnsObjectsData
-       write FOwnsObjectsData default False;
+      write FOwnsObjectsData default False;
     property AttachMode: TNodeAttachMode read FAttachMode write FAttachMode
-       default naInsert;
+      default naInsert;
     property DropFileAccept: Boolean read FDropFileAccept
-       write SetDropFileAccept default False;
+      write SetDropFileAccept default False;
     property OnDropFiles: TOnDropFile read FOnDropFiles write FOnDropFiles;
   end;
 
@@ -87,7 +87,7 @@ begin
 end;
 
 procedure TTreeViewEx.DragOver( Source: TObject; X, Y: Integer;
-   State: TDragState; var Accept: Boolean );
+  State: TDragState; var Accept: Boolean );
 var
   C: Integer;
 begin
@@ -172,7 +172,7 @@ begin
 end;
 
 procedure TTreeViewEx.MouseDown( Button: TMouseButton; Shift: TShiftState;
-   X, Y: Integer );
+  X, Y: Integer );
 begin
   if ( not Self.Dragging ) then
     Self.Selected := Self.GetNodeAt( X, Y );

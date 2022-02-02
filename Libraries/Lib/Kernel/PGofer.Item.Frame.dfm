@@ -2,43 +2,41 @@ object PGFrame: TPGFrame
   Left = 0
   Top = 0
   Width = 400
-  Height = 89
-  AutoScroll = True
+  Height = 105
+  Margins.Left = 0
+  Margins.Top = 0
+  Margins.Right = 0
+  Margins.Bottom = 0
+  Anchors = [akLeft, akTop, akRight]
   Constraints.MinWidth = 400
   TabOrder = 0
-  object SplitterItem: TSplitter
-    Left = 0
-    Top = 35
-    Width = 400
-    Height = 8
-    Cursor = crVSplit
-    Align = alBottom
-    Beveled = True
-    ExplicitLeft = 12
-    ExplicitTop = 85
-  end
   object grbAbout: TGroupBox
     AlignWithMargins = True
     Left = 3
-    Top = 46
+    Top = 35
     Width = 394
-    Height = 40
-    Align = alBottom
+    Height = 60
+    Align = alClient
     Caption = 'About'
-    Constraints.MinHeight = 40
+    Constraints.MinHeight = 60
     TabOrder = 0
     object rceAbout: TRichEdit
       Left = 2
       Top = 15
       Width = 390
-      Height = 23
+      Height = 43
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
+      BorderStyle = bsNone
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -16
+      Font.Name = 'Courier New'
       Font.Style = []
       ParentColor = True
       ParentFont = False
@@ -52,17 +50,15 @@ object PGFrame: TPGFrame
     Left = 0
     Top = 0
     Width = 400
-    Height = 35
-    Align = alClient
+    Height = 32
+    Align = alTop
     BevelOuter = bvNone
-    Constraints.MinHeight = 35
-    Constraints.MinWidth = 400
     ParentColor = True
     ShowCaption = False
     TabOrder = 1
     DesignSize = (
       400
-      35)
+      32)
     object LblName: TLabel
       Left = 3
       Top = 9
@@ -79,10 +75,34 @@ object PGFrame: TPGFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
+      Constraints.MinWidth = 321
       TabOrder = 0
       OnKeyUp = EdtNameKeyUp
       RegExamples = reNone
       RegExpression = '^[A-Za-z_]+\w*$'
     end
+  end
+  object sptAbout: TPanel
+    Left = 0
+    Top = 98
+    Width = 400
+    Height = 7
+    Cursor = crVSplit
+    Align = alBottom
+    BevelEdges = [beTop, beBottom]
+    BevelInner = bvLowered
+    BevelKind = bkSoft
+    BevelOuter = bvLowered
+    Constraints.MaxHeight = 7
+    Constraints.MinHeight = 7
+    UseDockManager = False
+    FullRepaint = False
+    Locked = True
+    ParentColor = True
+    ShowCaption = False
+    TabOrder = 2
+    OnMouseDown = sptAboutMouseDown
+    OnMouseMove = sptAboutMouseMove
+    OnMouseUp = sptAboutMouseUp
   end
 end

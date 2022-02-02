@@ -22,6 +22,7 @@ type
     CkbInhibit: TCheckBox;
     GrbScript: TGroupBox;
     EdtScript: TRichEditEx;
+    sptScript: TSplitter;
     procedure CkbInhibitClick( Sender: TObject );
     procedure CmbDetectChange( Sender: TObject );
     procedure MmoHotKeysEnter( Sender: TObject );
@@ -37,6 +38,9 @@ type
     {$HINTS OFF}
     procedure OnProcessKeys( AParamInput: TParamInput );
     {$HINTS ON}
+  protected
+    procedure IniConfigSave( ); override;
+    procedure IniConfigLoad( ); override;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -93,6 +97,19 @@ begin
   FItem.Script := EdtScript.Lines.Text;
 end;
 
+procedure TPGFrameHotKey.IniConfigLoad;
+begin
+  inherited IniConfigLoad( );
+  GrbScript.Height := FIniFile.ReadInteger( Self.ClassName, 'Scritp',
+    GrbScript.Height );
+end;
+
+procedure TPGFrameHotKey.IniConfigSave;
+begin
+  FIniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
+  inherited IniConfigSave( );
+end;
+
 procedure TPGFrameHotKey.BtnCleanClick( Sender: TObject );
 begin
   FItem.Keys.Clear;
@@ -122,9 +139,12 @@ begin
   PGFrameHotKey := Self;
   MmoHotKeys.Color := clRed;
   case INPUT_TYPE of
-      HOOK : HookInput.SetProcessKeys( OnProcessKeys );
-      RAW  : RawInput.SetProcessKeys( OnProcessKeys );
-      ASYNC : AsyncInput.SetProcessKeys( OnProcessKeys );
+    Hook:
+      HookInput.SetProcessKeys( OnProcessKeys );
+    RAW:
+      RawInput.SetProcessKeys( OnProcessKeys );
+    Async:
+      AsyncInput.SetProcessKeys( OnProcessKeys );
   end;
 end;
 
@@ -132,9 +152,12 @@ procedure TPGFrameHotKey.MmoHotKeysExit( Sender: TObject );
 begin
   MmoHotKeys.Color := clBtnFace;
   case INPUT_TYPE of
-      HOOK : HookInput.SetProcessKeys( nil );
-      RAW  : RawInput.SetProcessKeys( nil );
-      ASYNC : AsyncInput.SetProcessKeys( nil );
+    Hook:
+      HookInput.SetProcessKeys( nil );
+    RAW:
+      RawInput.SetProcessKeys( nil );
+    Async:
+      AsyncInput.SetProcessKeys( nil );
   end;
 end;
 

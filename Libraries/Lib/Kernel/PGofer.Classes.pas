@@ -14,7 +14,7 @@ const
 type
   TPGItemCollect = class;
 
-  TPGItem = class( TObjectList< TPGItem > )
+  TPGItem = class( TObjectList<TPGItem> )
   private
     FName: string;
     FEnabled: Boolean;
@@ -40,14 +40,13 @@ type
     property CollectDad: TPGItemCollect read GetCollectDad;
     procedure Frame( AParent: TObject ); virtual;
     function FindName( AName: string ): TPGItem;
-    function FindNameList( AName: string; APartial: Boolean )
-       : TArray< TPGItem >;
+    function FindNameList( AName: string; APartial: Boolean ): TArray<TPGItem>;
   end;
 
   TClassList = class
   private
-    FNameList: TList< string >;
-    FClassList: TList< TClass >;
+    FNameList: TList<string>;
+    FClassList: TList<TClass>;
   public
     constructor Create( ); overload;
     destructor Destroy( ); override;
@@ -107,13 +106,13 @@ begin
     if Assigned( AParent.FNode ) then
     begin
       Self.Node := TTreeView( AParent.FNode.TreeView )
-         .Items.AddChild( AParent.FNode, FName );
+        .Items.AddChild( AParent.FNode, FName );
     end else begin
       if ( AParent is TPGItemCollect ) and
-         ( Assigned( TPGItemCollect( AParent ).TreeView ) ) then
+        ( Assigned( TPGItemCollect( AParent ).TreeView ) ) then
       begin
         Self.Node := TPGItemCollect( AParent ).TreeView.Items.AddChild
-           ( nil, FName );
+          ( nil, FName );
       end;
     end;
   end;
@@ -233,7 +232,7 @@ begin
 end;
 
 function TPGItem.FindNameList( AName: string; APartial: Boolean )
-   : TArray< TPGItem >;
+  : TArray<TPGItem>;
 var
   Item: TPGItem;
 begin
@@ -241,7 +240,7 @@ begin
   for Item in Self do
   begin
     if ( APartial and ( Pos( LowerCase( AName ), LowerCase( Item.Name ) ) > 0 )
-       ) or ( not APartial and SameText( AName, Item.Name ) ) or ( AName = '' )
+      ) or ( not APartial and SameText( AName, Item.Name ) ) or ( AName = '' )
     then
     begin
       Result := Result + [ Item ];
@@ -259,8 +258,8 @@ end;
 constructor TClassList.Create( );
 begin
   inherited Create( );
-  Self.FNameList := TList< string >.Create( );
-  Self.FClassList := TList< TClass >.Create( );
+  Self.FNameList := TList<string>.Create( );
+  Self.FClassList := TList<TClass>.Create( );
 end;
 
 destructor TClassList.Destroy( );
@@ -458,11 +457,11 @@ procedure TPGItemCollect.XMLSaveToStream( AStream: TStream );
     for RttiProperty in RttiType.GetProperties do
     begin
       if ( RttiProperty.Visibility in [ mvPublished ] ) and
-         ( RttiProperty.IsReadable ) and ( RttiProperty.IsWritable ) then
+        ( RttiProperty.IsReadable ) and ( RttiProperty.IsWritable ) then
       begin
         XMLNodeProperty := XMLNode.AddChild( RttiProperty.Name );
         XMLNodeProperty.Attributes[ 'Type' ] :=
-           RttiProperty.PropertyType.ToString;
+          RttiProperty.PropertyType.ToString;
         XMLNodeProperty.Text := RttiProperty.GetValue( ItemOriginal ).ToString;
       end;
     end;
@@ -520,14 +519,14 @@ procedure TPGItemCollect.XMLLoadFromStream( AStream: TStream );
     NodeName: string;
   begin
     if ( not FClassList.TryGetValue( XMLNode.NodeName, ClassRegister ) ) or
-       ( not XMLNode.HasAttribute( 'Name' ) ) then
+      ( not XMLNode.HasAttribute( 'Name' ) ) then
       Exit;
 
     NodeName := XMLNode.Attributes[ 'Name' ];
     RttiContext := TRttiContext.Create( );
     RttiType := RttiContext.GetType( ClassRegister );
     Value := RttiType.GetMethod( 'Create' ).Invoke( ClassRegister,
-       [ ItemDad, NodeName ] );
+      [ ItemDad, NodeName ] );
     Item := TPGItem( Value.AsObject );
 
     if Item is TPGItemMirror then
@@ -549,7 +548,7 @@ procedure TPGItemCollect.XMLLoadFromStream( AStream: TStream );
     for RttiProperty in RttiType.GetProperties do
     begin
       if ( RttiProperty.Visibility in [ mvPublished ] ) and
-         ( RttiProperty.IsReadable ) and ( RttiProperty.IsWritable ) then
+        ( RttiProperty.IsReadable ) and ( RttiProperty.IsWritable ) then
       begin
         XMLNodeProperty := XMLNode.ChildNodes.FindNode( RttiProperty.Name );
         if Assigned( XMLNodeProperty ) then
@@ -558,20 +557,20 @@ procedure TPGItemCollect.XMLLoadFromStream( AStream: TStream );
             case RttiProperty.PropertyType.TypeKind of
               tkInteger:
                 RttiProperty.SetValue( ItemOriginal,
-                   StrToIntDef( XMLNodeProperty.Text, 0 ) );
+                  StrToIntDef( XMLNodeProperty.Text, 0 ) );
               tkEnumeration:
                 RttiProperty.SetValue( ItemOriginal,
-                   StrToBoolDef( XMLNodeProperty.Text, False ) );
+                  StrToBoolDef( XMLNodeProperty.Text, False ) );
               tkFloat:
                 RttiProperty.SetValue( ItemOriginal,
-                   StrToFloatDef( XMLNodeProperty.Text, 0 ) );
+                  StrToFloatDef( XMLNodeProperty.Text, 0 ) );
               tkString, tkLString, tkWString, tkUString:
                 RttiProperty.SetValue( ItemOriginal,
-                   UnicodeString( XMLNodeProperty.Text ) );
+                  UnicodeString( XMLNodeProperty.Text ) );
             end;
           except
             raise Exception.Create( 'Erro: "' + XMLNode.NodeName + '", Campo "'
-               + RttiProperty.Name + '" contem valor invalido.' );
+              + RttiProperty.Name + '" contem valor invalido.' );
           end;
         end;
       end;

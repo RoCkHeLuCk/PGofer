@@ -7,9 +7,9 @@ uses
 
 // -------------------------------Estruturas-----------------------------------//
 function LerParamentros( Gramatica: TGramatica;
-   const QuantMin, QuantMax: Byte ): Byte;
+  const QuantMin, QuantMax: Byte ): Byte;
 procedure EncontrarFim( Gramatica: TGramatica; BeginEnd: Boolean;
-   TokenList: TTokenList = nil );
+  TokenList: TTokenList = nil );
 // --------------------------------ATRIBUIÇÃO----------------------------------//
 function AtribuicaoNivel1( Gramatica: TGramatica ): Boolean;
 function Atribuicao( Gramatica: TGramatica; Valor: Variant ): Variant;
@@ -39,7 +39,7 @@ uses
   PGofer.Sintatico.Classes, PGofer.Math.Controls;
 
 function LerParamentros( Gramatica: TGramatica;
-   const QuantMin, QuantMax: Byte ): Byte;
+  const QuantMin, QuantMax: Byte ): Byte;
 var
   c: Byte;
 begin
@@ -50,7 +50,7 @@ begin
     Gramatica.TokenList.GetNextToken;
     c := 0;
     while ( c < QuantMax ) and ( Gramatica.TokenList.Token.Classe <> cmdRPar )
-       and ( not Gramatica.Erro ) do
+      and ( not Gramatica.Erro ) do
     begin
       Expressao( Gramatica );
       if ( Gramatica.TokenList.Token.Classe = cmdComa ) then
@@ -77,7 +77,7 @@ begin
 end;
 
 procedure EncontrarFim( Gramatica: TGramatica; BeginEnd: Boolean;
-   TokenList: TTokenList = nil );
+  TokenList: TTokenList = nil );
 var
   BeginCount: Word;
 begin
@@ -106,7 +106,7 @@ begin
         end;
 
       until ( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdRes_end ] ) and
-         ( BeginCount = 0 );
+        ( BeginCount = 0 );
 
       if ( Gramatica.TokenList.Token.Classe <> cmdRes_end ) then
         Gramatica.ErroAdd( '"End" Esperado.' )
@@ -114,8 +114,8 @@ begin
         Gramatica.TokenList.GetNextToken;
     end;
   end else begin
-    while not( Gramatica.TokenList.Token.Classe
-    in [ cmdEOF, cmdDotComa, cmdRes_else ] ) do
+    while not( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdDotComa,
+      cmdRes_else ] ) do
     begin
       if Assigned( TokenList ) then
         TokenList.AssignToken( Gramatica.TokenList.Token );
@@ -183,7 +183,7 @@ begin
   begin
     Gramatica.TokenList.GetNextToken;
     if not( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdRes_end,
-       cmdRes_until ] ) then
+      cmdRes_until ] ) then
       Sentencas( Gramatica );
   end else begin
     if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe <> cmdEOF )
@@ -242,7 +242,7 @@ begin
     Valor := Gramatica.Pilha.Desempilhar( '' );
     if TryStrToFloat( Valor, Numero ) then
       Gramatica.MSGsAdd( FormatConvert( PGofer.Sintatico.ReplyPrefix,
-         PGofer.Sintatico.ReplyFormat, Numero ) )
+        PGofer.Sintatico.ReplyFormat, Numero ) )
     else
       Gramatica.MSGsAdd( Valor );
   end;
@@ -279,7 +279,7 @@ var
   B1, B2: Boolean;
 begin
   if ( Gramatica.TokenList.Token.Classe in [ cmdAdd, cmdSub, cmdRes_and,
-     cmdRes_or, cmdRes_xor ] ) then
+    cmdRes_or, cmdRes_xor ] ) then
   begin
     // carrega e continua analizando
     Operador := Gramatica.TokenList.Token.Classe;
@@ -294,7 +294,7 @@ begin
     begin
       // converte para numero
       if TryStrToFloat( S1, N1, FormatSettings ) and
-         TryStrToFloat( S2, N2, FormatSettings ) then
+        TryStrToFloat( S2, N2, FormatSettings ) then
       begin
         // executa a operação matematica
         case Operador of
@@ -386,7 +386,7 @@ var
   N1, N2: Extended;
 begin
   if ( Gramatica.TokenList.Token.Classe in [ cmdTone, cmdRes_root, cmdEqual,
-     cmdMore, cmdMinor, cmdMoreEqual, cmdMinorEqual, cmdDifferent ] ) then
+    cmdMore, cmdMinor, cmdMoreEqual, cmdMinorEqual, cmdDifferent ] ) then
   begin
     // carrega e continua analizando
     Operador := Gramatica.TokenList.Token.Classe;
@@ -397,7 +397,7 @@ begin
     S1 := Gramatica.Pilha.Desempilhar( '' );
     // tenta converter para numero
     if TryStrToFloat( S1, N1, FormatSettings ) and
-       TryStrToFloat( S2, N2, FormatSettings ) then
+      TryStrToFloat( S2, N2, FormatSettings ) then
     begin
       // calcula a operação matematica
       case Operador of
@@ -484,7 +484,7 @@ begin
         Gramatica.TokenList.GetNextToken;
         Expressao( Gramatica );
         Gramatica.Pilha.Empilhar
-           ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
+          ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
       end;
   else
     Gramatica.ErroAdd( 'Expressão Invalida.' );

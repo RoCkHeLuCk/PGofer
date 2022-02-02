@@ -1,36 +1,28 @@
 inherited PGFrameHotKey: TPGFrameHotKey
-  Width = 401
-  Height = 275
-  Constraints.MinHeight = 250
+  Height = 304
   OnExit = MmoHotKeysExit
-  ExplicitWidth = 401
-  ExplicitHeight = 275
-  inherited SplitterItem: TSplitter
-    Top = 221
-    Width = 401
-    ExplicitTop = 34
-    ExplicitWidth = 393
+  ExplicitHeight = 304
+  object sptScript: TSplitter [0]
+    Left = 0
+    Top = 225
+    Width = 400
+    Height = 6
+    Cursor = crVSplit
+    Align = alTop
+    Beveled = True
+    ExplicitTop = 176
   end
   inherited grbAbout: TGroupBox
-    Top = 232
-    Width = 395
-    ExplicitTop = 232
-    ExplicitWidth = 395
-    inherited rceAbout: TRichEdit
-      Width = 391
-      ExplicitWidth = 391
-    end
+    Top = 234
+    TabOrder = 2
+    ExplicitTop = 234
   end
   inherited pnlItem: TPanel
-    Width = 401
-    Height = 221
-    Constraints.MinHeight = 220
-    Constraints.MinWidth = 0
-    ExplicitWidth = 401
-    ExplicitHeight = 221
+    Height = 145
+    ExplicitHeight = 145
     DesignSize = (
-      401
-      221)
+      400
+      145)
     object LblDetect: TLabel [1]
       Left = 110
       Top = 118
@@ -43,22 +35,18 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Caption = 'Detect:'
       ParentBiDiMode = False
     end
-    inherited EdtName: TEditEx
-      Width = 326
-      ExplicitWidth = 326
-    end
-    object GrbHotKeys: TGroupBox
+    object GrbHotKeys: TGroupBox [2]
       Left = 5
       Top = 33
-      Width = 390
+      Width = 389
       Height = 72
       Anchors = [akLeft, akTop, akRight]
       Caption = 'HotKeys'
-      TabOrder = 1
+      TabOrder = 0
       object MmoHotKeys: TMemo
         Left = 2
         Top = 15
-        Width = 386
+        Width = 385
         Height = 55
         Align = alClient
         Alignment = taCenter
@@ -85,18 +73,18 @@ inherited PGFrameHotKey: TPGFrameHotKey
         OnMouseLeave = MmoHotKeysExit
       end
     end
-    object BtnClean: TButton
+    object BtnClean: TButton [3]
       Left = 10
       Top = 113
       Width = 94
       Height = 26
       Caption = 'Clean'
       ImageIndex = 6
-      TabOrder = 2
+      TabOrder = 1
       TabStop = False
       OnClick = BtnCleanClick
     end
-    object CmbDetect: TComboBox
+    object CmbDetect: TComboBox [4]
       Left = 175
       Top = 115
       Width = 96
@@ -104,7 +92,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
       Hint = 'Forma de detectar a HotKey'
       Style = csDropDownList
       ItemIndex = 0
-      TabOrder = 3
+      TabOrder = 2
       Text = 'Down'
       OnChange = CmbDetectChange
       Items.Strings = (
@@ -113,45 +101,56 @@ inherited PGFrameHotKey: TPGFrameHotKey
         'Up'
         'Wheel')
     end
-    object CkbInhibit: TCheckBox
+    object CkbInhibit: TCheckBox [5]
       Left = 295
       Top = 117
       Width = 98
       Height = 17
       Hint = 'Bloqueia a tecla detectada'
       Caption = 'Inhibit last key'
-      TabOrder = 4
+      TabOrder = 3
       OnClick = CkbInhibitClick
     end
-    object GrbScript: TGroupBox
-      AlignWithMargins = True
-      Left = 5
-      Top = 145
-      Width = 390
-      Height = 74
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      Caption = 'Script (Run: F9)'
-      TabOrder = 5
-      object EdtScript: TRichEditEx
-        Left = 2
-        Top = 15
-        Width = 386
-        Height = 57
-        Align = alClient
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Courier New'
-        Font.Style = []
-        HideSelection = False
-        ParentFont = False
-        ScrollBars = ssBoth
-        TabOrder = 0
-        WantTabs = True
-        Zoom = 100
-        OnKeyUp = EdtScriptKeyUp
-      end
+    inherited EdtName: TEditEx
+      Width = 324
+      TabOrder = 4
+      ExplicitWidth = 324
     end
+  end
+  object GrbScript: TGroupBox [3]
+    AlignWithMargins = True
+    Left = 3
+    Top = 148
+    Width = 394
+    Height = 74
+    Align = alTop
+    Caption = 'Script (Run: F9)'
+    Constraints.MinHeight = 60
+    TabOrder = 0
+    object EdtScript: TRichEditEx
+      Left = 2
+      Top = 15
+      Width = 390
+      Height = 57
+      Align = alClient
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Courier New'
+      Font.Style = []
+      HideSelection = False
+      ParentFont = False
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WantTabs = True
+      Zoom = 100
+      OnKeyUp = EdtScriptKeyUp
+    end
+  end
+  inherited sptAbout: TPanel
+    Top = 297
+    TabOrder = 3
+    ExplicitTop = 297
   end
   object PpmNull: TPopupMenu
     OwnerDraw = True

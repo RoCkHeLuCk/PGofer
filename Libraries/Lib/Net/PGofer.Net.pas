@@ -7,7 +7,7 @@ uses
 
 type
 
-{$M+}
+  {$M+}
   TPGNet = class( TPGItemCMD )
   private
     FClient: TPGItemCMD;
@@ -19,10 +19,10 @@ type
     property Server: TPGItemCMD read FServer;
   published
     function SetTCPIP( ANetworkCard, AIPAddress, AMask,
-       AGateWay: string ): Integer;
+      AGateWay: string ): Integer;
     function GetTCPIP( ANetworkCard: string ): string;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 var
   PGNet: TPGNet;
@@ -49,7 +49,7 @@ begin
 end;
 
 function TPGNet.SetTCPIP( ANetworkCard, AIPAddress, AMask,
-   AGateWay: string ): Integer;
+  AGateWay: string ): Integer;
 begin
   Result := NetSetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay );
 end;

@@ -1,26 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">43</Occurrence>
+    <Occurrence Type="Cardinal">232</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
-    <Script Type="string">if FrmPGofer.Visible then
-   FrmPGofer.Hide
-else
-   FrmPGofer;
+    <Script Type="string">FrmPGofer.Left := 2000;
+FrmTriggers;
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
+  <Link Name="Link1" Enabled="true" ReadOnly="false">
+    <FileName Type="string">fgh</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">4</Priority>
+    <Operation Type="Byte">5</Operation>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string">Type: LPCSCROLLINFO
+
+Pointer to a SCROLLINFO structure. Before calling SetScrollInfo, set the cbSize member of the structure to sizeof(SCROLLINFO), set the fMask member to indicate the parameters to set, and specify the new parameter values in the appropriate members.
+
+The fMask member can be one or more of the following values.
+Tabela 2
+Value 	Meaning
+
+SIF_DISABLENOSCROLL
+
+	Disables the scroll bar instead of removing it, if the scroll bar's new parameters make the scroll bar unnecessary.
+
+SIF_PAGE
+
+	Sets the scroll page to the value specified in the nPage member of the SCROLLINFO structure pointed to by lpsi.
+
+SIF_POS
+
+	Sets the scroll position to the value specified in the nPos member of the SCROLLINFO structure pointed to by lpsi.
+
+SIF_RANGE
+
+	Sets the scroll range to the value specified in the nMin and nMax members of the SCROLLINFO structure pointed to by lpsi. 
+</ScriptBefor>
+    <ScriptAfter Type="string">asdfasdf
+sdfgs
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+
+asdfasdf
+sdfgs
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+
+
+
+asdfasdf
+sdfgs
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+
+
+asdfasdf
+sdfgs
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+sdfg
+</ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
   <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
-    <HotKeysHex Type="string">0A2047</HotKeysHex>
+    <HotKeysHex Type="string"></HotKeysHex>
     <Detect Type="Byte">0</Detect>
     <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string">Write('foi');
+    <Script Type="string">hfdghfgh
 </Script>
   </HotKey>
-  <Link Name="calc" Enabled="true" ReadOnly="false">
-    <FileName Type="string">%SystemRoot%\SysWOW64\calc.exe</FileName>
+  <Link Name="Link2" Enabled="true" ReadOnly="false">
+    <FileName Type="string">%ProgramFiles% (x86)\Embarcadero\Studio\20.0\bin\bds.exe</FileName>
     <Parameter Type="string"></Parameter>
-    <Directory Type="string">%SystemRoot%\SysWOW64\</Directory>
+    <Directory Type="string">%ProgramFiles% (x86)\Embarcadero\Studio\20.0\bin\</Directory>
     <State Type="Byte">1</State>
     <Priority Type="Byte">2</Priority>
     <Operation Type="Byte">0</Operation>
@@ -29,23 +124,4 @@ else
     <ScriptAfter Type="string"></ScriptAfter>
     <CanExecute Type="Boolean">True</CanExecute>
   </Link>
-  <Link Name="ping" Enabled="true" ReadOnly="false">
-    <FileName Type="string">%SystemRoot%\SysWOW64\PING.EXE</FileName>
-    <Parameter Type="string">-t 10.1.1.1</Parameter>
-    <Directory Type="string">%SystemRoot%\SysWOW64\</Directory>
-    <State Type="Byte">1</State>
-    <Priority Type="Byte">2</Priority>
-    <Operation Type="Byte">0</Operation>
-    <CaptureMsg Type="Boolean">True</CaptureMsg>
-    <ScriptBefor Type="string"></ScriptBefor>
-    <ScriptAfter Type="string"></ScriptAfter>
-    <CanExecute Type="Boolean">True</CanExecute>
-  </Link>
-  <HotKey Name="HotKey1" Enabled="true" ReadOnly="false">
-    <HotKeysHex Type="string">001004002</HotKeysHex>
-    <Detect Type="Byte">3</Detect>
-    <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string">Write('asdf');
-</Script>
-  </HotKey>
 </Triggers>

@@ -3,9 +3,10 @@ unit PGofer.Forms.Controller;
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.Types,
+  WinApi.Messages,
   Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Menus,
+  Vcl.Menus, Vcl.Graphics,
   PGofer.ImageList, PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView,
   PGofer.Component.Form;
 
@@ -14,9 +15,8 @@ type
     PnlTreeView: TPanel;
     PnlFind: TPanel;
     PnlButton: TPanel;
-    Splitter1: TSplitter;
+    SptController: TSplitter;
     EdtFind: TButtonedEdit;
-    PnlFrame: TPanel;
     TrvController: TTreeViewEx;
     BtnAlphaSort: TButton;
     PpmAlphaSort: TPopupMenu;
@@ -34,6 +34,7 @@ type
     MniUnExpand: TMenuItem;
     MniN2: TMenuItem;
     PpmConttroler: TPopupMenu;
+    PnlFrame: TScrollBox;
     constructor Create( ACollectItem: TPGItemCollect ); reintroduce;
     destructor Destroy( ); override;
     procedure FormCreate( Sender: TObject );
@@ -44,16 +45,16 @@ type
     procedure onCreateItemPopUpClick( Sender: TObject );
     procedure EdtFindKeyPress( Sender: TObject; var Key: Char );
     procedure TrvControllerCompare( Sender: TObject; Node1, Node2: TTreeNode;
-       Data: Integer; var Compare: Integer );
+      Data: Integer; var Compare: Integer );
     procedure TrvControllerGetSelectedIndex( Sender: TObject; Node: TTreeNode );
     procedure TrvControllerDragOver( Sender, Source: TObject; X, Y: Integer;
-       State: TDragState; var Accept: Boolean );
+      State: TDragState; var Accept: Boolean );
     procedure TrvControllerDragDrop( Sender, Source: TObject; X, Y: Integer );
     procedure TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
     procedure TrvControllerKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure TrvControllerMouseDown( Sender: TObject; Button: TMouseButton;
-       Shift: TShiftState; X, Y: Integer );
+      Shift: TShiftState; X, Y: Integer );
     procedure MniAZClick( Sender: TObject );
     procedure MniZAClick( Sender: TObject );
     procedure MniAlphaSortFolderClick( Sender: TObject );
@@ -61,9 +62,19 @@ type
     procedure MniExpandClick( Sender: TObject );
     procedure MniUnExpandClick( Sender: TObject );
     procedure BtnRecallClick( Sender: TObject );
+    procedure SptControllerCanResize( Sender: TObject; var NewSize: Integer;
+      var Accept: Boolean );
+    procedure SptControllerMoved( Sender: TObject );
+    procedure PnlFrameMouseWheelDown(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure PnlFrameMouseWheelUp(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure TrvControllerCustomDrawItem(Sender: TCustomTreeView;
+      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
   private
     FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
+    FFrameWidth: Integer;
     procedure PanelCleaning( );
     procedure CreatePopups( );
     procedure FrameShow( );
@@ -86,7 +97,8 @@ uses
   WinApi.Windows,
   Vcl.Dialogs,
   PGofer.Sintatico.Classes, PGofer.Files.Controls,
-  PGofer.Triggers.Links;
+  PGofer.Triggers.Links,
+  PGofer.Component.RichEdit;
 
 constructor TFrmController.Create( ACollectItem: TPGItemCollect );
 begin
@@ -113,11 +125,10 @@ end;
 
 procedure TFrmController.FormShow( Sender: TObject );
 begin
-  // inherited FormShow( Sender);
   FCollectItem.TreeViewAttach( );
   TrvController.AlphaSort( True );
   if not TrvController.isSelectWork then
-    FrameHide( );
+    Self.FrameHide( );
 end;
 
 procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
@@ -130,7 +141,6 @@ end;
 procedure TFrmController.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
-  //
 end;
 
 procedure TFrmController.FormDestroy( Sender: TObject );
@@ -152,13 +162,13 @@ procedure TFrmController.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
   Self.PnlTreeView.ClientWidth := FIniFile.ReadInteger( Self.Name,
-     'TreeViewWidth', Self.TrvController.ClientWidth );
+    'TreeViewWidth', Self.TrvController.ClientWidth );
   Self.PnlFrame.ClientWidth := FIniFile.ReadInteger( Self.Name, 'FrameWidth',
-     Self.PnlFrame.ClientWidth );
+    Self.PnlFrame.ClientWidth );
   Self.FAlphaSort := FIniFile.ReadBool( Self.Name, 'AlphaSort',
-     Self.FAlphaSort );
+    Self.FAlphaSort );
   Self.FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder',
-     FAlphaSortFolder );
+    FAlphaSortFolder );
   Self.MniAlphaSortFolder.Checked := FAlphaSortFolder;
   if Self.FAlphaSort then
     MniAZ.Click
@@ -169,9 +179,9 @@ end;
 procedure TFrmController.IniConfigSave( );
 begin
   FIniFile.WriteInteger( Self.Name, 'Width', Self.PnlTreeView.ClientWidth +
-     Self.Splitter1.ClientWidth + Self.PnlFrame.ClientWidth );
+    Self.SptController.ClientWidth + Self.PnlFrame.ClientWidth );
   FIniFile.WriteInteger( Self.Name, 'TreeViewWidth',
-     Self.PnlTreeView.ClientWidth );
+    Self.PnlTreeView.ClientWidth );
   FIniFile.WriteInteger( Self.Name, 'FrameWidth', Self.PnlFrame.ClientWidth );
   FIniFile.WriteBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
   FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', Self.FAlphaSortFolder );
@@ -182,19 +192,22 @@ procedure TFrmController.FrameHide( );
 begin
   Self.PanelCleaning( );
   PnlFrame.Visible := False;
-  Splitter1.Visible := False;
-  Self.ClientWidth := PnlTreeView.ClientWidth;
+  SptController.Visible := False;
   BtnRecall.Caption := '>>';
+  Self.Constraints.MinWidth := PnlTreeView.Constraints.MinWidth + 16;
+  Self.ClientWidth := PnlTreeView.ClientWidth;
 end;
 
 procedure TFrmController.FrameShow( );
 begin
-  Splitter1.Visible := True;
+  SptController.Visible := True;
   PnlFrame.Visible := True;
   TrvController.OnGetSelectedIndex( nil, nil );
   BtnRecall.Caption := '<<';
-  Self.ClientWidth := PnlTreeView.ClientWidth + Splitter1.ClientWidth +
-     PnlFrame.ClientWidth;
+  Self.Constraints.MinWidth := PnlTreeView.Constraints.MinWidth +
+    SptController.Width + PnlFrame.Constraints.MinWidth + 16;
+  Self.ClientWidth := PnlTreeView.ClientWidth + SptController.ClientWidth +
+    PnlFrame.ClientWidth;
 end;
 
 procedure TFrmController.PanelCleaning( );
@@ -207,6 +220,54 @@ begin
     PnlFrame.Controls[ c ].Free( );
   end;
   FSelectedItem := nil;
+end;
+
+procedure TFrmController.PnlFrameMouseWheelDown(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+var
+  Control : TWinControl;
+begin
+  inherited;
+  Control := FindVCLWindow( MousePos);
+  if (Control is TRichEditEx) then
+  begin
+    with TRichEditEx(Control) do
+    begin
+       if VerticalScrollPos < VerticalScrollMax then
+          exit;
+    end;
+  end;
+  PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos + PnlFrame.VertScrollBar.Increment;
+end;
+
+procedure TFrmController.PnlFrameMouseWheelUp(Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+var
+  Control : TWinControl;
+begin
+  inherited;
+  Control := FindVCLWindow( MousePos);
+  if (Control is TRichEditEx) then
+  begin
+    if TRichEditEx(Control).VerticalScrollPos > 0 then
+       exit;
+  end;
+  PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos - PnlFrame.VertScrollBar.Increment;
+end;
+
+procedure TFrmController.SptControllerCanResize( Sender: TObject;
+  var NewSize: Integer; var Accept: Boolean );
+begin
+  inherited;
+  FFrameWidth := PnlFrame.Width;
+  Accept := True;
+end;
+
+procedure TFrmController.SptControllerMoved( Sender: TObject );
+begin
+  inherited;
+  Self.ClientWidth := PnlTreeView.ClientWidth + SptController.ClientWidth +
+    FFrameWidth;
 end;
 
 procedure TFrmController.EdtFindKeyPress( Sender: TObject; var Key: Char );
@@ -241,7 +302,7 @@ end;
 procedure TFrmController.MniDeleteClick( Sender: TObject );
 begin
   if Vcl.Dialogs.MessageDlg( 'Delete Selected Item?', mtConfirmation,
-     [ mbYes, mbNo ], 0, mbNo ) = mrYes then
+    [ mbYes, mbNo ], 0, mbNo ) = mrYes then
   begin
     TrvController.DeleteSelect( );
   end;
@@ -264,7 +325,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerCompare( Sender: TObject;
-   Node1, Node2: TTreeNode; Data: Integer; var Compare: Integer );
+  Node1, Node2: TTreeNode; Data: Integer; var Compare: Integer );
 var
   FolderNode1, FolderNode2: Boolean;
 begin
@@ -276,9 +337,9 @@ begin
   if FAlphaSortFolder then
   begin
     FolderNode1 := Assigned( Node1.Data ) and
-       ( TPGItem( Node1.Data ) is TPGFolder );
+      ( TPGItem( Node1.Data ) is TPGFolder );
     FolderNode2 := Assigned( Node2.Data ) and
-       ( TPGItem( Node2.Data ) is TPGFolder );
+      ( TPGItem( Node2.Data ) is TPGFolder );
 
     if ( FolderNode1 ) and ( not FolderNode2 ) then
     begin
@@ -289,6 +350,23 @@ begin
     begin
       Compare := 1;
     end;
+  end;
+end;
+
+procedure TFrmController.TrvControllerCustomDrawItem(Sender: TCustomTreeView;
+  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+var
+  Item : TPGItem;
+begin
+  inherited;
+  if Assigned( Node.Data ) then
+  begin
+    Item := TPGItem( Node.Data );
+    if (Item is TPGItem) and (not TPGItem( Node.Data ).Enabled) then
+       Sender.Canvas.Font.Color := clGray;
+    if ((Item is TPGLink) and (not TPGLink( Node.Data ).isFileExist))
+    or ((Item is TPGLinkMirror) and (not TPGLink(TPGLinkMirror(Node.Data).ItemOriginal).isFileExist)) then
+       Sender.Canvas.Font.Color := clRed;
   end;
 end;
 
@@ -305,7 +383,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerDropFiles( Sender: TObject;
-   AFiles: TStrings );
+  AFiles: TStrings );
 var
   sFileName: string;
   ItemDad: TPGItem;
@@ -314,7 +392,7 @@ begin
   for sFileName in AFiles do
   begin
     with TPGLink( TPGLinkMirror.Create( ItemDad,
-       FileExtractOnlyFileName( sFileName ) ).ItemOriginal ) do
+      FileExtractOnlyFileName( sFileName ) ).ItemOriginal ) do
     begin
       FileName := FileUnExpandPath( sFileName );
       Directory := FileUnExpandPath( ExtractFilePath( sFileName ) );
@@ -324,7 +402,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
-   X, Y: Integer );
+  X, Y: Integer );
 var
   Node: TTreeNode;
   ItemDad: TPGItem;
@@ -342,14 +420,14 @@ begin
 end;
 
 procedure TFrmController.TrvControllerDragOver( Sender, Source: TObject;
-   X, Y: Integer; State: TDragState; var Accept: Boolean );
+  X, Y: Integer; State: TDragState; var Accept: Boolean );
 begin
   Accept := Sender = Source;
   if Accept then
   begin
     if Assigned( TrvController.TargetDrag ) and
-       Assigned( TrvController.TargetDrag.Data ) and
-       ( TPGItem( TrvController.TargetDrag.Data ) is TPGFolder ) then
+      Assigned( TrvController.TargetDrag.Data ) and
+      ( TPGItem( TrvController.TargetDrag.Data ) is TPGFolder ) then
     begin
       Accept := True;
       TrvController.AttachMode := naInsert;
@@ -364,7 +442,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;
-   Node: TTreeNode );
+  Node: TTreeNode );
 begin
   if PnlFrame.Visible then
   begin
@@ -375,11 +453,11 @@ begin
         Self.PanelCleaning( );
         FSelectedItem := TPGItem( TrvController.Selected.Data );
         FSelectedItem.Frame( PnlFrame );
-        PnlFrame.Caption := '';
+        // PnlFrame.Caption := '';
       end;
     end else begin
       Self.PanelCleaning( );
-      PnlFrame.Caption := 'No items selected!';
+      // PnlFrame.Caption := 'No items selected!';
     end;
     PnlFrame.Update;
     PnlFrame.Refresh;
@@ -387,7 +465,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   case Key of
     VK_RETURN:
@@ -398,7 +476,7 @@ begin
 end;
 
 procedure TFrmController.TrvControllerMouseDown( Sender: TObject;
-   Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
 begin
   if TrvController.isSelectWork then
     Self.FrameShow( )
@@ -507,7 +585,7 @@ begin
   RttiContext := TRttiContext.Create( );
   RttiType := RttiContext.GetType( IClass );
   Value := RttiType.GetMethod( 'Create' )
-     .Invoke( IClass, [ FSelectedItem, IName ] );
+    .Invoke( IClass, [ FSelectedItem, IName ] );
   TrvController.SuperSelected( TPGItem( Value.AsObject ).Node );
 end;
 

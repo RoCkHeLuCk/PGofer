@@ -1,12 +1,13 @@
 unit PGofer.Triggers.HotKeys.Controls;
 
 interface
+
 uses
-   WinApi.Windows,
-   System.SysUtils;
+  WinApi.Windows,
+  System.SysUtils;
 
 type
-  TInputEnum = (HOOK, RAW, ASYNC, HOTKEY);
+  TInputEnum = ( HOOK, RAW, ASYNC, HOTKEY );
 
   TParamInput = record
     wParam: wParam;
@@ -24,11 +25,12 @@ type
   end;
 
 const
-  INPUT_TYPE : TInputEnum = ASYNC;
+  INPUT_TYPE: TInputEnum = ASYNC;
 
 implementation
+
 uses
-   Winapi.Messages;
+  WinApi.Messages;
 
 { TKey }
 

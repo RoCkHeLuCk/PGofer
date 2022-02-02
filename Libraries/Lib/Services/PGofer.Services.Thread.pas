@@ -27,7 +27,7 @@ uses
 { TThreadLoadImage }
 // ----------------------------------------------------------------------------//
 constructor TThreadService.Create( AHost: string; AItem: TListItem;
-   AConfig: Cardinal );
+  AConfig: Cardinal );
 begin
   // cria thread
   inherited Create( true );
@@ -56,8 +56,7 @@ begin
     if c <> e then
     begin
       e := c;
-      Synchronize(
-        procedure
+      Synchronize( procedure
         begin
           ItemA.SubItems[ 0 ] := ServiceStatusToState( c );
           ItemA.SubItems[ 9 ] := Char( c ) + ItemA.SubItems[ 9 ][ 2 ];

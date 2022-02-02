@@ -6,7 +6,7 @@ uses
   PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
-{$M+}
+  {$M+}
   TPGSound = class( TPGItemCMD )
   private
   public
@@ -20,7 +20,7 @@ type
     function VolumeStepUp( SoundDriver: Cardinal ): Integer;
     function VolumeStepDown( SoundDriver: Cardinal ): Integer;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
@@ -51,7 +51,7 @@ end;
 
 function TPGSound.SetDevice( SoundDriver: Cardinal; AValue: Cardinal ): Boolean;
 begin
-  Result := SoundSetDevice( SoundDriver , AValue );
+  Result := SoundSetDevice( SoundDriver, AValue );
 end;
 
 function TPGSound.SetVolume( SoundDriver: Cardinal; Volume: Extended ): Integer;

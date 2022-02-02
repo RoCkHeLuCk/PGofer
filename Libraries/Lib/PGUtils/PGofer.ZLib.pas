@@ -6,7 +6,7 @@ uses
   System.ZLib, System.Classes;
 
 function ZLibCompress( const MStream: TMemoryStream;
-   const FileName, Password: string ): Boolean;
+  const FileName, Password: string ): Boolean;
 function ZLibDecompress( const FileName, Password: string ): TMemoryStream;
 procedure Criptografar( Stream: TStream; Password: string );
 
@@ -14,7 +14,7 @@ implementation
 
 // ----------------------------------------------------------------------------//
 function ZLibCompress( const MStream: TMemoryStream;
-   const FileName, Password: string ): Boolean;
+  const FileName, Password: string ): Boolean;
 var
   LTempStream: TMemoryStream;
   LCompressedStream: TCompressionStream;

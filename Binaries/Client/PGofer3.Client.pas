@@ -20,11 +20,11 @@ type
     PpmMenu: TPopupMenu;
     PnlCommand: TPanel;
     PnlComandMove: TPanel;
-    PnlArrastar: TPanel;
     mniClose: TMenuItem;
     mniN1: TMenuItem;
     mniGlobals: TMenuItem;
     mniTriggers: TMenuItem;
+    shpDrag: TShape;
     procedure EdtScriptKeyDown( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure FormCreate( Sender: TObject );
@@ -39,17 +39,18 @@ type
       X, Y: Integer );
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
+    procedure EdtScriptDropFiles( Sender: TObject; AFiles: TStrings );
   private
     FMouse: TPoint;
     FHotKey_FrmPGofer: ATOM;
     FFrmAutoComplete: TFrmAutoComplete;
     procedure FormAutoSize( );
   protected
-    procedure CreateWindowHandle( const Params: TCreateParams ); override;
+    procedure CreateParams( var AParams: TCreateParams ); override;
     procedure OnQueryEndSession( var Msg: TWMQueryEndSession );
       message WM_QueryEndSession;
-    procedure WndProc( var MSG: TMessage ); override;
-    procedure WMHotKey( var MSG: TWMHotKey ); message WM_HOTKEY;
+    procedure WndProc( var Msg: TMessage ); override;
+    procedure WMHotKey( var Msg: TWMHotKey ); message WM_HOTKEY;
   public
   end;
 
@@ -69,24 +70,24 @@ uses
 {$R *.dfm}
 { TFrmPGofer3 }
 
-procedure TFrmPGofer.CreateWindowHandle( const Params: TCreateParams );
+procedure TFrmPGofer.CreateParams( var AParams: TCreateParams );
 begin
-  inherited CreateWindowHandle( Params );
-  SetWindowLong( Self.Handle, GWL_STYLE, WS_SIZEBOX );
-  SetWindowLong( Self.Handle, GWL_EXSTYLE, WS_EX_TOOLWINDOW and
-    not WS_EX_APPWINDOW );
+  inherited;
+  AParams.Style := AParams.Style or WS_BORDER;
+  AParams.ExStyle := WS_EX_TOOLWINDOW and ( not WS_EX_APPWINDOW );
+  Self.ForceResizable := True;
 end;
 
-procedure TFrmPGofer.WMHotKey( var MSG: TWMHotKey );
+procedure TFrmPGofer.WMHotKey( var Msg: TWMHotKey );
 begin
-  if MSG.HotKey = FHotKey_FrmPGofer then
+  if Msg.HotKey = FHotKey_FrmPGofer then
     FrmPGofer.ForceShow( True );
 end;
 
-procedure TFrmPGofer.WndProc( var MSG: TMessage );
+procedure TFrmPGofer.WndProc( var Msg: TMessage );
 begin
-  OnMessage( MSG );
-  inherited WndProc( MSG );
+  OnMessage( Msg );
+  inherited WndProc( Msg );
 end;
 
 procedure TFrmPGofer.FormCreate( Sender: TObject );
@@ -168,7 +169,7 @@ begin
   end;
 
   TextHeight := IndexMaxLength * EdtScript.CharHeight;
-  Self.ClientHeight := TextHeight + 12;
+  Self.ClientHeight := TextHeight + 10;
 
   EdtScript.Perform( WM_VSCROLL, SB_TOP and SB_LEFT, 0 );
 end;
@@ -176,6 +177,12 @@ end;
 procedure TFrmPGofer.EdtScriptChange( Sender: TObject );
 begin
   FormAutoSize( );
+end;
+
+procedure TFrmPGofer.EdtScriptDropFiles( Sender: TObject; AFiles: TStrings );
+begin
+  inherited;
+  EdtScript.SelText := AFiles.Text;
 end;
 
 procedure TFrmPGofer.EdtScriptKeyDown( Sender: TObject; var Key: Word;

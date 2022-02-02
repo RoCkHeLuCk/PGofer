@@ -66,7 +66,7 @@ begin
 end;
 
 procedure TPGFrameConsole.updDelayChanging( Sender: TObject;
-   var AllowChange: Boolean );
+  var AllowChange: Boolean );
 begin
   edtDelayExit( Sender );
 end;

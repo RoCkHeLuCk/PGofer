@@ -1,24 +1,99 @@
 inherited PGLinkFrame: TPGLinkFrame
-  Height = 370
-  Constraints.MinHeight = 370
-  ExplicitHeight = 370
-  inherited SplitterItem: TSplitter
-    Top = 316
+  Height = 387
+  ExplicitHeight = 387
+  object sptScriptBefore: TSplitter [0]
+    Left = 0
+    Top = 236
+    Width = 400
+    Height = 6
+    Cursor = crVSplit
+    Align = alTop
+    Beveled = True
     MinSize = 1
-    ExplicitTop = 200
-    ExplicitWidth = 416
+    ExplicitTop = 242
+  end
+  object sptScriptAfter: TSplitter [1]
+    Left = 0
+    Top = 308
+    Width = 400
+    Height = 6
+    Cursor = crVSplit
+    Align = alTop
+    Beveled = True
+    MinSize = 1
+    ExplicitLeft = 3
+    ExplicitTop = 357
+  end
+  object GrbScriptAfter: TGroupBox [2]
+    AlignWithMargins = True
+    Left = 3
+    Top = 245
+    Width = 394
+    Height = 60
+    Align = alTop
+    Caption = 'Script After (Run: F9)'
+    Constraints.MinHeight = 60
+    TabOrder = 1
+    object EdtScriptAfter: TRichEditEx
+      Left = 2
+      Top = 15
+      Width = 390
+      Height = 43
+      Align = alClient
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Courier New'
+      Font.Style = []
+      HideSelection = False
+      ParentFont = False
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WantTabs = True
+      Zoom = 100
+      OnKeyUp = EdtScriptAfterKeyUp
+    end
+  end
+  object GrbScriptBefore: TGroupBox [3]
+    AlignWithMargins = True
+    Left = 3
+    Top = 173
+    Width = 394
+    Height = 60
+    Align = alTop
+    Caption = 'Script Before (Run: F9)'
+    Constraints.MinHeight = 60
+    TabOrder = 2
+    object EdtScriptBefore: TRichEditEx
+      Left = 2
+      Top = 15
+      Width = 390
+      Height = 43
+      Align = alClient
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Courier New'
+      Font.Style = []
+      HideSelection = False
+      ParentFont = False
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WantTabs = True
+      Zoom = 100
+      OnKeyUp = EdtScriptBeforeKeyUp
+    end
   end
   inherited grbAbout: TGroupBox
-    Top = 327
-    Anchors = []
-    ExplicitTop = 327
+    Top = 317
+    TabOrder = 3
+    ExplicitTop = 317
   end
   inherited pnlItem: TPanel
     Height = 170
-    Align = alTop
     Anchors = []
     Constraints.MinHeight = 170
-    Constraints.MinWidth = 0
+    TabOrder = 0
     ExplicitHeight = 170
     object LblFile: TLabel [0]
       Left = 5
@@ -81,6 +156,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Constraints.MinWidth = 290
       TabOrder = 0
       OnKeyUp = EdtFileKeyUp
     end
@@ -100,6 +176,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Constraints.MinWidth = 325
       TabOrder = 2
       OnKeyUp = EdtPatameterKeyUp
     end
@@ -109,6 +186,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Constraints.MinWidth = 290
       TabOrder = 3
       OnKeyUp = EdtDiretoryKeyUp
     end
@@ -186,108 +264,23 @@ inherited PGLinkFrame: TPGLinkFrame
         'Properties'
         'Runas')
     end
-    inherited EdtName: TEditEx
-      TabOrder = 9
-    end
-    object ckbCapture: TCheckBox
+    object ckbCapture: TCheckBox [16]
       Left = 209
       Top = 143
       Width = 97
       Height = 17
       Caption = 'CaptureMsg'
-      TabOrder = 10
+      TabOrder = 9
       OnClick = ckbCaptureClick
     end
+    inherited EdtName: TEditEx
+      TabOrder = 10
+    end
   end
-  object pnlScript: TPanel
-    Left = 0
-    Top = 170
-    Width = 400
-    Height = 146
-    Align = alClient
-    Anchors = []
-    BevelOuter = bvNone
-    Constraints.MinHeight = 145
-    UseDockManager = False
-    Locked = True
-    ShowCaption = False
-    TabOrder = 2
-    object Splitter1: TSplitter
-      Left = 0
-      Top = 72
-      Width = 400
-      Height = 8
-      Cursor = crVSplit
-      Align = alTop
-      AutoSnap = False
-      Beveled = True
-      MinSize = 1
-      OnCanResize = Splitter1CanResize
-      ExplicitLeft = 3
-      ExplicitTop = 69
-    end
-    object GrbScriptBefore: TGroupBox
-      AlignWithMargins = True
-      Left = 3
-      Top = 3
-      Width = 394
-      Height = 66
-      Align = alTop
-      Anchors = [akTop]
-      Caption = 'Script Before (Run: F9)'
-      Constraints.MinHeight = 60
-      TabOrder = 0
-      object EdtScriptBefore: TRichEditEx
-        Left = 2
-        Top = 15
-        Width = 390
-        Height = 49
-        Align = alClient
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Courier New'
-        Font.Style = []
-        HideSelection = False
-        ParentFont = False
-        ScrollBars = ssBoth
-        TabOrder = 0
-        WantTabs = True
-        Zoom = 100
-        OnKeyUp = EdtScriptBeforeKeyUp
-      end
-    end
-    object GrbScriptAfter: TGroupBox
-      AlignWithMargins = True
-      Left = 3
-      Top = 83
-      Width = 394
-      Height = 60
-      Align = alClient
-      Anchors = [akBottom]
-      Caption = 'Script After (Run: F9)'
-      Constraints.MinHeight = 60
-      TabOrder = 1
-      object EdtScriptAfter: TRichEditEx
-        Left = 2
-        Top = 15
-        Width = 390
-        Height = 43
-        Align = alClient
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -11
-        Font.Name = 'Courier New'
-        Font.Style = []
-        HideSelection = False
-        ParentFont = False
-        ScrollBars = ssBoth
-        TabOrder = 0
-        WantTabs = True
-        Zoom = 100
-        OnKeyUp = EdtScriptAfterKeyUp
-      end
-    end
+  inherited sptAbout: TPanel
+    Top = 380
+    TabOrder = 4
+    ExplicitTop = 380
   end
   object OpdLinks: TOpenDialog
     Left = 199

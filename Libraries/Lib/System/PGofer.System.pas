@@ -6,7 +6,7 @@ uses
   PGofer.Sintatico.Classes;
 
 type
-{$M+}
+  {$M+}
   TPGSystem = class( TPGItemCMD )
   private
     class var FImageIndex: Integer;
@@ -42,9 +42,9 @@ type
     property LoopLimite: Int64 read GetLoopLimite write SetLoopLimite;
     function MonitorPower( OnOff: Boolean ): NativeInt;
     function PrtScreen( Height, Width, Top, Left: Integer;
-       FileName: string ): Integer;
+      FileName: string ): Integer;
     function SendMessage( ClassName: string; Mss: Cardinal;
-       wPar, lPar: Integer ): Integer;
+      wPar, lPar: Integer ): Integer;
     function SetScreen( Height, Width, Monitor: Integer ): Boolean;
     function SetSuspendState( Enabled: Boolean ): Boolean;
     procedure ShowMessage( Texto: string );
@@ -52,12 +52,12 @@ type
     property ReplyFormat: string read GetReplyFormat write SetReplyFormat;
     property ReplyPrefix: Boolean read GetReplyPrefix write SetReplyPrefix;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
 uses
-  WinApi.Windows, System.SysUtils,
+  WinApi.Windows, System.SysUtils, System.Classes,
   Vcl.Forms,
   PGofer.Sintatico, PGofer.System.Controls,
   PGofer.ImageList;
@@ -101,7 +101,7 @@ end;
 
 function TPGSystem.GetHookQueueMaxCount: Integer;
 begin
-    Result := PGofer.Sintatico.HookQueueMaxCount;
+  Result := PGofer.Sintatico.HookQueueMaxCount;
 end;
 
 class function TPGSystem.GetImageIndex: Integer;
@@ -140,17 +140,17 @@ begin
 end;
 
 function TPGSystem.PrtScreen( Height, Width, Top, Left: Integer;
-   FileName: string ): Integer;
+  FileName: string ): Integer;
 begin
   Result := PGofer.System.Controls.SystemPrtScreen( Height, Width, Top, Left,
-     FileName );
+    FileName );
 end;
 
 function TPGSystem.SendMessage( ClassName: string; Mss: Cardinal;
-   wPar, lPar: Integer ): Integer;
+  wPar, lPar: Integer ): Integer;
 begin
   Result := PGofer.System.Controls.SystemSetSendMessage( ClassName, Mss,
-     wPar, lPar );
+    wPar, lPar );
 end;
 
 procedure TPGSystem.SetCanClose( Value: Boolean );
@@ -191,17 +191,28 @@ end;
 function TPGSystem.SetSuspendState( Enabled: Boolean ): Boolean;
 begin
   Result := PGofer.System.Controls.SystemSetSuspendState( Enabled,
-     True, False );
+    True, False );
 end;
 
 function TPGSystem.DialogMessage( Text: string ): Boolean;
+var
+   R : Boolean;
 begin
-  Result := PGofer.System.Controls.SystemDialogMessage( Text );
+  TThread.Synchronize( nil, procedure
+    begin
+      R := PGofer.System.Controls.SystemDialogMessage( Text );
+    end
+  );
+  Result := R;
 end;
 
 procedure TPGSystem.ShowMessage( Texto: string );
 begin
-  ShowMessage( Texto );
+  TThread.Synchronize( nil, procedure
+    begin
+      ShowMessage( Texto );
+    end
+  );
 end;
 
 function TPGSystem.ShutDown( Valor: Cardinal ): Boolean;

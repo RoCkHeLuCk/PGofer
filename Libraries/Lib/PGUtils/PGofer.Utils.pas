@@ -5,14 +5,14 @@ interface
 uses
   System.SysUtils;
 
-function SplitEx( Text, Separator: string ): TArray< string >;
+function SplitEx( Text, Separator: string ): TArray<string>;
 
 implementation
 
 uses
   PGofer.Classes;
 
-function SplitEx( Text, Separator: string ): TArray< string >;
+function SplitEx( Text, Separator: string ): TArray<string>;
 var
   TxtBgn, TxtEnd, RstLength, TxtLength, SptLength: FixedInt;
 begin

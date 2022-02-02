@@ -12,9 +12,9 @@ function FileLimitPathExist( Path: string ): string;
 function FileExpandPath( const PathName: string ): string;
 function FileUnExpandPath( const PathName: string ): string;
 function FileExec( Arquivo, Parametro, Diretorio: string; ShowControl: Integer;
-   Operation: Byte; Prioridade: Byte ): string;
+  Operation: Byte; Prioridade: Byte ): string;
 function FileControl( FileName, FileAlter: string;
-   const Func, Flags: Cardinal ): Integer;
+  const Func, Flags: Cardinal ): Integer;
 function FileGetSize( FileName: string ): Int64;
 function FileLoadFromText( FileName: string ): string;
 function FileSaveToText( FileName, Value: string ): Boolean;
@@ -22,27 +22,25 @@ function FileListDir( MaskName: string; ExcludeExt: Boolean = False ): string;
 function FileOpenDialog( const Dir: string ): string;
 function FileDirDialog( Dir: string ): string;
 function FileSetDateTime( FileName: string;
-   CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
+  CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 function FileGetCreateTime( FileName: string ): string;
 function FileGetModifyTime( FileName: string ): string;
 function FileGetAcessTime( FileName: string ): string;
 function FileExtractOnlyFileName( const FileName: string ): string;
 
 function CreateSymbolicLinkW( lpSymlinkFileName: PWideChar;
-   lpTargetFileName: PWideChar; dwFlags: DWORD ): Boolean; stdcall;
-   external 'kernel32';
+  lpTargetFileName: PWideChar; dwFlags: DWORD ): Boolean; stdcall;
+  external 'kernel32';
 
 {$WARN SYMBOL_PLATFORM ON}
 function GetOperationToStr( Operation: Byte ): PWideChar;
 function GetProcessPri( Prioridade: Byte ): Word;
 function GetShellExMSGToStr( InstApp: Cardinal; AErrorOnly: Boolean ): string;
 
-
-
 implementation
 
 uses
-{$WARN UNIT_PLATFORM OFF}
+  {$WARN UNIT_PLATFORM OFF}
   Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
   WinApi.ShellApi, WinApi.ShlwApi,
   System.SysUtils, System.Classes;
@@ -59,9 +57,9 @@ begin
   begin
     DecodeDate( DateTime, LST.wYear, LST.wMonth, LST.wDay );
     DecodeTime( DateTime, LST.wHour, LST.wMinute, LST.wSecond,
-       LST.wMilliSeconds );
+      LST.wMilliSeconds );
     if SystemTimeToFileTime( LST, LFT ) and LocalFileTimeToFileTime( LFT,
-       FileTime ) then
+      FileTime ) then
     begin
       New( Result );
       Result^ := FileTime;
@@ -75,8 +73,8 @@ var
 begin
   FileTimeToSystemTime( FileTime, TimeSystem );
   Result := EncodeDate( TimeSystem.wYear, TimeSystem.wMonth, TimeSystem.wDay ) +
-     EncodeTime( TimeSystem.wHour, TimeSystem.wMinute, TimeSystem.wSecond,
-     TimeSystem.wMilliSeconds );
+    EncodeTime( TimeSystem.wHour, TimeSystem.wMinute, TimeSystem.wSecond,
+    TimeSystem.wMilliSeconds );
 end;
 
 function FileLimitPathExist( Path: string ): string;
@@ -189,17 +187,17 @@ begin
     SE_ERR_NOASSOC:
       Result := 'Erro: Nada associado.';
     33, 42:
-    begin
-      if not AErrorOnly then
-         Result := 'OK: Executado com exito.';
-    end
+      begin
+        if not AErrorOnly then
+          Result := 'OK: Executado com exito.';
+      end
   else
     Result := 'Erro: Executar Numero: "' + InstApp.ToString + '".';
   end;
 end;
 
 function FileExec( Arquivo, Parametro, Diretorio: string; ShowControl: Integer;
-   Operation: Byte; Prioridade: Byte ): string;
+  Operation: Byte; Prioridade: Byte ): string;
 var
   ShellExecuteInfoW: TShellExecuteInfo;
 begin
@@ -229,7 +227,7 @@ begin
 end;
 
 function FileControl( FileName, FileAlter: string;
-   const Func, Flags: Cardinal ): Integer;
+  const Func, Flags: Cardinal ): Integer;
 var
   Arquivos: TSHFileOpStruct;
 begin
@@ -335,7 +333,7 @@ begin
 end;
 
 function FileSetDateTime( FileName: string;
-   CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
+  CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 var
   FileHandle: Integer;
   ftCreateTime, ftModifyTime, ftAcessTime: PFileTime;
@@ -344,12 +342,12 @@ begin
   ftModifyTime := DateTimeToFileTime( ModifyTime );
   ftAcessTime := DateTimeToFileTime( AcessTime );
   FileHandle := FileOpen( FileExpandPath( FileName ), fmOpenReadWrite or
-     fmShareExclusive );
+    fmShareExclusive );
 
   if FileHandle <> 0 then
   begin
     Result := SetFileTime( FileHandle, ftCreateTime, ftAcessTime,
-       ftModifyTime );
+      ftModifyTime );
     FileClose( FileHandle );
   end
   else
@@ -364,55 +362,55 @@ function FileGetCreateTime( FileName: string ): string;
 var
   SearchRec: TSearchRec;
 begin
-{$WARN SYMBOL_PLATFORM OFF}
+  {$WARN SYMBOL_PLATFORM OFF}
   if FindFirst( FileExpandPath( FileName ), faAnyFile, SearchRec ) = 0 then
   begin
     Result := DateTimeToStr
-       ( FileTimeToDateTime( SearchRec.FindData.ftCreationTime ) );
+      ( FileTimeToDateTime( SearchRec.FindData.ftCreationTime ) );
     FindClose( SearchRec );
   end
   else
     Result := '';
-{$WARN SYMBOL_PLATFORM ON}
+  {$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileGetModifyTime( FileName: string ): string;
 var
   SearchRec: TSearchRec;
 begin
-{$WARN SYMBOL_PLATFORM OFF}
+  {$WARN SYMBOL_PLATFORM OFF}
   if FindFirst( FileExpandPath( FileName ), faAnyFile, SearchRec ) = 0 then
   begin
     Result := DateTimeToStr
-       ( FileTimeToDateTime( SearchRec.FindData.ftLastWriteTime ) );
+      ( FileTimeToDateTime( SearchRec.FindData.ftLastWriteTime ) );
     FindClose( SearchRec );
   end
   else
     Result := '';
-{$WARN SYMBOL_PLATFORM ON}
+  {$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileGetAcessTime( FileName: string ): string;
 var
   SearchRec: TSearchRec;
 begin
-{$WARN SYMBOL_PLATFORM OFF}
+  {$WARN SYMBOL_PLATFORM OFF}
   if FindFirst( FileExpandPath( FileName ), faAnyFile, SearchRec ) = 0 then
   begin
     Result := DateTimeToStr
-       ( FileTimeToDateTime( SearchRec.FindData.ftLastAccessTime ) );
+      ( FileTimeToDateTime( SearchRec.FindData.ftLastAccessTime ) );
     FindClose( SearchRec );
   end
   else
     Result := '';
-{$WARN SYMBOL_PLATFORM ON}
+  {$WARN SYMBOL_PLATFORM ON}
 end;
 
 function FileExtractOnlyFileName( const FileName: string ): string;
 begin
   Result := ExtractFileName( FileName );
   Result := copy( Result, 1, Length( Result ) -
-     ExtractFileExt( Result ).Length );
+    ExtractFileExt( Result ).Length );
 end;
 
 end.

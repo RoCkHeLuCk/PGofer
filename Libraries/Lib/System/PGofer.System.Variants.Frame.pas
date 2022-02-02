@@ -12,7 +12,8 @@ type
   TPGFrameVariants = class( TPGFrame )
     LblValue: TLabel;
     EdtValue: TEdit;
-    procedure EdtValueKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EdtValueKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
   private
     { Private declarations }
     FItem: TPGVariant;
@@ -44,8 +45,8 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGFrameVariants.EdtValueKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameVariants.EdtValueKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Value := EdtValue.Text;
 end;

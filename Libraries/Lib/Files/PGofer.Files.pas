@@ -6,8 +6,8 @@ uses
   PGofer.Sintatico.Classes;
 
 type
-{$WARN SYMBOL_PLATFORM OFF}
-{$M+}
+  {$WARN SYMBOL_PLATFORM OFF}
+  {$M+}
   TPGFile = class( TPGItemCMD )
   private
   public
@@ -16,7 +16,7 @@ type
     function Delete( FileFrom: string; Flags: Word ): Integer;
     function DirExists( Directory: string ): Boolean;
     function Exec( FileName, Parametro, Diretorio: string; ShowControl: Integer;
-       Operation: Byte; Prioridade: Byte ): string;
+      Operation: Byte; Prioridade: Byte ): string;
     function ExtractDir( FileName: string ): string;
     function ExtractExt( FileName: string ): string;
     function ExtractName( FileName: string ): string;
@@ -40,9 +40,9 @@ type
     function Search( FileName, DirList: string ): string;
     function SetAttrib( FileName: string; Flags: Integer ): Boolean;
     function SetDateTime( FileName: string;
-       CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
+      CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
@@ -68,10 +68,10 @@ begin
 end;
 
 function TPGFile.Exec( FileName, Parametro, Diretorio: string;
-   ShowControl: Integer; Operation: Byte; Prioridade: Byte ): string;
+  ShowControl: Integer; Operation: Byte; Prioridade: Byte ): string;
 begin
   Result := FileExec( FileName, Parametro, Diretorio, ShowControl, Operation,
-     Prioridade );
+    Prioridade );
 end;
 
 function TPGFile.ExtractDir( FileName: string ): string;
@@ -133,10 +133,10 @@ begin
   end;
 end;
 
-function TPGFile.MkLink(Origin, Destine: string; Flag: Word): Boolean;
+function TPGFile.MkLink( Origin, Destine: string; Flag: Word ): Boolean;
 begin
-    Result := CreateSymbolicLinkW( PWideChar(Destine), PWideChar(Origin),
-        Cardinal(Flag) );
+  Result := CreateSymbolicLinkW( PWideChar( Destine ), PWideChar( Origin ),
+    Cardinal( Flag ) );
 end;
 
 function TPGFile.Move( FileFrom, FileTo: string; Flags: Word ): Integer;
@@ -190,7 +190,7 @@ begin
 end;
 
 function TPGFile.SetDateTime( FileName: string;
-   CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
+  CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 begin
   Result := FileSetDateTime( FileName, CreateTime, ModifyTime, AcessTime );
 end;

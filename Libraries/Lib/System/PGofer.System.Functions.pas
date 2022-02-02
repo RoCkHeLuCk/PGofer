@@ -9,7 +9,7 @@ uses
 
 type
 
-{$M+}
+  {$M+}
   TPGFunction = class( TPGItemCMD )
   private
     FTokenList: TTokenList;
@@ -26,10 +26,10 @@ type
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
     property Script: string read GetScript write SetScript;
-    procedure CompileScript();
+    procedure CompileScript( );
   published
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
   TPGFunctionDeclare = class( TPGItemCMD )
   private
@@ -48,7 +48,7 @@ uses
 
 { TPGFunction }
 
-procedure TPGFunction.CompileScript();
+procedure TPGFunction.CompileScript( );
 begin
   ScriptExec( 'Function: ' + Self.Name, FScript.Text, nil, False );
 end;
@@ -82,7 +82,7 @@ begin
   if not Gramatica.Erro then
   begin
     Gramatica2 := TGramatica.Create( '$Function: ' + Self.Name,
-       Gramatica.Local, False );
+      Gramatica.Local, False );
 
     for C := Self.FVariantList.Count - 1 downto 0 do
     begin
@@ -92,7 +92,7 @@ begin
         VarValor := TPGVariant( Self.FVariantList[ C ] ).Value
       else
         VarValor := Gramatica.Pilha.Desempilhar
-           ( TPGVariant( Self.FVariantList[ C ] ).Value );
+          ( TPGVariant( Self.FVariantList[ C ] ).Value );
 
       TPGVariant.Create( Gramatica2.Local, VarTitulo, VarValor, False );
     end;
@@ -137,7 +137,7 @@ end;
 { TPGFunctionDeclare }
 
 procedure TPGFunctionDeclare.DeclaraNivel1( Gramatica: TGramatica;
-   Nivel: TPGItem );
+  Nivel: TPGItem );
 var
   Titulo: string;
   ID: TPGItem;
@@ -174,7 +174,7 @@ begin
             if ( not Gramatica.Erro ) then
             begin
               Fuck.FScript.Text := copy( Gramatica.Script, FCordIni,
-                 Gramatica.TokenList.Token.Cordenada.Single - FCordIni );
+                Gramatica.TokenList.Token.Cordenada.Single - FCordIni );
             end;
           end
           else

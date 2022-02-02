@@ -8,7 +8,7 @@ uses
 type
   // ????????? Arrumar o Deg, RAD, GRA do Math
 
-{$M+}
+  {$M+}
   TPGMath = class( TPGItemCMD )
   private
   public
@@ -37,7 +37,7 @@ type
     function Sin( Valor: Extended ): Extended;
     function Tan( Valor: Extended ): Extended;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 var
   PGMath: TPGMath;
@@ -101,7 +101,7 @@ begin
 end;
 
 function TPGMath.Format( Prefix: Boolean; Format: string;
-   Valor: Extended ): string;
+  Valor: Extended ): string;
 begin
   Result := PGofer.Math.Controls.FormatConvert( Prefix, Format, Valor );
 end;

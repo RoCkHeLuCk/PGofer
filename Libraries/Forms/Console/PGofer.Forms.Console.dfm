@@ -13,7 +13,11 @@ object FrmConsole: TFrmConsole
   ParentFont = True
   FormStyle = fsStayOnTop
   KeyPreview = True
-  OldCreateOrder = False
+  Padding.Left = 2
+  Padding.Top = 2
+  Padding.Right = 2
+  Padding.Bottom = 2
+  OldCreateOrder = True
   Position = poDefault
   OnActivate = FormActivate
   OnClose = FormClose
@@ -24,10 +28,10 @@ object FrmConsole: TFrmConsole
   PixelsPerInch = 96
   TextHeight = 13
   object PnlConsole: TPanel
-    Left = 0
-    Top = 0
-    Width = 200
-    Height = 80
+    Left = 2
+    Top = 2
+    Width = 196
+    Height = 76
     Align = alClient
     BevelOuter = bvNone
     ParentColor = True
@@ -37,29 +41,29 @@ object FrmConsole: TFrmConsole
     object PnlArrastar: TPanel
       Left = 0
       Top = 0
-      Width = 200
-      Height = 12
+      Width = 196
+      Height = 13
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Align = alTop
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
-      DesignSize = (
-        200
-        12)
       object BtnFixed: TSpeedButton
-        AlignWithMargins = True
-        Left = 183
+        Left = 180
         Top = 0
-        Width = 15
+        Width = 16
         Height = 13
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
         Margins.Bottom = 0
+        Align = alRight
         AllowAllUp = True
-        Anchors = [akTop, akRight]
         GroupIndex = 1
         Glyph.Data = {
           D2040000424DD20400000000000036040000280000000A0000000D0000000100
@@ -104,14 +108,17 @@ object FrmConsole: TFrmConsole
         Margin = 0
         Spacing = 0
         OnClick = BtnFixedClick
-        ExplicitLeft = 142
+        ExplicitLeft = 179
+        ExplicitHeight = 12
       end
       object PnlArrastar2: TPanel
+        AlignWithMargins = True
         Left = 3
-        Top = 4
-        Width = 177
-        Height = 4
-        Anchors = [akLeft, akTop, akRight, akBottom]
+        Top = 3
+        Width = 174
+        Height = 5
+        Margins.Bottom = 5
+        Align = alClient
         BevelOuter = bvNone
         Color = clBtnShadow
         ParentBackground = False
@@ -122,18 +129,19 @@ object FrmConsole: TFrmConsole
     end
     object EdtConsole: TRichEditEx
       Left = 0
-      Top = 12
-      Width = 200
-      Height = 68
+      Top = 13
+      Width = 196
+      Height = 63
       Align = alClient
-      Ctl3D = True
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -16
       Font.Name = 'Courier New'
       Font.Style = []
       HideSelection = False
-      ParentCtl3D = False
       ParentFont = False
       ReadOnly = True
       ScrollBars = ssBoth
@@ -145,7 +153,7 @@ object FrmConsole: TFrmConsole
     Enabled = False
     Interval = 2000
     OnTimer = TmrConsoleTimer
-    Left = 48
-    Top = 20
+    Left = 60
+    Top = 28
   end
 end

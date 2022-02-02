@@ -11,13 +11,17 @@ uses
 
 type
   TPGFrameFunction = class( TPGFrame )
-    gpbScript: TGroupBox;
+    GrbScript: TGroupBox;
     EdtScript: TRichEditEx;
-    procedure EdtScriptKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
+    sptScript: TSplitter;
+    procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
   private
     FItem: TPGFunction;
     frmAutoComplete: TFrmAutoComplete;
+  protected
+    procedure IniConfigSave( ); override;
+    procedure IniConfigLoad( ); override;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -41,14 +45,27 @@ end;
 
 destructor TPGFrameFunction.Destroy;
 begin
-  FItem.CompileScript();
+  FItem.CompileScript( );
   FItem := nil;
-  frmAutoComplete.Free;
+  frmAutoComplete.Free( );
   inherited Destroy( );
 end;
 
-procedure TPGFrameFunction.EdtScriptKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGFrameFunction.IniConfigLoad;
+begin
+  inherited IniConfigLoad( );
+  GrbScript.Height := FIniFile.ReadInteger( Self.ClassName, 'Scritp',
+    GrbScript.Height );
+end;
+
+procedure TPGFrameFunction.IniConfigSave;
+begin
+  FIniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
+  inherited IniConfigSave( );
+end;
+
+procedure TPGFrameFunction.EdtScriptKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Script := EdtScript.Text;
 end;

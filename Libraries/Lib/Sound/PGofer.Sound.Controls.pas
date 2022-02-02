@@ -27,16 +27,15 @@ var
   EndPoint: IAudioEndpointVolume;
 begin
   EndPoint := nil;
-  TThread.Synchronize( nil,
-    procedure
+  TThread.Synchronize( nil, procedure
     begin
       try
         CoCreateInstance( CLASS_IMMDeviceEnumerator, nil, CLSCTX_INPROC_SERVER,
-           IID_IMMDeviceEnumerator, deviceEnumerator );
+          IID_IMMDeviceEnumerator, deviceEnumerator );
         deviceEnumerator.GetDefaultAudioEndpoint( eRender, SoundDriver,
-           defaultDevice );
+          defaultDevice );
         defaultDevice.Activate( IID_IAudioEndpointVolume, CLSCTX_INPROC_SERVER,
-           nil, EndPoint );
+          nil, EndPoint );
       except
       end;
     end );
@@ -170,13 +169,12 @@ end;
 
 function SoundSetDevice( SoundDriver: Cardinal; AValue: Cardinal ): Boolean;
 var
-  Resposta : Boolean;
+  Resposta: Boolean;
 begin
-  TThread.Synchronize( nil,
-    procedure
+  TThread.Synchronize( nil, procedure
     begin
       Resposta := waveOutMessage( HWAVEIN( WAVE_MAPPER ),
-         DRVM_MAPPER_PREFERRED_SET, SoundDriver, AValue ) = MMSYSERR_NOERROR;
+        DRVM_MAPPER_PREFERRED_SET, SoundDriver, AValue ) = MMSYSERR_NOERROR;
     end );
   Result := Resposta;
 end;

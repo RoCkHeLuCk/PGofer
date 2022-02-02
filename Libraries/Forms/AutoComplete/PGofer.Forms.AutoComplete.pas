@@ -30,7 +30,7 @@ type
     procedure trmAutoCompleteTimer( Sender: TObject );
     procedure ltvAutoCompleteDblClick( Sender: TObject );
     procedure ltvAutoCompleteCompare( Sender: TObject; Item1, Item2: TListItem;
-       Data: Integer; var Compare: Integer );
+      Data: Integer; var Compare: Integer );
   private
     FEditCtrl: TRichEditEx;
     FEditKeyDown: TOnKeyDownUP;
@@ -55,9 +55,9 @@ type
     procedure ShowAutoComplete( );
     procedure SetCommandCompare( AValue: string );
     property CommandCompare: string read FCommandCompare
-       write SetCommandCompare;
+      write SetCommandCompare;
   protected
-    procedure CreateWindowHandle( const Params: TCreateParams ); override;
+    procedure CreateParams( var AParams: TCreateParams ); override;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
@@ -76,16 +76,15 @@ uses
 
 const
   Caracteres: TSysCharSet = [ #10, #13, ' ', ',', ';', ':', '=', '+', '-', '*',
-     '\', '/', '<', '>', '(', ')', '[', ']', '!', '@', '#', '%', '^', '$', '&',
-     '?', '|', '''', '"', '.' ];
+    '\', '/', '<', '>', '(', ')', '[', ']', '!', '@', '#', '%', '^', '$', '&',
+    '?', '|', '''', '"', '.' ];
 
-procedure TFrmAutoComplete.CreateWindowHandle( const Params: TCreateParams );
+procedure TFrmAutoComplete.CreateParams( var AParams: TCreateParams );
 begin
-  inherited CreateWindowHandle( Params );
-  SetWindowLong( Self.Handle, GWL_STYLE, WS_SIZEBOX );
-  SetWindowLong( Self.Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE or
-     WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW );
+  inherited;
+  AParams.ExStyle := WS_EX_NOACTIVATE;
   Application.AddPopupForm( Self );
+  Self.ForceResizable := True;
 end;
 
 constructor TFrmAutoComplete.Create( AEditCtrl: TRichEditEx );
@@ -106,7 +105,7 @@ begin
 
   // carrega arquivos ini
   FMemoryIniFile := TIniFile.Create( PGofer.Sintatico.DirCurrent +
-     'AutoComplete.ini' );
+    'AutoComplete.ini' );
   // controle de memorização de comandos
   FMemoryNoCtrl := False;
   FMemoryPosition := 0;
@@ -139,7 +138,7 @@ begin
 end;
 
 procedure TFrmAutoComplete.FormClose( Sender: TObject;
-   var Action: TCloseAction );
+  var Action: TCloseAction );
 begin
   inherited FormClose( Sender, Action );
   trmAutoComplete.Enabled := False;
@@ -148,7 +147,6 @@ end;
 procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
-  //
 end;
 
 procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
@@ -169,7 +167,7 @@ begin
 end;
 
 procedure TFrmAutoComplete.FormKeyDown( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 var
   c: Word;
 begin
@@ -255,7 +253,7 @@ begin
               end;
               // escreve no edit
               FEditCtrl.Lines[ FEditCtrl.CaretY - 1 ] :=
-                 FMemoryList[ FMemoryPosition ];
+                FMemoryList[ FMemoryPosition ];
               Key := 0;
             end;
           end;
@@ -280,7 +278,7 @@ begin
 end;
 
 procedure TFrmAutoComplete.FormKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   if Shift = [ ] then
     case Key of
@@ -289,8 +287,8 @@ begin
       65 { A } .. 92 { Z } , // letra
       96 { 0 } .. 105 { 9 } , // numpad
       106 { * } , 107 { + } , 109 { - } , 110 { . } , 111 { / } , 187 { = } ,
-         186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } , 219 { [ } ,
-         220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
+        186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } , 219 { [ } ,
+        220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
         begin
           if FEditCtrl.Text <> '' then
             Self.FindCMD( )
@@ -323,42 +321,42 @@ begin
 end;
 
 procedure TFrmAutoComplete.ltvAutoCompleteCompare( Sender: TObject;
-   Item1, Item2: TListItem; Data: Integer; var Compare: Integer );
+  Item1, Item2: TListItem; Data: Integer; var Compare: Integer );
 var
   v1, v2: Integer;
   b1, b2: Boolean;
 begin
   v1 := 0;
-  b1 := false;
+  b1 := False;
   if Assigned( Item1 ) then
   begin
     if ( Item1.SubItems.Count > 1 ) then
       TryStrToInt( Item1.SubItems[ 1 ], v1 );
 
     b1 := SameText( Copy( Item1.Caption, LowString, FCommandCompareLength ),
-       FCommandCompare );
+      FCommandCompare );
   end;
 
   v2 := 0;
-  b2 := false;
+  b2 := False;
   if Assigned( Item2 ) then
   begin
     if ( Item2.SubItems.Count > 1 ) then
       TryStrToInt( Item2.SubItems[ 1 ], v2 );
 
     b2 := SameText( Copy( Item2.Caption, LowString, FCommandCompareLength ),
-       FCommandCompare );
+      FCommandCompare );
   end;
-
 
   if b1 xor b2 then
   begin
     if b1 then
-       Compare := 0
+      Compare := 0
     else
-       Compare := 1;
-  end else
-     Compare := v2 - v1;
+      Compare := 1;
+  end
+  else
+    Compare := v2 - v1;
 end;
 
 procedure TFrmAutoComplete.ltvAutoCompleteDblClick( Sender: TObject );
@@ -371,7 +369,7 @@ var
   N: Integer;
 begin
   if TryStrToInt( InputBox( 'Priority', 'Valor',
-     ltvAutoComplete.ItemFocused.SubItems[ 1 ] ), N ) then
+    ltvAutoComplete.ItemFocused.SubItems[ 1 ] ), N ) then
     SetPriority( N );
 end;
 
@@ -400,8 +398,8 @@ procedure TFrmAutoComplete.SetPriority( AValue: FixedInt );
 begin
   ltvAutoComplete.ItemFocused.SubItems[ 1 ] := IntToStr( AValue );
   FMemoryIniFile.WriteInteger( 'AutoComplete',
-     ltvAutoComplete.ItemFocused.SubItems[ 0 ] + '.' +
-     ltvAutoComplete.ItemFocused.Caption, AValue );
+    ltvAutoComplete.ItemFocused.SubItems[ 0 ] + '.' +
+    ltvAutoComplete.ItemFocused.Caption, AValue );
   ltvAutoComplete.Update( );
   FMemoryIniFile.UpdateFile( );
 end;
@@ -430,7 +428,7 @@ begin
     ListItem.Caption := ACaption;
     ListItem.SubItems.Add( AOrigin );
     ListItem.SubItems.Add( FMemoryIniFile.ReadString( 'AutoComplete',
-       AOrigin + '.' + ACaption, '0' ) );
+      AOrigin + '.' + ACaption, '0' ) );
     ListItem.Data := nil;
   end;
 end;
@@ -447,13 +445,13 @@ begin
   else
     ListItem.SubItems.Add( '' );
   ListItem.SubItems.Add( FMemoryIniFile.ReadString( 'AutoComplete',
-     ListItem.SubItems[ 0 ] + '.' + ListItem.Caption, '0' ) );
+    ListItem.SubItems[ 0 ] + '.' + ListItem.Caption, '0' ) );
   ListItem.Data := AItem;
 end;
 
 procedure TFrmAutoComplete.ProcurarComandos( ACommand: string );
 var
-  SubCMD: TArray< string >;
+  SubCMD: TArray<string>;
   Item: TPGItem;
   ItemAux: TPGItem;
   c, l: Integer;
@@ -588,14 +586,14 @@ begin
     // localiza o final
     SelFinal := SelStart;
     while ( SelFinal < LengthText ) and
-       ( not CharInSet( FEditCtrl.Lines.Text[ SelFinal ], Caracteres ) ) do
+      ( not CharInSet( FEditCtrl.Lines.Text[ SelFinal ], Caracteres ) ) do
       Inc( SelFinal );
     SelFinal := SelFinal - SelConvert;
 
     // localiza o inicio
     SelInicio := SelStart;
     while ( SelInicio > 0 ) and
-       ( not CharInSet( FEditCtrl.Lines.Text[ SelInicio ], Caracteres ) ) do
+      ( not CharInSet( FEditCtrl.Lines.Text[ SelInicio ], Caracteres ) ) do
       Dec( SelInicio );
 
     SelInicio := SelInicio - SelConvert;

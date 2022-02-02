@@ -10,31 +10,30 @@ uses
 type
   TListViewEx = class( TListView )
   private
-    //FSort: Boolean;
+    // FSort: Boolean;
     FOwnsObjectsData: Boolean;
     FColumnAlphaSort: Boolean;
   protected
-    //procedure ColClick( Column: TListColumn ); override;
+    // procedure ColClick( Column: TListColumn ); override;
     procedure DoEndDrag( Target: TObject; X, Y: Integer ); override;
     procedure Delete( Item: TListItem ); override;
     procedure MouseDown( Button: TMouseButton; Shift: TShiftState;
-       X, Y: Integer ); override;
+      X, Y: Integer ); override;
   public
     procedure DragDrop( Source: TObject; X, Y: Integer ); override;
     procedure DeleteSelect( );
     function isSelectWork( ): Boolean;
     procedure FindText( Text: string; SubItem: Boolean = False;
-       OffSet: Integer = -1);
+      OffSet: Integer = -1 );
     procedure SuperSelected( Item: TListItem ); overload;
     procedure SuperSelected( ); overload;
     procedure IniConfigSave( AIniFile: TIniFile );
     procedure IniConfigLoad( AIniFile: TIniFile );
   published
-    { Published declarations }
     property OwnsObjectsData: Boolean read FOwnsObjectsData
-       write FOwnsObjectsData default false;
+      write FOwnsObjectsData default False;
     property ColumnAlphaSort: Boolean read FColumnAlphaSort
-       write FColumnAlphaSort default false;
+      write FColumnAlphaSort default False;
   end;
 
 procedure Register;
@@ -48,50 +47,50 @@ end;
 
 { TListViewEx }
 {
-procedure TListViewEx.ColClick( Column: TListColumn );
+  procedure TListViewEx.ColClick( Column: TListColumn );
 
   function AZSort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
   begin
-    if Assigned(Item1) and Assigned(Item2)
-    and (Item1 is TListItem) and (Item2 is TListItem) then
-    begin
-      if lParam < 0 then
-        Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) )
-      else
-        Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
-           PChar( Item2.SubItems[ lParam ] ) );
-    end else
-       Result := 0;
+  if Assigned(Item1) and Assigned(Item2)
+  and (Item1 is TListItem) and (Item2 is TListItem) then
+  begin
+  if lParam < 0 then
+  Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) )
+  else
+  Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
+  PChar( Item2.SubItems[ lParam ] ) );
+  end else
+  Result := 0;
   end;
 
   function ZASort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
   begin
-    if Assigned(Item1) and Assigned(Item2) then
-    begin
-      if lParam < 0 then
-        Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) ) * -1
-      else
-        Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
-           PChar( Item2.SubItems[ lParam ] ) ) * -1;
-    end else
-       Result := 0;
+  if Assigned(Item1) and Assigned(Item2) then
+  begin
+  if lParam < 0 then
+  Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) ) * -1
+  else
+  Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
+  PChar( Item2.SubItems[ lParam ] ) ) * -1;
+  end else
+  Result := 0;
   end;
 
-begin
+  begin
 
   FSort := not FSort;
   if ( not Assigned( Self.OnCompare ) ) or ( FColumnAlphaSort ) then
   begin
-    if FSort then
-      ListView_SortItems( Self.Handle, @AZSort, Column.Index - 1 )
-    else
-      ListView_SortItems( Self.Handle, @ZASort, Column.Index - 1 );
+  if FSort then
+  ListView_SortItems( Self.Handle, @AZSort, Column.Index - 1 )
+  else
+  ListView_SortItems( Self.Handle, @ZASort, Column.Index - 1 );
   end
   else
-    Self.AlphaSort;
+  Self.AlphaSort;
 
   inherited ColClick( Column );
-end;
+  end;
 }
 procedure TListViewEx.DoEndDrag( Target: TObject; X, Y: Integer );
 begin
@@ -147,7 +146,7 @@ begin
 end;
 
 procedure TListViewEx.MouseDown( Button: TMouseButton; Shift: TShiftState;
-   X, Y: Integer );
+  X, Y: Integer );
 begin
   if ( not Self.Dragging ) then
     Self.Selected := Self.GetItemAt( X, Y );
@@ -158,7 +157,7 @@ procedure TListViewEx.SuperSelected( Item: TListItem );
 begin
   if Assigned( Item ) then
   begin
-    Self.Scroll( Item.Position.X, Item.Position.y);
+    Self.Scroll( Item.Position.X, Item.Position.Y );
     Item.Selected := true;
     Item.MakeVisible( true );
     Item.Focused := true;
@@ -186,8 +185,8 @@ begin
   Result := ( Assigned( Selected ) and Assigned( Selected.Data ) );
 end;
 
-procedure TListViewEx.FindText( Text: string;  SubItem: Boolean = False;
-     OffSet: Integer = -1 );
+procedure TListViewEx.FindText( Text: string; SubItem: Boolean = False;
+  OffSet: Integer = -1 );
 var
   Count: Integer;
 begin
@@ -205,7 +204,7 @@ begin
   while ( Count < Self.Items.Count ) do
   begin
     if ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].Caption ) ) > 0 ) or
-       ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].SubItems.Text ) ) > 0 )
+      ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].SubItems.Text ) ) > 0 )
     then
     begin
       SuperSelected( Items[ Count ] );
@@ -218,7 +217,7 @@ begin
   while ( Count < OffSet ) do
   begin
     if ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].Caption ) ) > 0 ) or
-       ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].SubItems.Text ) ) > 0 )
+      ( Pos( LowerCase( Text ), LowerCase( Items[ Count ].SubItems.Text ) ) > 0 )
     then
     begin
       SuperSelected( Items[ Count ] );
@@ -228,25 +227,25 @@ begin
   end;
 end;
 
-procedure TListViewEx.IniConfigLoad(AIniFile: TIniFile);
+procedure TListViewEx.IniConfigLoad( AIniFile: TIniFile );
 var
   c: Integer;
 begin
   for c := 0 to Self.Columns.Count - 1 do
   begin
     Self.Columns[ c ].Width := AIniFile.ReadInteger( Self.Name,
-       'ColunWidth' + IntToStr( c ), Self.Columns[ c ].Width );
+      'ColunWidth' + IntToStr( c ), Self.Columns[ c ].Width );
   end;
 end;
 
-procedure TListViewEx.IniConfigSave(AIniFile: TIniFile);
+procedure TListViewEx.IniConfigSave( AIniFile: TIniFile );
 var
   c: Integer;
 begin
   for c := 0 to Self.Columns.Count - 1 do
   begin
     AIniFile.WriteInteger( Self.Name, 'ColunWidth' + IntToStr( c ),
-       Self.Columns[ c ].Width );
+      Self.Columns[ c ].Width );
   end;
 end;
 

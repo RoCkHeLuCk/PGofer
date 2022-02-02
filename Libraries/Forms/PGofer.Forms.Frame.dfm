@@ -1,41 +1,16 @@
 inherited PGFrameForms: TPGFrameForms
-  Width = 414
-  Height = 378
-  Constraints.MinHeight = 255
-  DoubleBuffered = True
-  ParentDoubleBuffered = False
-  ExplicitWidth = 414
-  ExplicitHeight = 378
-  inherited SplitterItem: TSplitter
-    Top = 255
-    Width = 414
-    ExplicitTop = 252
-    ExplicitWidth = 502
-  end
+  Height = 325
+  ExplicitHeight = 325
   inherited grbAbout: TGroupBox
-    Top = 266
-    Width = 408
-    Height = 109
-    ExplicitTop = 266
-    ExplicitWidth = 408
-    ExplicitHeight = 109
-    inherited rceAbout: TRichEdit
-      Width = 404
-      Height = 92
-      ExplicitWidth = 404
-      ExplicitHeight = 92
-    end
+    Top = 255
+    ExplicitTop = 255
   end
   inherited pnlItem: TPanel
-    Width = 414
-    Height = 255
-    Constraints.MinHeight = 255
-    Constraints.MinWidth = 0
-    ExplicitWidth = 414
-    ExplicitHeight = 255
+    Height = 252
+    ExplicitHeight = 252
     DesignSize = (
-      414
-      255)
+      400
+      252)
     object LblAlphaBlendValue: TLabel [0]
       Left = 144
       Top = 40
@@ -253,9 +228,13 @@ inherited PGFrameForms: TPGFrameForms
       TabOrder = 14
     end
   end
+  inherited sptAbout: TPanel
+    Top = 318
+    ExplicitTop = 318
+  end
   object cldTrasparentColor: TColorDialog
     Options = [cdFullOpen, cdPreventFullOpen, cdShowHelp, cdSolidColor, cdAnyColor]
-    Left = 344
-    Top = 52
+    Left = 156
+    Top = 64
   end
 end

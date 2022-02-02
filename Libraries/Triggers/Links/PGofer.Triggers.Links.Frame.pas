@@ -28,40 +28,38 @@ type
     BtnTest: TButton;
     CmbOperation: TComboBox;
     OpdLinks: TOpenDialog;
-    pnlScript: TPanel;
     GrbScriptBefore: TGroupBox;
     EdtScriptBefore: TRichEditEx;
     GrbScriptAfter: TGroupBox;
     EdtScriptAfter: TRichEditEx;
-    Splitter1: TSplitter;
+    sptScriptBefore: TSplitter;
     ckbCapture: TCheckBox;
+    sptScriptAfter: TSplitter;
     procedure CmbStateChange( Sender: TObject );
     procedure CmbOperationChange( Sender: TObject );
     procedure CmbPriorityChange( Sender: TObject );
     procedure BtnFileClick( Sender: TObject );
     procedure BtnDiretoryClick( Sender: TObject );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure BtnTestClick( Sender: TObject );
     procedure EdtFileKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure EdtPatameterKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure EdtDiretoryKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure EdtScriptBeforeKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure ckbCaptureClick( Sender: TObject );
-    procedure Splitter1CanResize( Sender: TObject; var NewSize: Integer;
-       var Accept: Boolean );
   private
     FItem: TPGLink;
     FFrmAutoCompleteBefore: TFrmAutoComplete;
     FFrmAutoCompleteAfter: TFrmAutoComplete;
-    procedure isFileName();
-    procedure isDirectory();
+    procedure isFileName( );
+    procedure isDirectory( );
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
@@ -86,11 +84,11 @@ begin
   FItem := TPGLink( AItem );
 
   EdtFile.Text := FItem.FileName;
-  isFileName();
+  isFileName( );
 
   EdtPatameter.Text := FItem.Parameter;
   EdtDiretory.Text := FItem.Directory;
-  isDirectory();
+  isDirectory( );
 
   CmbState.ItemIndex := FItem.State;
   CmbPriority.ItemIndex := FItem.Priority;
@@ -123,8 +121,8 @@ begin
     FItem.Directory := FileUnExpandPath( ExtractFilePath( OpdLinks.FileName ) );
     EdtFile.Text := FItem.FileName;
     EdtDiretory.Text := FItem.Directory;
-    isFileName();
-    isDirectory();
+    isFileName( );
+    isDirectory( );
   end;
 end;
 
@@ -132,7 +130,7 @@ procedure TPGLinkFrame.BtnDiretoryClick( Sender: TObject );
 begin
   FItem.Directory := FileUnExpandPath( FileDirDialog( EdtDiretory.Text ) );
   EdtDiretory.Text := FItem.Directory;
-  isDirectory();
+  isDirectory( );
 end;
 
 procedure TPGLinkFrame.BtnTestClick( Sender: TObject );
@@ -170,21 +168,21 @@ begin
 end;
 
 procedure TPGLinkFrame.EdtFileKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.FileName := EdtFile.Text;
-  isFileName();
+  isFileName( );
 end;
 
 procedure TPGLinkFrame.EdtDiretoryKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.Directory := EdtDiretory.Text;
-  isDirectory();
+  isDirectory( );
 end;
 
 procedure TPGLinkFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   if FItem.isItemExist( EdtName.Text, False ) then
   begin
@@ -196,19 +194,19 @@ begin
 end;
 
 procedure TPGLinkFrame.EdtPatameterKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.Parameter := EdtPatameter.Text;
 end;
 
 procedure TPGLinkFrame.EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.ScriptAfter := EdtScriptAfter.Lines.Text;
 end;
 
 procedure TPGLinkFrame.EdtScriptBeforeKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.ScriptBefor := EdtScriptBefore.Lines.Text;
 end;
@@ -216,14 +214,18 @@ end;
 procedure TPGLinkFrame.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  Self.GrbScriptAfter.Height := FIniFile.ReadInteger( Self.ClassName, 'Scripts',
-     Self.GrbScriptAfter.Height );
+  Self.GrbScriptBefore.Height := FIniFile.ReadInteger( Self.ClassName,
+    'ScriptsBefore', Self.GrbScriptBefore.Height );
+  Self.GrbScriptAfter.Height := FIniFile.ReadInteger( Self.ClassName,
+    'ScriptsAfter', Self.GrbScriptAfter.Height );
 end;
 
 procedure TPGLinkFrame.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.ClassName, 'Scripts',
-     Self.GrbScriptAfter.Height );
+  FIniFile.WriteInteger( Self.ClassName, 'ScriptsBefore',
+    Self.GrbScriptBefore.Height );
+  FIniFile.WriteInteger( Self.ClassName, 'ScriptsAfter',
+    Self.GrbScriptAfter.Height );
   inherited IniConfigSave( );
 end;
 
@@ -241,14 +243,6 @@ begin
     EdtFile.Color := clWindow
   else
     EdtFile.Color := clRed;
-end;
-
-procedure TPGLinkFrame.Splitter1CanResize( Sender: TObject;
-   var NewSize: Integer; var Accept: Boolean );
-begin
-  Accept := ( NewSize >= (GrbScriptBefore.Constraints.MinHeight + Splitter1.Height ))
-  and ( NewSize <= pnlScript.Height -
-     ( GrbScriptAfter.Constraints.MinHeight + Splitter1.Height*3 ) );
 end;
 
 end.

@@ -76,7 +76,7 @@ begin
     if Key <> #13 then
     begin
       Shift := ( ( Key.IsLower and Capslook ) or
-         ( Key.IsUpper and not Capslook ) or ( pos( Key, CHARSHIFT ) <> 0 ) );
+        ( Key.IsUpper and not Capslook ) or ( pos( Key, CHARSHIFT ) <> 0 ) );
       Alt := False;
       Space := pos( Key, CHARSPACE ) <> 0;
       PressKeys( Key, Shift, Alt, Space );
@@ -115,7 +115,7 @@ begin
     VK_MBUTTON:
       if Push then
         Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_MIDDLEDOWN,
-           0, 0, 0, 0 )
+          0, 0, 0, 0 )
       else
         Mouse_Event( MOUSEEVENTF_ABSOLUTE or MOUSEEVENTF_MIDDLEUP, 0, 0, 0, 0 );
   else
@@ -123,7 +123,7 @@ begin
       keybd_event( Key, OemKeyScan( Key ), KEYEVENTF_EXTENDEDKEY, 0 )
     else
       keybd_event( Key, OemKeyScan( Key ), KEYEVENTF_EXTENDEDKEY or
-         KEYEVENTF_KEYUP, 0 );
+        KEYEVENTF_KEYUP, 0 );
   end; // case
 end;
 
@@ -360,7 +360,7 @@ begin
 
     $030 .. $039, $03A .. $05A, $0BA, $0BF .. $0E4, $0E6, $0E8 .. $0F5:
       Result := Char( MapVirtualKeyEx( KeyCode, MAPVK_VK_TO_CHAR,
-         GetKeyboardLayout( 0 ) ) );
+        GetKeyboardLayout( 0 ) ) );
 
     { Mouse }
 
@@ -412,7 +412,7 @@ const
   ComAcento = 'ŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖÙÚÛÜİàáâãäåçèéêëìíîïñòóôõöùúûüıÿ';
   SemAcento = 'SZszYAAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy';
   Simbolos = ' "!"#$%&' + #39 +
-     '()*+,-_./:;<=>?@[\]^`{|}{~€‚ƒ„…†‡ˆ‰‹Œ‘’“”•–—˜™›œ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÆæŞß×Øğ÷øş';
+    '()*+,-_./:;<=>?@[\]^`{|}{~€‚ƒ„…†‡ˆ‰‹Œ‘’“”•–—˜™›œ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÆæŞß×Øğ÷øş';
 
 var
   c, d: Integer;
@@ -459,9 +459,8 @@ begin
   begin
     K := Byte( Random( 255 ) );
     if ( pos( Char( K ), Result ) = 0 ) and
-       ( ( K in Minusculo ) or ( Up and ( K in Maiusculo ) ) or
-       ( Number and ( K in Numero ) ) or ( CharEsp and ( K in Caracter ) ) )
-    then
+      ( ( K in Minusculo ) or ( Up and ( K in Maiusculo ) ) or
+      ( Number and ( K in Numero ) ) or ( CharEsp and ( K in Caracter ) ) ) then
     begin
       Result := Result + Char( K );
       Inc( c );

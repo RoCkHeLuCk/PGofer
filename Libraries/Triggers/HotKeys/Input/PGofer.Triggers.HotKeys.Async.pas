@@ -54,29 +54,32 @@ end;
 
 procedure TAsyncInput.Execute;
 var
-   c : Integer;
-   Result : SmallInt;
-   ParamInput: TParamInput;
+  c: Integer;
+  Result: SmallInt;
+  ParamInput: TParamInput;
 begin
-  while (not Self.Terminated) do
+  while ( not Self.Terminated ) do
   begin
     for c := 1 to 255 do
     begin
       case c of
-         VK_SHIFT, VK_CONTROL, VK_MENU: Continue;
+        VK_SHIFT, VK_CONTROL, VK_MENU:
+          Continue;
       end;
       Result := GetAsyncKeyState( c );
-      if (Result = ASYNC_KEYPRESS) then
+      if ( Result = ASYNC_KEYPRESS ) then
       begin
-          ParamInput.wParam := WM_KEYDOWN;
-          ParamInput.dwVkData := c;
+        ParamInput.wParam := WM_KEYDOWN;
+        ParamInput.dwVkData := c;
       end else begin
-          ParamInput.wParam := WM_KEYUP;
-          ParamInput.dwVkData := c;
+        ParamInput.wParam := WM_KEYUP;
+        ParamInput.dwVkData := c;
       end;
-      FOnProcessKeys(ParamInput);
+      if Self.Terminated then
+        Break;
+      FOnProcessKeys( ParamInput );
     end;
-    Sleep(10);
+    Sleep( 10 );
   end;
 end;
 
@@ -125,12 +128,12 @@ end;
 
 initialization
 
-if INPUT_TYPE = ASYNC then
+if INPUT_TYPE = Async then
   AsyncInput := TAsyncInput.Create( );
 
 finalization
 
-if INPUT_TYPE = ASYNC then
+if INPUT_TYPE = Async then
   AsyncInput.Free( );
 
 end.

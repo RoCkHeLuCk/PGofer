@@ -16,7 +16,7 @@ type
     procedure SetName( AName: string ); override;
   public
     constructor Create( AItemDad: TPGItem; AName: string;
-       AItemMirror: TPGItemMirror ); overload;
+      AItemMirror: TPGItemMirror ); overload;
     destructor Destroy( ); override;
     property ItemMirror: TPGItemMirror read FItemMirror;
     procedure Execute( Gramatica: TGramatica ); override;
@@ -28,11 +28,11 @@ type
     FItemOriginal: TPGItemTrigger;
   public
     constructor Create( AItemDad: TPGItem;
-       AItemOriginal: TPGItemTrigger ); overload;
+      AItemOriginal: TPGItemTrigger ); overload;
     destructor Destroy( ); override;
     property ItemOriginal: TPGItemTrigger read FItemOriginal;
     class function TranscendName( AName: string;
-       AItemList: TPGItem = nil ): string;
+      AItemList: TPGItem = nil ): string;
   end;
 
 implementation
@@ -45,7 +45,7 @@ uses
 { TPGItemTrigger }
 
 constructor TPGItemTrigger.Create( AItemDad: TPGItem; AName: string;
-   AItemMirror: TPGItemMirror );
+  AItemMirror: TPGItemMirror );
 begin
   inherited Create( AItemDad, AName );
   FItemMirror := AItemMirror;
@@ -83,7 +83,7 @@ end;
 { TPGItemMirror }
 
 constructor TPGItemMirror.Create( AItemDad: TPGItem;
-   AItemOriginal: TPGItemTrigger );
+  AItemOriginal: TPGItemTrigger );
 begin
   inherited Create( AItemDad, AItemOriginal.Name );
   FItemOriginal := AItemOriginal;
@@ -100,7 +100,7 @@ begin
 end;
 
 class function TPGItemMirror.TranscendName( AName: string;
-   AItemList: TPGItem = nil ): string;
+  AItemList: TPGItem = nil ): string;
 var
   C: Word;
 begin

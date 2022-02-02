@@ -3,7 +3,7 @@ unit PGofer.Item.Frame;
 interface
 
 uses
-  System.Classes, System.IniFiles,
+  System.Classes, System.IniFiles, Vcl.Dialogs,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   PGofer.Classes, PGofer.Sintatico.Classes, PGofer.Component.Edit;
 
@@ -14,11 +14,18 @@ type
     pnlItem: TPanel;
     LblName: TLabel;
     EdtName: TEditEx;
-    SplitterItem: TSplitter;
+    sptAbout: TPanel;
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
+    procedure sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer );
+    procedure sptAboutMouseMove( Sender: TObject; Shift: TShiftState;
+      X, Y: Integer );
+    procedure sptAboutMouseUp( Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer );
   private
     FItem: TPGItem;
+    FAboutSplitter: Boolean;
   protected
     FIniFile: TIniFile;
     procedure IniConfigSave( ); virtual;
@@ -39,11 +46,14 @@ constructor TPGFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( nil );
   Self.Parent := TWinControl( AParent );
-  Self.Align := alClient;
+  // Self.Align := alClient;
+  // Self.Anchors := [akLeft, akTop, akRight, akBottom];
   FItem := AItem;
+  FAboutSplitter := False;
   EdtName.Text := FItem.Name;
   EdtName.ReadOnly := FItem.ReadOnly;
   EdtName.ParentColor := FItem.ReadOnly;
+
   FIniFile := TIniFile.Create( PGofer.Sintatico.IniConfigFile );
   Self.IniConfigLoad( );
 end;
@@ -58,18 +68,38 @@ end;
 
 procedure TPGFrame.IniConfigLoad( );
 begin
-  Self.grbAbout.Height := FIniFile.ReadInteger( Self.ClassName, 'About',
-     Self.grbAbout.Height );
+  Self.Height := FIniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
 procedure TPGFrame.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.ClassName, 'About', Self.grbAbout.Height );
-  FIniFile.UpdateFile;
+  FIniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
+end;
+
+procedure TPGFrame.sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer );
+begin
+  FAboutSplitter := True;
+end;
+
+procedure TPGFrame.sptAboutMouseMove( Sender: TObject; Shift: TShiftState;
+  X, Y: Integer );
+begin
+  if FAboutSplitter then
+    Self.Height := ScreenToClient( Mouse.CursorPos ).Y;
+end;
+
+procedure TPGFrame.sptAboutMouseUp( Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer );
+begin
+  if FAboutSplitter then
+    Self.Height := ScreenToClient( Mouse.CursorPos ).Y;
+
+  FAboutSplitter := False;
 end;
 
 procedure TPGFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.Name := EdtName.Text;
 end;

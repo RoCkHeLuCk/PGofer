@@ -8,7 +8,7 @@ uses
 
 type
   TRegExample = ( reNone, reAll, reWord, reUnsignedInt, reSignedInt,
-     reUnsignedFloat, reSignedFloat, reLetter, reID );
+    reUnsignedFloat, reSignedFloat, reLetter, reID );
 
   TEditEx = class( TEdit )
   private
@@ -22,7 +22,7 @@ type
   public
   published
     property RegExamples: TRegExample read FRegExample write SetRegExample
-       default reAll;
+      default reAll;
     property RegExpression: string read FExpression write SetRegExp;
     property Text;
     property OnKeyPress;

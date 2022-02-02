@@ -9,7 +9,7 @@ uses
 
 type
 
-{$M+}
+  {$M+}
   TPGTask = class( TPGItemTrigger )
   private
     FOccurrence: Cardinal;
@@ -35,7 +35,7 @@ type
     property Script: string read GetScript write SetScript;
     property Trigger: Byte read FTrigger write FTrigger;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
   TPGTaskDeclare = class( TPGItemCMD )
   public
@@ -111,18 +111,17 @@ end;
 class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );
 var
   Item: TPGTask;
-  C : Integer;
+  C: Integer;
 begin
-  for C := 0 to TPGTask.GlobList.Count-1 do
+  for C := 0 to TPGTask.GlobList.Count - 1 do
   begin
-    Item := TPGTask( TPGTask.GlobList[c] );
-    if ( Item.Trigger = AType )
-    and (Item.Enabled)
-    and ((Item.Repeats = 0 ) or (Item.Occurrence < Item.Repeats)) then
+    Item := TPGTask( TPGTask.GlobList[ C ] );
+    if ( Item.Trigger = AType ) and ( Item.Enabled ) and
+      ( ( Item.Repeats = 0 ) or ( Item.Occurrence < Item.Repeats ) ) then
     begin
       ScriptExec( 'Task: ' + Item.Name, TPGTask( Item ).Script, nil, AWaitFor );
       Item.Occurrence := Item.Occurrence + 1;
-      Item.CollectDad.UpdateToFile();
+      Item.CollectDad.UpdateToFile( );
     end;
   end;
 end;

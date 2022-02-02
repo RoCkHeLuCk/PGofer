@@ -1,9 +1,10 @@
 unit PGofer.Triggers.HotKeys.MMHook;
 
 interface
+
 uses
-   WinApi.Windows,
-   System.SysUtils;
+  WinApi.Windows,
+  System.SysUtils;
 
 type
   tagKBDLLHOOKSTRUCT = packed record

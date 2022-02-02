@@ -42,7 +42,7 @@ type
     function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
   end;
 
-{$M+}
+  {$M+}
 
   TPGFolder = class( TPGItemCMD )
   private
@@ -57,7 +57,7 @@ type
   published
     property _Expanded: Boolean read GetExpanded write SetExpanded;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
@@ -161,7 +161,7 @@ procedure TPGItemCMD.RttiCreate( );
   end;
   end;
 }
-  procedure CreateItems( RttiMemberList: TArray< TRttiMember > );
+  procedure CreateItems( RttiMemberList: TArray<TRttiMember> );
   var
     // ItemAux: TPGItem;
     RttiMember: TRttiMember;
@@ -169,7 +169,7 @@ procedure TPGItemCMD.RttiCreate( );
     for RttiMember in RttiMemberList do
     begin
       if ( RttiMember.Visibility in [ mvPublished ] ) and
-         ( RttiMember.Name[ LowString ] <> '_' ) then
+        ( RttiMember.Name[ LowString ] <> '_' ) then
       begin
         // ItemAux :=
         TPGItem.Create( Self, RttiMember.Name );
@@ -188,8 +188,8 @@ begin
 
   if Self.CollectDad = GlobalCollection then
   begin
-    CreateItems( TArray< TRttiMember >( RttiType.GetProperties ) );
-    CreateItems( TArray< TRttiMember >( RttiType.GetMethods ) );
+    CreateItems( TArray<TRttiMember>( RttiType.GetProperties ) );
+    CreateItems( TArray<TRttiMember>( RttiType.GetMethods ) );
   end;
 
   RttiContext.Free;
@@ -201,7 +201,7 @@ var
   RttiType: TRttiType;
   RttiProperty: TRttiProperty;
   RttiMethods: TRttiMethod;
-  Parametros: TArray< TRttiParameter >;
+  Parametros: TArray<TRttiParameter>;
   Tamanho: SmallInt;
   Valor: TValue;
   Valores: array of TValue;
@@ -242,14 +242,14 @@ begin
         begin
           Aux := Gramatica.Pilha.Desempilhar( '' );
           Valores[ Tamanho ] := ConvertVatiantToValue( Aux,
-             Parametros[ Tamanho ].ParamType.TypeKind );
+            Parametros[ Tamanho ].ParamType.TypeKind );
         end;
 
         if Assigned( RttiMethods.ReturnType ) then
         begin
           Valor := RttiMethods.Invoke( AItem, Valores );
           Aux := ConvertValueToVatiant( Valor,
-             RttiMethods.ReturnType.TypeKind );
+            RttiMethods.ReturnType.TypeKind );
           Gramatica.Pilha.Empilhar( Aux );
         end
         else
@@ -257,14 +257,14 @@ begin
       end;
     end else begin
       ItemAux := TPGItemCMD
-         ( AItem.FindName( Gramatica.TokenList.Token.Lexema ) );
-      if Assigned( ItemAux ) and (ItemAux is TPGItemCMD) then
+        ( AItem.FindName( Gramatica.TokenList.Token.Lexema ) );
+      if Assigned( ItemAux ) and ( ItemAux is TPGItemCMD ) then
       begin
         ItemAux.Execute( Gramatica );
       end
       else
         Gramatica.ErroAdd( 'Identificador não reconhecido: ' +
-           Gramatica.TokenList.Token.Lexema );
+          Gramatica.TokenList.Token.Lexema );
     end;
   end;
 

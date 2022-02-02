@@ -23,23 +23,28 @@ type
     LblRepeat: TLabel;
     EdtRepeat: TEditEx;
     UpdRepeat: TUpDown;
+    sptScript: TSplitter;
     procedure CmbTriggerChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
+      Shift: TShiftState );
     procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-       Shift: TShiftState );
-    procedure EdtOccurrenceExit(Sender: TObject);
-    procedure EdtRepeatKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure EdtOccurrenceKeyUp(Sender: TObject; var Key: Word;
-      Shift: TShiftState);
-    procedure UpdRepeatChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
-    procedure updOccurrenceChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
+      Shift: TShiftState );
+    procedure EdtOccurrenceExit( Sender: TObject );
+    procedure EdtRepeatKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
+    procedure EdtOccurrenceKeyUp( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
+    procedure UpdRepeatChangingEx( Sender: TObject; var AllowChange: Boolean;
+      NewValue: Integer; Direction: TUpDownDirection );
+    procedure updOccurrenceChangingEx( Sender: TObject;
+      var AllowChange: Boolean; NewValue: Integer;
+      Direction: TUpDownDirection );
   private
     FItem: TPGTask;
     FFrmAutoComplete: TFrmAutoComplete;
+  protected
+    procedure IniConfigSave( ); override;
+    procedure IniConfigLoad( ); override;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -69,7 +74,7 @@ begin
 end;
 
 procedure TPGTaskFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   if FItem.isItemExist( EdtName.Text, True ) then
   begin
@@ -80,37 +85,50 @@ begin
   end;
 end;
 
-procedure TPGTaskFrame.EdtOccurrenceExit(Sender: TObject);
+procedure TPGTaskFrame.EdtOccurrenceExit( Sender: TObject );
 begin
   FItem.Occurrence := StrToInt( EdtOccurrence.Text );
 end;
 
-procedure TPGTaskFrame.EdtOccurrenceKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGTaskFrame.EdtOccurrenceKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Occurrence := StrToInt( EdtOccurrence.Text );
 end;
 
-procedure TPGTaskFrame.EdtRepeatKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGTaskFrame.EdtRepeatKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
 begin
   FItem.Repeats := StrToInt( EdtRepeat.Text );
 end;
 
 procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
-   Shift: TShiftState );
+  Shift: TShiftState );
 begin
   FItem.Script := EdtScript.Lines.Text;
 end;
 
-procedure TPGTaskFrame.updOccurrenceChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+procedure TPGTaskFrame.IniConfigLoad;
+begin
+  inherited IniConfigLoad( );
+  GrbScript.Height := FIniFile.ReadInteger( Self.ClassName, 'Scritp',
+    GrbScript.Height );
+end;
+
+procedure TPGTaskFrame.IniConfigSave;
+begin
+  FIniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
+  inherited IniConfigSave( );
+end;
+
+procedure TPGTaskFrame.updOccurrenceChangingEx( Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
 begin
   FItem.Occurrence := NewValue;
 end;
 
-procedure TPGTaskFrame.UpdRepeatChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
+procedure TPGTaskFrame.UpdRepeatChangingEx( Sender: TObject;
+  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
 begin
   FItem.Repeats := NewValue;
 end;

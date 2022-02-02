@@ -6,13 +6,13 @@ uses
   PGofer.Sintatico.Classes;
 
 type
-{$M+}
+  {$M+}
   TPGService = class( TPGItemCMD )
   private
   public
   published
     function Created( Maquina, Servico, DisplayName, PathFile: string )
-       : Cardinal;
+      : Cardinal;
     function Delete( Maquina, Servico: string ): Boolean;
     function GetConfig( Maquina, Servico: string ): Byte;
     function GetDesciption( Maquina, Servico: string ): string;
@@ -21,7 +21,7 @@ type
     function SetDesciption( Maquina, Servico, Desciption: string ): Boolean;
     function SetState( Maquina, Servico: string; Controle: Byte ): Boolean;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
@@ -31,7 +31,7 @@ uses
 { TPGService }
 
 function TPGService.Created( Maquina, Servico, DisplayName, PathFile: string )
-   : Cardinal;
+  : Cardinal;
 begin
   Result := ServiceCreate( Maquina, Servico, DisplayName, PathFile );
 end;
@@ -57,19 +57,19 @@ begin
 end;
 
 function TPGService.SetConfig( Maquina, Servico: string;
-   Controle: Byte ): Boolean;
+  Controle: Byte ): Boolean;
 begin
   Result := ServiceSetConfig( Maquina, Servico, Controle );
 end;
 
 function TPGService.SetDesciption( Maquina, Servico,
-   Desciption: string ): Boolean;
+  Desciption: string ): Boolean;
 begin
   Result := ServiceSetDesciption( Maquina, Servico, Desciption );
 end;
 
 function TPGService.SetState( Maquina, Servico: string;
-   Controle: Byte ): Boolean;
+  Controle: Byte ): Boolean;
 begin
   Result := ServiceSetState( Maquina, Servico, Controle );
 end;

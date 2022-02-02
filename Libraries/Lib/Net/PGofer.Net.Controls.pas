@@ -71,10 +71,10 @@ begin
   Result := 0;
   FSWbemLocator := CreateOleObject( 'WbemScripting.SWbemLocator' );
   FWMIService := FSWbemLocator.ConnectServer( 'localhost',
-     'root\CIMV2', '', '' );
+    'root\CIMV2', '', '' );
   FWbemObjectSet := FWMIService.ExecQuery
-     ( 'SELECT * FROM Win32_NetworkAdapterConfiguration Where Description = "' +
-     NetworkCard + '"', 'WQL', wbemFlagForwardOnly );
+    ( 'SELECT * FROM Win32_NetworkAdapterConfiguration Where Description = "' +
+    NetworkCard + '"', 'WQL', wbemFlagForwardOnly );
   oEnum := IUnknown( FWbemObjectSet._NewEnum ) as IEnumvariant;
 
   while oEnum.Next( 1, FWbemObject, iValue ) = 0 do
@@ -89,7 +89,7 @@ begin
         vDefaultIPGateway := ArrayToVarArray( [ GateWay ] );
         vGatewayCostMetric := ArrayToVarArray( [ '1' ] );
         Result := FWbemObject.SetGateways( vDefaultIPGateway,
-           vGatewayCostMetric );
+          vGatewayCostMetric );
       end;
 
       VarClear( vIPAddress );

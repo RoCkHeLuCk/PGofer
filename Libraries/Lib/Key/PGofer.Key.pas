@@ -7,7 +7,7 @@ uses
 
 type
 
-{$M+}
+  {$M+}
   TPGKey = class( TPGItemCMD )
   private
   public
@@ -20,7 +20,7 @@ type
     procedure SetUp( Key: SmallInt );
     function ToChar( Key: SmallInt ): Char;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 

@@ -16,12 +16,17 @@ type
   protected
     FIniFile: TIniFile;
     FIniFileName: string;
+    FForceResizable: boolean;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
+    procedure WMNCHitTest( var AMessage: TWMNCHitTest ); message WM_NCHITTEST;
   public
-    procedure ForceShow( AFocus: Boolean ); virtual;
+    procedure ForceShow( AFocus: boolean ); virtual;
   published
     property IniFileName: string read FIniFileName write FIniFileName;
+    property ForceResizable: boolean read FForceResizable write FForceResizable
+      default False;
+    // property ParentsColor: boolean read FParentsColor write FParentsColor default True;
   end;
 
 procedure Register;
@@ -83,7 +88,40 @@ begin
   FIniFile.UpdateFile;
 end;
 
-procedure TFormEx.ForceShow( AFocus: Boolean );
+procedure TFormEx.WMNCHitTest( var AMessage: TWMNCHitTest );
+const
+  EDGEDETECT = 7; // adjust
+var
+  deltaRect: TRect;
+begin
+  inherited;
+  if FForceResizable then
+    with AMessage, deltaRect do
+    begin
+      Left := XPos - BoundsRect.Left;
+      Right := BoundsRect.Right - XPos;
+      Top := YPos - BoundsRect.Top;
+      Bottom := BoundsRect.Bottom - YPos;
+      if ( Top < EDGEDETECT ) and ( Left < EDGEDETECT ) then
+        Result := HTTOPLEFT
+      else if ( Top < EDGEDETECT ) and ( Right < EDGEDETECT ) then
+        Result := HTTOPRIGHT
+      else if ( Bottom < EDGEDETECT ) and ( Left < EDGEDETECT ) then
+        Result := HTBOTTOMLEFT
+      else if ( Bottom < EDGEDETECT ) and ( Right < EDGEDETECT ) then
+        Result := HTBOTTOMRIGHT
+      else if ( Top < EDGEDETECT ) then
+        Result := HTTOP
+      else if ( Left < EDGEDETECT ) then
+        Result := HTLEFT
+      else if ( Bottom < EDGEDETECT ) then
+        Result := HTBOTTOM
+      else if ( Right < EDGEDETECT ) then
+        Result := HTRIGHT
+    end;
+end;
+
+procedure TFormEx.ForceShow( AFocus: boolean );
 var
   ForegroundThreadID: Cardinal;
   ThisThreadID: Cardinal;
@@ -107,7 +145,7 @@ begin
 
   try
     C := BeginDeferWindowPos( 1 );
-    //C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
+    // C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
     // Self.Width, Self.Height, ThisThreadID );
     C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, 0, 0, 0, 0,
       ThisThreadID );
@@ -116,8 +154,8 @@ begin
     // windows bugado do carai.
   end;
 
-  //SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
-  //  Self.Height, ThisThreadID );
+  // SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
+  // Self.Height, ThisThreadID );
   SetWindowPos( Self.Handle, HWND_TOPMOST, 0, 0, 0, 0, ThisThreadID );
 
   if AFocus then
@@ -128,29 +166,28 @@ begin
     if IsIconic( Self.Handle ) then
       ShowWindow( Self.Handle, SW_RESTORE );
 
-//    if ( ( Win32Platform = VER_PLATFORM_WIN32_NT ) and ( Win32MajorVersion > 4 )
-//      ) or ( ( Win32Platform = VER_PLATFORM_WIN32_WINDOWS ) and
-//      ( ( Win32MajorVersion > 4 ) or ( ( Win32MajorVersion = 4 ) and
-//      ( Win32MinorVersion > 0 ) ) ) ) then
-//    begin
-      ForegroundThreadID := GetWindowThreadProcessID
-        ( GetForegroundWindow, nil );
-      ThisThreadID := GetWindowThreadProcessID( Self.Handle, nil );
-      if AttachThreadInput( ThisThreadID, ForegroundThreadID, true ) then
-      begin
-        BringWindowToTop( Self.Handle );
-        SetForegroundWindow( Self.Handle );
-        AttachThreadInput( ThisThreadID, ForegroundThreadID, False );
-      end;
-      SystemParametersInfo( $2000, 0, @timeout, 0 );
-      SystemParametersInfo( $2001, 0, Pointer( 0 ), SPIF_SENDCHANGE );
+    // if ( ( Win32Platform = VER_PLATFORM_WIN32_NT ) and ( Win32MajorVersion > 4 )
+    // ) or ( ( Win32Platform = VER_PLATFORM_WIN32_WINDOWS ) and
+    // ( ( Win32MajorVersion > 4 ) or ( ( Win32MajorVersion = 4 ) and
+    // ( Win32MinorVersion > 0 ) ) ) ) then
+    // begin
+    ForegroundThreadID := GetWindowThreadProcessID( GetForegroundWindow, nil );
+    ThisThreadID := GetWindowThreadProcessID( Self.Handle, nil );
+    if AttachThreadInput( ThisThreadID, ForegroundThreadID, true ) then
+    begin
       BringWindowToTop( Self.Handle );
       SetForegroundWindow( Self.Handle );
-      SystemParametersInfo( $2001, 0, Pointer( timeout ), SPIF_SENDCHANGE );
-//    end else begin
-//      BringWindowToTop( Self.Handle );
-//      // SetForegroundWindow(Self.Handle);
-//    end;
+      AttachThreadInput( ThisThreadID, ForegroundThreadID, False );
+    end;
+    SystemParametersInfo( $2000, 0, @timeout, 0 );
+    SystemParametersInfo( $2001, 0, Pointer( 0 ), SPIF_SENDCHANGE );
+    BringWindowToTop( Self.Handle );
+    SetForegroundWindow( Self.Handle );
+    SystemParametersInfo( $2001, 0, Pointer( timeout ), SPIF_SENDCHANGE );
+    // end else begin
+    // BringWindowToTop( Self.Handle );
+    // // SetForegroundWindow(Self.Handle);
+    // end;
 
     // focusedThreadID := GetWindowThreadProcessID(wh, nil);
     // if AttachThreadInput(GetCurrentThreadID, focusedThreadID, true) then

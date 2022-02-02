@@ -7,7 +7,7 @@ uses
 
 type
 
-{$M+}
+  {$M+}
   TPGVariant = class( TPGItemCMD )
   private
     FValue: Variant;
@@ -18,7 +18,7 @@ type
   public
     class var GlobList: TPGItem;
     constructor Create( AItemDad: TPGItem; AName: string; AValue: Variant;
-       AConstant: Boolean ); overload;
+      AConstant: Boolean ); overload;
     destructor Destroy( ); override;
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
@@ -26,12 +26,12 @@ type
     property Value: Variant read FValue write FValue;
   published
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
   TPGVariantDeclare = class( TPGItemCMD )
   private
     class procedure DeclaraNivel1( Gramatica: TGramatica; Nivel: TPGItem;
-       Constant: Boolean );
+      Constant: Boolean );
   public
     procedure Execute( Gramatica: TGramatica ); override;
     class procedure ExecuteEx( Gramatica: TGramatica; Nivel: TPGItem );
@@ -47,7 +47,7 @@ uses
 { TPGVariant }
 
 constructor TPGVariant.Create( AItemDad: TPGItem; AName: string;
-   AValue: Variant; AConstant: Boolean );
+  AValue: Variant; AConstant: Boolean );
 begin
   inherited Create( AItemDad, AName );
   FConstant := AConstant;
@@ -92,7 +92,7 @@ end;
 { TPGVariantDeclare }
 
 class procedure TPGVariantDeclare.DeclaraNivel1( Gramatica: TGramatica;
-   Nivel: TPGItem; Constant: Boolean );
+  Nivel: TPGItem; Constant: Boolean );
 var
   Titulo: string;
   ID: TPGItem;
@@ -116,7 +116,7 @@ begin
       vValue := '';
 
     if ( not Assigned( ID ) ) or ( ( Nivel <> TPGVariant.GlobList ) and
-       ( ID.Parent <> Nivel ) ) then
+      ( ID.Parent <> Nivel ) ) then
     begin
       TPGVariant.Create( Nivel, Titulo, vValue, Constant );
     end else begin
@@ -155,7 +155,7 @@ begin
 end;
 
 class procedure TPGVariantDeclare.ExecuteEx( Gramatica: TGramatica;
-   Nivel: TPGItem );
+  Nivel: TPGItem );
 begin
   DeclaraNivel1( Gramatica, Nivel, False );
 end;

@@ -9,7 +9,7 @@ uses
   PGofer.Component.Form;
 
 type
-{$M+}
+  {$M+}
   TPGForm = class( TPGItemCMD )
   private
     class var FImageIndex: Integer;
@@ -47,7 +47,7 @@ type
   published
     property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue
-       write SetAlphaBlendValue;
+      write SetAlphaBlendValue;
     procedure Close( );
     property Enabled: Boolean read GetEnabled write SetFormEnabled;
     property Heigth: Integer read GetHeigth write SetHeigth;
@@ -57,13 +57,12 @@ type
     property Top: Integer read GetTop write SetTop;
     property Transparent: Boolean read GetTransparent write SetTransparent;
     property TransparentColor: Integer read GetTransparentColor
-       write SetTransparentColor;
+      write SetTransparentColor;
     property Visible: Boolean read GetVisible write SetVisible;
     property Width: Integer read GetWidth write SetWidth;
     property WindowState: Byte read GetWindowState write SetWindowState;
   end;
-{$TYPEINFO ON}
-
+  {$TYPEINFO ON}
 
 implementation
 
@@ -148,7 +147,7 @@ end;
 
 procedure TPGForm.Show( AFocus: Boolean = true );
 begin
-   Self.FForm.ForceShow( AFocus );
+  Self.FForm.ForceShow( AFocus );
 end;
 
 procedure TPGForm.SetTop( ATop: Integer );
@@ -218,8 +217,7 @@ end;
 
 procedure TPGForm.Execute( Gramatica: TGramatica );
 begin
-  TThread.Synchronize( Gramatica,
-    procedure
+  TThread.Synchronize( Gramatica, procedure
     begin
       Gramatica.TokenList.GetNextToken;
       if Gramatica.TokenList.Token.Classe = cmdDot then

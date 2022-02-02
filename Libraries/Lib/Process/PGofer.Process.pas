@@ -6,7 +6,7 @@ uses
   PGofer.Sintatico.Classes;
 
 type
-{$M+}
+  {$M+}
   TPGProcess = class( TPGItemCMD )
   private
   public
@@ -18,7 +18,7 @@ type
     function Kill( PID: string ): Boolean;
     function SetPriority( PID: string; Priority: Byte ): Boolean;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
