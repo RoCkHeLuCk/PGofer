@@ -1,4 +1,4 @@
-inherited PGFrameHotKey: TPGFrameHotKey
+inherited PGHotKeyFrame: TPGHotKeyFrame
   Height = 304
   OnExit = MmoHotKeysExit
   ExplicitHeight = 304
@@ -17,13 +17,45 @@ inherited PGFrameHotKey: TPGFrameHotKey
     TabOrder = 2
     ExplicitTop = 234
   end
+  object GrbScript: TGroupBox [2]
+    AlignWithMargins = True
+    Left = 3
+    Top = 148
+    Width = 394
+    Height = 74
+    Align = alTop
+    Caption = 'Script (Run: F9)'
+    Constraints.MinHeight = 60
+    TabOrder = 0
+    object EdtScript: TRichEditEx
+      Left = 2
+      Top = 15
+      Width = 390
+      Height = 57
+      Align = alClient
+      Color = clSilver
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -16
+      Font.Name = 'Courier New'
+      Font.Style = []
+      HideSelection = False
+      ParentFont = False
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WantTabs = True
+      Zoom = 100
+      OnKeyUp = EdtScriptKeyUp
+    end
+  end
   inherited pnlItem: TPanel
     Height = 145
+    Anchors = []
     ExplicitHeight = 145
     DesignSize = (
       400
       145)
-    object LblDetect: TLabel [1]
+    object LblDetect: TLabel [0]
       Left = 110
       Top = 118
       Width = 59
@@ -112,39 +144,7 @@ inherited PGFrameHotKey: TPGFrameHotKey
       OnClick = CkbInhibitClick
     end
     inherited EdtName: TEditEx
-      Width = 324
       TabOrder = 4
-      ExplicitWidth = 324
-    end
-  end
-  object GrbScript: TGroupBox [3]
-    AlignWithMargins = True
-    Left = 3
-    Top = 148
-    Width = 394
-    Height = 74
-    Align = alTop
-    Caption = 'Script (Run: F9)'
-    Constraints.MinHeight = 60
-    TabOrder = 0
-    object EdtScript: TRichEditEx
-      Left = 2
-      Top = 15
-      Width = 390
-      Height = 57
-      Align = alClient
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
-      Font.Style = []
-      HideSelection = False
-      ParentFont = False
-      ScrollBars = ssBoth
-      TabOrder = 0
-      WantTabs = True
-      Zoom = 100
-      OnKeyUp = EdtScriptKeyUp
     end
   end
   inherited sptAbout: TPanel

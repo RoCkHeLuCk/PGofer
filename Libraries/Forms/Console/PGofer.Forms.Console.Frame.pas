@@ -10,7 +10,7 @@ uses
   PGofer.Component.Edit, PGofer.Item.Frame;
 
 type
-  TPGFrameConsole = class( TPGFrameForms )
+  TPGConsoleFrame = class( TPGFormsFrame )
     lblDelay: TLabel;
     edtDelay: TEditEx;
     updDelay: TUpDown;
@@ -35,17 +35,17 @@ uses
 {$R *.dfm}
 { TPGFrameConsole }
 
-procedure TPGFrameConsole.ckbAutoCloseClick( Sender: TObject );
+procedure TPGConsoleFrame.ckbAutoCloseClick( Sender: TObject );
 begin
   FItem.AutoClose := ckbAutoClose.Checked;
 end;
 
-procedure TPGFrameConsole.ckbShowMessageClick( Sender: TObject );
+procedure TPGConsoleFrame.ckbShowMessageClick( Sender: TObject );
 begin
   FItem.ShowMessage := ckbShowMessage.Checked;
 end;
 
-constructor TPGFrameConsole.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGConsoleFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGFrmConsole( AItem );
@@ -54,18 +54,18 @@ begin
   ckbAutoClose.Checked := FItem.AutoClose;
 end;
 
-destructor TPGFrameConsole.Destroy;
+destructor TPGConsoleFrame.Destroy;
 begin
   FItem := nil;
   inherited Destroy;
 end;
 
-procedure TPGFrameConsole.edtDelayExit( Sender: TObject );
+procedure TPGConsoleFrame.edtDelayExit( Sender: TObject );
 begin
   FItem.Delay := StrToInt( edtDelay.Text );
 end;
 
-procedure TPGFrameConsole.updDelayChanging( Sender: TObject;
+procedure TPGConsoleFrame.updDelayChanging( Sender: TObject;
   var AllowChange: Boolean );
 begin
   edtDelayExit( Sender );

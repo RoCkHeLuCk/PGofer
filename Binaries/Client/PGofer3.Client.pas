@@ -8,8 +8,8 @@ uses
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus,
+  Vcl.StdCtrls, Vcl.ComCtrls,
   PGofer.Forms,
-  PGofer.Forms.AutoComplete, Vcl.StdCtrls, Vcl.ComCtrls,
   PGofer.Component.RichEdit,
   PGofer.Component.Form;
 
@@ -39,11 +39,9 @@ type
       X, Y: Integer );
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
-    procedure EdtScriptDropFiles( Sender: TObject; AFiles: TStrings );
   private
     FMouse: TPoint;
     FHotKey_FrmPGofer: ATOM;
-    FFrmAutoComplete: TFrmAutoComplete;
     procedure FormAutoSize( );
   protected
     procedure CreateParams( var AParams: TCreateParams ); override;
@@ -65,7 +63,8 @@ uses
   PGofer.System.Controls,
   PGofer.Forms.Controls, PGofer.Forms.Console,
   PGofer.Triggers.Links, PGofer.Triggers.Tasks,
-  PGofer.Triggers.HotKeys.Hook;
+  PGofer.Triggers.HotKeys.Hook,
+  PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
 { TFrmPGofer3 }
@@ -96,12 +95,17 @@ begin
   Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
   Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
-  FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
-  FFrmAutoComplete.MemoryNoCtrl := True;
   TPGForm.Create( Self );
 
+  // {$IFNDEF DEBUG}
   FHotKey_FrmPGofer := GlobalAddAtom( 'FrmPGofer' );
   RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
+  // {$ENDIF}
+end;
+
+procedure TFrmPGofer.FormShow( Sender: TObject );
+begin
+  FormAutoSize( );
 end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
@@ -123,20 +127,15 @@ end;
 
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
-  FormAutoSize( );
+  // FormAutoSize( );
+  FrmAutoComplete.EditCtrlRemove( FrmPGofer.EdtScript );
   inherited FormClose( Sender, Action );
 end;
 
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
-  FFrmAutoComplete.Free( );
   UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
   inherited FormDestroy( Sender );
-end;
-
-procedure TFrmPGofer.FormShow( Sender: TObject );
-begin
-  FormAutoSize( );
 end;
 
 procedure TFrmPGofer.FormAutoSize( );
@@ -176,19 +175,15 @@ end;
 
 procedure TFrmPGofer.EdtScriptChange( Sender: TObject );
 begin
-  FormAutoSize( );
-end;
-
-procedure TFrmPGofer.EdtScriptDropFiles( Sender: TObject; AFiles: TStrings );
-begin
   inherited;
-  EdtScript.SelText := AFiles.Text;
+  FormAutoSize( );
 end;
 
 procedure TFrmPGofer.EdtScriptKeyDown( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  if ( not FFrmAutoComplete.Visible ) and ( Shift = [ ] ) then
+  if ( not FrmAutoComplete.Visible ) and ( Shift = [ ] ) then
+  begin
     case Key of
       VK_RETURN:
         begin
@@ -209,6 +204,7 @@ begin
           Self.Hide;
         end;
     end;
+  end;
 end;
 
 procedure TFrmPGofer.FormMouseDown( Sender: TObject; Button: TMouseButton;

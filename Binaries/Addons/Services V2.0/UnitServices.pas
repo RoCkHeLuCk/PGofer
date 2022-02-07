@@ -407,7 +407,7 @@ begin
   CarregarFiltro( ClbConfig, True );
   CarregarFiltro( ClbType, True );
   CarregarFiltro( ClbAccess, False );
-  LtvServices.IniConfigLoad( FIniFile );
+  LtvServices.IniConfigLoad( FIniFile, Self.Name, 'List' );
 end;
 
 procedure TFrmServices.IniConfigSave( );
@@ -443,7 +443,7 @@ begin
   SalvarFiltro( ClbConfig );
   SalvarFiltro( ClbType );
   SalvarFiltro( ClbAccess );
-  LtvServices.IniConfigSave( FIniFile );
+  LtvServices.IniConfigSave( FIniFile, Self.Name, 'List' );
   inherited IniConfigSave( );
 end;
 

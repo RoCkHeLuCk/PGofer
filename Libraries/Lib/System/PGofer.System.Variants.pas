@@ -81,7 +81,7 @@ end;
 
 procedure TPGVariant.Frame( AParent: TObject );
 begin
-  TPGFrameVariants.Create( Self, AParent );
+  TPGVariantsFrame.Create( Self, AParent );
 end;
 
 class function TPGVariant.GetImageIndex: Integer;

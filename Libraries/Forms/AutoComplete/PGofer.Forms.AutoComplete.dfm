@@ -10,7 +10,7 @@ object FrmAutoComplete: TFrmAutoComplete
   Caption = 'FrmAutoComplete'
   ClientHeight = 80
   ClientWidth = 260
-  Color = clBtnFace
+  Color = clGray
   Constraints.MinHeight = 80
   Constraints.MinWidth = 260
   DefaultMonitor = dmDesktop
@@ -40,7 +40,7 @@ object FrmAutoComplete: TFrmAutoComplete
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
-    BorderStyle = bsNone
+    Color = clSilver
     Columns = <
       item
         Caption = 'Command'
@@ -67,8 +67,6 @@ object FrmAutoComplete: TFrmAutoComplete
     OnKeyPress = FormKeyPress
     OnKeyUp = FormKeyUp
     ColumnAlphaSort = True
-    ExplicitWidth = 196
-    ExplicitHeight = 46
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

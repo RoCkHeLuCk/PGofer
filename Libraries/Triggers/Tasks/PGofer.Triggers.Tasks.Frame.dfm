@@ -32,6 +32,8 @@ inherited PGTaskFrame: TPGTaskFrame
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
+      BorderWidth = 1
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -53,6 +55,7 @@ inherited PGTaskFrame: TPGTaskFrame
   end
   inherited pnlItem: TPanel
     Height = 90
+    Anchors = []
     ExplicitHeight = 90
     object LblTrigger: TLabel [1]
       Left = 5
@@ -96,6 +99,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Width = 100
       Height = 21
       Style = csDropDownList
+      Color = clSilver
       ItemIndex = 0
       TabOrder = 0
       Text = 'Initializing'
@@ -110,6 +114,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Top = 60
       Width = 45
       Height = 21
+      Color = clSilver
       TabOrder = 1
       Text = '0'
       OnExit = EdtOccurrenceExit
@@ -132,6 +137,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Top = 60
       Width = 45
       Height = 21
+      Color = clSilver
       TabOrder = 3
       Text = '0'
       OnKeyUp = EdtRepeatKeyUp

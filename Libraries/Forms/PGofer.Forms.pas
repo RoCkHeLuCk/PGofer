@@ -233,7 +233,7 @@ end;
 
 procedure TPGForm.Frame( AParent: TObject );
 begin
-  TPGFrameForms.Create( Self, AParent );
+  TPGFormsFrame.Create( Self, AParent );
 end;
 
 initialization

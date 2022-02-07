@@ -26,6 +26,8 @@ type
   TPGItemMirror = class( TPGItem )
   private
     FItemOriginal: TPGItemTrigger;
+  protected
+    function GetIsValid( ): Boolean; override;
   public
     constructor Create( AItemDad: TPGItem;
       AItemOriginal: TPGItemTrigger ); overload;
@@ -97,6 +99,11 @@ begin
     FItemOriginal.Free;
   end;
   inherited Destroy( );
+end;
+
+function TPGItemMirror.GetIsValid( ): Boolean;
+begin
+  Result := FItemOriginal.isValid;
 end;
 
 class function TPGItemMirror.TranscendName( AName: string;

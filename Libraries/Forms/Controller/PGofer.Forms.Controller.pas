@@ -65,15 +65,17 @@ type
     procedure SptControllerCanResize( Sender: TObject; var NewSize: Integer;
       var Accept: Boolean );
     procedure SptControllerMoved( Sender: TObject );
-    procedure PnlFrameMouseWheelDown(Sender: TObject; Shift: TShiftState;
-      MousePos: TPoint; var Handled: Boolean);
-    procedure PnlFrameMouseWheelUp(Sender: TObject; Shift: TShiftState;
-      MousePos: TPoint; var Handled: Boolean);
-    procedure TrvControllerCustomDrawItem(Sender: TCustomTreeView;
-      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure PnlFrameMouseWheelDown( Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean );
+    procedure PnlFrameMouseWheelUp( Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean );
+    procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
+      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
+    procedure PnlFrameResize( Sender: TObject );
   private
     FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
+    FTreeViewWidth: Integer;
     FFrameWidth: Integer;
     procedure PanelCleaning( );
     procedure CreatePopups( );
@@ -98,7 +100,8 @@ uses
   Vcl.Dialogs,
   PGofer.Sintatico.Classes, PGofer.Files.Controls,
   PGofer.Triggers.Links,
-  PGofer.Component.RichEdit;
+  PGofer.Component.RichEdit,
+  PGofer.Triggers;
 
 constructor TFrmController.Create( ACollectItem: TPGItemCollect );
 begin
@@ -107,6 +110,7 @@ begin
   FAlphaSort := True;
   FAlphaSortFolder := True;
   FSelectedItem := nil;
+  FFrameWidth := PnlFrame.Width;
   Self.Name := 'Frm' + FCollectItem.Name;
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
@@ -116,6 +120,7 @@ end;
 
 destructor TFrmController.Destroy( );
 begin
+  FFrameWidth := 0;
   FSelectedItem := nil;
   FAlphaSort := False;
   FAlphaSortFolder := False;
@@ -161,16 +166,14 @@ end;
 procedure TFrmController.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  Self.PnlTreeView.ClientWidth := FIniFile.ReadInteger( Self.Name,
-    'TreeViewWidth', Self.TrvController.ClientWidth );
-  Self.PnlFrame.ClientWidth := FIniFile.ReadInteger( Self.Name, 'FrameWidth',
-    Self.PnlFrame.ClientWidth );
-  Self.FAlphaSort := FIniFile.ReadBool( Self.Name, 'AlphaSort',
-    Self.FAlphaSort );
-  Self.FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder',
+  PnlTreeView.ClientWidth := FIniFile.ReadInteger( Self.Name, 'TreeViewWidth',
+    TrvController.ClientWidth );
+  FFrameWidth := FIniFile.ReadInteger( Self.Name, 'FrameWidth', FFrameWidth );
+  FAlphaSort := FIniFile.ReadBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
+  FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder',
     FAlphaSortFolder );
-  Self.MniAlphaSortFolder.Checked := FAlphaSortFolder;
-  if Self.FAlphaSort then
+  MniAlphaSortFolder.Checked := FAlphaSortFolder;
+  if FAlphaSort then
     MniAZ.Click
   else
     MniZA.Click;
@@ -178,13 +181,10 @@ end;
 
 procedure TFrmController.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.Name, 'Width', Self.PnlTreeView.ClientWidth +
-    Self.SptController.ClientWidth + Self.PnlFrame.ClientWidth );
-  FIniFile.WriteInteger( Self.Name, 'TreeViewWidth',
-    Self.PnlTreeView.ClientWidth );
-  FIniFile.WriteInteger( Self.Name, 'FrameWidth', Self.PnlFrame.ClientWidth );
-  FIniFile.WriteBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
-  FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', Self.FAlphaSortFolder );
+  FIniFile.WriteInteger( Self.Name, 'TreeViewWidth', PnlTreeView.ClientWidth );
+  FIniFile.WriteInteger( Self.Name, 'FrameWidth', FFrameWidth );
+  FIniFile.WriteBool( Self.Name, 'AlphaSort', FAlphaSort );
+  FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
   inherited IniConfigSave( );
 end;
 
@@ -200,14 +200,16 @@ end;
 
 procedure TFrmController.FrameShow( );
 begin
-  SptController.Visible := True;
+  PnlFrame.OnResize := nil;
   PnlFrame.Visible := True;
-  TrvController.OnGetSelectedIndex( nil, nil );
+  SptController.Visible := True;
   BtnRecall.Caption := '<<';
-  Self.Constraints.MinWidth := PnlTreeView.Constraints.MinWidth +
-    SptController.Width + PnlFrame.Constraints.MinWidth + 16;
+  Self.Constraints.MinWidth := PnlTreeView.Constraints.MinWidth + 16 +
+    SptController.Width + PnlFrame.Constraints.MinWidth;
   Self.ClientWidth := PnlTreeView.ClientWidth + SptController.ClientWidth +
-    PnlFrame.ClientWidth;
+    FFrameWidth;
+  PnlFrame.OnResize := Self.PnlFrameResize;
+  TrvController.OnGetSelectedIndex( nil, nil );
 end;
 
 procedure TFrmController.PanelCleaning( );
@@ -222,44 +224,52 @@ begin
   FSelectedItem := nil;
 end;
 
-procedure TFrmController.PnlFrameMouseWheelDown(Sender: TObject;
-  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+procedure TFrmController.PnlFrameMouseWheelDown( Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean );
 var
-  Control : TWinControl;
+  Control: TWinControl;
 begin
   inherited;
-  Control := FindVCLWindow( MousePos);
-  if (Control is TRichEditEx) then
+  Control := FindVCLWindow( MousePos );
+  if ( Control is TRichEditEx ) then
   begin
-    with TRichEditEx(Control) do
+    with TRichEditEx( Control ) do
     begin
-       if VerticalScrollPos < VerticalScrollMax then
-          exit;
+      if VerticalScrollPos < VerticalScrollMax then
+        exit;
     end;
   end;
-  PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos + PnlFrame.VertScrollBar.Increment;
+  PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos +
+    PnlFrame.VertScrollBar.Increment;
 end;
 
-procedure TFrmController.PnlFrameMouseWheelUp(Sender: TObject;
-  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean);
+procedure TFrmController.PnlFrameMouseWheelUp( Sender: TObject;
+  Shift: TShiftState; MousePos: TPoint; var Handled: Boolean );
 var
-  Control : TWinControl;
+  Control: TWinControl;
 begin
   inherited;
-  Control := FindVCLWindow( MousePos);
-  if (Control is TRichEditEx) then
+  Control := FindVCLWindow( MousePos );
+  if ( Control is TRichEditEx ) then
   begin
-    if TRichEditEx(Control).VerticalScrollPos > 0 then
-       exit;
+    if TRichEditEx( Control ).VerticalScrollPos > 0 then
+      exit;
   end;
-  PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos - PnlFrame.VertScrollBar.Increment;
+  PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos -
+    PnlFrame.VertScrollBar.Increment;
+end;
+
+procedure TFrmController.PnlFrameResize( Sender: TObject );
+begin
+  inherited;
+  FFrameWidth := PnlFrame.Width;
 end;
 
 procedure TFrmController.SptControllerCanResize( Sender: TObject;
   var NewSize: Integer; var Accept: Boolean );
 begin
   inherited;
-  FFrameWidth := PnlFrame.Width;
+  FTreeViewWidth := PnlFrame.ClientWidth;
   Accept := True;
 end;
 
@@ -267,7 +277,7 @@ procedure TFrmController.SptControllerMoved( Sender: TObject );
 begin
   inherited;
   Self.ClientWidth := PnlTreeView.ClientWidth + SptController.ClientWidth +
-    FFrameWidth;
+    FTreeViewWidth;
 end;
 
 procedure TFrmController.EdtFindKeyPress( Sender: TObject; var Key: Char );
@@ -353,20 +363,22 @@ begin
   end;
 end;
 
-procedure TFrmController.TrvControllerCustomDrawItem(Sender: TCustomTreeView;
-  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+procedure TFrmController.TrvControllerCustomDrawItem( Sender: TCustomTreeView;
+  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
 var
-  Item : TPGItem;
+  Item: TPGItem;
 begin
   inherited;
   if Assigned( Node.Data ) then
   begin
     Item := TPGItem( Node.Data );
-    if (Item is TPGItem) and (not TPGItem( Node.Data ).Enabled) then
-       Sender.Canvas.Font.Color := clGray;
-    if ((Item is TPGLink) and (not TPGLink( Node.Data ).isFileExist))
-    or ((Item is TPGLinkMirror) and (not TPGLink(TPGLinkMirror(Node.Data).ItemOriginal).isFileExist)) then
-       Sender.Canvas.Font.Color := clRed;
+    if ( not Item.isValid ) then
+    begin
+      Sender.Canvas.Font.Color := clRed;
+    end else if ( not Item.Enabled ) then
+    begin
+      Sender.Canvas.Font.Color := clGray;
+    end;
   end;
 end;
 

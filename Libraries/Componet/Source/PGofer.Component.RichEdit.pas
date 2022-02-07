@@ -34,9 +34,9 @@ type
     function GetTextMetric( ): TTextMetric;
     function GetCharHeight: Integer;
     function GetCharWidth: Integer;
-    procedure SetVerticalScrollPos(const AValue: Integer);
-    function GetVerticalScrollPos(): Integer;
-    function GetVerticalScrollMax(): Integer;
+    procedure SetVerticalScrollPos( const AValue: Integer );
+    function GetVerticalScrollPos( ): Integer;
+    function GetVerticalScrollMax( ): Integer;
   protected
   public
     property CaretY: Integer read GetCaretY write SetCaretY;
@@ -47,7 +47,8 @@ type
     property DisplayX: Integer read GetDisplayX write SetDisplayX;
     property DisplayY: Integer read GetDisplayY write SetDisplayY;
     property DisplayXY: TPoint read GetDisplayXY write SetDisplayXY;
-    property VerticalScrollPos: Integer read GetVerticalScrollPos write SetVerticalScrollPos;
+    property VerticalScrollPos: Integer read GetVerticalScrollPos
+      write SetVerticalScrollPos;
     property VerticalScrollMax: Integer read GetVerticalScrollMax;
   published
     property OnDropFiles: TOnDropFile read FOnDropFiles write SetOnDropFiles;
@@ -116,43 +117,43 @@ begin
   Result := GetDisplayXY.Y;
 end;
 
-procedure TRichEditEx.SetVerticalScrollPos(const AValue: Integer);
+procedure TRichEditEx.SetVerticalScrollPos( const AValue: Integer );
 var
-   R : TScrollInfo;
-   S : SmallInt;
+  R: TScrollInfo;
+  S: SmallInt;
 begin
-   S := SizeOf(R);
-   FillChar( R, S, #0 );
-   R.cbSize := S;
-   R.fMask  := SIF_POS;
-   R.nPos := AValue;
-   SetScrollInfo(Self.Handle,SB_VERT,R, True);
+  S := SizeOf( R );
+  FillChar( R, S, #0 );
+  R.cbSize := S;
+  R.fMask := SIF_POS;
+  R.nPos := AValue;
+  SetScrollInfo( Self.Handle, SB_VERT, R, True );
 end;
 
 function TRichEditEx.GetVerticalScrollPos( ): Integer;
 var
-   R : TScrollInfo;
-   S : SmallInt;
+  R: TScrollInfo;
+  S: SmallInt;
 begin
-   S := SizeOf(R);
-   FillChar( R, S, #0 );
-   R.cbSize := S;
-   R.fMask  := SIF_POS;
-   GetScrollInfo(Self.Handle,SB_VERT,R);
-   Result := R.nPos;
+  S := SizeOf( R );
+  FillChar( R, S, #0 );
+  R.cbSize := S;
+  R.fMask := SIF_POS;
+  GetScrollInfo( Self.Handle, SB_VERT, R );
+  Result := R.nPos;
 end;
 
 function TRichEditEx.GetVerticalScrollMax( ): Integer;
 var
-   R : TScrollInfo;
-   S : SmallInt;
+  R: TScrollInfo;
+  S: SmallInt;
 begin
-   S := SizeOf(R);
-   FillChar( R, S, #0 );
-   R.cbSize := S;
-   R.fMask  := SIF_RANGE or SIF_PAGE;
-   GetScrollInfo(Self.Handle,SB_VERT,R);
-   Result := R.nMax - Integer(R.nPage);
+  S := SizeOf( R );
+  FillChar( R, S, #0 );
+  R.cbSize := S;
+  R.fMask := SIF_RANGE or SIF_PAGE;
+  GetScrollInfo( Self.Handle, SB_VERT, R );
+  Result := R.nMax - Integer( R.nPage );
 end;
 
 procedure TRichEditEx.SetDisplayY( const Value: Integer );

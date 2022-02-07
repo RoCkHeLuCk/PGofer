@@ -9,7 +9,7 @@ uses
   PGofer.Classes, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame;
 
 type
-  TPGFrameForms = class( TPGFrame )
+  TPGFormsFrame = class( TPGItemFrame )
     LblAlphaBlendValue: TLabel;
     LblHeigth: TLabel;
     LblLeft: TLabel;
@@ -67,7 +67,7 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
-constructor TPGFrameForms.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGFormsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGForm( AItem );
@@ -84,78 +84,78 @@ begin
   CmbWindowState.ItemIndex := FItem.WindowState;
 end;
 
-destructor TPGFrameForms.Destroy;
+destructor TPGFormsFrame.Destroy;
 begin
   FItem := nil;
   inherited Destroy( );
 end;
 
-procedure TPGFrameForms.BtnCloseClick( Sender: TObject );
+procedure TPGFormsFrame.BtnCloseClick( Sender: TObject );
 begin
   FItem.Close;
 end;
 
-procedure TPGFrameForms.BtnShowClick( Sender: TObject );
+procedure TPGFormsFrame.BtnShowClick( Sender: TObject );
 begin
   FItem.Show( );
 end;
 
-procedure TPGFrameForms.CkbAlphaBlendClick( Sender: TObject );
+procedure TPGFormsFrame.CkbAlphaBlendClick( Sender: TObject );
 begin
   FItem.AlphaBlend := CkbAlphaBlend.Checked;
 end;
 
-procedure TPGFrameForms.CkbEnabledClick( Sender: TObject );
+procedure TPGFormsFrame.CkbEnabledClick( Sender: TObject );
 begin
   FItem.Enabled := CkbEnabled.Checked;
 end;
 
-procedure TPGFrameForms.CkbTransparentClick( Sender: TObject );
+procedure TPGFormsFrame.CkbTransparentClick( Sender: TObject );
 begin
   FItem.Transparent := CkbTransparent.Checked;
 end;
 
-procedure TPGFrameForms.CkbVisibleClick( Sender: TObject );
+procedure TPGFormsFrame.CkbVisibleClick( Sender: TObject );
 begin
   FItem.Visible := CkbVisible.Checked;
 end;
 
-procedure TPGFrameForms.CmbWindowStateChange( Sender: TObject );
+procedure TPGFormsFrame.CmbWindowStateChange( Sender: TObject );
 begin
   FItem.WindowState := CmbWindowState.ItemIndex;
 end;
 
-procedure TPGFrameForms.EdtAlphaBlendValueKeyUp( Sender: TObject; var Key: Word;
+procedure TPGFormsFrame.EdtAlphaBlendValueKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.AlphaBlendValue := StrToInt( EdtAlphaBlendValue.Text );
 end;
 
-procedure TPGFrameForms.EdtHeigthKeyUp( Sender: TObject; var Key: Word;
+procedure TPGFormsFrame.EdtHeigthKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Heigth := StrToInt( EdtHeigth.Text );
 end;
 
-procedure TPGFrameForms.EdtLeftKeyUp( Sender: TObject; var Key: Word;
+procedure TPGFormsFrame.EdtLeftKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Left := StrToInt( EdtLeft.Text );
 end;
 
-procedure TPGFrameForms.EdtTopKeyUp( Sender: TObject; var Key: Word;
+procedure TPGFormsFrame.EdtTopKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Top := StrToInt( EdtTop.Text );
 end;
 
-procedure TPGFrameForms.EdtWidthKeyUp( Sender: TObject; var Key: Word;
+procedure TPGFormsFrame.EdtWidthKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Width := StrToInt( EdtWidth.Text );
 end;
 
-procedure TPGFrameForms.PnlTransparentColorClick( Sender: TObject );
+procedure TPGFormsFrame.PnlTransparentColorClick( Sender: TObject );
 begin
   cldTrasparentColor.Color := FItem.TransparentColor;
   if cldTrasparentColor.Execute( Handle ) then
@@ -165,7 +165,7 @@ begin
   end;
 end;
 
-procedure TPGFrameForms.UpdAlphaBlendValueChangingEx( Sender: TObject;
+procedure TPGFormsFrame.UpdAlphaBlendValueChangingEx( Sender: TObject;
   var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
 begin
   FItem.AlphaBlendValue := NewValue;

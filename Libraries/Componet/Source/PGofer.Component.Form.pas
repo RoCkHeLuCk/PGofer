@@ -138,6 +138,7 @@ begin
     SetForegroundWindow( Self.Handle );
     ThisThreadID := SWP_SHOWWINDOW or SWP_NOMOVE or SWP_NOSIZE;
   end else begin
+    ShowWindow( Self.Handle, SW_SHOWNOACTIVATE );
     Self.Visible := true;
     ThisThreadID := SWP_NOACTIVATE or SWP_SHOWWINDOW or SWP_NOMOVE or
       SWP_NOSIZE;
@@ -145,18 +146,18 @@ begin
 
   try
     C := BeginDeferWindowPos( 1 );
-    // C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
-    // Self.Width, Self.Height, ThisThreadID );
-    C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, 0, 0, 0, 0,
-      ThisThreadID );
+    C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
+      Self.Width, Self.Height, ThisThreadID );
+    // C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, 0, 0, 0, 0,
+    // ThisThreadID );
     EndDeferWindowPos( C );
   except
     // windows bugado do carai.
   end;
 
-  // SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
-  // Self.Height, ThisThreadID );
-  SetWindowPos( Self.Handle, HWND_TOPMOST, 0, 0, 0, 0, ThisThreadID );
+  SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
+    Self.Height, ThisThreadID );
+  // SetWindowPos( Self.Handle, HWND_TOPMOST, 0, 0, 0, 0, ThisThreadID );
 
   if AFocus then
   begin

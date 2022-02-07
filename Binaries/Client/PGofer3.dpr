@@ -10,7 +10,7 @@ uses
   PGofer.Sintatico.Controls
     in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas',
   PGofer.Item.Frame
-    in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGFrame: TFrame} ,
+    in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGItemFrame: TFrame} ,
   PGofer.ClipBoards in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas',
   PGofer.ClipBoards.Controls
     in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',
@@ -50,11 +50,11 @@ uses
   PGofer.System.Variants
     in '..\..\Libraries\Lib\System\PGofer.System.Variants.pas',
   PGofer.System.Variants.Frame
-    in '..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas' {PGFrame1: TFrame} ,
+    in '..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas' {PGVariantsFrame: TFrame} ,
   PGofer.System.Functions
     in '..\..\Libraries\Lib\System\PGofer.System.Functions.pas',
   PGofer.System.Functions.Frame
-    in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFrameFunction: TFrame} ,
+    in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFunctionFrame: TFrame} ,
   PGofer.System.VirtualDesktop
     in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
   PGofer.Utils in '..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas',
@@ -63,13 +63,13 @@ uses
   PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
   PGofer.Forms.Frame
-    in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFrameForms: TFrame} ,
+    in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFormsFrame: TFrame} ,
   PGofer.Forms.Controller
     in '..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas' {FrmController} ,
   PGofer.Forms.AutoComplete
     in '..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas' {FrmAutoComplete} ,
   PGofer.Forms.Console.Frame
-    in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas' {PGFrameConsole: TFrame} ,
+    in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas' {PGConsoleFrame: TFrame} ,
   PGofer.Forms.Console
     in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas' {FrmConsole} ,
   PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
@@ -78,7 +78,7 @@ uses
   PGofer.Triggers.HotKeys.Controls
     in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Controls.pas',
   PGofer.Triggers.HotKeys.Frame
-    in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas' {PGFrameHotKey: TFrame} ,
+    in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas' {PGHotKeyFrame: TFrame} ,
   PGofer.Triggers.HotKeys.MMHook
     in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMHook.pas',
   PGofer.Triggers.HotKeys.Hook
@@ -109,11 +109,9 @@ uses
     in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Component.Form
     in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx} ,
-  Winapi.Windows,
-  Vcl.Forms,
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer} ,
-  Vcl.Themes,
-  Vcl.Styles;
+  Winapi.Windows,
+  Vcl.Forms;
 
 {$R *.res}
 
@@ -131,7 +129,9 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm( TFrmPGofer, FrmPGofer );
+    Application.CreateForm( TFrmAutoComplete, FrmAutoComplete );
     Application.CreateForm( TFrmConsole, FrmConsole );
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );

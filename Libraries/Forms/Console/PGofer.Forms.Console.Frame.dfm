@@ -1,14 +1,15 @@
-inherited PGFrameConsole: TPGFrameConsole
+inherited PGConsoleFrame: TPGConsoleFrame
   Height = 337
   ExplicitHeight = 337
   inherited grbAbout: TGroupBox
     Top = 283
-    Height = 60
-    ExplicitTop = 281
-    ExplicitHeight = 53
+    Height = 44
+    Constraints.MinHeight = 44
+    ExplicitTop = 283
+    ExplicitHeight = 44
     inherited rceAbout: TRichEdit
-      Height = 43
-      ExplicitHeight = 36
+      Height = 27
+      ExplicitHeight = 27
     end
   end
   inherited pnlItem: TPanel
@@ -72,6 +73,7 @@ inherited PGFrameConsole: TPGFrameConsole
   end
   inherited sptAbout: TPanel
     Top = 330
+    ExplicitTop = 330
   end
   inherited cldTrasparentColor: TColorDialog
     Left = 164

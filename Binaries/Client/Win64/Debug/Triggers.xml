@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">232</Occurrence>
+    <Occurrence Type="Cardinal">342</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
-    <Script Type="string">FrmPGofer.Left := 2000;
-FrmTriggers;
+    <Script Type="string">System.CanClose := 0;
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
@@ -100,7 +99,7 @@ sdfg
 sdfg
 sdfg
 sdfg
-sdfg
+sdfg d
 sdfg
 </ScriptAfter>
     <CanExecute Type="Boolean">True</CanExecute>
@@ -109,7 +108,7 @@ sdfg
     <HotKeysHex Type="string"></HotKeysHex>
     <Detect Type="Byte">0</Detect>
     <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string">hfdghfgh
+    <Script Type="string">
 </Script>
   </HotKey>
   <Link Name="Link2" Enabled="true" ReadOnly="false">
@@ -120,8 +119,17 @@ sdfg
     <Priority Type="Byte">2</Priority>
     <Operation Type="Byte">0</Operation>
     <CaptureMsg Type="Boolean">False</CaptureMsg>
-    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptBefor Type="string">d
+</ScriptBefor>
     <ScriptAfter Type="string"></ScriptAfter>
     <CanExecute Type="Boolean">True</CanExecute>
   </Link>
+  <Task Name="Close" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">0</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string">if not System.CanClose then
+  System.CanClose := System.DialogMessage('Fechar PGofer?');
+</Script>
+    <Trigger Type="Byte">1</Trigger>
+  </Task>
 </Triggers>

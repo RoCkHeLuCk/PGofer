@@ -32,6 +32,7 @@ type
     function GetIsRunning: Boolean;
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
+    function GetIsValid( ): Boolean; override;
     class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AName: string; AMirror: TPGItemMirror );
@@ -129,6 +130,11 @@ end;
 function TPGLink.GetIsRunning( ): Boolean;
 begin
   Result := ProcessFileToPID( ExtractFileName( FFile ) ) <> 0;
+end;
+
+function TPGLink.GetIsValid( ): Boolean;
+begin
+  Result := GetFileExist;
 end;
 
 function TPGLink.GetFileExist: Boolean;

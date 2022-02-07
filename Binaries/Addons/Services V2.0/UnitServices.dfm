@@ -40,34 +40,33 @@ object FrmServices: TFrmServices
   object Splitter1: TSplitter
     Left = 0
     Top = 175
-    Width = 615
+    Width = 617
     Height = 4
     Cursor = crVSplit
     Align = alTop
     Beveled = True
     ExplicitTop = 177
-    ExplicitWidth = 617
   end
   object Splitter2: TSplitter
     Left = 0
     Top = 130
-    Width = 615
+    Width = 617
     Height = 4
     Cursor = crVSplit
     Align = alTop
     Beveled = True
     ExplicitTop = 132
-    ExplicitWidth = 617
   end
   object GrbFilter: TGroupBox
     Left = 0
     Top = 0
-    Width = 615
+    Width = 617
     Height = 130
     Align = alTop
     Caption = '         Filter'
     Constraints.MinHeight = 10
     TabOrder = 0
+    ExplicitWidth = 615
     object GrbType: TGroupBox
       Left = 250
       Top = 15
@@ -250,12 +249,13 @@ object FrmServices: TFrmServices
   object GrbDercription: TGroupBox
     Left = 0
     Top = 134
-    Width = 615
+    Width = 617
     Height = 41
     Align = alTop
     Caption = '         Descri'#231#227'o'
     Constraints.MinHeight = 10
     TabOrder = 2
+    ExplicitWidth = 615
     object MemDescription: TMemo
       Left = 2
       Top = 15
@@ -347,7 +347,7 @@ object FrmServices: TFrmServices
     Left = 40
     Top = 72
     Bitmap = {
-      494C01010800C400CC0010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010800C400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

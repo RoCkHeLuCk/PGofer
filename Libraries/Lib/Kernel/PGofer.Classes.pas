@@ -28,6 +28,7 @@ type
     procedure SetName( AName: string ); virtual;
     procedure SetEnabled( AValue: Boolean ); virtual;
     procedure SetReadOnly( AValue: Boolean ); virtual;
+    function GetIsValid( ): Boolean; virtual;
     class function GetImageIndex( ): Integer; virtual;
   public
     constructor Create( AParent: TPGItem; AName: string ); overload;
@@ -35,6 +36,7 @@ type
     property name: string read FName write SetName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property readonly: Boolean read FReadOnly write SetReadOnly;
+    property isValid: Boolean read GetIsValid;
     property Parent: TPGItem read FParent write SetParent;
     property Node: TTreeNode read FNode write SetNode;
     property CollectDad: TPGItemCollect read GetCollectDad;
@@ -199,7 +201,7 @@ end;
 
 procedure TPGItem.Frame( AParent: TObject );
 begin
-  TPGFrame.Create( Self, AParent );
+  TPGItemFrame.Create( Self, AParent );
 end;
 
 function TPGItem.GetCollectDad: TPGItemCollect;
@@ -215,6 +217,11 @@ end;
 class function TPGItem.GetImageIndex: Integer;
 begin
   Result := 0;
+end;
+
+function TPGItem.GetIsValid: Boolean;
+begin
+  Result := True;
 end;
 
 function TPGItem.FindName( AName: string ): TPGItem;

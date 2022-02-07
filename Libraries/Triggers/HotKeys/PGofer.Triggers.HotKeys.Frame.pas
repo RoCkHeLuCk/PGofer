@@ -7,12 +7,11 @@ uses
   Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Item.Frame, PGofer.Triggers.HotKeys,
-  PGofer.Forms.AutoComplete,
   PGofer.Component.Edit, PGofer.Component.RichEdit,
   PGofer.Triggers.HotKeys.Controls;
 
 type
-  TPGFrameHotKey = class( TPGFrame )
+  TPGHotKeyFrame = class( TPGItemFrame )
     PpmNull: TPopupMenu;
     GrbHotKeys: TGroupBox;
     MmoHotKeys: TMemo;
@@ -34,7 +33,6 @@ type
       Shift: TShiftState );
   private
     FItem: TPGHotKey;
-    FFrmAutoComplete: TFrmAutoComplete;
     {$HINTS OFF}
     procedure OnProcessKeys( AParamInput: TParamInput );
     {$HINTS ON}
@@ -47,7 +45,7 @@ type
   end;
 
 var
-  PGFrameHotKey: TPGFrameHotKey;
+  PGHotKeyFrame: TPGHotKeyFrame;
 
 implementation
 
@@ -55,12 +53,13 @@ uses
   Winapi.Messages,
   PGofer.Triggers.HotKeys.Hook,
   PGofer.Triggers.HotKeys.RawInput,
-  PGofer.Triggers.HotKeys.Async;
+  PGofer.Triggers.HotKeys.Async,
+  PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
 { TPGFrameHotKey }
 
-constructor TPGFrameHotKey.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGHotKeyFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGHotKey( AItem );
@@ -68,18 +67,18 @@ begin
   CkbInhibit.Checked := FItem.Inhibit;
   EdtScript.Lines.Text := FItem.Script;
   MmoHotKeys.Lines.Text := FItem.GetKeysName( );
-  FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
+  FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
-destructor TPGFrameHotKey.Destroy;
+destructor TPGHotKeyFrame.Destroy( );
 begin
-  FFrmAutoComplete.Free( );
+  FrmAutoComplete.EditCtrlRemove( EdtScript );
   MmoHotKeys.OnExit( Self );
   FItem := nil;
   inherited Destroy( );
 end;
 
-procedure TPGFrameHotKey.EdtNameKeyUp( Sender: TObject; var Key: Word;
+procedure TPGHotKeyFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   if FItem.isItemExist( EdtName.Text, True ) then
@@ -91,37 +90,37 @@ begin
   end;
 end;
 
-procedure TPGFrameHotKey.EdtScriptKeyUp( Sender: TObject; var Key: Word;
+procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Script := EdtScript.Lines.Text;
 end;
 
-procedure TPGFrameHotKey.IniConfigLoad;
+procedure TPGHotKeyFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
   GrbScript.Height := FIniFile.ReadInteger( Self.ClassName, 'Scritp',
     GrbScript.Height );
 end;
 
-procedure TPGFrameHotKey.IniConfigSave;
+procedure TPGHotKeyFrame.IniConfigSave;
 begin
   FIniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
   inherited IniConfigSave( );
 end;
 
-procedure TPGFrameHotKey.BtnCleanClick( Sender: TObject );
+procedure TPGHotKeyFrame.BtnCleanClick( Sender: TObject );
 begin
   FItem.Keys.Clear;
   MmoHotKeys.Clear;
 end;
 
-procedure TPGFrameHotKey.CkbInhibitClick( Sender: TObject );
+procedure TPGHotKeyFrame.CkbInhibitClick( Sender: TObject );
 begin
   FItem.Inhibit := CkbInhibit.Checked;
 end;
 
-procedure TPGFrameHotKey.CmbDetectChange( Sender: TObject );
+procedure TPGHotKeyFrame.CmbDetectChange( Sender: TObject );
 begin
   FItem.Detect := CmbDetect.ItemIndex;
   if FItem.Detect = 2 then
@@ -134,9 +133,9 @@ begin
   end;
 end;
 
-procedure TPGFrameHotKey.MmoHotKeysEnter( Sender: TObject );
+procedure TPGHotKeyFrame.MmoHotKeysEnter( Sender: TObject );
 begin
-  PGFrameHotKey := Self;
+  PGHotKeyFrame := Self;
   MmoHotKeys.Color := clRed;
   case INPUT_TYPE of
     Hook:
@@ -148,7 +147,7 @@ begin
   end;
 end;
 
-procedure TPGFrameHotKey.MmoHotKeysExit( Sender: TObject );
+procedure TPGHotKeyFrame.MmoHotKeysExit( Sender: TObject );
 begin
   MmoHotKeys.Color := clBtnFace;
   case INPUT_TYPE of
@@ -161,7 +160,7 @@ begin
   end;
 end;
 
-procedure TPGFrameHotKey.OnProcessKeys( AParamInput: TParamInput );
+procedure TPGHotKeyFrame.OnProcessKeys( AParamInput: TParamInput );
 var
   Key: TKey;
 begin
@@ -170,14 +169,14 @@ begin
   begin
     if Key.bDetect in [ kd_Down, kd_Wheel ] then
     begin
-      if not( PGFrameHotKey.FItem.Keys.Contains( Key.wKey ) ) then
+      if not( PGHotKeyFrame.FItem.Keys.Contains( Key.wKey ) ) then
       begin
-        PGFrameHotKey.FItem.Keys.Add( Key.wKey );
-        PGFrameHotKey.CkbInhibit.Checked := False;
-        PGFrameHotKey.FItem.Inhibit := False;
+        PGHotKeyFrame.FItem.Keys.Add( Key.wKey );
+        PGHotKeyFrame.CkbInhibit.Checked := False;
+        PGHotKeyFrame.FItem.Inhibit := False;
       end;
     end;
-    PGFrameHotKey.MmoHotKeys.Lines.Text := PGFrameHotKey.FItem.GetKeysName( );
+    PGHotKeyFrame.MmoHotKeys.Lines.Text := PGHotKeyFrame.FItem.GetKeysName( );
   end;
 end;
 

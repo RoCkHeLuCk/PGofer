@@ -5,7 +5,7 @@
         <FrameworkType>VCL</FrameworkType>
         <MainSource>PGofer3.dpr</MainSource>
         <Base>True</Base>
-        <Config Condition="'$(Config)'==''">Release</Config>
+        <Config Condition="'$(Config)'==''">Debug</Config>
         <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
@@ -140,8 +140,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <VerInfo_Build>60</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.60;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>62</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.62;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
         <Icon_MainIcon>..\..\Documents\Imagens\PGofer Icon.ico</Icon_MainIcon>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <VerInfo_Debug>false</VerInfo_Debug>
@@ -166,8 +166,8 @@
         <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>50</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.50;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>51</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.51;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
         <VerInfo_Debug>false</VerInfo_Debug>
         <VerInfo_PreRelease>false</VerInfo_PreRelease>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -187,7 +187,7 @@
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas"/>
         <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
-            <Form>PGFrame</Form>
+            <Form>PGItemFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas"/>
@@ -217,12 +217,12 @@
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Statements.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas">
-            <Form>PGFrame1</Form>
+            <Form>PGVariantsFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas">
-            <Form>PGFrameFunction</Form>
+            <Form>PGFunctionFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
@@ -232,7 +232,7 @@
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Frame.pas">
-            <Form>PGFrameForms</Form>
+            <Form>PGFormsFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas">
@@ -242,7 +242,7 @@
             <Form>FrmAutoComplete</Form>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas">
-            <Form>PGFrameConsole</Form>
+            <Form>PGConsoleFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas">
@@ -252,7 +252,7 @@
         <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas"/>
         <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas">
-            <Form>PGFrameHotKey</Form>
+            <Form>PGHotKeyFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMHook.pas"/>
@@ -308,10 +308,10 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win64">
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
+                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -358,13 +358,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
@@ -375,6 +368,13 @@
                 <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>PGofer3.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win64">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

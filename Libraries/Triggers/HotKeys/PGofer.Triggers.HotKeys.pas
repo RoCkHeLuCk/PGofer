@@ -95,7 +95,7 @@ end;
 
 procedure TPGHotKey.Frame( AParent: TObject );
 begin
-  TPGFrameHotKey.Create( Self, AParent );
+  TPGHotKeyFrame.Create( Self, AParent );
 end;
 
 class function TPGHotKey.GetImageIndex: Integer;
@@ -243,7 +243,7 @@ end;
 
 procedure TPGHotKeyMirror.Frame( AParent: TObject );
 begin
-  TPGFrameHotKey.Create( Self.ItemOriginal, AParent );
+  TPGHotKeyFrame.Create( Self.ItemOriginal, AParent );
 end;
 
 class function TPGHotKeyMirror.GetImageIndex: Integer;

@@ -9,7 +9,7 @@ uses
   PGofer.System.Variants, PGofer.Component.Edit;
 
 type
-  TPGFrameVariants = class( TPGFrame )
+  TPGVariantsFrame = class( TPGItemFrame )
     LblValue: TLabel;
     EdtValue: TEdit;
     procedure EdtValueKeyUp( Sender: TObject; var Key: Word;
@@ -24,14 +24,14 @@ type
   end;
 
 var
-  PGFrameVariants: TPGFrame;
+  PGVariantsFrame: TPGItemFrame;
 
 implementation
 
 {$R *.dfm}
 { TPGFrameVariants }
 
-constructor TPGFrameVariants.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGVariantsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGVariant( AItem );
@@ -39,13 +39,13 @@ begin
   EdtValue.ReadOnly := FItem.Constant;
 end;
 
-destructor TPGFrameVariants.Destroy;
+destructor TPGVariantsFrame.Destroy;
 begin
   FItem := nil;
   inherited Destroy( );
 end;
 
-procedure TPGFrameVariants.EdtValueKeyUp( Sender: TObject; var Key: Word;
+procedure TPGVariantsFrame.EdtValueKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Value := EdtValue.Text;

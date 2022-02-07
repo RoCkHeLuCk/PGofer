@@ -1,4 +1,4 @@
-unit Pgofer.Component.ListView;
+unit PGofer.Component.ListView;
 
 interface
 
@@ -27,8 +27,10 @@ type
       OffSet: Integer = -1 );
     procedure SuperSelected( Item: TListItem ); overload;
     procedure SuperSelected( ); overload;
-    procedure IniConfigSave( AIniFile: TIniFile );
-    procedure IniConfigLoad( AIniFile: TIniFile );
+    procedure IniConfigSave( AIniFile: TIniFile; ASection: string;
+      APrefix: string );
+    procedure IniConfigLoad( AIniFile: TIniFile; ASection: string;
+      APrefix: string );
   published
     property OwnsObjectsData: Boolean read FOwnsObjectsData
       write FOwnsObjectsData default False;
@@ -227,24 +229,26 @@ begin
   end;
 end;
 
-procedure TListViewEx.IniConfigLoad( AIniFile: TIniFile );
+procedure TListViewEx.IniConfigLoad( AIniFile: TIniFile; ASection: string;
+  APrefix: string );
 var
   c: Integer;
 begin
   for c := 0 to Self.Columns.Count - 1 do
   begin
-    Self.Columns[ c ].Width := AIniFile.ReadInteger( Self.Name,
-      'ColunWidth' + IntToStr( c ), Self.Columns[ c ].Width );
+    Self.Columns[ c ].Width := AIniFile.ReadInteger( ASection,
+      APrefix + 'ColunWidth' + IntToStr( c ), Self.Columns[ c ].Width );
   end;
 end;
 
-procedure TListViewEx.IniConfigSave( AIniFile: TIniFile );
+procedure TListViewEx.IniConfigSave( AIniFile: TIniFile; ASection: string;
+  APrefix: string );
 var
   c: Integer;
 begin
   for c := 0 to Self.Columns.Count - 1 do
   begin
-    AIniFile.WriteInteger( Self.Name, 'ColunWidth' + IntToStr( c ),
+    AIniFile.WriteInteger( ASection, APrefix + 'ColunWidth' + IntToStr( c ),
       Self.Columns[ c ].Width );
   end;
 end;

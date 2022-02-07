@@ -15,9 +15,9 @@ type
     PnlConsole: TPanel;
     PnlArrastar: TPanel;
     BtnFixed: TSpeedButton;
-    PnlArrastar2: TPanel;
     TmrConsole: TTimer;
     EdtConsole: TRichEditEx;
+    ShpDrag: TShape;
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormKeyPress( Sender: TObject; var Key: Char );
     procedure TmrConsoleTimer( Sender: TObject );
@@ -237,7 +237,7 @@ end;
 
 procedure TPGFrmConsole.Frame( AParent: TObject );
 begin
-  TPGFrameConsole.Create( Self, AParent );
+  TPGConsoleFrame.Create( Self, AParent );
 end;
 
 procedure TPGFrmConsole.SetAutoClose( Value: Boolean );

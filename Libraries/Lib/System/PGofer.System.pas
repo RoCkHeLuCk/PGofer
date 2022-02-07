@@ -196,13 +196,12 @@ end;
 
 function TPGSystem.DialogMessage( Text: string ): Boolean;
 var
-   R : Boolean;
+  R: Boolean;
 begin
   TThread.Synchronize( nil, procedure
     begin
       R := PGofer.System.Controls.SystemDialogMessage( Text );
-    end
-  );
+    end );
   Result := R;
 end;
 
@@ -211,8 +210,7 @@ begin
   TThread.Synchronize( nil, procedure
     begin
       ShowMessage( Texto );
-    end
-  );
+    end );
 end;
 
 function TPGSystem.ShutDown( Valor: Cardinal ): Boolean;

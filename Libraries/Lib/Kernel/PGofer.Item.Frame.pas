@@ -8,7 +8,7 @@ uses
   PGofer.Classes, PGofer.Sintatico.Classes, PGofer.Component.Edit;
 
 type
-  TPGFrame = class( TFrame )
+  TPGItemFrame = class( TFrame )
     grbAbout: TGroupBox;
     rceAbout: TRichEdit;
     pnlItem: TPanel;
@@ -42,12 +42,11 @@ implementation
 uses
   PGofer.Sintatico;
 
-constructor TPGFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( nil );
   Self.Parent := TWinControl( AParent );
-  // Self.Align := alClient;
-  // Self.Anchors := [akLeft, akTop, akRight, akBottom];
+  Self.Width := TControl( AParent ).Width - 16;
   FItem := AItem;
   FAboutSplitter := False;
   EdtName.Text := FItem.Name;
@@ -58,7 +57,7 @@ begin
   Self.IniConfigLoad( );
 end;
 
-destructor TPGFrame.Destroy;
+destructor TPGItemFrame.Destroy;
 begin
   Self.IniConfigSave( );
   FIniFile.Free;
@@ -66,30 +65,30 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGFrame.IniConfigLoad( );
+procedure TPGItemFrame.IniConfigLoad( );
 begin
   Self.Height := FIniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
-procedure TPGFrame.IniConfigSave( );
+procedure TPGItemFrame.IniConfigSave( );
 begin
   FIniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
-procedure TPGFrame.sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
+procedure TPGItemFrame.sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer );
 begin
   FAboutSplitter := True;
 end;
 
-procedure TPGFrame.sptAboutMouseMove( Sender: TObject; Shift: TShiftState;
+procedure TPGItemFrame.sptAboutMouseMove( Sender: TObject; Shift: TShiftState;
   X, Y: Integer );
 begin
   if FAboutSplitter then
     Self.Height := ScreenToClient( Mouse.CursorPos ).Y;
 end;
 
-procedure TPGFrame.sptAboutMouseUp( Sender: TObject; Button: TMouseButton;
+procedure TPGItemFrame.sptAboutMouseUp( Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer );
 begin
   if FAboutSplitter then
@@ -98,7 +97,7 @@ begin
   FAboutSplitter := False;
 end;
 
-procedure TPGFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
+procedure TPGItemFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Name := EdtName.Text;

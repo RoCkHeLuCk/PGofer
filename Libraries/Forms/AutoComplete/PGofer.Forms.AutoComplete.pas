@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows,
-  System.Classes, System.SysUtils, System.IniFiles,
+  System.Classes, System.SysUtils, System.IniFiles, System.Generics.Collections,
   Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
   PGofer.Classes, PGofer.Forms, PGofer.Component.ListView,
   PGofer.Component.RichEdit, PGofer.Component.Form;
@@ -12,13 +12,18 @@ uses
 type
   TSelectCMD = ( selUp, selDown, selEnter );
 
+  TEditOnCtrl = class
+    OnKeyDown: TOnKeyDownUP;
+    OnKeyPress: TOnKeyPress;
+    OnKeyUp: TOnKeyDownUP;
+    OnDropFile: TOnDropFile;
+  end;
+
   TFrmAutoComplete = class( TFormEx )
     ltvAutoComplete: TListViewEx;
     ppmAutoComplete: TPopupMenu;
     mniPriority: TMenuItem;
     trmAutoComplete: TTimer;
-    constructor Create( AEditCtrl: TRichEditEx ); reintroduce;
-    destructor Destroy( ); override;
     procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormDestroy( Sender: TObject );
@@ -32,16 +37,12 @@ type
     procedure ltvAutoCompleteCompare( Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer );
   private
+    FEditList: TDictionary<TRichEditEx, TEditOnCtrl>;
     FEditCtrl: TRichEditEx;
-    FEditKeyDown: TOnKeyDownUP;
-    FEditKeyPress: TOnKeyPress;
-    FEditKeyUp: TOnKeyDownUP;
-    FEditDropFile: TOnDropFile;
     FMemoryIniFile: TIniFile;
     FMemoryNoCtrl: Boolean;
     FMemoryList: TStringList;
     FMemoryPosition: Integer;
-    FEditControlPress: Boolean;
     FCommandCompare: string;
     FCommandCompareLength: Integer;
     procedure ListViewAdd( ACaption, AOrigin: string ); overload;
@@ -61,8 +62,14 @@ type
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
-    property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl;
+    property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl
+      default True;
+    procedure EditCtrlAdd( AValue: TRichEditEx );
+    procedure EditCtrlRemove( AValue: TRichEditEx );
   end;
+
+var
+  FrmAutoComplete: TFrmAutoComplete;
 
 implementation
 
@@ -87,22 +94,9 @@ begin
   Self.ForceResizable := True;
 end;
 
-constructor TFrmAutoComplete.Create( AEditCtrl: TRichEditEx );
+procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
-  inherited Create( nil );
-  // guarda os eventos do edit
-  FEditCtrl := AEditCtrl;
-  FEditKeyDown := FEditCtrl.OnKeyDown;
-  FEditKeyPress := FEditCtrl.OnKeyPress;
-  FEditKeyUp := FEditCtrl.OnKeyUp;
-  FEditDropFile := FEditCtrl.OnDropFiles;
-
-  // Sobescreve os eventos do edid
-  FEditCtrl.OnKeyDown := Self.FormKeyDown;
-  FEditCtrl.OnKeyPress := Self.FormKeyPress;
-  FEditCtrl.OnKeyUp := Self.FormKeyUp;
-  FEditCtrl.OnDropFiles := Self.FormDropFile;
-
+  inherited FormCreate( Sender );
   // carrega arquivos ini
   FMemoryIniFile := TIniFile.Create( PGofer.Sintatico.DirCurrent +
     'AutoComplete.ini' );
@@ -111,30 +105,8 @@ begin
   FMemoryPosition := 0;
   FMemoryList := TStringList.Create( );
 
-  FEditControlPress := False;
-end;
-
-destructor TFrmAutoComplete.Destroy( );
-begin
-  // restaura eventos originais
-  FEditCtrl.OnKeyDown := FEditKeyDown;
-  FEditCtrl.OnKeyPress := FEditKeyPress;
-  FEditCtrl.OnKeyUp := FEditKeyUp;
-  FEditCtrl.OnDropFiles := FEditDropFile;
-
-  FEditKeyDown := nil;
-  FEditKeyPress := nil;
-  FEditKeyUp := nil;
+  FEditList := TDictionary<TRichEditEx, TEditOnCtrl>.Create( );
   FEditCtrl := nil;
-
-  FMemoryIniFile.Free( );
-  FMemoryList.Free( );
-  FMemoryPosition := 0;
-  FMemoryNoCtrl := False;
-
-  FEditControlPress := False;
-
-  inherited Destroy( );
 end;
 
 procedure TFrmAutoComplete.FormClose( Sender: TObject;
@@ -144,33 +116,42 @@ begin
   trmAutoComplete.Enabled := False;
 end;
 
-procedure TFrmAutoComplete.FormCreate( Sender: TObject );
-begin
-  inherited FormCreate( Sender );
-end;
-
 procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
 begin
+  FEditCtrl := nil;
+  FEditList.Free( );
+  FMemoryIniFile.Free( );
+  FMemoryList.Free( );
+  FMemoryPosition := 0;
+  FMemoryNoCtrl := False;
+
   inherited FormDestroy( Sender );
-  //
 end;
 
 procedure TFrmAutoComplete.FormDropFile( Sender: TObject; AFiles: TStrings );
+var
+  OnDrop: TOnDropFile;
 begin
+  FEditCtrl := TRichEditEx( Sender );
+
   if AFiles.Text <> '' then
   begin
     FEditCtrl.Lines.Add( AFiles.Text );
   end;
 
-  if Assigned( FEditDropFile ) then
-    FEditDropFile( Sender, AFiles );
+  OnDrop := FEditList.Items[ FEditCtrl ].OnDropFile;
+  if Assigned( OnDrop ) then
+    OnDrop( Sender, AFiles );
 end;
 
 procedure TFrmAutoComplete.FormKeyDown( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 var
   c: Word;
+  OnKeyDown: TOnKeyDownUP;
 begin
+  FEditCtrl := TRichEditEx( Sender );
+
   if Self.Visible then
   begin
     case Key of
@@ -220,11 +201,10 @@ begin
 
       VK_SPACE:
         begin
-          if Shift = [ ssCtrl ] then
+          if ( Shift = [ ssCtrl ] ) then
           begin
             Self.FindCMD( );
             Key := 0;
-            FEditControlPress := True;
           end;
         end;
 
@@ -261,25 +241,31 @@ begin
     end;
   end;
 
-  if Assigned( FEditKeyDown ) then
-    FEditKeyDown( Sender, Key, Shift );
+  OnKeyDown := FEditList.Items[ FEditCtrl ].OnKeyDown;
+  if Assigned( OnKeyDown ) then
+    OnKeyDown( Sender, Key, Shift );
 end;
 
 procedure TFrmAutoComplete.FormKeyPress( Sender: TObject; var Key: Char );
+var
+  OnKeyPress: TOnKeyPress;
 begin
-  if ( Key = ' ' ) and FEditControlPress then
+  FEditCtrl := TRichEditEx( Sender );
+  if ( Key = ' ' ) and ( GetKeyState( VK_CONTROL ) < 0 ) then
   begin
     Key := #0;
-    FEditControlPress := False;
   end;
-
-  if Assigned( FEditKeyPress ) then
-    FEditKeyPress( Sender, Key );
+  OnKeyPress := FEditList.Items[ FEditCtrl ].OnKeyPress;
+  if Assigned( OnKeyPress ) then
+    OnKeyPress( Sender, Key );
 end;
 
 procedure TFrmAutoComplete.FormKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
+var
+  OnKeyUp: TOnKeyDownUP;
 begin
+  FEditCtrl := TRichEditEx( Sender );
   if Shift = [ ] then
     case Key of
       8 { bcks } , // backspace
@@ -302,21 +288,20 @@ begin
         end;
     end; // case
 
-  FEditControlPress := False;
-
-  if Assigned( FEditKeyUp ) then
-    FEditKeyUp( Sender, Key, Shift );
+  OnKeyUp := FEditList.Items[ FEditCtrl ].OnKeyUp;
+  if Assigned( OnKeyUp ) then
+    OnKeyUp( Sender, Key, Shift );
 end;
 
 procedure TFrmAutoComplete.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  ltvAutoComplete.IniConfigLoad( FIniFile );
+  ltvAutoComplete.IniConfigLoad( FIniFile, Self.Name, 'List' );
 end;
 
 procedure TFrmAutoComplete.IniConfigSave;
 begin
-  ltvAutoComplete.IniConfigSave( FIniFile );
+  ltvAutoComplete.IniConfigSave( FIniFile, Self.Name, 'List' );
   inherited IniConfigSave( );
 end;
 
@@ -412,8 +397,8 @@ begin
   Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + FEditCtrl.CharHeight + 2;
   Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
   trmAutoComplete.Enabled := True;
-  Self.ForceShow( True );
-  FEditCtrl.SetFocus;
+  // Self.ForceShow( True );
+  // FEditCtrl.SetFocus;
   Self.ForceShow( False );
 end;
 
@@ -484,6 +469,38 @@ begin
 
     CommandCompare := SubCMD[ c ];
   end;
+end;
+
+procedure TFrmAutoComplete.EditCtrlAdd( AValue: TRichEditEx );
+var
+  OnCntrl: TEditOnCtrl;
+begin
+  OnCntrl := TEditOnCtrl.Create( );
+  OnCntrl.OnKeyDown := AValue.OnKeyDown;
+  OnCntrl.OnKeyPress := AValue.OnKeyPress;
+  OnCntrl.OnKeyUp := AValue.OnKeyUp;
+  OnCntrl.OnDropFile := AValue.OnDropFiles;
+
+  AValue.OnKeyDown := FormKeyDown;
+  AValue.OnKeyPress := FormKeyPress;
+  AValue.OnKeyUp := FormKeyUp;
+  AValue.OnDropFiles := FormDropFile;
+
+  FEditList.Add( AValue, OnCntrl );
+end;
+
+procedure TFrmAutoComplete.EditCtrlRemove( AValue: TRichEditEx );
+var
+  OnCntrl: TEditOnCtrl;
+begin
+  OnCntrl := FEditList.Items[ AValue ];
+  AValue.OnKeyDown := OnCntrl.OnKeyDown;
+  AValue.OnKeyPress := OnCntrl.OnKeyPress;
+  AValue.OnKeyUp := OnCntrl.OnKeyUp;
+  AValue.OnDropFiles := OnCntrl.OnDropFile;
+  OnCntrl.Free( );
+
+  FEditList.Remove( AValue );
 end;
 
 procedure TFrmAutoComplete.FileNameList( AFileName: string );

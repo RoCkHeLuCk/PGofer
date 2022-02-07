@@ -1,4 +1,4 @@
-inherited PGFrameForms: TPGFrameForms
+inherited PGFormsFrame: TPGFormsFrame
   Height = 325
   ExplicitHeight = 325
   inherited grbAbout: TGroupBox
@@ -145,7 +145,10 @@ inherited PGFrameForms: TPGFrameForms
       Top = 188
       Width = 117
       Height = 21
+      BevelInner = bvNone
+      BevelOuter = bvNone
       Style = csDropDownList
+      Color = clSilver
       ItemIndex = 0
       TabOrder = 6
       Text = 'wsNormal'
@@ -178,6 +181,7 @@ inherited PGFrameForms: TPGFrameForms
       Top = 37
       Width = 51
       Height = 21
+      Color = clSilver
       TabOrder = 9
       Text = '0'
       OnKeyUp = EdtAlphaBlendValueKeyUp
@@ -189,6 +193,7 @@ inherited PGFrameForms: TPGFrameForms
       Top = 131
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 10
       OnKeyUp = EdtHeigthKeyUp
       RegExamples = reNone
@@ -199,6 +204,7 @@ inherited PGFrameForms: TPGFrameForms
       Top = 158
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 11
       OnKeyUp = EdtTopKeyUp
       RegExamples = reNone
@@ -209,6 +215,7 @@ inherited PGFrameForms: TPGFrameForms
       Top = 131
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 12
       OnKeyUp = EdtWidthKeyUp
       RegExamples = reNone
@@ -219,6 +226,7 @@ inherited PGFrameForms: TPGFrameForms
       Top = 158
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 13
       OnKeyUp = EdtLeftKeyUp
       RegExamples = reNone

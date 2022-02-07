@@ -40,6 +40,8 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 390
       Height = 43
       Align = alClient
+      BorderWidth = 1
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -70,6 +72,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 390
       Height = 43
       Align = alClient
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -92,7 +95,6 @@ inherited PGLinkFrame: TPGLinkFrame
   inherited pnlItem: TPanel
     Height = 170
     Anchors = []
-    Constraints.MinHeight = 170
     TabOrder = 0
     ExplicitHeight = 170
     object LblFile: TLabel [0]
@@ -156,6 +158,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 0
       OnKeyUp = EdtFileKeyUp
@@ -176,6 +179,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 2
       OnKeyUp = EdtPatameterKeyUp
@@ -186,6 +190,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 3
       OnKeyUp = EdtDiretoryKeyUp
@@ -206,6 +211,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 119
       Height = 21
       Style = csDropDownList
+      Color = clSilver
       ItemIndex = 1
       TabOrder = 5
       Text = 'Normal'
@@ -222,6 +228,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 119
       Height = 21
       Style = csDropDownList
+      Color = clSilver
       ItemIndex = 2
       TabOrder = 6
       Text = 'Normal'
@@ -251,6 +258,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Style = csDropDownList
       Anchors = [akTop, akRight]
+      Color = clSilver
       ItemIndex = 0
       TabOrder = 8
       Text = 'Open'

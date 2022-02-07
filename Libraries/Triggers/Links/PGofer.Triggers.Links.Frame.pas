@@ -7,11 +7,10 @@ uses
   Vcl.Forms, Vcl.Dialogs, Vcl.Controls, Vcl.StdCtrls, Vcl.Graphics,
   Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers.Links, PGofer.Item.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit,
-  PGofer.Forms.AutoComplete;
+  PGofer.Component.Edit, PGofer.Component.RichEdit;
 
 type
-  TPGLinkFrame = class( TPGFrame )
+  TPGLinkFrame = class( TPGItemFrame )
     LblFile: TLabel;
     LblParameter: TLabel;
     LblDirectory: TLabel;
@@ -56,8 +55,6 @@ type
     procedure ckbCaptureClick( Sender: TObject );
   private
     FItem: TPGLink;
-    FFrmAutoCompleteBefore: TFrmAutoComplete;
-    FFrmAutoCompleteAfter: TFrmAutoComplete;
     procedure isFileName( );
     procedure isDirectory( );
   protected
@@ -69,12 +66,15 @@ type
   end;
 
 var
-  PGLinkFrame: TPGFrame;
+  PGLinkFrame: TPGItemFrame;
 
 implementation
 
 uses
-  System.SysUtils, PGofer.Files.Controls, PGofer.Sintatico;
+  System.SysUtils,
+  PGofer.Files.Controls, PGofer.Sintatico,
+  PGofer.Forms.AutoComplete;
+
 {$R *.dfm}
 { TPGFrame1 }
 
@@ -96,15 +96,16 @@ begin
   ckbCapture.Checked := FItem.CaptureMsg;
   EdtScriptBefore.Lines.Text := FItem.ScriptBefor;
   EdtScriptAfter.Lines.Text := FItem.ScriptAfter;
-  FFrmAutoCompleteBefore := TFrmAutoComplete.Create( EdtScriptBefore );
-  FFrmAutoCompleteAfter := TFrmAutoComplete.Create( EdtScriptAfter );
+
+  FrmAutoComplete.EditCtrlAdd( EdtScriptBefore );
+  FrmAutoComplete.EditCtrlAdd( EdtScriptAfter );
 end;
 
-destructor TPGLinkFrame.Destroy;
+destructor TPGLinkFrame.Destroy( );
 begin
+  FrmAutoComplete.EditCtrlRemove( EdtScriptBefore );
+  FrmAutoComplete.EditCtrlRemove( EdtScriptAfter );
   FItem := nil;
-  FFrmAutoCompleteBefore.Free( );
-  FFrmAutoCompleteAfter.Free( );
   inherited Destroy( );
 end;
 

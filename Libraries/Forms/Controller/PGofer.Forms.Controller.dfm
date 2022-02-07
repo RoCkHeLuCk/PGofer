@@ -9,7 +9,7 @@ object FrmController: TFrmController
   Caption = 'Controller'
   ClientHeight = 261
   ClientWidth = 602
-  Color = clBtnFace
+  Color = clGray
   Constraints.MinHeight = 300
   DefaultMonitor = dmDesktop
   ParentFont = True
@@ -34,6 +34,7 @@ object FrmController: TFrmController
     Margins.Right = 0
     Margins.Bottom = 0
     Beveled = True
+    Visible = False
     OnCanResize = SptControllerCanResize
     OnMoved = SptControllerMoved
     ExplicitLeft = 241
@@ -75,6 +76,7 @@ object FrmController: TFrmController
         Align = alClient
         BevelInner = bvNone
         BevelOuter = bvNone
+        Color = clSilver
         LeftButton.DisabledImageIndex = 0
         LeftButton.Enabled = False
         LeftButton.HotImageIndex = 0
@@ -188,6 +190,8 @@ object FrmController: TFrmController
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
+      BorderWidth = 1
+      Color = clSilver
       HideSelection = False
       Indent = 19
       MultiSelect = True
@@ -227,8 +231,10 @@ object FrmController: TFrmController
     Constraints.MinWidth = 417
     ParentBackground = True
     TabOrder = 1
+    Visible = False
     OnMouseWheelDown = PnlFrameMouseWheelDown
     OnMouseWheelUp = PnlFrameMouseWheelUp
+    OnResize = PnlFrameResize
   end
   object PpmAlphaSort: TPopupMenu
     Left = 12

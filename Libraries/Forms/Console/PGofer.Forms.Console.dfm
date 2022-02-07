@@ -6,7 +6,7 @@ object FrmConsole: TFrmConsole
   Caption = 'Console'
   ClientHeight = 80
   ClientWidth = 200
-  Color = clBtnFace
+  Color = clGray
   Constraints.MinHeight = 80
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
@@ -111,20 +111,21 @@ object FrmConsole: TFrmConsole
         ExplicitLeft = 179
         ExplicitHeight = 12
       end
-      object PnlArrastar2: TPanel
+      object ShpDrag: TShape
         AlignWithMargins = True
         Left = 3
         Top = 3
         Width = 174
-        Height = 5
-        Margins.Bottom = 5
+        Height = 7
         Align = alClient
-        BevelOuter = bvNone
-        Color = clBtnShadow
-        ParentBackground = False
-        TabOrder = 0
+        Brush.Color = clSilver
+        Pen.Style = psClear
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
+        ExplicitLeft = 24
+        ExplicitTop = 0
+        ExplicitWidth = 65
+        ExplicitHeight = 65
       end
     end
     object EdtConsole: TRichEditEx
@@ -136,6 +137,7 @@ object FrmConsole: TFrmConsole
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderStyle = bsNone
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16

@@ -1,4 +1,4 @@
-object PGFrame: TPGFrame
+object PGItemFrame: TPGItemFrame
   Left = 0
   Top = 0
   Width = 400
@@ -9,6 +9,9 @@ object PGFrame: TPGFrame
   Margins.Bottom = 0
   Anchors = [akLeft, akTop, akRight]
   Constraints.MinWidth = 400
+  Color = clGray
+  ParentBackground = False
+  ParentColor = False
   TabOrder = 0
   object grbAbout: TGroupBox
     AlignWithMargins = True
@@ -75,6 +78,7 @@ object PGFrame: TPGFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
+      Color = clSilver
       Constraints.MinWidth = 321
       TabOrder = 0
       OnKeyUp = EdtNameKeyUp

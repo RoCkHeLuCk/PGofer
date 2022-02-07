@@ -8,11 +8,10 @@ uses
   Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers.Tasks, PGofer.Item.Frame,
-  PGofer.Forms.AutoComplete,
   PGofer.Component.Edit, PGofer.Component.RichEdit;
 
 type
-  TPGTaskFrame = class( TPGFrame )
+  TPGTaskFrame = class( TPGItemFrame )
     LblTrigger: TLabel;
     CmbTrigger: TComboBox;
     GrbScript: TGroupBox;
@@ -41,7 +40,6 @@ type
       Direction: TUpDownDirection );
   private
     FItem: TPGTask;
-    FFrmAutoComplete: TFrmAutoComplete;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
@@ -51,6 +49,9 @@ type
   end;
 
 implementation
+
+uses
+  PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
 { TPGTaskFrame }
@@ -63,12 +64,12 @@ begin
   EdtScript.Lines.Text := FItem.Script;
   EdtRepeat.Text := FItem.Repeats.ToString;
   EdtOccurrence.Text := FItem.Occurrence.ToString;
-  FFrmAutoComplete := TFrmAutoComplete.Create( EdtScript );
+  FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
-destructor TPGTaskFrame.Destroy;
+destructor TPGTaskFrame.Destroy( );
 begin
-  FFrmAutoComplete.Free( );
+  FrmAutoComplete.EditCtrlRemove( EdtScript );
   FItem := nil;
   inherited Destroy( );
 end;

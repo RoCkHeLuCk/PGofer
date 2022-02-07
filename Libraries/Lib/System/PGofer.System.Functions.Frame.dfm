@@ -1,4 +1,4 @@
-inherited PGFrameFunction: TPGFrameFunction
+inherited PGFunctionFrame: TPGFunctionFrame
   Height = 196
   ExplicitHeight = 196
   object sptScript: TSplitter [0]
@@ -12,12 +12,7 @@ inherited PGFrameFunction: TPGFrameFunction
     ExplicitLeft = -8
     ExplicitTop = 111
   end
-  inherited grbAbout: TGroupBox
-    Top = 126
-    TabOrder = 3
-    ExplicitTop = 126
-  end
-  object GrbScript: TGroupBox [2]
+  object GrbScript: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
     Top = 35
@@ -33,6 +28,8 @@ inherited PGFrameFunction: TPGFrameFunction
       Width = 390
       Height = 63
       Align = alClient
+      BorderWidth = 1
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -16
@@ -47,8 +44,14 @@ inherited PGFrameFunction: TPGFrameFunction
       OnKeyUp = EdtScriptKeyUp
     end
   end
+  inherited grbAbout: TGroupBox
+    Top = 126
+    TabOrder = 2
+    ExplicitTop = 126
+  end
   inherited sptAbout: TPanel
     Top = 189
+    TabOrder = 3
     ExplicitTop = 189
   end
 end

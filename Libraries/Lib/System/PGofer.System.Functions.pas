@@ -116,7 +116,7 @@ end;
 
 procedure TPGFunction.Frame( AParent: TObject );
 begin
-  TPGFrameFunction.Create( Self, AParent );
+  TPGFunctionFrame.Create( Self, AParent );
 end;
 
 class function TPGFunction.GetImageIndex: Integer;
