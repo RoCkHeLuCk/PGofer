@@ -168,7 +168,7 @@ begin
   end;
 
   TextHeight := IndexMaxLength * EdtScript.CharHeight;
-  Self.ClientHeight := TextHeight + 10;
+  Self.ClientHeight := TextHeight + EdtScript.Font.Size;
 
   EdtScript.Perform( WM_VSCROLL, SB_TOP and SB_LEFT, 0 );
 end;
