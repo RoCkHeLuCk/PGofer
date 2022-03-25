@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.Key.Controls;
+  PGofer.Sintatico, PGofer.Key.Controls, PGofer.Key.Post;
 
 { TPGRegistry }
 
@@ -35,8 +35,11 @@ begin
 end;
 
 procedure TPGKey.ExecMacro( Text: string; Delay: Cardinal );
+var
+  KeyPost: TKeyPost;
 begin
-  KeyMacroPress( Text, Delay );
+  // KeyMacroPress( Text, Delay );
+  KeyPost := TKeyPost.Create( Text, Delay );
 end;
 
 function TPGKey.FromChar( Key: Char ): SmallInt;

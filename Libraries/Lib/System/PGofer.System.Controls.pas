@@ -18,6 +18,7 @@ function SystemGetDateTimeNow( Format: string ): string;
 function SystemGetWindowsTextFromPoint( ): string;
 function SystemDialogMessage( Text: string ): Boolean;
 function SystemMonitorPower( OnOff: Boolean ): NativeInt;
+function SystemGetControlFocus( ): HDWP;
 
 // QueryPerformanceCounter(StartTime);
 // QueryPerformanceFrequency(Frequency);
@@ -26,7 +27,8 @@ implementation
 
 uses
   Vcl.Graphics,
-  System.UITypes, Vcl.Dialogs, Vcl.Forms;
+  System.UITypes, Vcl.Dialogs, Vcl.Forms,
+  PGofer.Files.Controls;
 
 function SystemShutDown( Off: Cardinal ): Boolean;
 var
@@ -153,6 +155,27 @@ begin
   end
   else
     Result := SendMessage( Application.Handle, $0112, SC_MONITORPOWER, -1 );
+end;
+
+function SystemGetControlFocus( ): HDWP;
+var
+  Wnd: HWND;
+  TId, PId: DWORD;
+begin
+  Result := GetFocus( );
+  if Result = 0 then
+  begin
+    Wnd := GetForegroundWindow( );
+    if Wnd <> 0 then
+    begin
+      TId := GetWindowThreadProcessId( Wnd, PId );
+      if AttachThreadInput( GetCurrentThreadId, TId, True ) then
+      begin
+        Result := GetFocus( );
+        AttachThreadInput( GetCurrentThreadId, TId, False );
+      end;
+    end;
+  end;
 end;
 
 end.

@@ -62,6 +62,8 @@ type
   TPGLinkDeclare = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
+  published
+    procedure Auto( ADir: string );
   end;
 
   TPGLinkMirror = class( TPGItemMirror )
@@ -79,7 +81,9 @@ uses
   System.SysUtils,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
+  PGofer.Key.Controls,
   PGofer.Files.Controls,
+  PGofer.Files.WinShell,
   PGofer.Process.Controls,
   PGofer.Triggers.Links.Frame,
   PGofer.Triggers.Links.Thread,
@@ -226,45 +230,105 @@ var
   Link: TPGLink;
 begin
   Gramatica.TokenList.GetNextToken;
-  Id := IdentificadorLocalizar( Gramatica );
-  if ( not Assigned( Id ) ) or ( Id is TPGLink ) then
+  if Gramatica.TokenList.Token.Classe = cmdDot then
   begin
-    Titulo := Gramatica.TokenList.Token.Lexema;
-    Quantidade := LerParamentros( Gramatica, 1, 7 );
-    if not Gramatica.Erro then
+    Gramatica.TokenList.GetNextToken;
+    Self.RttiExecute( Gramatica, Self );
+  end else begin
+    Id := IdentificadorLocalizar( Gramatica );
+    if ( not Assigned( Id ) ) or ( Id is TPGLink ) then
     begin
-      if ( not Assigned( Id ) ) then
-        Link := TPGLink.Create( Titulo, nil )
-      else
-        Link := TPGLink( Id );
+      Titulo := Gramatica.TokenList.Token.Lexema;
+      Quantidade := LerParamentros( Gramatica, 1, 7 );
+      if not Gramatica.Erro then
+      begin
+        if ( not Assigned( Id ) ) then
+          Link := TPGLink.Create( Titulo, nil )
+        else
+          Link := TPGLink( Id );
 
-      if Quantidade >= 8 then
-        Link.ScriptAfter := Gramatica.Pilha.Desempilhar( 0 );
+        if Quantidade >= 8 then
+          Link.ScriptAfter := Gramatica.Pilha.Desempilhar( 0 );
 
-      if Quantidade >= 7 then
-        Link.ScriptBefor := Gramatica.Pilha.Desempilhar( 0 );
+        if Quantidade >= 7 then
+          Link.ScriptBefor := Gramatica.Pilha.Desempilhar( 0 );
 
-      if Quantidade = 6 then
-        Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
+        if Quantidade = 6 then
+          Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
 
-      if Quantidade >= 5 then
-        Link.Operation := Gramatica.Pilha.Desempilhar( 0 );
+        if Quantidade >= 5 then
+          Link.Operation := Gramatica.Pilha.Desempilhar( 0 );
 
-      if Quantidade >= 4 then
-        Link.State := Gramatica.Pilha.Desempilhar( 1 );
+        if Quantidade >= 4 then
+          Link.State := Gramatica.Pilha.Desempilhar( 1 );
 
-      if Quantidade >= 3 then
-        Link.Directory := Gramatica.Pilha.Desempilhar( '' );
+        if Quantidade >= 3 then
+          Link.Directory := Gramatica.Pilha.Desempilhar( '' );
 
-      if Quantidade >= 2 then
-        Link.Parameter := Gramatica.Pilha.Desempilhar( '' );
+        if Quantidade >= 2 then
+          Link.Parameter := Gramatica.Pilha.Desempilhar( '' );
 
-      if Quantidade >= 1 then
-        Link.FileName := Gramatica.Pilha.Desempilhar( '' );
+        if Quantidade >= 1 then
+          Link.FileName := Gramatica.Pilha.Desempilhar( '' );
+      end;
+    end
+    else
+      Gramatica.ErroAdd( 'Identificador esperado ou existente.' );
+  end;
+end;
+
+procedure TPGLinkDeclare.Auto( ADir: string );
+  procedure SearchFile( ASubDir: string );
+  var
+    SearchRec: TSearchRec;
+    Link: TPGLink;
+    Name, Ext: string;
+    Shell : TShellLinkInfo;
+    c: Integer;
+  begin
+    {$WARN SYMBOL_PLATFORM OFF}
+    ASubDir := IncludeTrailingBackslash( ASubDir );
+    {$WARN SYMBOL_PLATFORM ON}
+    c := FindFirst( ASubDir + '*', faDirectory or faAnyFile, SearchRec );
+    while ( c = 0 ) do
+    begin
+      if ( SearchRec.Attr and faDirectory ) = 0 then
+      begin
+        Ext := ExtractFileExt( SearchRec.Name );
+        if StrInSet( Ext, ['.exe','.lnk','.url'] ) then
+        begin
+          Name := FileExtractOnlyFileName( SearchRec.Name );
+          Name := TPGItemMirror.TranscendName( Name, nil );
+          Link := TPGLink.Create( Name, nil );
+
+          if Ext = '.lnk' then
+          begin
+            Shell := GetShellLinkInfo( ASubDir + SearchRec.Name);
+            Link.FFile := FileUnExpandPath( Shell.PathName );
+            if Link.GetFileExist then
+            begin
+              Link.FParameter := Shell.Arguments;
+              Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
+              Link.FState := Shell.ShowCmd;
+            end else begin
+              Link.Free();
+            end;
+          end else begin
+            Link.FFile := FileUnExpandPath( ASubDir + SearchRec.Name );
+          end;
+        end;
+      end else begin
+        if ( SearchRec.Name <> '.' ) and ( SearchRec.Name <> '..' ) then
+          SearchFile( ASubDir + SearchRec.Name + '\' );
+      end;
+
+      c := FindNext( SearchRec );
     end;
-  end
-  else
-    Gramatica.ErroAdd( 'Identificador esperado ou existente.' );
+    FindClose( SearchRec );
+  end;
+
+begin
+  SearchFile( FileExpandPath( ADir ) );
 end;
 
 { TPGLinkMirror }

@@ -42,7 +42,7 @@ implementation
 uses
   {$WARN UNIT_PLATFORM OFF}
   Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
-  WinApi.ShellApi, WinApi.ShlwApi,
+  WinApi.ShellApi, WinApi.ShlwApi, WinApi.ActiveX, WinApi.ShlObj,
   System.SysUtils, System.Classes;
 {$WARN UNIT_PLATFORM ON}
 

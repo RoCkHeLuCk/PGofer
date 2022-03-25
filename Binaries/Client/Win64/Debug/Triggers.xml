@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">344</Occurrence>
+    <Occurrence Type="Cardinal">349</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">Function global teste();
 begin
-  Key.ExecMacro('123 - teste dé autokeys - !@#$');
+  Key.ExecMacro('123 - teste dé autokeys ñ - !@#$ðßé®þ©.', 10);
 end;
+
+Link.Auto('C:\ProgramData\Microsoft\Windows\Start Menu\Programs');
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>

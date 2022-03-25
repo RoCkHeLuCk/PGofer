@@ -10,6 +10,7 @@ function KeyGetPress( Key: Word ): Boolean;
 function KeyVirtualToStr( KeyCode: Word ): string;
 function RemoveCharSpecial( Nome: string; Todos: Boolean ): string;
 function PassWordGenerator( Up, Number, CharEsp: Boolean; Size: Word ): string;
+function StrInSet( const S: string; const StringSet: array of string): Boolean;
 
 implementation
 
@@ -22,6 +23,10 @@ const
   VKUP = KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP;
   CHARSHIFT = '~!@#$%^&*()_+{}|:<>?"';
   CHARSPACE = '`~^"' + #39;
+
+  ComAcento = 'ŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖÙÚÛÜİàáâãäåçèéêëìíîïñòóôõöùúûüıÿ';
+  SemAcento = 'SZszYAAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy';
+
   // ----------------------------------------------------------------------------//
   procedure PressKeys( Key: Char; Shift, Alt, Space: Boolean );
   var
@@ -67,7 +72,7 @@ var
   Space: Boolean;
 begin
   GetKeyboardState( KeyState );
-  Capslook := KeyState[ VK_CAPITAL ] = 1;
+  Capslook := ( KeyState[ VK_CAPITAL ] = 1 );
   d := length( Texto );
   sleep( 100 );
   for c := 1 to d do
@@ -464,6 +469,21 @@ begin
     begin
       Result := Result + Char( K );
       Inc( c );
+    end;
+  end;
+end;
+
+function StrInSet( const S: string; const StringSet: array of string): Boolean;
+var
+  T: String;
+begin
+  Result := False;
+  for T in StringSet do
+  begin
+    if (S = T) then
+    begin
+      Result := True;
+      Break;
     end;
   end;
 end;
