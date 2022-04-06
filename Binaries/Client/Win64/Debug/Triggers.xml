@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">349</Occurrence>
+    <Occurrence Type="Cardinal">356</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">Function global teste();
 begin

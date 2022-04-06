@@ -2,7 +2,6 @@ unit PGofer.Key.Controls;
 
 interface
 
-procedure KeyMacroPress( Texto: string; Delay: Cardinal );
 procedure KeyPressAllUp( );
 procedure KeySetPress( Key: Word; Push: Boolean );
 function CharToKey( Key: Char ): SmallInt;
@@ -16,79 +15,6 @@ implementation
 
 uses
   Winapi.Windows, System.SysUtils, System.Character;
-
-procedure KeyMacroPress( Texto: string; Delay: Cardinal );
-const
-  VKDOWN = KEYEVENTF_EXTENDEDKEY or 0;
-  VKUP = KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP;
-  CHARSHIFT = '~!@#$%^&*()_+{}|:<>?"';
-  CHARSPACE = '`~^"' + #39;
-
-  ComAcento = 'äéöûü¿¡¬√ƒ≈«»… ÀÃÕŒœ–—“”‘’÷Ÿ⁄€‹›‡·‚„‰ÂÁËÈÍÎÏÌÓÔÒÚÛÙıˆ˘˙˚¸˝ˇ';
-  SemAcento = 'SZszYAAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy';
-
-  // ----------------------------------------------------------------------------//
-  procedure PressKeys( Key: Char; Shift, Alt, Space: Boolean );
-  var
-    smallKeysScan: SmallInt;
-    mpVirtuals: Cardinal;
-  begin
-    smallKeysScan := VkKeyScan( Key );
-    mpVirtuals := MapVirtualKey( Cardinal( Key ), 0 );
-
-    if Shift then
-      keybd_event( VK_SHIFT, 1, VKDOWN, 0 );
-
-    if Alt then
-      keybd_event( VK_MENU, 1, VKDOWN, 0 );
-
-    sleep( Delay );
-    keybd_event( smallKeysScan, mpVirtuals, VKDOWN, 0 );
-    sleep( Delay );
-    keybd_event( smallKeysScan, mpVirtuals, VKUP, 0 );
-    sleep( Delay );
-
-    if Space then
-    begin
-      keybd_event( VK_SPACE, 1, VKDOWN, 0 );
-      keybd_event( VK_SPACE, 1, VKUP, 0 );
-    end;
-
-    if Shift then
-      keybd_event( VK_SHIFT, 1, VKUP, 0 );
-
-    if Alt then
-      keybd_event( VK_MENU, 1, VKUP, 0 );
-
-  end;
-
-var
-  Key: Char;
-  c, d: Cardinal;
-  KeyState: TKeyboardState;
-  Capslook: Boolean;
-  Shift: Boolean;
-  Alt: Boolean;
-  Space: Boolean;
-begin
-  GetKeyboardState( KeyState );
-  Capslook := ( KeyState[ VK_CAPITAL ] = 1 );
-  d := length( Texto );
-  sleep( 100 );
-  for c := 1 to d do
-  begin
-    Key := Texto[ c ];
-    if Key <> #13 then
-    begin
-      Shift := ( ( Key.IsLower and Capslook ) or
-        ( Key.IsUpper and not Capslook ) or ( pos( Key, CHARSHIFT ) <> 0 ) );
-      Alt := False;
-      Space := pos( Key, CHARSPACE ) <> 0;
-      PressKeys( Key, Shift, Alt, Space );
-    end;
-  end;
-
-end;
 
 procedure KeyPressAllUp( );
 var

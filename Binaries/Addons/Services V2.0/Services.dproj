@@ -143,8 +143,8 @@
         <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>37</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeluCk&apos;s;FileDescription=Services;FileVersion=1.0.0.37;InternalName=TFrmServices;LegalCopyright=FreeWare;LegalTrademarks=;OriginalFilename=Services;ProductName=Services;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>41</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeluCk&apos;s;FileDescription=Services;FileVersion=1.0.0.41;InternalName=TFrmServices;LegalCopyright=FreeWare;LegalTrademarks=;OriginalFilename=Services;ProductName=Services;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Icon_MainIcon>..\..\..\Documents\Imagens\Icons\Services.ico</Icon_MainIcon>
         <BT_BuildType>Debug</BT_BuildType>

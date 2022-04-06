@@ -23,7 +23,6 @@ type
   public
     constructor Create( AText: string; ADelay: Cardinal;
       AHandle: HWND = 0 ); overload;
-
     destructor Destroy( ); override;
   end;
 
@@ -39,7 +38,7 @@ constructor TKeyPost.Create( AText: string; ADelay: Cardinal;
   AHandle: HWND = 0 );
 begin
   inherited Create( False );
-  Self.FreeOnTerminate := True;
+  Self.FreeOnTerminate := False;
   Self.Priority := tpIdle;
   Self.FDelay := ADelay;
   Self.FText := AText;
@@ -48,6 +47,7 @@ end;
 
 destructor TKeyPost.Destroy( );
 begin
+  FHandle := 0;
   FDelay := 0;
   FText := '';
   inherited;
@@ -140,7 +140,13 @@ begin
   numStr := Format( '%4.4d', [ Ord( AKey ) ] );
   Self.Event( VK_MENU, True, False );
   for C := 1 to Length( numStr ) do
-    Self.Post( VK_NUMPAD0 + Ord( numStr[ C ] ) - Ord( '0' ), [ ], False );
+  begin
+    if Self.FHandle > 0 then
+      Self.PostHWND( FHandle, VK_NUMPAD0 + Ord( numStr[ C ] ) - Ord( '0' ),
+        [ ], False )
+    else
+      Self.Post( VK_NUMPAD0 + Ord( numStr[ C ] ) - Ord( '0' ), [ ], False );
+  end;
   Self.Event( VK_MENU, False, False );
 end;
 
@@ -230,7 +236,10 @@ begin
       end;
       Mask := Mask shl 1;
     end;
-    Self.Post( VCode, Flags, False );
+    if Self.FHandle > 0 then
+      Self.PostHWND( FHandle, VCode, Flags, False )
+    else
+      Self.Post( VCode, Flags, False );
   end;
 end;
 

@@ -38,8 +38,9 @@ procedure TPGKey.ExecMacro( Text: string; Delay: Cardinal );
 var
   KeyPost: TKeyPost;
 begin
-  // KeyMacroPress( Text, Delay );
   KeyPost := TKeyPost.Create( Text, Delay );
+  KeyPost.WaitFor( );
+  KeyPost.Free( );
 end;
 
 function TPGKey.FromChar( Key: Char ): SmallInt;

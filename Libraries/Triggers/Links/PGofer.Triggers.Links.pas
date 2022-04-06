@@ -24,6 +24,7 @@ type
     class var FImageIndex: Integer;
     function GetDirExist( ): Boolean;
     function GetFileExist( ): Boolean;
+    function GetFileRepeat( ): Boolean;
     function GetScriptAfter: string;
     function GetScriptBefor: string;
     procedure SetScriptAfter( AValue: string );
@@ -51,6 +52,7 @@ type
     property ScriptBefor: string read GetScriptBefor write SetScriptBefor;
     property ScriptAfter: string read GetScriptAfter write SetScriptAfter;
     property isFileExist: Boolean read GetFileExist;
+    property isFileRepeat: Boolean read GetFileRepeat;
     property isDirExist: Boolean read GetDirExist;
     property CanExecute: Boolean read FCanExecute write FCanExecute;
     property isRunning: Boolean read GetIsRunning;
@@ -138,25 +140,44 @@ end;
 
 function TPGLink.GetIsValid( ): Boolean;
 begin
-  Result := GetFileExist;
+  Result := GetFileExist( );
 end;
 
-function TPGLink.GetFileExist: Boolean;
+function TPGLink.GetFileExist( ): Boolean;
 begin
   Result := FileExists( FileExpandPath( FFile ) );
 end;
 
-class function TPGLink.GetImageIndex: Integer;
+function TPGLink.GetFileRepeat( ): Boolean;
+var
+  Item : TPGItem;
+  Text : String;
+begin
+  Result := False;
+  Text := FileUnExpandPath(Self.FFile);
+  for Item in TPGLink.GlobList do
+  begin
+    if SameText(FileUnExpandPath(TPGLink(Item).FFile),Text)
+    and SameText(TPGLink(Item).FParameter, Self.FParameter)
+    and (Item <> Self) then
+    begin
+      Result := True;
+      Break;
+    end;
+  end;
+end;
+
+class function TPGLink.GetImageIndex( ): Integer;
 begin
   Result := FImageIndex;
 end;
 
-function TPGLink.GetScriptAfter: string;
+function TPGLink.GetScriptAfter( ): string;
 begin
   Result := FScriptAfter.Text;
 end;
 
-function TPGLink.GetScriptBefor: string;
+function TPGLink.GetScriptBefor( ): string;
 begin
   Result := FScriptBefor.Text;
 end;
@@ -305,17 +326,15 @@ procedure TPGLinkDeclare.Auto( ADir: string );
           begin
             Shell := GetShellLinkInfo( ASubDir + SearchRec.Name);
             Link.FFile := FileUnExpandPath( Shell.PathName );
-            if Link.GetFileExist then
-            begin
-              Link.FParameter := Shell.Arguments;
-              Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
-              Link.FState := Shell.ShowCmd;
-            end else begin
-              Link.Free();
-            end;
+            Link.FParameter := Shell.Arguments;
+            Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
+            Link.FState := Shell.ShowCmd;
           end else begin
             Link.FFile := FileUnExpandPath( ASubDir + SearchRec.Name );
           end;
+
+          if (not Link.isFileExist) or (Link.isFileRepeat) then
+            Link.Free;
         end;
       end else begin
         if ( SearchRec.Name <> '.' ) and ( SearchRec.Name <> '..' ) then
