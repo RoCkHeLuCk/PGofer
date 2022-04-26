@@ -10,11 +10,11 @@ uses
 type
   TListViewEx = class( TListView )
   private
-    // FSort: Boolean;
+    FSort: Boolean;
     FOwnsObjectsData: Boolean;
     FColumnAlphaSort: Boolean;
   protected
-    // procedure ColClick( Column: TListColumn ); override;
+    procedure ColClick( Column: TListColumn ); override;
     procedure DoEndDrag( Target: TObject; X, Y: Integer ); override;
     procedure Delete( Item: TListItem ); override;
     procedure MouseDown( Button: TMouseButton; Shift: TShiftState;
@@ -47,53 +47,72 @@ begin
   RegisterComponents( 'PGofer', [ TListViewEx ] );
 end;
 
+function AZSort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
+var
+   s1, s2: string;
+   f1, f2: Extended;
+   d1, d2: TDateTime;
+begin
+  if Assigned( Item1 ) and Assigned( Item2 ) then
+  begin
+    if lParam < 0 then
+    begin
+        s1 := Item1.Caption;
+        s2 := Item2.Caption;
+    end else begin
+        s1 := Item1.SubItems[ lParam ];
+        s2 := Item2.SubItems[ lParam ];
+    end;
+
+    if (TryStrToFloat(s1,f1) and TryStrToFloat(s2,f2)) then
+    begin
+       if f1 > f2 then
+         Result := 1
+       else
+         if f1 = f2 then
+           Result := 0
+         else
+           Result := -1;
+    end else begin
+       if (TryStrToDateTime(s1,d1) and TryStrToDateTime(s2,d2)) then
+       begin
+          if d1 > d2 then
+            Result := 1
+          else
+            if d1 = d2 then
+              Result := 0
+            else
+              Result := -1;
+       end else
+         Result := lstrcmp( PChar( s1 ), PChar( s2 ) );
+    end;
+  end else
+    Result := 0;
+end;
+
+function ZASort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
+begin
+   Result := AZSort(Item1, Item2, lParam) * -1;
+end;
+
 { TListViewEx }
-{
-  procedure TListViewEx.ColClick( Column: TListColumn );
-
-  function AZSort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
-  begin
-  if Assigned(Item1) and Assigned(Item2)
-  and (Item1 is TListItem) and (Item2 is TListItem) then
-  begin
-  if lParam < 0 then
-  Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) )
-  else
-  Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
-  PChar( Item2.SubItems[ lParam ] ) );
-  end else
-  Result := 0;
-  end;
-
-  function ZASort( Item1, Item2: TListItem; lParam: Integer ): Integer; stdcall;
-  begin
-  if Assigned(Item1) and Assigned(Item2) then
-  begin
-  if lParam < 0 then
-  Result := lstrcmp( PChar( Item1.Caption ), PChar( Item2.Caption ) ) * -1
-  else
-  Result := lstrcmp( PChar( Item1.SubItems[ lParam ] ),
-  PChar( Item2.SubItems[ lParam ] ) ) * -1;
-  end else
-  Result := 0;
-  end;
-
-  begin
-
+procedure TListViewEx.ColClick( Column: TListColumn );
+begin
   FSort := not FSort;
+
   if ( not Assigned( Self.OnCompare ) ) or ( FColumnAlphaSort ) then
   begin
-  if FSort then
-  ListView_SortItems( Self.Handle, @AZSort, Column.Index - 1 )
-  else
-  ListView_SortItems( Self.Handle, @ZASort, Column.Index - 1 );
+    if FSort then
+      Self.CustomSort( @AZSort, Column.Index-1 )
+    else
+      Self.CustomSort( @ZASort, Column.Index-1 );
   end
   else
-  Self.AlphaSort;
+    Self.AlphaSort();
 
   inherited ColClick( Column );
-  end;
-}
+end;
+
 procedure TListViewEx.DoEndDrag( Target: TObject; X, Y: Integer );
 begin
   Self.Repaint;
@@ -141,7 +160,7 @@ begin
     Aux.Assign( SourceItem[ Count ] );
     Aux.Data := SourceItem[ Count ].Data;
     SourceItem[ Count ].Data := nil;
-    SourceItem[ Count ].Free;
+    SourceItem[ Count ].Free();
   end;
 
   inherited DragDrop( Source, X, Y );

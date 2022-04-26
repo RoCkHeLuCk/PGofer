@@ -58,7 +58,7 @@ object FrmAutoComplete: TFrmAutoComplete
     RowSelect = True
     PopupMenu = ppmAutoComplete
     ShowWorkAreas = True
-    SortType = stBoth
+    SortType = stText
     TabOrder = 0
     ViewStyle = vsReport
     OnCompare = ltvAutoCompleteCompare

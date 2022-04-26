@@ -143,8 +143,8 @@
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <UWP_DelphiLogo44>..\..\..\Documents\Imagens\Launcher 44px.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>..\..\..\Documents\Imagens\Launcher 150px.png</UWP_DelphiLogo150>
-        <VerInfo_Build>37</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.37;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>42</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.42;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -183,27 +183,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 150px.png" Configuration="Release" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 44px.png" Configuration="Release" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 44px.png" Configuration="Release" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win64">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Launcher.dpr" Configuration="Debug" Class="ProjectFile">
                     <Platform Name="Win32">
                         <RemoteDir>.\</RemoteDir>
@@ -214,6 +193,27 @@
                     <Platform Name="Win64">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo150x150.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 44px.png" Configuration="Release" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win64">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo44x44.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 150px.png" Configuration="Release" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 44px.png" Configuration="Release" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

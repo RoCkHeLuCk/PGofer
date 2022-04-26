@@ -39,6 +39,7 @@ type
       X, Y: Integer );
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
+    procedure EdtScriptKeyPress(Sender: TObject; var Key: Char);
   private
     FMouse: TPoint;
     FHotKey_FrmPGofer: ATOM;
@@ -204,6 +205,14 @@ begin
           Self.Hide;
         end;
     end;
+  end;
+end;
+
+procedure TFrmPGofer.EdtScriptKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (EdtScript.Text = '') and CharInSet(Key,['~','`','''','"','^']) then
+  begin
+    Key := #0;
   end;
 end;
 

@@ -340,33 +340,21 @@ end;
 
 function RemoveCharSpecial( Nome: string; Todos: Boolean ): string;
 const
-  ComAcento = 'ŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖÙÚÛÜİàáâãäåçèéêëìíîïñòóôõöùúûüıÿ';
-  SemAcento = 'SZszYAAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy';
-  Simbolos = ' "!"#$%&' + #39 +
-    '()*+,-_./:;<=>?@[\]^`{|}{~€‚ƒ„…†‡ˆ‰‹Œ‘’“”•–—˜™›œ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÆæŞß×Øğ÷øş';
-
+  ComAcento = ' ŠšŸÀÁÂÃÄÅÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖÙÚÛÜİàáâãäåçèéêëìíîïñòóôõöùúûüıÿ';
+  SemAcento = '_SZszYAAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy';
 var
   c, d: Integer;
-  Caracteres: string;
 begin
-  // todos os caracteres ou so acentos
-  if Todos then
-    Caracteres := ComAcento + Simbolos
-  else
-    Caracteres := ComAcento;
-
-  // localizar substituir ou remover
   c := length( Nome );
   while c > 0 do
   begin
-    d := pos( Nome[ c ], Caracteres );
-    if d <> 0 then
-    begin
-      if d <= length( SemAcento ) then
-        Nome[ c ] := SemAcento[ d ]
-      else
-        Delete( Nome, c, 1 );
-    end;
+    d := pos( Nome[ c ], ComAcento );
+    if d > 0 then
+      Nome[ c ] := SemAcento[ d ];
+
+    if Todos
+    and (not CharInSet(Nome[c],['0'..'9','A'..'Z','_','a'..'z'])) then
+       Delete( Nome, c, 1 );
     dec( c );
   end;
 

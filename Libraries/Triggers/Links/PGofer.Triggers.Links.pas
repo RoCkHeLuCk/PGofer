@@ -65,7 +65,7 @@ type
   public
     procedure Execute( Gramatica: TGramatica ); override;
   published
-    procedure Auto( ADir: string );
+    procedure Auto( ADir: string; AMask: string );
   end;
 
   TPGLinkMirror = class( TPGItemMirror )
@@ -150,18 +150,18 @@ end;
 
 function TPGLink.GetFileRepeat( ): Boolean;
 var
-  Item : TPGItem;
-  Text : String;
+  Item: TPGItem;
+  Text: string;
 begin
   Result := False;
-  Text := FileUnExpandPath(Self.FFile);
+  Text := FileUnExpandPath( Self.FFile );
   for Item in TPGLink.GlobList do
   begin
-    if SameText(FileUnExpandPath(TPGLink(Item).FFile),Text)
-    and SameText(TPGLink(Item).FParameter, Self.FParameter)
-    and (Item <> Self) then
+    if SameText( FileUnExpandPath( TPGLink( Item ).FFile ), Text ) and
+      SameText( TPGLink( Item ).FParameter, Self.FParameter ) and ( Item <> Self )
+    then
     begin
-      Result := True;
+      Result := true;
       Break;
     end;
   end;
@@ -298,13 +298,13 @@ begin
   end;
 end;
 
-procedure TPGLinkDeclare.Auto( ADir: string );
+procedure TPGLinkDeclare.Auto( ADir: string; AMask: string );
   procedure SearchFile( ASubDir: string );
   var
     SearchRec: TSearchRec;
     Link: TPGLink;
     Name, Ext: string;
-    Shell : TShellLinkInfo;
+    Shell: TShellLinkInfo;
     c: Integer;
   begin
     {$WARN SYMBOL_PLATFORM OFF}
@@ -316,15 +316,15 @@ procedure TPGLinkDeclare.Auto( ADir: string );
       if ( SearchRec.Attr and faDirectory ) = 0 then
       begin
         Ext := ExtractFileExt( SearchRec.Name );
-        if StrInSet( Ext, ['.exe','.lnk','.url'] ) then
+        if pos( Ext, AMask ) > 0 then
         begin
-          Name := FileExtractOnlyFileName( SearchRec.Name );
-          Name := TPGItemMirror.TranscendName( Name, nil );
-          Link := TPGLink.Create( Name, nil );
+          name := FileExtractOnlyFileName( SearchRec.Name );
+          name := TPGItemMirror.TranscendName( name, nil );
+          Link := TPGLink.Create( name, nil );
 
           if Ext = '.lnk' then
           begin
-            Shell := GetShellLinkInfo( ASubDir + SearchRec.Name);
+            Shell := GetShellLinkInfo( ASubDir + SearchRec.Name );
             Link.FFile := FileUnExpandPath( Shell.PathName );
             Link.FParameter := Shell.Arguments;
             Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
@@ -333,7 +333,7 @@ procedure TPGLinkDeclare.Auto( ADir: string );
             Link.FFile := FileUnExpandPath( ASubDir + SearchRec.Name );
           end;
 
-          if (not Link.isFileExist) or (Link.isFileRepeat) then
+          if ( not Link.isFileExist ) or ( Link.isFileRepeat ) then
             Link.Free;
         end;
       end else begin
