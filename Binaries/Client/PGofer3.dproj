@@ -106,7 +106,7 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Tool to assist and control the computer;FileVersion=3.0.0.1;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer;OriginalFilename=PGofer.exe;ProgramID=PGofer V3.0;ProductName=HeLuCk&apos;s PGofer 3;ProductVersion=3.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
-        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <Manifest_File>..\..\pgofer.manifest</Manifest_File>
         <Debugger_RunParams>/Duplicate</Debugger_RunParams>
         <Icon_MainIcon>..\..\Documents\Imagens\PGofer Icon.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>..\..\Documents\Imagens\Logo 44px.png</UWP_DelphiLogo44>
@@ -116,8 +116,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <AppDPIAwarenessMode>system</AppDPIAwarenessMode>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <AppExecutionLevelUIAccess>true</AppExecutionLevelUIAccess>
-        <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -164,8 +162,8 @@
         <AppExecutionLevelUIAccess>true</AppExecutionLevelUIAccess>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>58</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.58;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>68</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.68;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
         <VerInfo_Debug>false</VerInfo_Debug>
         <VerInfo_PreRelease>false</VerInfo_PreRelease>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -314,12 +312,6 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win64\Debug\PGofer3.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>PGofer3.rsm</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Win64\Debug\PGofer3.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>PGofer3.exe</RemoteName>
@@ -351,6 +343,12 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="Win32\Debug\PGofer3.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>PGofer3.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
@@ -358,22 +356,16 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win64">
-                        <RemoteName>PGofer3.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="Win32\Debug\PGofer3.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>PGofer3.exe</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo150x150.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>PGofer3.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
