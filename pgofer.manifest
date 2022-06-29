@@ -3,7 +3,7 @@
 
 	<assemblyIdentity 
 		type="win32" 
-		name="HeLuCks.rock.PGofer" 
+		name="HeLuCks.RoCk.PGofer" 
 		version="6.0.0.0" 
 		processorArchitecture="*" 
 		publicKeyToken="0000000000000000"
@@ -44,7 +44,8 @@
 		<security>
 
 			<requestedPrivileges>
-				<requestedExecutionLevel level="asInvoker" uiAccess="false"/>
+				<!--asInvoker, highestAvailable, requireAdministrator-->
+				<requestedExecutionLevel level="highestAvailable" uiAccess="false"/>
 			</requestedPrivileges>
 
 			<applicationRequestMinimum>
