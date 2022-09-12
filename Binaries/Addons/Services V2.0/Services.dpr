@@ -15,6 +15,6 @@ uses
 begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
-    Application.CreateForm( TFrmServices, FrmServices );
+    Application.CreateForm(TFrmServices, FrmServices);
     Application.Run;
 end.

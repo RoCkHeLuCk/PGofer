@@ -24,7 +24,12 @@ function ServiceSetDesciption( Machine, Service, Description: string ): Boolean;
 implementation
 
 uses
-  WinApi.Windows, WinApi.WinSvc, System.SysUtils;
+  WinApi.Windows, WinApi.WinSvc,
+  System.SysUtils, System.Win.Registry;
+
+const
+  REG_SERVICES_LOCATION =
+    'SYSTEM\CurrentControlSet\Services\';
 
 function ServiceStatusToAccess( Status: Cardinal ): string;
 begin
@@ -218,6 +223,7 @@ end;
 function ServiceSetConfig( Machine, Service: string; Config: Byte ): Boolean;
 var
   sc_Machie, sc_Service: SC_Handle;
+  Reg: TRegistry;
 begin
   Result := False;
   // abre a maquina
@@ -237,6 +243,24 @@ begin
     end; // if service
     CloseServiceHandle( sc_Machie );
   end; // if servidor
+
+  //força no registro
+  if not Result then
+  begin
+    Reg := TRegistry.Create;
+    try
+      Reg.RootKey := HKEY_LOCAL_MACHINE;
+      if ( Reg.OpenKey( REG_SERVICES_LOCATION + Service, True ) ) then
+      begin
+        if not Reg.ValueExists( 'Start' ) then
+          Reg.CreateKey( 'Start' );
+        Reg.WriteInteger( 'Start', Config );
+        Result := True;
+      end;
+    finally
+      Reg.free;
+    end;
+  end;
 end;
 
 function ServiceGetConfig( Machine, Service: string ): Cardinal;
