@@ -6,7 +6,7 @@ uses
   System.Classes,
   System.Generics.Collections,
   PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
-  PGofer.Triggers;
+  PGofer.Triggers, PGofer.Triggers.HotKeys.Controls;
 
 type
 

@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Triggers Version="1.0"/>
+<Triggers Version="1.0">
+  <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string">05B059</HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">True</Inhibit>
+    <Script Type="string">dddd
+</Script>
+  </HotKey>
+</Triggers>
