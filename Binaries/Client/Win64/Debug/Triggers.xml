@@ -1,15 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">360</Occurrence>
-    <Repeats Type="Cardinal">0</Repeats>
-    <Script Type="string">Function global teste();
-begin
-  Key.ExecMacro('123 - teste dé autokeys ñ - !@#$ðßé®þ©.', 10);
-end;
-
-Link.Auto('C:\ProgramData\Microsoft\Windows\Start Menu\Programs','.exe;.lnk');
-</Script>
-    <Trigger Type="Byte">0</Trigger>
-  </Task>
+  <Link Name="corel" Enabled="true" ReadOnly="false">
+    <FileName Type="string">%ProgramFiles%\Corel\CorelDRAW Graphics Suite 2020\Programs64\CorelDRW.exe</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string">%ProgramFiles%\Corel\CorelDRAW Graphics Suite 2020\Programs64\</Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">0</Priority>
+    <RunAdmin Type="Boolean">True</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <Link Name="AssociateFile" Enabled="true" ReadOnly="false">
+    <FileName Type="string">D:\_Program Files\HeLuKs\AssociateFile\AssociateFile.exe</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string">D:\_Program Files\HeLuKs\AssociateFile\</Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <Link Name="vscode" Enabled="true" ReadOnly="false">
+    <FileName Type="string">D:\_Program Files\Edits\VSCode\Code.exe</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string">D:\_Program Files\Edits\VSCode\</Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <Link Name="dir" Enabled="true" ReadOnly="false">
+    <FileName Type="string">E:\dir.cmd</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string">E:\</Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">True</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
 </Triggers>

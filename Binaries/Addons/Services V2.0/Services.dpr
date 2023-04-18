@@ -1,5 +1,4 @@
 program Services;
-
 uses
   PGofer.ClipBoards.Controls in '..\..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',
   PGofer.Files.Controls in '..\..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas',
@@ -8,11 +7,14 @@ uses
   PGofer.Services.Thread in '..\..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas',
   PGofer.Component.Form in '..\..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   Vcl.Forms,
-  UnitServices in 'UnitServices.pas' {FrmServices};
+  UnitServices in 'UnitServices.pas' {FrmServices},
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
 begin
+    TStyleManager.TrySetStyle('Windows10 Dark');
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.CreateForm(TFrmServices, FrmServices);

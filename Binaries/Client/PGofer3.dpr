@@ -13,8 +13,10 @@ uses
   PGofer.ClipBoards.Controls in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',
   PGofer.Files in '..\..\Libraries\Lib\Files\PGofer.Files.pas',
   PGofer.Files.Controls in '..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas',
+  PGofer.Files.WinShell in '..\..\Libraries\Lib\Files\PGofer.Files.WinShell.pas',
   PGofer.Key in '..\..\Libraries\Lib\Key\PGofer.Key.pas',
   PGofer.Key.Controls in '..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas',
+  PGofer.Key.Post in '..\..\Libraries\Lib\Key\PGofer.Key.Post.pas',
   PGofer.Math in '..\..\Libraries\Lib\Math\PGofer.Math.pas',
   PGofer.Math.Controls in '..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas',
   PGofer.Net in '..\..\Libraries\Lib\Net\PGofer.Net.pas',
@@ -61,6 +63,7 @@ uses
   PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
   PGofer.Triggers.Links.Thread in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Thread.pas',
+  PGofer.Triggers.Links.ProcessUI in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ProcessUI.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
   PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
@@ -70,9 +73,7 @@ uses
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
   Winapi.Windows,
-  Vcl.Forms,
-  PGofer.Key.Post in '..\..\Libraries\Lib\Key\PGofer.Key.Post.pas',
-  PGofer.Files.WinShell in '..\..\Libraries\Lib\Files\PGofer.Files.WinShell.pas';
+  Vcl.Forms;
 
 {$R *.res}
 
@@ -90,9 +91,9 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );

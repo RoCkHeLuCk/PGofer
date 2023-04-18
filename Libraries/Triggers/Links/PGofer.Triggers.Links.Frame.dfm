@@ -142,17 +142,7 @@ inherited PGLinkFrame: TPGLinkFrame
       AutoSize = False
       Caption = 'Priority:'
     end
-    object LblOperation: TLabel [5]
-      Left = 195
-      Top = 117
-      Width = 67
-      Height = 13
-      Alignment = taRightJustify
-      Anchors = [akTop, akRight]
-      AutoSize = False
-      Caption = 'Operation:'
-    end
-    object EdtFile: TEdit [7]
+    object EdtFile: TEdit [6]
       Left = 70
       Top = 33
       Width = 290
@@ -163,7 +153,7 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 0
       OnKeyUp = EdtFileKeyUp
     end
-    object BtnFile: TButton [8]
+    object BtnFile: TButton [7]
       Left = 366
       Top = 33
       Width = 29
@@ -173,7 +163,7 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 1
       OnClick = BtnFileClick
     end
-    object EdtPatameter: TEdit [9]
+    object EdtPatameter: TEdit [8]
       Left = 70
       Top = 60
       Width = 325
@@ -184,7 +174,7 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 2
       OnKeyUp = EdtPatameterKeyUp
     end
-    object EdtDiretory: TEdit [10]
+    object EdtDiretory: TEdit [9]
       Left = 70
       Top = 87
       Width = 290
@@ -195,7 +185,7 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 3
       OnKeyUp = EdtDiretoryKeyUp
     end
-    object BtnDiretory: TButton [11]
+    object BtnDiretory: TButton [10]
       Left = 366
       Top = 87
       Width = 29
@@ -205,7 +195,7 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 4
       OnClick = BtnDiretoryClick
     end
-    object CmbState: TComboBox [12]
+    object CmbState: TComboBox [11]
       Left = 70
       Top = 114
       Width = 119
@@ -222,7 +212,7 @@ inherited PGLinkFrame: TPGLinkFrame
         'Minimized'
         'Maxmized')
     end
-    object CmbPriority: TComboBox [13]
+    object CmbPriority: TComboBox [12]
       Left = 70
       Top = 141
       Width = 119
@@ -241,7 +231,7 @@ inherited PGLinkFrame: TPGLinkFrame
         'High'
         'Real time')
     end
-    object BtnTest: TButton [14]
+    object BtnTest: TButton [13]
       Left = 340
       Top = 141
       Width = 56
@@ -251,38 +241,26 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 7
       OnClick = BtnTestClick
     end
-    object CmbOperation: TComboBox [15]
-      Left = 268
-      Top = 114
-      Width = 127
-      Height = 21
-      Style = csDropDownList
-      Anchors = [akTop, akRight]
-      Color = clSilver
-      ItemIndex = 0
-      TabOrder = 8
-      Text = 'Open'
-      OnChange = CmbOperationChange
-      Items.Strings = (
-        'Open'
-        'Edit'
-        'Explore'
-        'Find'
-        'Print'
-        'Properties'
-        'Runas')
-    end
-    object ckbCapture: TCheckBox [16]
+    object ckbCapture: TCheckBox [14]
       Left = 209
       Top = 143
       Width = 97
       Height = 17
       Caption = 'CaptureMsg'
-      TabOrder = 9
+      TabOrder = 8
       OnClick = ckbCaptureClick
     end
     inherited EdtName: TEditEx
+      TabOrder = 9
+    end
+    object ckbAdministrator: TCheckBox
+      Left = 209
+      Top = 117
+      Width = 97
+      Height = 17
+      Caption = 'Run Admintrator'
       TabOrder = 10
+      OnClick = ckbAdministratorClick
     end
   end
   inherited sptAbout: TPanel

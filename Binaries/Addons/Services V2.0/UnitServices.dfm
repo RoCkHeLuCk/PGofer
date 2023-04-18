@@ -66,7 +66,6 @@ object FrmServices: TFrmServices
     Caption = '         Filter'
     Constraints.MinHeight = 10
     TabOrder = 0
-    ExplicitWidth = 615
     object GrbType: TGroupBox
       Left = 250
       Top = 15
@@ -255,11 +254,10 @@ object FrmServices: TFrmServices
     Caption = '         Descri'#231#227'o'
     Constraints.MinHeight = 10
     TabOrder = 2
-    ExplicitWidth = 615
     object MemDescription: TMemo
       Left = 2
       Top = 15
-      Width = 611
+      Width = 613
       Height = 24
       Align = alClient
       Alignment = taCenter
@@ -347,7 +345,7 @@ object FrmServices: TFrmServices
     Left = 40
     Top = 72
     Bitmap = {
-      494C01010800C400040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
+      494C01010800C400080010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000003000000001002000000000000030
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000

@@ -103,9 +103,17 @@ begin
 end;
 
 procedure TTreeViewEx.SetDropFileAccept( AValue: Boolean );
+var i: integer;
 begin
   FDropFileAccept := AValue;
   DragAcceptFiles( Self.Handle, AValue );
+  //ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+  //ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
+  //ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
+  for I := 0 to WM_DROPFILES do
+  begin
+     ChangeWindowMessageFilter (i, MSGFLT_ADD);
+  end;
 end;
 
 procedure TTreeViewEx.DoDropFiles( var msg: TWMDropFiles );

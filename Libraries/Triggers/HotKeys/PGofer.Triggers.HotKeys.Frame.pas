@@ -137,27 +137,13 @@ procedure TPGHotKeyFrame.MmoHotKeysEnter( Sender: TObject );
 begin
   PGHotKeyFrame := Self;
   MmoHotKeys.Color := clRed;
-  case INPUT_TYPE of
-    Hook:
-      HookInput.SetProcessKeys( OnProcessKeys );
-    RAW:
-      RawInput.SetProcessKeys( OnProcessKeys );
-    Async:
-      AsyncInput.SetProcessKeys( OnProcessKeys );
-  end;
+  TPGHotKey.SetProcessKeys( OnProcessKeys );
 end;
 
 procedure TPGHotKeyFrame.MmoHotKeysExit( Sender: TObject );
 begin
   MmoHotKeys.Color := clBtnFace;
-  case INPUT_TYPE of
-    Hook:
-      HookInput.SetProcessKeys( nil );
-    RAW:
-      RawInput.SetProcessKeys( nil );
-    Async:
-      AsyncInput.SetProcessKeys( nil );
-  end;
+  TPGHotKey.SetProcessKeys( nil );
 end;
 
 procedure TPGHotKeyFrame.OnProcessKeys( AParamInput: TParamInput );

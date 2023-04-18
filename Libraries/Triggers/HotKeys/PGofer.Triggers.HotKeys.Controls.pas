@@ -7,15 +7,11 @@ uses
   System.SysUtils;
 
 type
-  TInputEnum = ( HOOK, RAW, ASYNC, HOTKEY );
-
   TParamInput = record
     wParam: wParam;
     dwVkData: DWORD;
     dwScan: DWORD;
   end;
-
-  TProcessKeys = procedure( AParamInput: TParamInput ) of object;
 
   TKey = record
     wKey: Word;
@@ -24,8 +20,7 @@ type
     class function CalcVirtualKey( AParam: TParamInput ): TKey; static;
   end;
 
-const
-  INPUT_TYPE: TInputEnum = ASYNC;
+  TProcessKeys = procedure( AParamInput: TParamInput ) of object;
 
 implementation
 

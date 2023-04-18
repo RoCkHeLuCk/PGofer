@@ -18,7 +18,7 @@ type
     FScriptAfter: TStrings;
     FState: Byte;
     FPriority: Byte;
-    FOperation: Byte;
+    FRunAdmin: Boolean;
     FCaptureMsg: Boolean;
     FCanExecute: Boolean;
     class var FImageIndex: Integer;
@@ -47,7 +47,7 @@ type
     property Directory: string read FDirectory write FDirectory;
     property State: Byte read FState write FState;
     property Priority: Byte read FPriority write FPriority;
-    property Operation: Byte read FOperation write FOperation;
+    property RunAdmin: Boolean read FRunAdmin write FRunAdmin;
     property CaptureMsg: Boolean read FCaptureMsg write FCaptureMsg;
     property ScriptBefor: string read GetScriptBefor write SetScriptBefor;
     property ScriptAfter: string read GetScriptAfter write SetScriptAfter;
@@ -102,7 +102,7 @@ begin
   FDirectory := '';
   FState := 1;
   FPriority := 2;
-  FOperation := 0;
+  FRunAdmin := False;
   FScriptBefor := TStringList.Create( );
   FScriptAfter := TStringList.Create( );
   FCanExecute := true;
@@ -115,7 +115,7 @@ begin
   FDirectory := '';
   FState := 1;
   FPriority := 2;
-  FOperation := 0;
+  FRunAdmin := False;
   FScriptBefor.Free( );
   FScriptAfter.Free( );
   FCanExecute := False;
@@ -278,7 +278,7 @@ begin
           Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
 
         if Quantidade >= 5 then
-          Link.Operation := Gramatica.Pilha.Desempilhar( 0 );
+          Link.RunAdmin := Gramatica.Pilha.Desempilhar( False );
 
         if Quantidade >= 4 then
           Link.State := Gramatica.Pilha.Desempilhar( 1 );

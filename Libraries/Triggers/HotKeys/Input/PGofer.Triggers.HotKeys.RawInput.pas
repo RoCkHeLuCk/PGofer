@@ -12,21 +12,14 @@ uses
 type
   TRawInput = class
   private
-    FShootKeys: TList<Word>;
     FRAWInputHandle: THandle;
     FRAWInputDevice: packed array [ 0 .. 3 ] of TRAWInputDevice;
-    FOnProcessKeys: TProcessKeys;
-    procedure OnProcessKeys( AParamInput: TParamInput );
   protected
     procedure WMRawInput( var MSG: TMessage ); message WM_INPUT;
   public
     constructor Create( ); overload;
     destructor Destroy( ); override;
-    procedure SetProcessKeys( ProcessKeys: TProcessKeys = nil );
   end;
-
-var
-  RawInput: TRawInput;
 
 implementation
 
@@ -61,10 +54,6 @@ begin
   FRAWInputDevice[ 3 ].dwFlags := RIDEV_INPUTSINK;
   FRAWInputDevice[ 3 ].hwndTarget := FRAWInputHandle;
 
-  FShootKeys := TList<Word>.Create( );
-
-  FOnProcessKeys := Self.OnProcessKeys;
-
   RegisterRawInputDevices( @FRAWInputDevice, Length( FRAWInputDevice ),
     SizeOf( TRAWInputDevice ) );
 end;
@@ -79,9 +68,6 @@ begin
   RegisterRawInputDevices( @FRAWInputDevice, 3, SizeOf( TRAWInputDevice ) );
   DeallocateHWnd( FRAWInputHandle );
 
-  FShootKeys.Free( );
-  FShootKeys := nil;
-  FOnProcessKeys := nil;
   inherited Destroy( );
 end;
 
@@ -109,7 +95,7 @@ begin
                 begin
                   ParamInput.wParam := RAWInputKey.mouse.union.usButtonFlags;
                   ParamInput.dwVkData := RAWInputKey.mouse.union.usButtonData;
-                  FOnProcessKeys( ParamInput );
+                  TPGHotKey.OnProcessKeys( ParamInput );
                 end;
               end;
             RIM_TYPEKEYBOARD:
@@ -117,7 +103,7 @@ begin
                 ParamInput.wParam := RAWInputKey.keyboard.Message;
                 ParamInput.dwVkData := RAWInputKey.keyboard.VKey;
                 ParamInput.dwScan := RAWInputKey.keyboard.ExtraInformation;
-                FOnProcessKeys( ParamInput );
+                TPGHotKey.OnProcessKeys( ParamInput );
               end;
           end;
         end;
@@ -128,57 +114,8 @@ begin
   end;
 end;
 
-procedure TRawInput.OnProcessKeys( AParamInput: TParamInput );
-var
-  Key: TKey;
-  VHotKey: TPGHotKey;
-begin
-  Key := TKey.CalcVirtualKey( AParamInput );
-
-  if Key.wKey > 0 then
-  begin
-    if Key.bDetect in [ kd_Down, kd_Wheel ] then
-    begin
-      if ( FShootKeys.Contains( Key.wKey ) ) then
-        Key.bDetect := kd_Press
-      else
-        FShootKeys.Add( Key.wKey );
-    end;
-
-    VHotKey := TPGHotKey.LocateHotKeys( FShootKeys );
-
-    if Assigned( VHotKey ) then
-    begin
-      if ( ( Key.bDetect = kd_Wheel ) or
-        ( VHotKey.Detect = Byte( Key.bDetect ) ) ) then
-      begin
-        VHotKey.Triggering( );
-      end;
-    end;
-
-    if Key.bDetect in [ kd_Up, kd_Wheel ] then
-      FShootKeys.Remove( Key.wKey );
-  end; // if key #0
-end;
-
-procedure TRawInput.SetProcessKeys( ProcessKeys: TProcessKeys );
-begin
-  if Assigned( ProcessKeys ) then
-  begin
-    FOnProcessKeys := ProcessKeys;
-  end else begin
-    FOnProcessKeys := Self.OnProcessKeys;
-  end;
-end;
-
 initialization
 
-if INPUT_TYPE = RAW then
-  RawInput := TRawInput.Create( );
-
 finalization
-
-if INPUT_TYPE = RAW then
-  RawInput.Free( );
 
 end.

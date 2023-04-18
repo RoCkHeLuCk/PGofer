@@ -16,7 +16,6 @@ type
     LblDirectory: TLabel;
     LblState: TLabel;
     LblPriority: TLabel;
-    LblOperation: TLabel;
     EdtFile: TEdit;
     BtnFile: TButton;
     EdtPatameter: TEdit;
@@ -25,7 +24,6 @@ type
     CmbState: TComboBox;
     CmbPriority: TComboBox;
     BtnTest: TButton;
-    CmbOperation: TComboBox;
     OpdLinks: TOpenDialog;
     GrbScriptBefore: TGroupBox;
     EdtScriptBefore: TRichEditEx;
@@ -34,8 +32,8 @@ type
     sptScriptBefore: TSplitter;
     ckbCapture: TCheckBox;
     sptScriptAfter: TSplitter;
+    ckbAdministrator: TCheckBox;
     procedure CmbStateChange( Sender: TObject );
-    procedure CmbOperationChange( Sender: TObject );
     procedure CmbPriorityChange( Sender: TObject );
     procedure BtnFileClick( Sender: TObject );
     procedure BtnDiretoryClick( Sender: TObject );
@@ -53,6 +51,7 @@ type
     procedure EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure ckbCaptureClick( Sender: TObject );
+    procedure ckbAdministratorClick(Sender: TObject);
   private
     FItem: TPGLink;
     procedure isFileName( );
@@ -92,7 +91,7 @@ begin
 
   CmbState.ItemIndex := FItem.State;
   CmbPriority.ItemIndex := FItem.Priority;
-  CmbOperation.ItemIndex := FItem.Operation;
+  ckbAdministrator.Checked := FItem.RunAdmin;
   ckbCapture.Checked := FItem.CaptureMsg;
   EdtScriptBefore.Lines.Text := FItem.ScriptBefor;
   EdtScriptAfter.Lines.Text := FItem.ScriptAfter;
@@ -139,28 +138,26 @@ begin
   FItem.Triggering( );
 end;
 
+procedure TPGLinkFrame.ckbAdministratorClick(Sender: TObject);
+begin
+  FItem.RunAdmin := ckbAdministrator.Checked;
+end;
+
 procedure TPGLinkFrame.ckbCaptureClick( Sender: TObject );
 begin
   FItem.CaptureMsg := ckbCapture.Checked;
   if ckbCapture.Checked then
   begin
-    CmbOperation.ItemIndex := 0;
-    CmbOperation.Enabled := False;
-    LblOperation.Enabled := False;
+    ckbAdministrator.Checked := True;
+    ckbAdministrator.Enabled := False;
   end else begin
-    CmbOperation.Enabled := True;
-    LblOperation.Enabled := True;
+    ckbAdministrator.Enabled := True;
   end;
 end;
 
 procedure TPGLinkFrame.CmbStateChange( Sender: TObject );
 begin
   FItem.State := CmbState.ItemIndex;
-end;
-
-procedure TPGLinkFrame.CmbOperationChange( Sender: TObject );
-begin
-  FItem.Operation := CmbOperation.ItemIndex;
 end;
 
 procedure TPGLinkFrame.CmbPriorityChange( Sender: TObject );

@@ -191,10 +191,10 @@ begin
       if ssAlt in AShift then
       begin
         PostMessage( AHandle, WM_SYSKEYDOWN, AKey, LPar );
-        PostMessage( AHandle, WM_SYSKEYUP, AKey, LPar or $C0000000 );
+        PostMessage( AHandle, WM_SYSKEYUP, AKey, LPar or integer($C0000000));
       end else begin
         PostMessage( AHandle, WM_KEYDOWN, AKey, LPar );
-        PostMessage( AHandle, WM_KEYUP, AKey, LPar or $C0000000 );
+        PostMessage( AHandle, WM_KEYUP, AKey, LPar or integer($C0000000) );
       end;
 
       SetKeyboardState( pKeyBuffers^[ 1 ] );
