@@ -6,7 +6,7 @@
     <Directory Type="string">%ProgramFiles%\Corel\CorelDRAW Graphics Suite 2020\Programs64\</Directory>
     <State Type="Byte">1</State>
     <Priority Type="Byte">0</Priority>
-    <RunAdmin Type="Boolean">True</RunAdmin>
+    <RunAdmin Type="Boolean">False</RunAdmin>
     <CaptureMsg Type="Boolean">False</CaptureMsg>
     <ScriptBefor Type="string"></ScriptBefor>
     <ScriptAfter Type="string"></ScriptAfter>

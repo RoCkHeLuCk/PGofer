@@ -159,7 +159,11 @@ begin
   StartupInfo.lpTitle := PWideChar(FLink.Name);
   FileName := FileExpandPath(FLink.FileName);
   Param := FileExpandPath(FParam);
-  Directory := FileExpandPath(FLink.Directory);
+
+  if FLink.Directory <> '' then
+    Directory := FileExpandPath(FLink.Directory)
+  else
+    Directory := FileExpandPath(ExtractFilePath(FLink.FileName));
 
   ProcessInfo := Default(TProcessInformation);
 
@@ -173,19 +177,24 @@ begin
     ProcessInfo                       //ProcessInfo
   );
 
-  if ReturnCode <> 0 then
+  if ReturnCode = 740 then
   begin
-    ConsoleNotify(
-      Self,
-      'Link ' + FLink.Name + ' : ' + SysErrorMessage(ReturnCode),
-      True,
-      ConsoleMessage
-    );
-  end;
-
-  if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then
-  begin
-    while WaitForSingleObject(ProcessInfo.hProcess, 500) <> WAIT_OBJECT_0 do;
+    ShellExec();
+  end else begin
+    if ReturnCode <> 0 then
+    begin
+      ConsoleNotify(
+        Self,
+        'Link ' + FLink.Name + ' : ' + SysErrorMessage(ReturnCode),
+        True,
+        ConsoleMessage
+      );
+    end else begin
+      if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then
+      begin
+        while WaitForSingleObject(ProcessInfo.hProcess, 500) <> WAIT_OBJECT_0 do;
+      end;
+    end;
   end;
 
   CloseHandle(ProcessInfo.hThread);

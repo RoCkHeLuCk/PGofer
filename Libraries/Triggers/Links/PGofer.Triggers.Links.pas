@@ -326,7 +326,7 @@ procedure TPGLinkDeclare.Auto( ADir: string; AMask: string );
           begin
             Shell := GetShellLinkInfo( ASubDir + SearchRec.Name );
             Link.FFile := FileUnExpandPath( Shell.PathName );
-            Link.FParameter := Shell.Arguments;
+            Link.FParameter := FileUnExpandPath( Shell.Arguments );
             Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
             Link.FState := Shell.ShowCmd;
           end else begin
