@@ -5,13 +5,12 @@ interface
 uses
   System.Classes, System.SysUtils,
   Winapi.Windows,
-  Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
-  Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Classes, PGofer.Triggers.Tasks, PGofer.Item.Frame,
+  Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
+  PGofer.Triggers, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
   PGofer.Component.Edit, PGofer.Component.RichEdit;
 
 type
-  TPGTaskFrame = class( TPGItemFrame )
+  TPGTaskFrame = class( TPGTriggerFrame )
     LblTrigger: TLabel;
     CmbTrigger: TComboBox;
     GrbScript: TGroupBox;
@@ -25,8 +24,6 @@ type
     sptScript: TSplitter;
     procedure CmbTriggerChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
-    procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure EdtOccurrenceExit( Sender: TObject );
     procedure EdtRepeatKeyUp( Sender: TObject; var Key: Word;
@@ -44,7 +41,7 @@ type
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -56,7 +53,7 @@ uses
 {$R *.dfm}
 { TPGTaskFrame }
 
-constructor TPGTaskFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGTaskFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGTask( AItem );
@@ -72,18 +69,6 @@ begin
   FrmAutoComplete.EditCtrlRemove( EdtScript );
   FItem := nil;
   inherited Destroy( );
-end;
-
-procedure TPGTaskFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  if FItem.isItemExist( EdtName.Text, True ) then
-  begin
-    EdtName.Color := clRed;
-  end else begin
-    EdtName.Color := clWindow;
-    inherited EdtNameKeyUp( Sender, Key, Shift );
-  end;
 end;
 
 procedure TPGTaskFrame.EdtOccurrenceExit( Sender: TObject );

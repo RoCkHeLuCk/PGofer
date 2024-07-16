@@ -6,12 +6,12 @@ uses
   System.Classes,
   Vcl.Forms, Vcl.StdCtrls, Vcl.Menus, Vcl.Graphics,
   Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Classes, PGofer.Item.Frame, PGofer.Triggers.HotKeys,
+  PGofer.Triggers, PGofer.Triggers.Frame, PGofer.Triggers.HotKeys,
   PGofer.Component.Edit, PGofer.Component.RichEdit,
-  PGofer.Triggers.HotKeys.Controls;
+  PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame;
 
 type
-  TPGHotKeyFrame = class( TPGItemFrame )
+  TPGHotKeyFrame = class( TPGTriggerFrame )
     PpmNull: TPopupMenu;
     GrbHotKeys: TGroupBox;
     MmoHotKeys: TMemo;
@@ -27,8 +27,6 @@ type
     procedure MmoHotKeysEnter( Sender: TObject );
     procedure MmoHotKeysExit( Sender: TObject );
     procedure BtnCleanClick( Sender: TObject );
-    procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
   private
@@ -40,7 +38,7 @@ type
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -59,7 +57,7 @@ uses
 {$R *.dfm}
 { TPGFrameHotKey }
 
-constructor TPGHotKeyFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGHotKeyFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGHotKey( AItem );
@@ -76,18 +74,6 @@ begin
   MmoHotKeys.OnExit( Self );
   FItem := nil;
   inherited Destroy( );
-end;
-
-procedure TPGHotKeyFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  if FItem.isItemExist( EdtName.Text, True ) then
-  begin
-    EdtName.Color := clRed;
-  end else begin
-    EdtName.Color := clWindow;
-    inherited EdtNameKeyUp( Sender, Key, Shift );
-  end;
 end;
 
 procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;

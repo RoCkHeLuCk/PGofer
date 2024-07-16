@@ -120,8 +120,11 @@ procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
 begin
   FEditCtrl := nil;
   FEditList.Free( );
+  FEditList := nil;
   FMemoryIniFile.Free( );
+  FMemoryIniFile := nil;
   FMemoryList.Free( );
+  FMemoryList := nil;
   FMemoryPosition := 0;
   FMemoryNoCtrl := False;
 
@@ -475,32 +478,37 @@ procedure TFrmAutoComplete.EditCtrlAdd( AValue: TRichEditEx );
 var
   OnCntrl: TEditOnCtrl;
 begin
-  OnCntrl := TEditOnCtrl.Create( );
-  OnCntrl.OnKeyDown := AValue.OnKeyDown;
-  OnCntrl.OnKeyPress := AValue.OnKeyPress;
-  OnCntrl.OnKeyUp := AValue.OnKeyUp;
-  OnCntrl.OnDropFile := AValue.OnDropFiles;
+  if Assigned(FEditList) and not FEditList.ContainsKey(AValue) then
+  begin
+    OnCntrl := TEditOnCtrl.Create( );
+    OnCntrl.OnKeyDown := AValue.OnKeyDown;
+    OnCntrl.OnKeyPress := AValue.OnKeyPress;
+    OnCntrl.OnKeyUp := AValue.OnKeyUp;
+    OnCntrl.OnDropFile := AValue.OnDropFiles;
 
-  AValue.OnKeyDown := FormKeyDown;
-  AValue.OnKeyPress := FormKeyPress;
-  AValue.OnKeyUp := FormKeyUp;
-  AValue.OnDropFiles := FormDropFile;
+    AValue.OnKeyDown := FormKeyDown;
+    AValue.OnKeyPress := FormKeyPress;
+    AValue.OnKeyUp := FormKeyUp;
+    AValue.OnDropFiles := FormDropFile;
 
-  FEditList.Add( AValue, OnCntrl );
+    FEditList.Add( AValue, OnCntrl );
+  end;
 end;
 
 procedure TFrmAutoComplete.EditCtrlRemove( AValue: TRichEditEx );
 var
   OnCntrl: TEditOnCtrl;
 begin
-  OnCntrl := FEditList.Items[ AValue ];
-  AValue.OnKeyDown := OnCntrl.OnKeyDown;
-  AValue.OnKeyPress := OnCntrl.OnKeyPress;
-  AValue.OnKeyUp := OnCntrl.OnKeyUp;
-  AValue.OnDropFiles := OnCntrl.OnDropFile;
-  OnCntrl.Free( );
-
-  FEditList.Remove( AValue );
+  if Assigned(FEditList) and FEditList.ContainsKey(AValue) then
+  begin
+    OnCntrl := FEditList.Items[ AValue ];
+    AValue.OnKeyDown := OnCntrl.OnKeyDown;
+    AValue.OnKeyPress := OnCntrl.OnKeyPress;
+    AValue.OnKeyUp := OnCntrl.OnKeyUp;
+    AValue.OnDropFiles := OnCntrl.OnDropFile;
+    OnCntrl.Free( );
+    FEditList.Remove( AValue );
+  end;
 end;
 
 procedure TFrmAutoComplete.FileNameList( AFileName: string );

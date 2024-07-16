@@ -1,49 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <Link Name="corel" Enabled="true" ReadOnly="false">
-    <FileName Type="string">%ProgramFiles%\Corel\CorelDRAW Graphics Suite 2020\Programs64\CorelDRW.exe</FileName>
+  <VaultFills Name="teste" Enabled="true" ReadOnly="false">
+    <Mode Type="Byte">0</Mode>
+    <Speed Type="Cardinal">10</Speed>
+    <Text Type="string">1234567890-=
+!@#$%^&amp;*()_+
+¡²³¤€¼½¾‘’¥×
+qwertyuiop[]\
+QWERTYUIOP{}|
+</Text>
+  </VaultFills>
+  <Link Name="Link1" Enabled="true" ReadOnly="false">
+    <FileName Type="string">%ProgramFiles%\OrcaSlicer\orca-slicer.exe</FileName>
     <Parameter Type="string"></Parameter>
-    <Directory Type="string">%ProgramFiles%\Corel\CorelDRAW Graphics Suite 2020\Programs64\</Directory>
-    <State Type="Byte">1</State>
-    <Priority Type="Byte">0</Priority>
-    <RunAdmin Type="Boolean">False</RunAdmin>
-    <CaptureMsg Type="Boolean">False</CaptureMsg>
-    <ScriptBefor Type="string"></ScriptBefor>
-    <ScriptAfter Type="string"></ScriptAfter>
-    <CanExecute Type="Boolean">True</CanExecute>
-  </Link>
-  <Link Name="AssociateFile" Enabled="true" ReadOnly="false">
-    <FileName Type="string">D:\_Program Files\HeLuKs\AssociateFile\AssociateFile.exe</FileName>
-    <Parameter Type="string"></Parameter>
-    <Directory Type="string">D:\_Program Files\HeLuKs\AssociateFile\</Directory>
+    <Directory Type="string">%ProgramFiles%\OrcaSlicer\</Directory>
     <State Type="Byte">1</State>
     <Priority Type="Byte">2</Priority>
     <RunAdmin Type="Boolean">False</RunAdmin>
     <CaptureMsg Type="Boolean">False</CaptureMsg>
-    <ScriptBefor Type="string"></ScriptBefor>
-    <ScriptAfter Type="string"></ScriptAfter>
-    <CanExecute Type="Boolean">True</CanExecute>
-  </Link>
-  <Link Name="vscode" Enabled="true" ReadOnly="false">
-    <FileName Type="string">D:\_Program Files\Edits\VSCode\Code.exe</FileName>
-    <Parameter Type="string"></Parameter>
-    <Directory Type="string">D:\_Program Files\Edits\VSCode\</Directory>
-    <State Type="Byte">1</State>
-    <Priority Type="Byte">2</Priority>
-    <RunAdmin Type="Boolean">False</RunAdmin>
-    <CaptureMsg Type="Boolean">False</CaptureMsg>
-    <ScriptBefor Type="string"></ScriptBefor>
-    <ScriptAfter Type="string"></ScriptAfter>
-    <CanExecute Type="Boolean">True</CanExecute>
-  </Link>
-  <Link Name="dir" Enabled="true" ReadOnly="false">
-    <FileName Type="string">E:\dir.cmd</FileName>
-    <Parameter Type="string"></Parameter>
-    <Directory Type="string">E:\</Directory>
-    <State Type="Byte">1</State>
-    <Priority Type="Byte">2</Priority>
-    <RunAdmin Type="Boolean">False</RunAdmin>
-    <CaptureMsg Type="Boolean">True</CaptureMsg>
     <ScriptBefor Type="string"></ScriptBefor>
     <ScriptAfter Type="string"></ScriptAfter>
     <CanExecute Type="Boolean">True</CanExecute>

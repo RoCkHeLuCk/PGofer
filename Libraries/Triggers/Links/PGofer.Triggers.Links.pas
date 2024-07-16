@@ -239,7 +239,7 @@ begin
     else
       Gramatica.ErroAdd( '")" Esperado.' )
   end else if not Gramatica.Erro then
-    Self.ThreadExecute( False, Self.FParameter );
+    Self.Triggering();
 end;
 
 { TPGLinkDec }

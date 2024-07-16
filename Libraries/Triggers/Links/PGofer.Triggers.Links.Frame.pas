@@ -4,13 +4,13 @@ interface
 
 uses
   System.Classes,
-  Vcl.Forms, Vcl.Dialogs, Vcl.Controls, Vcl.StdCtrls, Vcl.Graphics,
-  Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Classes, PGofer.Triggers.Links, PGofer.Item.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit;
+  Vcl.Forms, Vcl.Dialogs, Vcl.Controls, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Graphics,
+  PGofer.Triggers, PGofer.Triggers.Links, PGofer.Triggers.Frame,
+  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame;
 
 type
-  TPGLinkFrame = class( TPGItemFrame )
+  TPGLinkFrame = class( TPGTriggerFrame )
     LblFile: TLabel;
     LblParameter: TLabel;
     LblDirectory: TLabel;
@@ -37,8 +37,6 @@ type
     procedure CmbPriorityChange( Sender: TObject );
     procedure BtnFileClick( Sender: TObject );
     procedure BtnDiretoryClick( Sender: TObject );
-    procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
     procedure BtnTestClick( Sender: TObject );
     procedure EdtFileKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
@@ -60,12 +58,9 @@ type
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
-
-var
-  PGLinkFrame: TPGItemFrame;
 
 implementation
 
@@ -77,7 +72,7 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
-constructor TPGLinkFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGLinkFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGLink( AItem );
@@ -177,18 +172,6 @@ procedure TPGLinkFrame.EdtDiretoryKeyUp( Sender: TObject; var Key: Word;
 begin
   FItem.Directory := EdtDiretory.Text;
   isDirectory( );
-end;
-
-procedure TPGLinkFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  if FItem.isItemExist( EdtName.Text, False ) then
-  begin
-    EdtName.Color := clRed;
-  end else begin
-    EdtName.Color := clWindow;
-    inherited EdtNameKeyUp( Sender, Key, Shift );
-  end;
 end;
 
 procedure TPGLinkFrame.EdtPatameterKeyUp( Sender: TObject; var Key: Word;

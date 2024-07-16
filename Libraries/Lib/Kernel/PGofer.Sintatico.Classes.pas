@@ -43,14 +43,13 @@ type
   end;
 
   {$M+}
-
   TPGFolder = class( TPGItemCMD )
   private
     FExpanded: Boolean;
     function GetExpanded( ): Boolean;
     procedure SetExpanded( AValue: Boolean );
-    class var FImageIndex: Integer;
   protected
+    class var FImageIndex: Integer;
     class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;

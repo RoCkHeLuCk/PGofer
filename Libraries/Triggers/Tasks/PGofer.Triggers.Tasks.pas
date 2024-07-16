@@ -159,7 +159,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado o já existente.' );
+    Gramatica.ErroAdd( 'Identificador esperado ou já existente.' );
 end;
 
 { TPGTaskMirror }

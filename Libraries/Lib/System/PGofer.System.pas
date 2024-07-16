@@ -3,12 +3,13 @@ unit PGofer.System;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
   {$M+}
   TPGSystem = class( TPGItemCMD )
   private
+    FMouse: TPGItemCMD;
     class var FImageIndex: Integer;
     function GetCanClose( ): Boolean;
     procedure SetCanClose( Value: Boolean );
@@ -27,6 +28,9 @@ type
   protected
     class function GetImageIndex( ): Integer; override;
   public
+    constructor Create( AItemDad: TPGItem );
+    destructor Destroy( ); override;
+    property Mouse: TPGItemCMD read FMouse;
   published
     property CanClose: Boolean read GetCanClose write SetCanClose;
     property CanOff: Boolean read GetCanOff write SetCanOff;
@@ -57,12 +61,25 @@ type
 implementation
 
 uses
-  WinApi.Windows, System.SysUtils, System.Classes,
+  WinApi.Windows,
+  System.SysUtils, System.Classes,
   Vcl.Forms,
   PGofer.Sintatico, PGofer.System.Controls,
-  PGofer.ImageList;
+  PGofer.ImageList, PGofer.System.Mouse;
 
 { TPGSystem }
+
+constructor TPGSystem.Create( AItemDad: TPGItem );
+begin
+  inherited Create( AItemDad );
+  FMouse := TPGMouse.Create( Self );
+end;
+
+destructor TPGSystem.Destroy;
+begin
+  FMouse.Free;
+  inherited Destroy( );
+end;
 
 function TPGSystem.DateTimeNow( Format: string ): string;
 begin
