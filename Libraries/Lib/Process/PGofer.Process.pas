@@ -15,6 +15,7 @@ type
     function PIDToFile( PID: Cardinal ): string;
     function GetPriority( PID: string ): Byte;
     function GetForeground( ): Cardinal;
+    function GetFocusedControl( ) : Cardinal;
     function Kill( PID: string ): Boolean;
     function SetPriority( PID: string; Priority: Byte ): Boolean;
   end;
@@ -41,6 +42,11 @@ end;
 function TPGProcess.GetForeground: Cardinal;
 begin
   Result := ProcessGetForeground( );
+end;
+
+function TPGProcess.GetFocusedControl: Cardinal;
+begin
+    Result := ProcessGetFocusedControl( );
 end;
 
 function TPGProcess.GetPriority( PID: string ): Byte;

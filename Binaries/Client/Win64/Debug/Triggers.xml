@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <VaultFills Name="teste" Enabled="true" ReadOnly="false">
+  <VaultFill Name="VaultFill1" Enabled="true" ReadOnly="false">
     <Mode Type="Byte">0</Mode>
     <Speed Type="Cardinal">10</Speed>
     <Text Type="string">1234567890-=
@@ -9,17 +9,14 @@
 qwertyuiop[]\
 QWERTYUIOP{}|
 </Text>
-  </VaultFills>
-  <Link Name="Link1" Enabled="true" ReadOnly="false">
-    <FileName Type="string">%ProgramFiles%\OrcaSlicer\orca-slicer.exe</FileName>
-    <Parameter Type="string"></Parameter>
-    <Directory Type="string">%ProgramFiles%\OrcaSlicer\</Directory>
-    <State Type="Byte">1</State>
-    <Priority Type="Byte">2</Priority>
-    <RunAdmin Type="Boolean">False</RunAdmin>
-    <CaptureMsg Type="Boolean">False</CaptureMsg>
-    <ScriptBefor Type="string"></ScriptBefor>
-    <ScriptAfter Type="string"></ScriptAfter>
-    <CanExecute Type="Boolean">True</CanExecute>
-  </Link>
+  </VaultFill>
+  <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string">0A2001</HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string">FrmPGofer.Left := System.Mouse.CursorPosX;
+FrmPGofer.Top := System.Mouse.CursorPosY;
+FrmPGofer;
+</Script>
+  </HotKey>
 </Triggers>

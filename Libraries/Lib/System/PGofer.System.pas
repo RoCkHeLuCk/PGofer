@@ -24,7 +24,6 @@ type
     procedure SetReplyPrefix( Value: Boolean );
     function GetFileListMax( ): Cardinal;
     procedure SetFileListMax( Value: Cardinal );
-    function GetHookQueueMaxCount: Integer;
   protected
     class function GetImageIndex( ): Integer; override;
   public
@@ -41,7 +40,6 @@ type
     property FileListMax: Cardinal read GetFileListMax write SetFileListMax;
     function FindWindow( Valor: string ): NativeUInt;
     function GetTextFromPoint( ): string;
-    property HookQueueMaxCount: Integer read GetHookQueueMaxCount;
     function LockWorkStation( ): Boolean;
     property LoopLimite: Int64 read GetLoopLimite write SetLoopLimite;
     function MonitorPower( OnOff: Boolean ): NativeInt;
@@ -114,11 +112,6 @@ end;
 function TPGSystem.GetFileListMax: Cardinal;
 begin
   Result := PGofer.Sintatico.FileListMax;
-end;
-
-function TPGSystem.GetHookQueueMaxCount: Integer;
-begin
-  Result := PGofer.Sintatico.HookQueueMaxCount;
 end;
 
 class function TPGSystem.GetImageIndex: Integer;

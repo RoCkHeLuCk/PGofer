@@ -121,9 +121,9 @@ inherited PGVaultFillsFrame: TPGVaultFillsFrame
       OnChange = CmbModeChange
       Items.Strings = (
         'Write'
+        'Send Point'
         'Copy'
         'Copy and Paste'
-        'Send'
         'Script')
     end
   end

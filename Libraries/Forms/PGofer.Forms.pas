@@ -69,7 +69,8 @@ implementation
 uses
   PGofer.Lexico, PGofer.Forms.Controls,
   PGofer.Forms.Frame,
-  PGofer.ImageList;
+  PGofer.ImageList,
+  PGofer.Process.Controls;
 
 { TPGForm }
 

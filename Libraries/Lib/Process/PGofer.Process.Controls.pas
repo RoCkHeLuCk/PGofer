@@ -8,11 +8,12 @@ function ProcessKill( const PID: Cardinal ): Boolean;
 function ProcessSetPriority( const PID, Priority: Cardinal ): Boolean;
 function ProcessGetPriority( const PID: Cardinal ): Cardinal;
 function ProcessGetForeground( ): Cardinal;
+function ProcessGetFocusedControl( ): Cardinal;
 
 implementation
 
 uses
-  Winapi.Windows, Winapi.PsApi, System.SysUtils;
+  Winapi.Windows, Winapi.PsApi, System.SysUtils, Vcl.Controls;
 
 function ProcessFileToPID( AFileName: string ): THandle;
 var
@@ -120,5 +121,14 @@ begin
   activeWinHandle := GetForegroundWindow( );
   GetWindowThreadProcessID( activeWinHandle, @Result );
 end;
+
+function ProcessGetFocusedControl( ): Cardinal;
+var
+  cPoint: TPoint;
+begin
+  GetCursorPos( cPoint );
+  Result := WindowFromPoint( cPoint );
+end;
+
 
 end.

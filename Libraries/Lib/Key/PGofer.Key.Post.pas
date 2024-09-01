@@ -190,11 +190,11 @@ begin
 
       if ssAlt in AShift then
       begin
-        PostMessage( AHandle, WM_SYSKEYDOWN, AKey, LPar );
-        PostMessage( AHandle, WM_SYSKEYUP, AKey, LPar or integer($C0000000));
+        SendMessage( AHandle, WM_SYSKEYDOWN, AKey, LPar );
+        SendMessage( AHandle, WM_SYSKEYUP, AKey, LPar or integer($C0000000));
       end else begin
-        PostMessage( AHandle, WM_KEYDOWN, AKey, LPar );
-        PostMessage( AHandle, WM_KEYUP, AKey, LPar or integer($C0000000) );
+        SendMessage( AHandle, WM_KEYDOWN, AKey, LPar );
+        SendMessage( AHandle, WM_KEYUP, AKey, LPar or integer($C0000000) );
       end;
 
       SetKeyboardState( pKeyBuffers^[ 1 ] );
@@ -249,7 +249,8 @@ var
 begin
   for C := 1 to Length( AText ) do
   begin
-    Self.SendChar( AText[ C ] );
+    if not (AText[ C ] = #13) then
+       Self.SendChar( AText[ C ] );
   end;
 end;
 

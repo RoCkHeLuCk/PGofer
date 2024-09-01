@@ -48,7 +48,9 @@ type
   {$M+}
   TPGVaultFolder = class( TPGFolder )
   private
+    class var FImageIndex: Integer;
   protected
+    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
   published
@@ -59,12 +61,16 @@ type
 implementation
 
 uses
+  Winapi.Windows,
   System.SysUtils,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
   PGofer.Triggers.VaultFills.Frame,
   PGofer.ImageList,
-  PGofer.Key.Post;
+  PGofer.Key.Controls,
+  PGofer.Key.Post,
+  PGofer.ClipBoards.Controls,
+  PGofer.Process.Controls;
 
 { TPGVaultFills }
 
@@ -97,7 +103,7 @@ begin
     begin
       VParam := Gramatica.Pilha.Desempilhar( '' );
       if not Gramatica.Erro then
-        Self.Triggering(); //??????????
+        Self.Triggering();
 
       Gramatica.TokenList.GetNextToken;
     end
@@ -122,9 +128,45 @@ procedure TPGVaultFills.Triggering( );
 var
   KeyPost: TKeyPost;
 begin
-  KeyPost := TKeyPost.Create( self.Text, self.Speed );
-  KeyPost.WaitFor( );
-  KeyPost.Free( );
+  sleep(500);
+  case self.Mode of
+     0:begin
+        KeyPost := TKeyPost.Create( self.Text, self.Speed);
+        KeyPost.WaitFor( );
+        KeyPost.Free( );
+     end;
+
+     1:begin
+        SendMessage(
+          ProcessGetFocusedControl(),
+          $000C ,
+          0,
+          LPARAM(PChar(self.Text))
+        );
+     end;
+
+     2:begin
+       ClipBoardCopyFromText(self.Text);
+     end;
+
+     3:begin
+       ClipBoardCopyFromText(self.Text);
+       sleep(self.Speed*2);
+       keybd_event( VK_CONTROL, 0, KEYEVENTF_EXTENDEDKEY, 0 );
+       sleep(self.Speed);
+       keybd_event( 86, 0, KEYEVENTF_EXTENDEDKEY, 0 ); //v
+       sleep(self.Speed);
+       keybd_event( 86, 0, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 ); //v
+       sleep(self.Speed);
+       keybd_event( VK_CONTROL, 0, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 );
+     end;
+
+     4:begin
+       ScriptExec( 'VaultFill: ' + Self.Name, Self.Text, nil );
+     end;
+
+  end;
+
 end;
 
 { TPGVaultFillsDeclare }
@@ -167,7 +209,7 @@ end;
 
 constructor TPGVaultFillsMirror.Create( AItemDad: TPGItem; AName: string );
 begin
-  AName := TPGItemMirror.TranscendName( AName, TPGVaultFills.GlobList );
+  AName := TPGItemMirror.TranscendName( AName );
   inherited Create( AItemDad, TPGVaultFills.Create( AName, Self ) );
   Self.ReadOnly := False;
 end;
@@ -190,13 +232,18 @@ begin
   //algo aqui...
 end;
 
+class function TPGVaultFolder.GetImageIndex( ): Integer;
+begin
+  Result := FImageIndex;
+end;
+
 initialization
 
-TPGVaultFillsDeclare.Create( GlobalItemCommand, 'VaultFills' );
+TPGVaultFillsDeclare.Create( GlobalItemCommand, 'VaultFill' );
 TPGVaultFills.GlobList := TPGFolder.Create( GlobalCollection, 'VaultFills' );
 
-TriggersCollect.RegisterClass( 'VaultFills', TPGVaultFillsMirror );
-TPGVaultFills.FImageIndex := GlogalImageList.AddIcon( 'VaultFills' );
+TriggersCollect.RegisterClass( 'VaultFill', TPGVaultFillsMirror );
+TPGVaultFills.FImageIndex := GlogalImageList.AddIcon( 'VaultFill' );
 
 TriggersCollect.RegisterClass( 'VaultFolder', TPGVaultFolder );
 TPGVaultFolder.FImageIndex := GlogalImageList.AddIcon( 'VaultFolder' );

@@ -70,8 +70,6 @@ var
   CanOff: Boolean = False;
   CanClose: Boolean = True;
 
-  HookQueueMaxCount: Integer = 0;
-
 implementation
 
 uses

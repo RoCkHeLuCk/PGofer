@@ -46,8 +46,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <VerInfo_Build>74</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Modified components ;FileVersion=1.0.0.74;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer;OriginalFilename=Components Ex;ProgramID=PGofer Components;ProductName=HeLuCk&apos;s Components;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>76</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Modified components ;FileVersion=1.0.0.76;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer;OriginalFilename=Components Ex;ProgramID=PGofer Components;ProductName=HeLuCk&apos;s Components;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

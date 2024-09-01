@@ -105,7 +105,7 @@ end;
 
 procedure TPGTask.Triggering( );
 begin
-  ScriptExec( 'Task: ' + Self.Name, Self.Script, nil );
+  Self.ExecutarNivel1( nil );
 end;
 
 class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );

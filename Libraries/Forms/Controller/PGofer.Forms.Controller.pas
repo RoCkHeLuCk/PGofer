@@ -465,11 +465,9 @@ begin
         Self.PanelCleaning( );
         FSelectedItem := TPGItem( TrvController.Selected.Data );
         FSelectedItem.Frame( PnlFrame );
-        // PnlFrame.Caption := '';
       end;
     end else begin
       Self.PanelCleaning( );
-      // PnlFrame.Caption := 'No items selected!';
     end;
     PnlFrame.Update;
     PnlFrame.Refresh;
