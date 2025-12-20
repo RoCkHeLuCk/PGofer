@@ -47,7 +47,8 @@ type
   protected
     procedure CreateParams( var AParams: TCreateParams ); override;
     procedure OnQueryEndSession( var Msg: TWMQueryEndSession );
-      message WM_QueryEndSession;
+      message WM_QUERYENDSESSION;
+    procedure OnEndSession(var Msg: TWMEndSession); message WM_ENDSESSION;
     procedure WndProc( var Msg: TMessage ); override;
     procedure WMHotKey( var Msg: TWMHotKey ); message WM_HOTKEY;
   public
@@ -113,11 +114,26 @@ procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
 begin
   TPGTask.Working( 2, True );
   if PGofer.Sintatico.CanOff then
-    Msg.Result := 0
-  else
-    Msg.Result := 1;
+  begin
+    Msg.Result := 0;
+    // Impede o desligamento
+    setThreadExecutionState( ES_CONTINUOUS or ES_SYSTEM_REQUIRED);
+  end else begin
+    Msg.Result := 1; // Permite o desligamento
+  end;
+end;
 
-  // ?????????????????? fechar todos os forms para salvar tudo
+procedure TFrmPGofer.OnEndSession(var Msg: TWMEndSession);
+var
+  I: Integer;
+begin
+  if Msg.EndSession then
+  begin
+    for I := Screen.FormCount - 1 downto 0 do
+    begin
+      Screen.Forms[I].Close;
+    end;
+  end;
 end;
 
 procedure TFrmPGofer.FormCloseQuery( Sender: TObject; var CanClose: Boolean );

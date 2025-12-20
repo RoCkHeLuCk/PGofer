@@ -170,6 +170,12 @@ end;
 
 procedure TPGSystem.SetCanOff( Value: Boolean );
 begin
+  if Value then
+  begin
+    SetThreadExecutionState(ES_CONTINUOUS or ES_SYSTEM_REQUIRED or ES_AWAYMODE_REQUIRED);
+  end else begin
+    SetThreadExecutionState(ES_CONTINUOUS);
+  end;
   PGofer.Sintatico.CanOff := Value;
 end;
 
@@ -200,6 +206,7 @@ end;
 
 function TPGSystem.SetSuspendState( Enabled: Boolean ): Boolean;
 begin
+  setThreadExecutionState( ES_CONTINUOUS );
   Result := PGofer.System.Controls.SystemSetSuspendState( Enabled,
     True, False );
 end;

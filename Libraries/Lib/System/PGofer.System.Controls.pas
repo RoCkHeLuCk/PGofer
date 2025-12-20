@@ -36,6 +36,7 @@ var
   H: DWORD;
   HToken: THandle;
 begin
+  setThreadExecutionState( ES_CONTINUOUS );
   OpenProcessToken( GetCurrentProcess, TOKEN_ADJUST_PRIVILEGES, HToken );
   LookUpPrivilegeValue( nil, 'SeShutdownPrivilege',
     TokenPriv.Privileges[ 0 ].Luid );

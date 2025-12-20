@@ -12,23 +12,7 @@
     <ScriptAfter Type="string"></ScriptAfter>
     <CanExecute Type="Boolean">True</CanExecute>
   </Link>
-  <VaultFills Name="coreld" Enabled="true" ReadOnly="false">
-    <Mode Type="Byte">0</Mode>
-    <Speed Type="Cardinal">0</Speed>
-    <Text Type="string">asdfasdf
-</Text>
-  </VaultFills>
   <VaultFolder Name="VaultFolder" Enabled="true" ReadOnly="false">
     <_Expanded Type="Boolean">False</_Expanded>
-    <VaultFills Name="VaultFills" Enabled="true" ReadOnly="false">
-      <Mode Type="Byte">0</Mode>
-      <Speed Type="Cardinal">0</Speed>
-      <Text Type="string"></Text>
-    </VaultFills>
-    <VaultFills Name="VaultFills1" Enabled="true" ReadOnly="false">
-      <Mode Type="Byte">0</Mode>
-      <Speed Type="Cardinal">0</Speed>
-      <Text Type="string"></Text>
-    </VaultFills>
   </VaultFolder>
 </Triggers>

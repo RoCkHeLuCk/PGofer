@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <VaultFill Name="VaultFill1" Enabled="true" ReadOnly="false">
+  <VaultFill Name="Teste" Enabled="true" ReadOnly="false">
     <Mode Type="Byte">0</Mode>
     <Speed Type="Cardinal">10</Speed>
     <Text Type="string">1234567890-=

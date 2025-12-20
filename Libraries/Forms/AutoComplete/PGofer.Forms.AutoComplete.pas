@@ -478,7 +478,8 @@ procedure TFrmAutoComplete.EditCtrlAdd( AValue: TRichEditEx );
 var
   OnCntrl: TEditOnCtrl;
 begin
-  if Assigned(FEditList) and not FEditList.ContainsKey(AValue) then
+  if Assigned(FEditList) and Assigned(AValue)
+  and not FEditList.ContainsKey(AValue) then
   begin
     OnCntrl := TEditOnCtrl.Create( );
     OnCntrl.OnKeyDown := AValue.OnKeyDown;

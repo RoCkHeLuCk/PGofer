@@ -42,9 +42,11 @@ uses
   PGofer.System.Functions in '..\..\Libraries\Lib\System\PGofer.System.Functions.pas',
   PGofer.System.Functions.Frame in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFunctionFrame: TFrame},
   PGofer.System.VirtualDesktop in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
-  PGofer.Utils in '..\..\Libraries\Lib\PGUtils\PGofer.Utils.pas',
-  PGofer.Types in '..\..\Libraries\Lib\PGUtils\PGofer.Types.pas',
-  PGofer.ZLib in '..\..\Libraries\Lib\PGUtils\PGofer.ZLib.pas',
+  PGofer.AES in '..\..\Libraries\Lib\Utils\PGofer.AES.pas',
+  PGofer.DPAPI in '..\..\Libraries\Lib\Utils\PGofer.DPAPI.pas',
+  PGofer.Utils in '..\..\Libraries\Lib\Utils\PGofer.Utils.pas',
+  PGofer.Types in '..\..\Libraries\Lib\Utils\PGofer.Types.pas',
+  PGofer.ZLib in '..\..\Libraries\Lib\Utils\PGofer.ZLib.pas',
   PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
   PGofer.Forms.Frame in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFormsFrame: TFrame},
@@ -95,9 +97,9 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.LoadFileAndForm( );
     TriggersCollect.LoadFileAndForm( );
     TPGTask.Working( 0, False );
