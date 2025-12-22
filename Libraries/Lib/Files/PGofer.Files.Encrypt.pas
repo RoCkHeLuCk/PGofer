@@ -1,4 +1,4 @@
-unit PGofer.AES;
+unit PGofer.Files.Encrypt;
 
 interface
 
@@ -9,23 +9,33 @@ type
   HCRYPTPROV = type THandle;
   HCRYPTHASH = type THandle;
   HCRYPTKEY  = NativeUInt;
-
   EAESError = class(Exception);
+  EDPAPIError = class(Exception);
 
-  TPGAES = class
-  public
-    // Criptografa stream usando uma senha (string)
-    class procedure EncryptStream(Source, Dest: TStream; const Password: string);
-    // Descriptografa stream usando uma senha
-    class procedure DecryptStream(Source, Dest: TStream; const Password: string);
-  end;
+  procedure AESEncryptStream(Source, Dest: TStream; const Password: string);
+  procedure AESDecryptStream(Source, Dest: TStream; const Password: string);
+  procedure AESEncryptFile(Source, Dest: string; const Password: string);
+  procedure AESDecryptFile(Source, Dest: string; const Password: string);
+  procedure DPAPIEncryptStream(Source, Dest: TStream);
+  procedure DPAPIDecryptStream(Source, Dest: TStream);
+  procedure DPAPIEncryptFile(Source, Dest: string);
+  procedure DPAPIDecryptFile(Source, Dest: string);
 
 implementation
 
 const
+  CRYPTPROTECT_UI_FORBIDDEN = $1;
   PROV_RSA_AES = 24;
   CALG_AES_256 = $00006610;
   CALG_SHA1    = $00008004;
+
+type
+  DATA_BLOB = record
+    cbData: DWORD;
+    pbData: PByte;
+  end;
+  PDATA_BLOB = ^DATA_BLOB;
+
 
 // Declarações manuais da wincrypt (para garantir compatibilidade)
 function CryptAcquireContext(var phProv: HCRYPTPROV; pszContainer: LPCSTR;
@@ -61,9 +71,20 @@ function CryptDestroyHash(hHash: HCRYPTHASH): BOOL; stdcall;
 function CryptReleaseContext(hProv: HCRYPTPROV; dwFlags: DWORD): BOOL; stdcall;
   external 'advapi32.dll' name 'CryptReleaseContext';
 
+function CryptProtectData(pDataIn: PDATA_BLOB; szDataDescr: LPCWSTR;
+  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
+  pPromptStruct: Pointer; dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
+  external 'crypt32.dll' name 'CryptProtectData';
+
+function CryptUnprotectData(pDataIn: PDATA_BLOB; ppszDataDescr: PPWideChar;
+  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
+  pPromptStruct: Pointer; dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
+  external 'crypt32.dll' name 'CryptUnprotectData';
+
+
 { TPGAES }
 
-class procedure TPGAES.EncryptStream(Source, Dest: TStream; const Password: string);
+procedure FileAESEncryptStream(Source, Dest: TStream; const Password: string);
 var
   hProv: HCRYPTPROV;
   hHash: HCRYPTHASH;
@@ -108,7 +129,7 @@ begin
   end;
 end;
 
-class procedure TPGAES.DecryptStream(Source, Dest: TStream; const Password: string);
+procedure FileAESDecryptStream(Source, Dest: TStream; const Password: string);
 var
   hProv: HCRYPTPROV;
   hHash: HCRYPTHASH;
@@ -144,6 +165,79 @@ begin
     end;
   finally
     CryptReleaseContext(hProv, 0);
+  end;
+end;
+
+procedure AESEncryptFile(Source, Dest: string; const Password: string);
+begin
+
+end;
+
+procedure AESDecryptFile(Source, Dest: string; const Password: string);
+begin
+
+end;
+
+
+procedure DPAPIEncryptStream(Source, Dest: TStream);
+var
+  Input, Output: DATA_BLOB;
+  InputMem: TMemoryStream;
+begin
+  InputMem := TMemoryStream.Create;
+  try
+    // Copia o XML original para memória para preparar o BLOB
+    InputMem.CopyFrom(Source, 0);
+
+    Input.cbData := InputMem.Size;
+    Input.pbData := InputMem.Memory;
+    Output.cbData := 0;
+    Output.pbData := nil;
+
+    // A mágica: Criptografa usando as credenciais do usuário atual
+    if not CryptProtectData(@Input, nil, nil, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, @Output) then
+      RaiseLastOSError;
+
+    try
+      // Grava o tamanho do bloco criptografado (cabeçalho simples)
+      Dest.WriteBuffer(Output.cbData, SizeOf(DWORD));
+      // Grava os dados criptografados
+      Dest.WriteBuffer(Output.pbData^, Output.cbData);
+    finally
+      LocalFree(HLOCAL(Output.pbData));
+    end;
+  finally
+    InputMem.Free;
+  end;
+end;
+
+procedure DPAPIDecryptStream(Source, Dest: TStream);
+var
+  Input, Output: DATA_BLOB;
+  DataSize: DWORD;
+  Buffer: TBytes;
+begin
+  // Lê o tamanho do bloco
+  if Source.Read(DataSize, SizeOf(DWORD)) < SizeOf(DWORD) then
+    raise EProtectionError.Create('Arquivo inválido ou corrompido.');
+
+  SetLength(Buffer, DataSize);
+  Source.ReadBuffer(Buffer[0], DataSize);
+
+  Input.cbData := DataSize;
+  Input.pbData := @Buffer[0];
+  Output.cbData := 0;
+  Output.pbData := nil;
+
+  // Tenta descriptografar. Se for outra máquina/usuário, falha aqui.
+  if not CryptUnprotectData(@Input, nil, nil, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, @Output) then
+    raise EProtectionError.Create('Acesso negado: Este arquivo não pertence a este usuário/máquina.');
+
+  try
+    Dest.WriteBuffer(Output.pbData^, Output.cbData);
+    Dest.Position := 0; // Reseta para leitura do XML
+  finally
+    LocalFree(HLOCAL(Output.pbData));
   end;
 end;
 

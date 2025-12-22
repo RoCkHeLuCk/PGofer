@@ -191,6 +191,7 @@
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.WinShell.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Encrypt.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Post.pas"/>
@@ -225,8 +226,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.AES.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.DPAPI.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.Utils.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.Types.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.ZLib.pas"/>
@@ -319,10 +318,10 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
+                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -369,16 +368,16 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
-                    <Platform Name="Win64">
-                        <RemoteName>PGofer3.exe</RemoteName>
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
+                <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
+                    <Platform Name="Win64">
+                        <RemoteName>PGofer3.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
