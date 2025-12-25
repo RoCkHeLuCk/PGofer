@@ -216,7 +216,7 @@ procedure TFrmController.PanelCleaning( );
 var
   c: Integer;
 begin
-  FCollectItem.UpdateToFile( );
+  FCollectItem.SaveToFile( );
   for c := PnlFrame.ControlCount - 1 downto 0 do
   begin
     PnlFrame.Controls[ c ].Free( );
@@ -410,7 +410,7 @@ begin
       Directory := FileUnExpandPath( ExtractFilePath( sFileName ) );
     end;
   end;
-  FCollectItem.UpdateToFile( );
+  FCollectItem.SaveToFile( );
 end;
 
 procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
@@ -428,7 +428,7 @@ begin
       TPGItem( Node.Data ).Parent := ItemDad;
     end;
   end;
-  FCollectItem.UpdateToFile;
+  FCollectItem.SaveToFile;
 end;
 
 procedure TFrmController.TrvControllerDragOver( Sender, Source: TObject;

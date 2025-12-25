@@ -66,7 +66,7 @@ var
   ReplyPrefix: Boolean = False;
   ConsoleNotify: TPGConsoleNotify;
   ConsoleMessage: Boolean = True;
-  LogMaxSize: Integer = 10000;
+  LogMaxSize: Int64 = 10000;
   CanOff: Boolean = False;
   CanClose: Boolean = True;
 

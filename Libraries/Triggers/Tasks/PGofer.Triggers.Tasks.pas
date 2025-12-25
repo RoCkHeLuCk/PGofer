@@ -121,7 +121,7 @@ begin
     begin
       ScriptExec( 'Task: ' + Item.Name, TPGTask( Item ).Script, nil, AWaitFor );
       Item.Occurrence := Item.Occurrence + 1;
-      Item.CollectDad.UpdateToFile( );
+      Item.CollectDad.SaveToFile( );
     end;
   end;
 end;

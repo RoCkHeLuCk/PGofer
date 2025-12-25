@@ -3,6 +3,7 @@ program PGofer3;
 
 uses
   PGofer.ImageList in '..\..\Libraries\Lib\Kernel\PGofer.ImageList.pas',
+  PGofer.Attributes in '..\..\Libraries\Lib\Kernel\PGofer.Attributes.pas',
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
@@ -96,11 +97,11 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
-    GlobalCollection.LoadFileAndForm( );
-    TriggersCollect.LoadFileAndForm( );
+    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    GlobalCollection.LoadFromFile( );
+    TriggersCollect.LoadFromFile( );
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );
     Application.Run;

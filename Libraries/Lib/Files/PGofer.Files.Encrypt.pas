@@ -5,86 +5,82 @@ interface
 uses
   System.SysUtils, System.Classes, Winapi.Windows;
 
-type
-  HCRYPTPROV = type THandle;
-  HCRYPTHASH = type THandle;
-  HCRYPTKEY  = NativeUInt;
-  EAESError = class(Exception);
-  EDPAPIError = class(Exception);
+{ AES }
+function AESEncryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean; overload;
+function AESDecryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean; overload;
+function AESEncryptStream(StreamFrom: TStream; Password: string): TStream; overload;
+function AESDecryptStream(StreamFrom: TStream; Password: string): TStream; overload;
+function AESEncryptFile(FileFrom, FileTo: string; Password: string): Boolean;
+function AESDecryptFile(FileFrom, FileTo: string; Password: string): Boolean;
+function AESEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Password: string): Boolean;
+function AESDecryptFileToStream(FileFrom: string; Password: string): TStream;
+function AESEncryptStringToFile(StringFrom: string; FileTo: string; Password: string): Boolean;
+function AESDecryptFileToString(FileFrom: string; Password: string): string;
 
-  procedure AESEncryptStream(Source, Dest: TStream; const Password: string);
-  procedure AESDecryptStream(Source, Dest: TStream; const Password: string);
-  procedure AESEncryptFile(Source, Dest: string; const Password: string);
-  procedure AESDecryptFile(Source, Dest: string; const Password: string);
-  procedure DPAPIEncryptStream(Source, Dest: TStream);
-  procedure DPAPIDecryptStream(Source, Dest: TStream);
-  procedure DPAPIEncryptFile(Source, Dest: string);
-  procedure DPAPIDecryptFile(Source, Dest: string);
+{ DPAPI }
+function DPAPIEncryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean; overload;
+function DPAPIDecryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean; overload;
+function DPAPIEncryptStream(StreamFrom: TStream; Entropy: string): TStream; overload;
+function DPAPIDecryptStream(StreamFrom: TStream; Entropy: string): TStream; overload;
+function DPAPIEncryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
+function DPAPIDecryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
+function DPAPIEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Entropy: string): Boolean;
+function DPAPIDecryptFileToStream(FileFrom: string; Entropy: string): TStream;
+function DPAPIEncryptStringToFile(StringFrom: string; const FileTo: string; Entropy: string): Boolean;
+function DPAPIDecryptFileToString(FileFrom: string; Entropy: string): string;
 
 implementation
 
 const
+  CRYPT_VERIFYCONTEXT = $F0000000;
   CRYPTPROTECT_UI_FORBIDDEN = $1;
   PROV_RSA_AES = 24;
   CALG_AES_256 = $00006610;
-  CALG_SHA1    = $00008004;
+  CALG_SHA1 = $00008004;
 
 type
+  HCRYPTPROV = type THandle;
+  HCRYPTHASH = type THandle;
+  HCRYPTKEY = NativeUInt;
+  ALG_ID = Cardinal;
+
   DATA_BLOB = record
     cbData: DWORD;
     pbData: PByte;
   end;
+
   PDATA_BLOB = ^DATA_BLOB;
 
-
-// Declarações manuais da wincrypt (para garantir compatibilidade)
-function CryptAcquireContext(var phProv: HCRYPTPROV; pszContainer: LPCSTR;
-  pszProvider: LPCSTR; dwProvType: DWORD; dwFlags: DWORD): BOOL; stdcall;
+  { API Windows }
+function CryptAcquireContext(var phProv: HCRYPTPROV; pszContainer: LPCSTR; pszProvider: LPCSTR;
+  dwProvType: DWORD; dwFlags: DWORD): BOOL; stdcall;
   external 'advapi32.dll' name 'CryptAcquireContextA';
-
-function CryptCreateHash(hProv: HCRYPTPROV; Algid: ALG_ID; hKey: HCRYPTKEY;
-  dwFlags: DWORD; var phHash: HCRYPTHASH): BOOL; stdcall;
-  external 'advapi32.dll' name 'CryptCreateHash';
-
-function CryptHashData(hHash: HCRYPTHASH; pbData: PBYTE; dwDataLen: DWORD;
-  dwFlags: DWORD): BOOL; stdcall;
-  external 'advapi32.dll' name 'CryptHashData';
-
-function CryptDeriveKey(hProv: HCRYPTPROV; Algid: ALG_ID; hBaseData: HCRYPTHASH;
-  dwFlags: DWORD; var phKey: HCRYPTKEY): BOOL; stdcall;
-  external 'advapi32.dll' name 'CryptDeriveKey';
-
-function CryptEncrypt(hKey: HCRYPTKEY; hHash: HCRYPTHASH; Final: BOOL;
-  dwFlags: DWORD; pbData: PBYTE; var pdwDataLen: DWORD; dwBufLen: DWORD): BOOL; stdcall;
+function CryptCreateHash(hProv: HCRYPTPROV; Algid: ALG_ID; hKey: HCRYPTKEY; dwFlags: DWORD;
+  var phHash: HCRYPTHASH): BOOL; stdcall; external 'advapi32.dll' name 'CryptCreateHash';
+function CryptHashData(hHash: HCRYPTHASH; pbData: PByte; dwDataLen: DWORD; dwFlags: DWORD): BOOL;
+  stdcall; external 'advapi32.dll' name 'CryptHashData';
+function CryptDeriveKey(hProv: HCRYPTPROV; Algid: ALG_ID; hBaseData: HCRYPTHASH; dwFlags: DWORD;
+  var phKey: HCRYPTKEY): BOOL; stdcall; external 'advapi32.dll' name 'CryptDeriveKey';
+function CryptEncrypt(hKey: HCRYPTKEY; hHash: HCRYPTHASH; Final: BOOL; dwFlags: DWORD;
+  pbData: PByte; var pdwDataLen: DWORD; dwBufLen: DWORD): BOOL; stdcall;
   external 'advapi32.dll' name 'CryptEncrypt';
-
-function CryptDecrypt(hKey: HCRYPTKEY; hHash: HCRYPTHASH; Final: BOOL;
-  dwFlags: DWORD; pbData: PBYTE; var pdwDataLen: DWORD): BOOL; stdcall;
-  external 'advapi32.dll' name 'CryptDecrypt';
-
+function CryptDecrypt(hKey: HCRYPTKEY; hHash: HCRYPTHASH; Final: BOOL; dwFlags: DWORD;
+  pbData: PByte; var pdwDataLen: DWORD): BOOL; stdcall; external 'advapi32.dll' name 'CryptDecrypt';
 function CryptDestroyKey(hKey: HCRYPTKEY): BOOL; stdcall;
   external 'advapi32.dll' name 'CryptDestroyKey';
-
 function CryptDestroyHash(hHash: HCRYPTHASH): BOOL; stdcall;
   external 'advapi32.dll' name 'CryptDestroyHash';
-
 function CryptReleaseContext(hProv: HCRYPTPROV; dwFlags: DWORD): BOOL; stdcall;
   external 'advapi32.dll' name 'CryptReleaseContext';
-
-function CryptProtectData(pDataIn: PDATA_BLOB; szDataDescr: LPCWSTR;
-  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
-  pPromptStruct: Pointer; dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
+function CryptProtectData(pDataIn: PDATA_BLOB; szDataDescr: LPCWSTR; pOptionalEntropy: PDATA_BLOB;
+  pvReserved: Pointer; pPromptStruct: Pointer; dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
   external 'crypt32.dll' name 'CryptProtectData';
-
 function CryptUnprotectData(pDataIn: PDATA_BLOB; ppszDataDescr: PPWideChar;
-  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
-  pPromptStruct: Pointer; dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
-  external 'crypt32.dll' name 'CryptUnprotectData';
+  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer; pPromptStruct: Pointer; dwFlags: DWORD;
+  pDataOut: PDATA_BLOB): BOOL; stdcall; external 'crypt32.dll' name 'CryptUnprotectData';
 
-
-{ TPGAES }
-
-procedure FileAESEncryptStream(Source, Dest: TStream; const Password: string);
+{ AES }
+function AESEncryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean;
 var
   hProv: HCRYPTPROV;
   hHash: HCRYPTHASH;
@@ -93,43 +89,44 @@ var
   DataLen, BufLen: DWORD;
   PasswordBytes: TBytes;
 begin
-  if not CryptAcquireContext(hProv, nil, nil, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) then
-    RaiseLastOSError;
+  Result := False;
+  hProv := 0;
+  hHash := 0;
+  hKey := 0;
   try
+    if not CryptAcquireContext(hProv, nil, nil, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) then
+      Exit;
     if not CryptCreateHash(hProv, CALG_SHA1, 0, 0, hHash) then
-      RaiseLastOSError;
-    try
-      PasswordBytes := TEncoding.UTF8.GetBytes(Password);
-      if not CryptHashData(hHash, @PasswordBytes[0], Length(PasswordBytes), 0) then
-        RaiseLastOSError;
+      Exit;
+    PasswordBytes := TEncoding.UTF8.GetBytes(Password);
+    if not CryptHashData(hHash, @PasswordBytes[0], Length(PasswordBytes), 0) then
+      Exit;
+    if not CryptDeriveKey(hProv, CALG_AES_256, hHash, 0, hKey) then
+      Exit;
 
-      // Gera a chave AES-256 baseada no Hash da senha
-      if not CryptDeriveKey(hProv, CALG_AES_256, hHash, 0, hKey) then
-        RaiseLastOSError;
+    DataLen := StreamFrom.Size - StreamFrom.Position;
+    BufLen := DataLen + 32;
+    SetLength(Buffer, BufLen);
 
-      try
-        DataLen := Source.Size;
-        // O AES trabalha em blocos, precisamos de margem
-        BufLen := DataLen + 32;
-        SetLength(Buffer, BufLen);
-        Source.ReadBuffer(Buffer[0], DataLen);
+    if DataLen > 0 then
+      StreamFrom.ReadBuffer(Buffer[0], DataLen);
 
-        if not CryptEncrypt(hKey, 0, True, 0, @Buffer[0], DataLen, BufLen) then
-          RaiseLastOSError;
+    if not CryptEncrypt(hKey, 0, True, 0, @Buffer[0], DataLen, BufLen) then
+      Exit;
 
-        Dest.WriteBuffer(Buffer[0], DataLen);
-      finally
-        CryptDestroyKey(hKey);
-      end;
-    finally
-      CryptDestroyHash(hHash);
-    end;
+    StreamTo.WriteBuffer(Buffer[0], DataLen);
+    Result := True;
   finally
-    CryptReleaseContext(hProv, 0);
+    if hKey <> 0 then
+      CryptDestroyKey(hKey);
+    if hHash <> 0 then
+      CryptDestroyHash(hHash);
+    if hProv <> 0 then
+      CryptReleaseContext(hProv, 0);
   end;
 end;
 
-procedure FileAESDecryptStream(Source, Dest: TStream; const Password: string);
+function AESDecryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean;
 var
   hProv: HCRYPTPROV;
   hHash: HCRYPTHASH;
@@ -138,107 +135,384 @@ var
   DataLen: DWORD;
   PasswordBytes: TBytes;
 begin
-  if not CryptAcquireContext(hProv, nil, nil, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) then
-    RaiseLastOSError;
+  Result := False;
+  hProv := 0;
+  hHash := 0;
+  hKey := 0;
   try
+    if not CryptAcquireContext(hProv, nil, nil, PROV_RSA_AES, CRYPT_VERIFYCONTEXT) then
+      Exit;
     if not CryptCreateHash(hProv, CALG_SHA1, 0, 0, hHash) then
-      RaiseLastOSError;
-    try
-      PasswordBytes := TEncoding.UTF8.GetBytes(Password);
-      CryptHashData(hHash, @PasswordBytes[0], Length(PasswordBytes), 0);
-      CryptDeriveKey(hProv, CALG_AES_256, hHash, 0, hKey);
+      Exit;
+    PasswordBytes := TEncoding.UTF8.GetBytes(Password);
+    if not CryptHashData(hHash, @PasswordBytes[0], Length(PasswordBytes), 0) then
+      Exit;
+    if not CryptDeriveKey(hProv, CALG_AES_256, hHash, 0, hKey) then
+      Exit;
 
-      try
-        DataLen := Source.Size;
-        SetLength(Buffer, DataLen);
-        Source.ReadBuffer(Buffer[0], DataLen);
-
-        if not CryptDecrypt(hKey, 0, True, 0, @Buffer[0], DataLen) then
-          raise EAESError.Create('Senha incorreta ou arquivo corrompido.');
-
-        Dest.WriteBuffer(Buffer[0], DataLen);
-      finally
-        CryptDestroyKey(hKey);
-      end;
-    finally
-      CryptDestroyHash(hHash);
+    DataLen := StreamFrom.Size - StreamFrom.Position;
+    if DataLen = 0 then
+    begin
+      Result := True;
+      Exit;
     end;
+
+    SetLength(Buffer, DataLen);
+    StreamFrom.ReadBuffer(Buffer[0], DataLen);
+
+    if not CryptDecrypt(hKey, 0, True, 0, @Buffer[0], DataLen) then
+      Exit;
+
+    StreamTo.WriteBuffer(Buffer[0], DataLen);
+    Result := True;
   finally
-    CryptReleaseContext(hProv, 0);
+    if hKey <> 0 then
+      CryptDestroyKey(hKey);
+    if hHash <> 0 then
+      CryptDestroyHash(hHash);
+    if hProv <> 0 then
+      CryptReleaseContext(hProv, 0);
   end;
 end;
 
-procedure AESEncryptFile(Source, Dest: string; const Password: string);
+function AESEncryptStream(StreamFrom: TStream; Password: string): TStream;
 begin
-
+  Result := TMemoryStream.Create;
+  if not AESEncryptStream(StreamFrom, Result, Password) then
+    FreeAndNil(Result)
+  else
+    Result.Position := 0;
 end;
 
-procedure AESDecryptFile(Source, Dest: string; const Password: string);
+function AESDecryptStream(StreamFrom: TStream; Password: string): TStream;
 begin
-
+  Result := TMemoryStream.Create;
+  if not AESDecryptStream(StreamFrom, Result, Password) then
+    FreeAndNil(Result)
+  else
+    Result.Position := 0;
 end;
 
-
-procedure DPAPIEncryptStream(Source, Dest: TStream);
+function AESEncryptFile(FileFrom, FileTo: string; Password: string): Boolean;
 var
-  Input, Output: DATA_BLOB;
+  fsIn, fsOut: TFileStream;
+begin
+  Result := False;
+  if not FileExists(FileFrom) then
+    Exit;
+  fsIn := TFileStream.Create(FileFrom, fmOpenRead or fmShareDenyWrite);
+  try
+    fsOut := TFileStream.Create(FileTo, fmCreate);
+    try
+      Result := AESEncryptStream(fsIn, fsOut, Password);
+    finally
+      fsOut.Free;
+      if (not Result) and FileExists(FileTo) then
+        DeleteFile(PWideChar(FileTo));
+    end;
+  finally
+    fsIn.Free;
+  end;
+end;
+
+function AESDecryptFile(FileFrom, FileTo: string; Password: string): Boolean;
+var
+  fsIn, fsOut: TFileStream;
+begin
+  Result := False;
+  if not FileExists(FileFrom) then
+    Exit;
+  fsIn := TFileStream.Create(FileFrom, fmOpenRead or fmShareDenyWrite);
+  try
+    fsOut := TFileStream.Create(FileTo, fmCreate);
+    try
+      Result := AESDecryptStream(fsIn, fsOut, Password);
+    finally
+      fsOut.Free;
+      if (not Result) and FileExists(FileTo) then
+        DeleteFile(PWideChar(FileTo));
+    end;
+  finally
+    fsIn.Free;
+  end;
+end;
+
+function AESEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Password: string): Boolean;
+var
+  fsOut: TFileStream;
+begin
+  fsOut := TFileStream.Create(FileTo, fmCreate);
+  try
+    Result := AESEncryptStream(StreamFrom, fsOut, Password);
+  finally
+    fsOut.Free;
+    if (not Result) and FileExists(FileTo) then
+      DeleteFile(PWideChar(FileTo));
+  end;
+end;
+
+function AESDecryptFileToStream(FileFrom: string; Password: string): TStream;
+var
+  fsIn: TFileStream;
+begin
+  Result := nil;
+  if not FileExists(FileFrom) then
+    Exit;
+  fsIn := TFileStream.Create(FileFrom, fmOpenRead or fmShareDenyWrite);
+  try
+    Result := AESDecryptStream(fsIn, Password);
+  finally
+    fsIn.Free;
+  end;
+end;
+
+function AESEncryptStringToFile(StringFrom: string; FileTo: string; Password: string): Boolean;
+var
+  ssIn: TStringStream;
+begin
+  ssIn := TStringStream.Create(StringFrom, TEncoding.UTF8);
+  try
+    Result := AESEncryptStreamToFile(ssIn, FileTo, Password);
+  finally
+    ssIn.Free;
+  end;
+end;
+
+function AESDecryptFileToString(FileFrom: string; Password: string): string;
+var
+  msOut: TStream;
+  ssOut: TStringStream;
+begin
+  Result := '';
+  msOut := AESDecryptFileToStream(FileFrom, Password);
+  if Assigned(msOut) then
+    try
+      ssOut := TStringStream.Create('', TEncoding.UTF8);
+      try
+        ssOut.CopyFrom(msOut, 0);
+        Result := ssOut.DataString;
+      finally
+        ssOut.Free;
+      end;
+    finally
+      msOut.Free;
+    end;
+end;
+
+{ DPAPI }
+
+function DPAPIEncryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean;
+var
+  Input, Output, EntropyBlob: DATA_BLOB;
+  pEntropy: PDATA_BLOB;
+  EntropyBytes: TBytes;
   InputMem: TMemoryStream;
 begin
+  Result := False;
   InputMem := TMemoryStream.Create;
   try
-    // Copia o XML original para memória para preparar o BLOB
-    InputMem.CopyFrom(Source, 0);
-
+    InputMem.CopyFrom(StreamFrom, 0);
+    InputMem.Position := 0;
     Input.cbData := InputMem.Size;
     Input.pbData := InputMem.Memory;
     Output.cbData := 0;
     Output.pbData := nil;
 
-    // A mágica: Criptografa usando as credenciais do usuário atual
-    if not CryptProtectData(@Input, nil, nil, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, @Output) then
-      RaiseLastOSError;
+    pEntropy := nil;
+    if Entropy <> '' then
+    begin
+      EntropyBytes := TEncoding.UTF8.GetBytes(Entropy);
+      EntropyBlob.cbData := Length(EntropyBytes);
+      EntropyBlob.pbData := @EntropyBytes[0];
+      pEntropy := @EntropyBlob;
+    end;
+
+    if not CryptProtectData(@Input, nil, pEntropy, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, @Output)
+    then
+      Exit;
 
     try
-      // Grava o tamanho do bloco criptografado (cabeçalho simples)
-      Dest.WriteBuffer(Output.cbData, SizeOf(DWORD));
-      // Grava os dados criptografados
-      Dest.WriteBuffer(Output.pbData^, Output.cbData);
+      StreamTo.WriteBuffer(Output.cbData, SizeOf(DWORD));
+      StreamTo.WriteBuffer(Output.pbData^, Output.cbData);
+      Result := True;
     finally
-      LocalFree(HLOCAL(Output.pbData));
+      if Output.pbData <> nil then
+        LocalFree(HLOCAL(Output.pbData));
     end;
   finally
     InputMem.Free;
   end;
 end;
 
-procedure DPAPIDecryptStream(Source, Dest: TStream);
+function DPAPIDecryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean;
 var
-  Input, Output: DATA_BLOB;
+  Input, Output, EntropyBlob: DATA_BLOB;
+  pEntropy: PDATA_BLOB;
+  EntropyBytes: TBytes;
   DataSize: DWORD;
   Buffer: TBytes;
 begin
-  // Lê o tamanho do bloco
-  if Source.Read(DataSize, SizeOf(DWORD)) < SizeOf(DWORD) then
-    raise EProtectionError.Create('Arquivo inválido ou corrompido.');
-
-  SetLength(Buffer, DataSize);
-  Source.ReadBuffer(Buffer[0], DataSize);
-
-  Input.cbData := DataSize;
-  Input.pbData := @Buffer[0];
-  Output.cbData := 0;
-  Output.pbData := nil;
-
-  // Tenta descriptografar. Se for outra máquina/usuário, falha aqui.
-  if not CryptUnprotectData(@Input, nil, nil, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, @Output) then
-    raise EProtectionError.Create('Acesso negado: Este arquivo não pertence a este usuário/máquina.');
-
+  Result := False;
   try
-    Dest.WriteBuffer(Output.pbData^, Output.cbData);
-    Dest.Position := 0; // Reseta para leitura do XML
-  finally
-    LocalFree(HLOCAL(Output.pbData));
+    if StreamFrom.Read(DataSize, SizeOf(DWORD)) < SizeOf(DWORD) then
+      Exit;
+    SetLength(Buffer, DataSize);
+    if StreamFrom.Read(Buffer[0], DataSize) < Integer(DataSize) then
+      Exit;
+
+    Input.cbData := DataSize;
+    Input.pbData := @Buffer[0];
+    Output.cbData := 0;
+    Output.pbData := nil;
+
+    pEntropy := nil;
+    if Entropy <> '' then
+    begin
+      EntropyBytes := TEncoding.UTF8.GetBytes(Entropy);
+      EntropyBlob.cbData := Length(EntropyBytes);
+      EntropyBlob.pbData := @EntropyBytes[0];
+      pEntropy := @EntropyBlob;
+    end;
+
+    if not CryptUnprotectData(@Input, nil, pEntropy, nil, nil, CRYPTPROTECT_UI_FORBIDDEN, @Output)
+    then
+      Exit;
+
+    try
+      StreamTo.WriteBuffer(Output.pbData^, Output.cbData);
+      Result := True;
+    finally
+      if Output.pbData <> nil then
+        LocalFree(HLOCAL(Output.pbData));
+    end;
+  except
+    Result := False;
   end;
+end;
+
+function DPAPIEncryptStream(StreamFrom: TStream; Entropy: string): TStream;
+begin
+  Result := TMemoryStream.Create;
+  if not DPAPIEncryptStream(StreamFrom, Result, Entropy) then
+    FreeAndNil(Result)
+  else
+    Result.Position := 0;
+end;
+
+function DPAPIDecryptStream(StreamFrom: TStream; Entropy: string): TStream;
+begin
+  Result := TMemoryStream.Create;
+  if not DPAPIDecryptStream(StreamFrom, Result, Entropy) then
+    FreeAndNil(Result)
+  else
+    Result.Position := 0;
+end;
+
+function DPAPIEncryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
+var
+  fsIn, fsOut: TFileStream;
+begin
+  Result := False;
+  if not FileExists(FileFrom) then
+    Exit;
+  fsIn := TFileStream.Create(FileFrom, fmOpenRead or fmShareDenyWrite);
+  try
+    fsOut := TFileStream.Create(FileTo, fmCreate);
+    try
+      Result := DPAPIEncryptStream(fsIn, fsOut, Entropy);
+    finally
+      fsOut.Free;
+      if (not Result) and FileExists(FileTo) then
+        DeleteFile(PWideChar(FileTo));
+    end;
+  finally
+    fsIn.Free;
+  end;
+end;
+
+function DPAPIDecryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
+var
+  fsIn, fsOut: TFileStream;
+begin
+  Result := False;
+  if not FileExists(FileFrom) then
+    Exit;
+  fsIn := TFileStream.Create(FileFrom, fmOpenRead or fmShareDenyWrite);
+  try
+    fsOut := TFileStream.Create(FileTo, fmCreate);
+    try
+      Result := DPAPIDecryptStream(fsIn, fsOut, Entropy);
+    finally
+      fsOut.Free;
+      if (not Result) and FileExists(FileTo) then
+        DeleteFile(PWideChar(FileTo));
+    end;
+  finally
+    fsIn.Free;
+  end;
+end;
+
+function DPAPIEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Entropy: string): Boolean;
+var
+  fsOut: TFileStream;
+begin
+  fsOut := TFileStream.Create(FileTo, fmCreate);
+  try
+    Result := DPAPIEncryptStream(StreamFrom, fsOut, Entropy);
+  finally
+    fsOut.Free;
+    if (not Result) and FileExists(FileTo) then
+      DeleteFile(PWideChar(FileTo));
+  end;
+end;
+
+function DPAPIDecryptFileToStream(FileFrom: string; Entropy: string): TStream;
+var
+  fsIn: TFileStream;
+begin
+  Result := nil;
+  if not FileExists(FileFrom) then
+    Exit;
+  fsIn := TFileStream.Create(FileFrom, fmOpenRead or fmShareDenyWrite);
+  try
+    Result := DPAPIDecryptStream(fsIn, Entropy);
+  finally
+    fsIn.Free;
+  end;
+end;
+
+function DPAPIEncryptStringToFile(StringFrom: string; const FileTo: string;
+  Entropy: string): Boolean;
+var
+  ssIn: TStringStream;
+begin
+  ssIn := TStringStream.Create(StringFrom, TEncoding.UTF8);
+  try
+    Result := DPAPIEncryptStreamToFile(ssIn, FileTo, Entropy);
+  finally
+    ssIn.Free;
+  end;
+end;
+
+function DPAPIDecryptFileToString(FileFrom: string; Entropy: string): string;
+var
+  msOut: TStream;
+  ssOut: TStringStream;
+begin
+  Result := '';
+  msOut := DPAPIDecryptFileToStream(FileFrom, Entropy);
+  if Assigned(msOut) then
+    try
+      ssOut := TStringStream.Create('', TEncoding.UTF8);
+      try
+        ssOut.CopyFrom(msOut, 0);
+        Result := ssOut.DataString;
+      finally
+        ssOut.Free;
+      end;
+    finally
+      msOut.Free;
+    end;
 end;
 
 end.

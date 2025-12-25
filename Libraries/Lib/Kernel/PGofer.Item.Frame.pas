@@ -53,6 +53,8 @@ begin
   EdtName.ReadOnly := FItem.ReadOnly;
   EdtName.ParentColor := FItem.ReadOnly;
 
+  rceAbout.Lines.Text := FItem.About;
+
   FIniFile := TIniFile.Create( PGofer.Sintatico.IniConfigFile );
   Self.IniConfigLoad( );
 end;

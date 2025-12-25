@@ -7,28 +7,13 @@ uses
   PGofer.Classes, PGofer.Sintatico;
 
 type
-  {
-    TPGAttributeType = (attText, attDocFile, attDocComent, attParam, attIcon);
-
-    TPGRttiAttribute = class(TCustomAttribute)
-    private
-    FType: TPGAttributeType;
-    FValue: String;
-    public
-    constructor Create(AttType: TPGAttributeType; Value: String); overload;
-    destructor Destroy(); override;
-    property AttType: TPGAttributeType read FType;
-    property Value: String read FValue;
-    end;
-  }
 
   TPGItemCMD = class( TPGItem )
   private
-    // FAttributeList: TObjectList<TPGRttiAttribute>;
-    // constructor Create(ItemDad: TPGItem; Name: String;
-    // Attrib: Boolean); overload;
     class var FImageIndex: Integer;
     procedure RttiCreate( );
+    function RttiGenerate(AObject: TRttiObject): string;
+    function RttiAttrib(AObject: TRttiObject): string;
   protected
     class function GetImageIndex( ): Integer; override;
     procedure RttiExecute( Gramatica: TGramatica; AItem: TPGItemCMD );
@@ -36,9 +21,6 @@ type
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
     destructor Destroy( ); override;
     procedure Execute( Gramatica: TGramatica ); virtual;
-    // procedure AttributeAdd(AAttType: TPGAttributeType; AValue: String);
-    // property AttributeList: TObjectList<TPGRttiAttribute>
-    // read FAttributeList;
     function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
   end;
 
@@ -62,23 +44,9 @@ implementation
 
 uses
   System.TypInfo,
-  PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls, PGofer.ImageList;
+  PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls, PGofer.ImageList,
+  PGofer.Attributes;
 
-{ TPGAttribute }
-{
-  constructor TPGRttiAttribute.Create(AttType: TPGAttributeType; Value: String);
-  begin
-  FType := AttType;
-  FValue := Value;
-  end;
-
-  destructor TPGRttiAttribute.Destroy();
-  begin
-  FType := attText;
-  FValue := '';
-  inherited Destroy();
-  end;
-}
 { TPGItemCMD }
 constructor TPGItemCMD.Create( AItemDad: TPGItem; AName: string = '' );
 begin
@@ -86,31 +54,14 @@ begin
     AName := copy( Self.ClassName, 4, Length( Self.ClassName ) );
 
   inherited Create( AItemDad, AName );
-  // FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
   Self.RttiCreate( );
 end;
 
-{
-  constructor TPGItemCMD.Create(AItemDad: TPGItem; AName: String; AAttrib: Boolean);
-  begin
-  inherited Create(AItemDad, AName);
-  FAttributeList := TObjectList<TPGRttiAttribute>.Create(True);
-  if AAttrib then
-  Self.RttiCreate();
-  end;
-}
 destructor TPGItemCMD.Destroy( );
 begin
-  // FAttributeList.Free;
   inherited Destroy( );
 end;
 
-{
-  procedure TPGItemCMD.AttributeAdd(AttType: TPGAttributeType; Value: String);
-  begin
-  FAttributeList.Add(TPGRttiAttribute.Create(AttType, Value));
-  end;
-}
 procedure TPGItemCMD.Execute( Gramatica: TGramatica );
 begin
   Gramatica.TokenList.GetNextToken;
@@ -138,41 +89,89 @@ begin
   Result := ( Assigned( Item ) and ( Item <> Self ) );
 end;
 
+function TPGItemCMD.RttiGenerate(AObject: TRttiObject): string;
+var
+  Method: TRttiMethod;
+  Prop: TRttiProperty;
+  Params: TArray<TRttiParameter>;
+  i : SmallInt;
+begin
+  Result := '';
+
+  if AObject is TRttiType then
+  begin
+    Result := 'Class ' + TRttiType(AObject).Name+ '; ';
+  end else begin
+    if AObject is TRttiProperty then
+    begin
+      Prop := TRttiProperty(AObject);
+      Result := 'Property ' + Prop.Name + ': ' + Prop.PropertyType.Name + '; ';
+
+      if Prop.IsReadable then
+      begin
+        Result := Result + '{Read';
+      end;
+
+      if Prop.IsWritable then
+      begin
+        if Prop.IsReadable then
+        begin
+          Result := Result + ',';
+        end else begin
+          Result := Result + '{';
+        end;
+        Result := Result + 'Write';
+      end;
+      Result := Result + '}';
+
+    end else begin
+      if AObject is TRttiMethod then
+      begin
+        Method := TRttiMethod(AObject);
+        Result := 'Function ' + Method.Name + '(';
+        Params := Method.GetParameters;
+        for i := Low(Params) to High(Params) do
+        begin
+          Result := Result + Params[i].Name + ': ' + Params[i].ParamType.Name;
+          if i < High(Params) then Result := Result + '; ';
+        end;
+        Result := Result + ')';
+        if Method.ReturnType <> nil then
+          Result := Result + ': ' + Method.ReturnType.Name;
+        Result := Result + ';';
+      end;
+    end;
+  end;
+end;
+
+function TPGItemCMD.RttiAttrib(AObject: TRttiObject): string;
+var
+  Attrib : TCustomAttribute;
+begin
+  Result := '';
+  for Attrib in AObject.GetAttributes do
+  begin
+    if Attrib is TPGAttribText then
+    begin
+      Result := Result + TPGAttribText(Attrib).Text + #13;
+    end;
+  end;
+end;
+
 procedure TPGItemCMD.RttiCreate( );
-{
-  procedure AttributesCreate(AtributeList: TArray<TCustomAttribute>;
-  ItemAtt: TPGItemCMD);
-  var
-  RttiAttribute: TCustomAttribute;
-  begin
-  if ItemAtt.FAttributeList.Count = 0 then
-  begin
-  for RttiAttribute in AtributeList do
-  begin
-  if RttiAttribute is TPGRttiAttribute then
-  begin
-  with TPGRttiAttribute(RttiAttribute) do
-  begin
-  ItemAtt.AttributeAdd(FType, FValue);
-  end;
-  end;
-  end;
-  end;
-  end;
-}
   procedure CreateItems( RttiMemberList: TArray<TRttiMember> );
   var
-    // ItemAux: TPGItem;
     RttiMember: TRttiMember;
+    Item: TPGItem;
   begin
     for RttiMember in RttiMemberList do
     begin
       if ( RttiMember.Visibility in [ mvPublished ] ) and
         ( RttiMember.Name[ LowString ] <> '_' ) then
       begin
-        // ItemAux :=
-        TPGItem.Create( Self, RttiMember.Name );
-        // AttributesCreate(RttiMember.GetAttributes, ItemAux);
+        Item := TPGItem.Create( Self, RttiMember.Name );
+        Item.About := Self.RttiGenerate(RttiMember);
+        Item.About := Item.About + #13 + Self.RttiAttrib(RttiMember);
       end;
     end;
   end;
@@ -183,7 +182,9 @@ var
 begin
   RttiContext := TRttiContext.Create( );
   RttiType := RttiContext.GetType( Self.ClassType );
-  // AttributesCreate(RttiType.GetAttributes, Self);
+
+  Self.About := 'Class ' + Self.Name + ';';
+  Self.About := Self.About + #13 + Self.RttiAttrib( RttiType );
 
   if Self.CollectDad = GlobalCollection then
   begin
@@ -284,8 +285,6 @@ end;
 function TPGFolder.GetExpanded: Boolean;
 begin
   Result := FExpanded;
-  // if Assigned( Node ) then
-  // Result := Node.Expanded
 end;
 
 class function TPGFolder.GetImageIndex: Integer;

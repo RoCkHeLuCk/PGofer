@@ -8,8 +8,8 @@ object FrmAutoComplete: TFrmAutoComplete
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'FrmAutoComplete'
-  ClientHeight = 80
-  ClientWidth = 260
+  ClientHeight = 116
+  ClientWidth = 271
   Color = clGray
   Constraints.MinHeight = 80
   Constraints.MinWidth = 260
@@ -32,14 +32,27 @@ object FrmAutoComplete: TFrmAutoComplete
   OnKeyUp = FormKeyUp
   PixelsPerInch = 96
   TextHeight = 13
+  object sptAbout: TSplitter
+    Left = 2
+    Top = 22
+    Width = 267
+    Height = 5
+    Cursor = crVSplit
+    Align = alTop
+    AutoSnap = False
+    Beveled = True
+    MinSize = 20
+    ExplicitTop = 21
+  end
   object ltvAutoComplete: TListViewEx
     Left = 2
-    Top = 2
-    Width = 256
-    Height = 76
+    Top = 27
+    Width = 267
+    Height = 87
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
+    BorderStyle = bsNone
     Color = clSilver
     Columns = <
       item
@@ -66,7 +79,30 @@ object FrmAutoComplete: TFrmAutoComplete
     OnKeyDown = FormKeyDown
     OnKeyPress = FormKeyPress
     OnKeyUp = FormKeyUp
+    OnMouseDown = ltvAutoCompleteMouseDown
     ColumnAlphaSort = True
+  end
+  object rceAbout: TRichEditEx
+    Left = 2
+    Top = 2
+    Width = 267
+    Height = 20
+    Align = alTop
+    BevelInner = bvNone
+    BevelOuter = bvNone
+    BorderStyle = bsNone
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    Constraints.MinHeight = 20
+    ParentColor = True
+    ParentFont = False
+    ReadOnly = True
+    TabOrder = 1
+    Zoom = 100
+    OnDblClick = rceAboutDblClick
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

@@ -17,6 +17,7 @@ type
   TPGItem = class( TObjectList<TPGItem> )
   private
     FName: string;
+    FAbout: string;
     FEnabled: Boolean;
     FReadOnly: Boolean;
     FParent: TPGItem;
@@ -33,7 +34,8 @@ type
   public
     constructor Create( AParent: TPGItem; AName: string ); overload;
     destructor Destroy( ); override;
-    property name: string read FName write SetName;
+    property About: string read FAbout write FAbout;
+    property Name: string read FName write SetName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property readonly: Boolean read FReadOnly write SetReadOnly;
     property isValid: Boolean read GetIsValid;
@@ -68,10 +70,12 @@ type
     FTreeView: TTreeViewEx;
     FForm: TForm;
     FFileName: string;
-    procedure XMLSaveToFile( AFileName: string );
     procedure XMLSaveToStream( AStream: TStream );
-    procedure XMLLoadFromFile( AFileName: string );
+    procedure XMLSaveToFile( AFileName: string );
+    procedure XMLSaveToFileEncrypted( AFileName, APassword: string );
     procedure XMLLoadFromStream( AStream: TStream );
+    procedure XMLLoadFromFile( AFileName: string );
+    procedure XMLLoadFromFileEncrypted( AFileName, APassword: string );
   public
     property TreeView: TTreeViewEx read FTreeView;
     property RegClassList: TClassList read FClassList;
@@ -79,9 +83,10 @@ type
     function GetRegClassName( AName: string ): TClass;
     procedure TreeViewAttach( );
     procedure TreeViewDetach( );
-    procedure LoadFileAndForm( );
-    procedure UpdateToFile( );
     procedure FormShow( );
+
+    procedure LoadFromFile( );
+    procedure SaveToFile( );
   end;
 
 implementation
@@ -90,7 +95,7 @@ uses
   System.SysUtils, System.RTTI, System.TypInfo,
   XML.XMLDoc, XML.XMLIntf,
   PGofer.Item.Frame, PGofer.Sintatico, PGofer.Sintatico.Classes,
-  PGofer.Forms.Controller, PGofer.Triggers;
+  PGofer.Forms.Controller, PGofer.Triggers, PGofer.Files.Encrypt;
 
 { TPGItem }
 
@@ -98,6 +103,7 @@ constructor TPGItem.Create( AParent: TPGItem; AName: string );
 begin
   inherited Create( True );
   FName := AName;
+  FAbout := '';
   FEnabled := True;
   FReadOnly := True;
   FNode := nil;
@@ -130,6 +136,7 @@ begin
   FNode := nil;
 
   FName := '';
+  FAbout := '';
   FEnabled := False;
   FReadOnly := False;
   if Assigned( FParent ) then
@@ -309,9 +316,9 @@ begin
   begin
     OValue := Self.FClassList[ Self.FNameList.IndexOf( AName ) ];
     Result := True;
-  end
-  else
+  end else begin
     Result := False;
+  end;
 end;
 
 { TPGCollectItem }
@@ -321,9 +328,11 @@ begin
   inherited Create( nil, AName );
   FClassList := TClassList.Create( );
   if ALoadFile then
-    FFileName := PGofer.Sintatico.DirCurrent + '\' + AName + '.xml'
-  else
+  begin
+    FFileName := PGofer.Sintatico.DirCurrent + '\' + AName;
+  end else begin
     FFileName := '';
+  end;
 end;
 
 destructor TPGItemCollect.Destroy( );
@@ -407,31 +416,6 @@ begin
   end;
 end;
 
-procedure TPGItemCollect.LoadFileAndForm( );
-begin
-  FForm := TFrmController.Create( Self );
-  if ( FFileName <> '' ) and FileExists( FFileName ) then
-    Self.XMLLoadFromFile( FFileName );
-end;
-
-procedure TPGItemCollect.UpdateToFile( );
-begin
-  if ( FFileName <> '' ) then
-    Self.XMLSaveToFile( FFileName );
-end;
-
-procedure TPGItemCollect.XMLSaveToFile( AFileName: string );
-var
-  Stream: TStream;
-begin
-  Stream := TFileStream.Create( AFileName, fmCreate );
-  try
-    Self.XMLSaveToStream( Stream );
-  finally
-    Stream.Free;
-  end;
-end;
-
 procedure TPGItemCollect.XMLSaveToStream( AStream: TStream );
 
   procedure CreateNode( Item: TPGItem; XMLNodeDad: IXMLNode );
@@ -498,15 +482,43 @@ begin
   XMLDocument.Active := False;
 end;
 
-procedure TPGItemCollect.XMLLoadFromFile( AFileName: string );
+procedure TPGItemCollect.XMLSaveToFile( AFileName: string );
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create( AFileName, fmOpenRead );
+  Stream := TFileStream.Create( AFileName, fmCreate );
   try
-    Self.XMLLoadFromStream( Stream );
+    Self.XMLSaveToStream( Stream );
   finally
     Stream.Free;
+  end;
+end;
+
+procedure TPGItemCollect.XMLSaveToFileEncrypted(AFileName, APassword: string);
+var
+  MemStr: TMemoryStream;
+  FileStr: TFileStream;
+begin
+  if APassword = '' then
+  begin
+      Self.XMLSaveToFile(AFileName);
+      Exit;
+  end;
+
+  MemStr := TMemoryStream.Create;
+  try
+    Self.XMLSaveToStream( MemStr );
+
+    MemStr.Position := 0;
+    FileStr := TFileStream.Create( AFileName, fmCreate );
+    try
+      if not AESEncryptStream(MemStr, FileStr, APassword) then
+        raise Exception.Create('Falha na criptografia AES ao salvar.');
+    finally
+      FileStr.Free;
+    end;
+  finally
+    MemStr.Free;
   end;
 end;
 
@@ -615,6 +627,54 @@ begin
     XMLDocument.Active := False;
   except
   end;
+end;
+
+procedure TPGItemCollect.XMLLoadFromFile( AFileName: string );
+var
+  Stream: TStream;
+begin
+  Stream := TFileStream.Create( AFileName, fmOpenRead );
+  try
+    Self.XMLLoadFromStream( Stream );
+  finally
+    Stream.Free;
+  end;
+end;
+
+procedure TPGItemCollect.XMLLoadFromFileEncrypted(AFileName, APassword: string);
+var
+  FileStr: TFileStream;
+  MemStr: TMemoryStream;
+begin
+  FileStr := TFileStream.Create( AFileName, fmOpenRead or fmShareDenyWrite );
+  try
+    MemStr := TMemoryStream.Create;
+    try
+      if AESDecryptStream(FileStr, MemStr, APassword) then
+      begin
+        MemStr.Position := 0;
+        Self.XMLLoadFromStream( MemStr );
+      end else
+        raise Exception.Create('Senha incorreta ou arquivo corrompido.');
+    finally
+      MemStr.Free;
+    end;
+  finally
+    FileStr.Free;
+  end;
+end;
+
+procedure TPGItemCollect.LoadFromFile( );
+begin
+  Self.FForm := TFrmController.Create( Self );
+  if ( Self.FFileName <> '' ) and FileExists( Self.FFileName ) then
+    Self.XMLLoadFromFile( Self.FFileName );
+end;
+
+procedure TPGItemCollect.SaveToFile( );
+begin
+  if ( Self.FFileName <> '' ) then
+    Self.XMLSaveToFile( Self.FFileName );
 end;
 
 initialization

@@ -7,10 +7,10 @@ uses
   System.Classes, System.SysUtils, System.IniFiles, System.Generics.Collections,
   Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
   PGofer.Classes, PGofer.Forms, PGofer.Component.ListView,
-  PGofer.Component.RichEdit, PGofer.Component.Form;
+  PGofer.Component.RichEdit, PGofer.Component.Form, Vcl.StdCtrls;
 
 type
-  TSelectCMD = ( selUp, selDown, selEnter );
+  TSelectCMD = ( selClick, selUp, selDown, selEnter );
 
   TEditOnCtrl = class
     OnKeyDown: TOnKeyDownUP;
@@ -24,6 +24,8 @@ type
     ppmAutoComplete: TPopupMenu;
     mniPriority: TMenuItem;
     trmAutoComplete: TTimer;
+    rceAbout: TRichEditEx;
+    sptAbout: TSplitter;
     procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormDestroy( Sender: TObject );
@@ -36,6 +38,9 @@ type
     procedure ltvAutoCompleteDblClick( Sender: TObject );
     procedure ltvAutoCompleteCompare( Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer );
+    procedure rceAboutDblClick(Sender: TObject);
+    procedure ltvAutoCompleteMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
   private
     FEditList: TDictionary<TRichEditEx, TEditOnCtrl>;
     FEditCtrl: TRichEditEx;
@@ -114,6 +119,7 @@ procedure TFrmAutoComplete.FormClose( Sender: TObject;
 begin
   inherited FormClose( Sender, Action );
   trmAutoComplete.Enabled := False;
+  rceAbout.Text :=  '';
 end;
 
 procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
@@ -300,10 +306,12 @@ procedure TFrmAutoComplete.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
   ltvAutoComplete.IniConfigLoad( FIniFile, Self.Name, 'List' );
+  rceAbout.Height := FIniFile.ReadInteger(Self.Name, 'AboutHeight', 20);
 end;
 
 procedure TFrmAutoComplete.IniConfigSave;
 begin
+  FIniFile.WriteInteger(Self.Name, 'AboutHeight', rceAbout.Height);
   ltvAutoComplete.IniConfigSave( FIniFile, Self.Name, 'List' );
   inherited IniConfigSave( );
 end;
@@ -350,6 +358,13 @@ end;
 procedure TFrmAutoComplete.ltvAutoCompleteDblClick( Sender: TObject );
 begin
   SelectCMD( selEnter );
+end;
+
+procedure TFrmAutoComplete.ltvAutoCompleteMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  Self.SelectCMD(selClick);
 end;
 
 procedure TFrmAutoComplete.mniPriorityClick( Sender: TObject );
@@ -474,6 +489,12 @@ begin
   end;
 end;
 
+procedure TFrmAutoComplete.rceAboutDblClick(Sender: TObject);
+begin
+  inherited;
+  // autocompleta com parametros
+end;
+
 procedure TFrmAutoComplete.EditCtrlAdd( AValue: TRichEditEx );
 var
   OnCntrl: TEditOnCtrl;
@@ -592,6 +613,7 @@ begin
     ltvAutoComplete.AlphaSort;
     ShowAutoComplete( );
     ltvAutoComplete.SuperSelected( ltvAutoComplete.Items[ 0 ] );
+    rceAbout.Text :=  TPGItem(ltvAutoComplete.ItemFocused.Data).About;
     FEditCtrl.SetFocus;
   end else begin
     // se nao encontrou fecha
@@ -602,7 +624,9 @@ end;
 procedure TFrmAutoComplete.SelectCMD( ASelected: TSelectCMD );
 var
   SelStart, SelConvert, SelInicio, SelFinal, LengthText: Integer;
+  SuperSelect : Boolean;
 begin
+  SuperSelect := true;
   if ( Self.Visible ) and ( ltvAutoComplete.Items.Count > 0 ) then
   begin
     LengthText := Length( FEditCtrl.Lines.Text );
@@ -626,6 +650,10 @@ begin
 
     // move selecao
     case ASelected of
+      selClick:
+      begin
+          SuperSelect := False;
+      end;
 
       selUp:
         begin
@@ -650,7 +678,9 @@ begin
         end;
     end;
 
-    ltvAutoComplete.SuperSelected( );
+    if SuperSelect then
+       ltvAutoComplete.SuperSelected( );
+    rceAbout.Text :=  TPGItem(ltvAutoComplete.ItemFocused.Data).About;
   end; // if count > 0
 end;
 
