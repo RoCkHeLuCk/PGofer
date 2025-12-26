@@ -5,8 +5,8 @@ interface
 uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
-  PGofer.Forms, Vcl.StdCtrls, Vcl.ComCtrls, PGofer.Component.RichEdit,
-  PGofer.Component.Form;
+  Vcl.StdCtrls, Vcl.ComCtrls,
+  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Types, PGofer.Forms;
 
 type
   TPGFrmConsole = class;
@@ -47,7 +47,7 @@ type
   end;
 
   {$M+}
-
+  [TPGAttribIcon(pgiForm)]
   TPGFrmConsole = class( TPGForm )
   private
     FDelay: Cardinal;

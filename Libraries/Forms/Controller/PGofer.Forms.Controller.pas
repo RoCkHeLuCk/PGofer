@@ -7,7 +7,7 @@ uses
   WinApi.Messages,
   Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Menus, Vcl.Graphics,
-  PGofer.ImageList, PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView,
+  PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView,
   PGofer.Component.Form;
 
 type
@@ -101,7 +101,8 @@ uses
   PGofer.Sintatico.Classes, PGofer.Files.Controls,
   PGofer.Triggers.Links,
   PGofer.Component.RichEdit,
-  PGofer.Triggers;
+  PGofer.Triggers,
+  PGofer.IconList;
 
 constructor TFrmController.Create( ACollectItem: TPGItemCollect );
 begin
@@ -115,7 +116,7 @@ begin
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
   CreatePopups( );
-  TrvController.Images := GlogalImageList.ImageList;
+  TrvController.Images := GlobIconList.ImageList;
 end;
 
 destructor TFrmController.Destroy( );

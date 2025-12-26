@@ -1,23 +1,22 @@
-unit PGofer.Triggers.VaultFills;
+ï»¿unit PGofer.Triggers.AutoFills;
 
 interface
 
 uses
   System.Classes,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Triggers;
 
 type
 
   {$M+}
-  TPGVaultFills = class( TPGItemTrigger )
+  [TPGAttribIcon(pgiAutoFill)]
+  TPGAutoFills = class( TPGItemTrigger )
   private
     FSpeed : Cardinal;
     FMode : Byte;
     FText : String;
-    class var FImageIndex: Integer;
   protected
-    class function GetImageIndex( ): Integer; override;
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
   public
     constructor Create( AName: string; AMirror: TPGItemMirror );
@@ -32,30 +31,17 @@ type
   end;
   {$TYPEINFO ON}
 
-  TPGVaultFillsDeclare = class( TPGItemCMD )
+  TPGAutoFillsDeclare = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGVaultFillsMirror = class( TPGItemMirror )
+  TPGAutoFillsMirror = class( TPGItemMirror )
   protected
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem; AName: string );
     procedure Frame( AParent: TObject ); override;
   end;
-
-  {$M+}
-  TPGVaultFolder = class( TPGFolder )
-  private
-    class var FImageIndex: Integer;
-  protected
-    class function GetImageIndex( ): Integer; override;
-  public
-    constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
-  published
-  end;
-  {$TYPEINFO ON}
 
 
 implementation
@@ -65,25 +51,24 @@ uses
   System.SysUtils,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
-  PGofer.Triggers.VaultFills.Frame,
-  PGofer.ImageList,
+  PGofer.Triggers.AutoFills.Frame,
   PGofer.Key.Controls,
   PGofer.Key.Post,
   PGofer.ClipBoards.Controls,
   PGofer.Process.Controls;
 
-{ TPGVaultFills }
+{ TPGAutoFills }
 
-constructor TPGVaultFills.Create( AName: string; AMirror: TPGItemMirror );
+constructor TPGAutoFills.Create( AName: string; AMirror: TPGItemMirror );
 begin
-  inherited Create( TPGVaultFills.GlobList, AName, AMirror );
+  inherited Create( TPGAutoFills.GlobList, AName, AMirror );
   Self.ReadOnly := False;
   FText := '';
   FSpeed := 10;
   FMode := 0;
 end;
 
-destructor TPGVaultFills.Destroy( );
+destructor TPGAutoFills.Destroy( );
 begin
   FText := '';
   FSpeed := 10;
@@ -91,7 +76,7 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGVaultFills.ExecutarNivel1( Gramatica: TGramatica );
+procedure TPGAutoFills.ExecutarNivel1( Gramatica: TGramatica );
 var
   VParam: string;
 begin
@@ -113,18 +98,13 @@ begin
     Self.Triggering();
 end;
 
-procedure TPGVaultFills.Frame( AParent: TObject );
+procedure TPGAutoFills.Frame( AParent: TObject );
 begin
   inherited Frame( AParent );
-  TPGVaultFillsFrame.Create( Self, AParent );
+  TPGAutoFillsFrame.Create( Self, AParent );
 end;
 
-class function TPGVaultFills.GetImageIndex( ): Integer;
-begin
-  Result := FImageIndex;
-end;
-
-procedure TPGVaultFills.Triggering( );
+procedure TPGAutoFills.Triggering( );
 var
   KeyPost: TKeyPost;
 begin
@@ -162,94 +142,69 @@ begin
      end;
 
      4:begin
-       ScriptExec( 'VaultFill: ' + Self.Name, Self.Text, nil );
+       ScriptExec( 'AutoFill: ' + Self.Name, Self.Text, nil );
      end;
 
   end;
 
 end;
 
-{ TPGVaultFillsDeclare }
+{ TPGAutoFillsDeclare }
 
-procedure TPGVaultFillsDeclare.Execute( Gramatica: TGramatica );
+procedure TPGAutoFillsDeclare.Execute( Gramatica: TGramatica );
 var
   Titulo: string;
   Quantidade: Byte;
-  VaultFills: TPGVaultFills;
+  AutoFills: TPGAutoFills;
   id: TPGItem;
 begin
   Gramatica.TokenList.GetNextToken;
   id := IdentificadorLocalizar( Gramatica );
-  if ( not Assigned( id ) ) or ( id is TPGVaultFills ) then
+  if ( not Assigned( id ) ) or ( id is TPGAutoFills ) then
   begin
     Titulo := Gramatica.TokenList.Token.Lexema;
     Quantidade := LerParamentros( Gramatica, 1, 3 );
     if not Gramatica.Erro then
     begin
       if ( not Assigned( id ) ) then
-        VaultFills := TPGVaultFills.Create( Titulo, nil )
+        AutoFills := TPGAutoFills.Create( Titulo, nil )
       else
-        VaultFills := TPGVaultFills( id );
+        AutoFills := TPGAutoFills( id );
 
       if Quantidade >= 3 then
-        VaultFills.Speed := Gramatica.Pilha.Desempilhar( 10 );
+        AutoFills.Speed := Gramatica.Pilha.Desempilhar( 10 );
 
       if Quantidade >= 2 then
-        VaultFills.Mode := Gramatica.Pilha.Desempilhar( 0 );
+        AutoFills.Mode := Gramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 1 then
-        VaultFills.Text := Gramatica.Pilha.Desempilhar( '' );
+        AutoFills.Text := Gramatica.Pilha.Desempilhar( '' );
     end;
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado ou já existente.' );
+    Gramatica.ErroAdd( 'Identificador esperado ou jï¿½ existente.' );
 end;
 
-{ TPGVaultFillsMirror }
+{ TPGAutoFillsMirror }
 
-constructor TPGVaultFillsMirror.Create( AItemDad: TPGItem; AName: string );
+constructor TPGAutoFillsMirror.Create( AItemDad: TPGItem; AName: string );
 begin
   AName := TPGItemMirror.TranscendName( AName );
-  inherited Create( AItemDad, TPGVaultFills.Create( AName, Self ) );
+  inherited Create( AItemDad, TPGAutoFills.Create( AName, Self ) );
   Self.ReadOnly := False;
 end;
 
-procedure TPGVaultFillsMirror.Frame( AParent: TObject );
+procedure TPGAutoFillsMirror.Frame( AParent: TObject );
 begin
-  TPGVaultFillsFrame.Create( Self.ItemOriginal, AParent );
-end;
-
-class function TPGVaultFillsMirror.GetImageIndex: Integer;
-begin
-  Result := TPGVaultFills.FImageIndex;
-end;
-
-{ TPGVaultFolder }
-
-constructor TPGVaultFolder.Create( AItemDad: TPGItem; AName: string );
-begin
-  inherited Create( AItemDad, AName );
-  //algo aqui...
-end;
-
-class function TPGVaultFolder.GetImageIndex( ): Integer;
-begin
-  Result := FImageIndex;
+  TPGAutoFillsFrame.Create( Self.ItemOriginal, AParent );
 end;
 
 initialization
 
-TPGVaultFillsDeclare.Create( GlobalItemCommand, 'VaultFill' );
-TPGVaultFills.GlobList := TPGFolder.Create( GlobalCollection, 'VaultFills' );
-
-TriggersCollect.RegisterClass( 'VaultFill', TPGVaultFillsMirror );
-TPGVaultFills.FImageIndex := GlogalImageList.AddIcon( 'VaultFill' );
-
-TriggersCollect.RegisterClass( 'VaultFolder', TPGVaultFolder );
-TPGVaultFolder.FImageIndex := GlogalImageList.AddIcon( 'VaultFolder' );
-
+TPGAutoFillsDeclare.Create( GlobalItemCommand, 'AutoFill' );
+TPGAutoFills.GlobList := TPGFolder.Create( GlobalCollection, 'AutoFills' );
+TriggersCollect.RegisterClass( 'AutoFill', TPGAutoFillsMirror );
 
 finalization
 
 end.
-

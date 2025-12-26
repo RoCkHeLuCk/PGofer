@@ -3,14 +3,14 @@ unit PGofer.System;
 interface
 
 uses
-  PGofer.Classes, PGofer.Sintatico.Classes;
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico.Classes;
 
 type
   {$M+}
+  [TPGAttribIcon(pgiSystem)]
   TPGSystem = class( TPGItemCMD )
   private
     FMouse: TPGItemCMD;
-    class var FImageIndex: Integer;
     function GetCanClose( ): Boolean;
     procedure SetCanClose( Value: Boolean );
     function GetDirCurrent( ): string;
@@ -25,7 +25,6 @@ type
     function GetFileListMax( ): Cardinal;
     procedure SetFileListMax( Value: Cardinal );
   protected
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
@@ -63,7 +62,7 @@ uses
   System.SysUtils, System.Classes,
   Vcl.Forms,
   PGofer.Sintatico, PGofer.System.Controls,
-  PGofer.ImageList, PGofer.System.Mouse;
+  PGofer.System.Mouse;
 
 { TPGSystem }
 
@@ -112,11 +111,6 @@ end;
 function TPGSystem.GetFileListMax: Cardinal;
 begin
   Result := PGofer.Sintatico.FileListMax;
-end;
-
-class function TPGSystem.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 function TPGSystem.GetLoopLimite: Int64;
@@ -238,7 +232,6 @@ end;
 initialization
 
 TPGSystem.Create( GlobalItemCommand );
-TPGSystem.FImageIndex := GlogalImageList.AddIcon( 'System' );
 
 finalization
 

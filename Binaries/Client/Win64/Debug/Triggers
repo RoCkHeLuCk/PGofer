@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Triggers Version="1.0">
+  <Link Name="Link1" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Link Name="Link2" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string"></HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string"></Script>
+  </HotKey>
+  <Task Name="Task" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">6</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string"></Script>
+    <Trigger Type="Byte">0</Trigger>
+  </Task>
+  <AutoFill Name="AutoFill1" Enabled="true" ReadOnly="false">
+    <Mode Type="Byte">0</Mode>
+    <Speed Type="Cardinal">10</Speed>
+    <Text Type="string"></Text>
+  </AutoFill>
+  <VaultFolder Name="VaultFolder" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Locked Type="Boolean">True</Locked>
+    <Password Type="string"></Password>
+    <SavePassword Type="Boolean">False</SavePassword>
+    <_Expanded Type="Boolean">False</_Expanded>
+  </VaultFolder>
+</Triggers>

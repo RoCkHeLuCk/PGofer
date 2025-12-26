@@ -2,9 +2,9 @@ program PGofer3;
 {$DEFINE MSWINDOWS}
 
 uses
-  PGofer.ImageList in '..\..\Libraries\Lib\Kernel\PGofer.ImageList.pas',
-  PGofer.Attributes in '..\..\Libraries\Lib\Kernel\PGofer.Attributes.pas',
+  PGofer.Types in '..\..\Libraries\Lib\Kernel\PGofer.Types.pas',
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
+  PGofer.IconList in '..\..\Libraries\Lib\Kernel\PGofer.IconList.pas',
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
   PGofer.Sintatico.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas',
@@ -45,7 +45,6 @@ uses
   PGofer.System.Functions.Frame in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFunctionFrame: TFrame},
   PGofer.System.VirtualDesktop in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
   PGofer.Utils in '..\..\Libraries\Lib\Utils\PGofer.Utils.pas',
-  PGofer.Types in '..\..\Libraries\Lib\Utils\PGofer.Types.pas',
   PGofer.ZLib in '..\..\Libraries\Lib\Utils\PGofer.ZLib.pas',
   PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
@@ -70,8 +69,8 @@ uses
   PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
-  PGofer.Triggers.VaultFills in '..\..\Libraries\Triggers\VaultFills\PGofer.Triggers.VaultFills.pas',
-  PGofer.Triggers.VaultFills.Frame in '..\..\Libraries\Triggers\VaultFills\PGofer.Triggers.VaultFills.Frame.pas' {PGVaultFillsFrame: TFrame},
+  PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
+  PGofer.Triggers.AutoFills.Frame in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.Frame.pas' {PGAutoFillsFrame: TFrame},
   PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
@@ -79,7 +78,9 @@ uses
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
   Winapi.Windows,
-  Vcl.Forms;
+  Vcl.Forms,
+  PGofer.VaultFolder in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas',
+  PGofer.VaultFolder.Frame in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame};
 
 {$R *.res}
 
@@ -97,9 +98,9 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.LoadFromFile( );
     TriggersCollect.LoadFromFile( );
     TPGTask.Working( 0, False );

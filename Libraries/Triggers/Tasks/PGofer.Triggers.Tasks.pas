@@ -1,26 +1,25 @@
-unit PGofer.Triggers.Tasks;
+ï»¿unit PGofer.Triggers.Tasks;
 
 interface
 
 uses
   System.Classes,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Triggers;
 
 type
 
   {$M+}
+  [TPGAttribIcon(pgiTask)]
   TPGTask = class( TPGItemTrigger )
   private
     FOccurrence: Cardinal;
     FRepeat: Cardinal;
     FScript: TStrings;
     FTrigger: Byte;
-    class var FImageIndex: Integer;
     function GetScript: string;
     procedure SetScript( AValue: string );
   protected
-    class function GetImageIndex( ): Integer; override;
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
   public
     constructor Create( AName: string; AMirror: TPGItemMirror );
@@ -44,7 +43,6 @@ type
 
   TPGTaskMirror = class( TPGItemMirror )
   protected
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem; AName: string );
     procedure Frame( AParent: TObject ); override;
@@ -55,8 +53,7 @@ implementation
 uses
   System.SysUtils,
   PGofer.Sintatico.Controls,
-  PGofer.Triggers.Tasks.Frame,
-  PGofer.ImageList;
+  PGofer.Triggers.Tasks.Frame;
 
 { TPGTask }
 
@@ -86,11 +83,6 @@ procedure TPGTask.Frame( AParent: TObject );
 begin
   inherited Frame( AParent );
   TPGTaskFrame.Create( Self, AParent );
-end;
-
-class function TPGTask.GetImageIndex( ): Integer;
-begin
-  Result := FImageIndex;
 end;
 
 function TPGTask.GetScript( ): string;
@@ -159,7 +151,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado ou já existente.' );
+    Gramatica.ErroAdd( 'Identificador esperado ou jï¿½ existente.' );
 end;
 
 { TPGTaskMirror }
@@ -176,18 +168,11 @@ begin
   TPGTaskFrame.Create( Self.ItemOriginal, AParent );
 end;
 
-class function TPGTaskMirror.GetImageIndex: Integer;
-begin
-  Result := TPGTask.FImageIndex;
-end;
-
 initialization
 
 TPGTaskDeclare.Create( GlobalItemCommand, 'Task' );
 TPGTask.GlobList := TPGFolder.Create( GlobalItemTrigger, 'Tasks' );
-
 TriggersCollect.RegisterClass( 'Task', TPGTaskMirror );
-TPGTask.FImageIndex := GlogalImageList.AddIcon( 'Task' );
 
 finalization
 

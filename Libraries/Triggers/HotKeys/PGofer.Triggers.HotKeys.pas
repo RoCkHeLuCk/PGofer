@@ -1,23 +1,23 @@
-unit PGofer.Triggers.HotKeys;
+ï»¿unit PGofer.Triggers.HotKeys;
 
 interface
 
 uses
   System.Classes,
   System.Generics.Collections,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Triggers, PGofer.Triggers.HotKeys.Controls;
 
 type
 
 {$M+}
+  [TPGAttribIcon(pgiHotKey)]
   TPGHotKey = class(TPGItemTrigger)
   private
     FKeys: TList<Word>;
     FDetect: Byte;
     FInhibit: Boolean;
     FScript: TStrings;
-    class var FImageIndex: Integer;
     class var FShootKeys: TList<Word>;
     class var FOnProcessKeys: TProcessKeys;
     function GetKeysHex(): string;
@@ -27,7 +27,6 @@ type
     class procedure DefaultOnProcessKeys(AParamInput: TParamInput);
   protected
     procedure ExecutarNivel1(Gramatica: TGramatica); override;
-    class function GetImageIndex(): Integer; override;
   public
     constructor Create(AName: string; AMirror: TPGItemMirror); overload;
     destructor Destroy(); override;
@@ -62,7 +61,6 @@ type
 
   TPGHotKeyMirror = class(TPGItemMirror)
   protected
-    class function GetImageIndex(): Integer; override;
   public
     constructor Create(AItemDad: TPGItem; AName: string); overload;
     procedure Frame(AParent: TObject); override;
@@ -76,7 +74,6 @@ uses
   PGofer.Sintatico.Controls,
   PGofer.Key.Controls,
   PGofer.Triggers.HotKeys.Frame,
-  PGofer.ImageList,
   PGofer.Triggers.HotKeys.Async,
   PGofer.Triggers.HotKeys.Hook,
   PGofer.Triggers.HotKeys.RawInput;
@@ -113,11 +110,6 @@ end;
 procedure TPGHotKey.Frame(AParent: TObject);
 begin
   TPGHotKeyFrame.Create(Self, AParent);
-end;
-
-class function TPGHotKey.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 function TPGHotKey.GetKeysHex(): string;
@@ -353,7 +345,7 @@ begin
       end;
     end
     else
-      Gramatica.ErroAdd('Identificador esperado ou já existente.');
+      Gramatica.ErroAdd('Identificador esperado ou jï¿½ existente.');
   end;
 end;
 
@@ -371,11 +363,6 @@ begin
   TPGHotKeyFrame.Create(Self.ItemOriginal, AParent);
 end;
 
-class function TPGHotKeyMirror.GetImageIndex: Integer;
-begin
-  Result := TPGHotKey.FImageIndex;
-end;
-
 initialization
 
 TPGHotKey.FShootKeys := TList<Word>.Create();
@@ -385,7 +372,6 @@ TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey', 1);
 TPGHotKey.GlobList := TPGFolder.Create(GlobalItemTrigger, 'HotKeys');
 
 TriggersCollect.RegisterClass('HotKey', TPGHotKeyMirror);
-TPGHotKey.FImageIndex := GlogalImageList.AddIcon('HotKey');
 
 finalization
 

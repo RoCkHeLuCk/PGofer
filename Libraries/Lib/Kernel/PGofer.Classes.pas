@@ -6,7 +6,8 @@ uses
   System.Classes,
   System.Generics.Collections,
   Vcl.Forms, Vcl.Comctrls,
-  PGofer.Component.TreeView;
+  PGofer.Component.TreeView,
+  PGofer.Types;
 
 const
   LowString = low( string );
@@ -20,17 +21,19 @@ type
     FAbout: string;
     FEnabled: Boolean;
     FReadOnly: Boolean;
+    FIconIndex: Integer;
     FParent: TPGItem;
     FNode: TTreeNode;
     procedure SetParent( AParent: TPGItem );
     function GetCollectDad( ): TPGItemCollect;
     procedure SetNode( AValue: TTreeNode );
+    procedure UpdateIconIndex( );
   protected
     procedure SetName( AName: string ); virtual;
     procedure SetEnabled( AValue: Boolean ); virtual;
     procedure SetReadOnly( AValue: Boolean ); virtual;
     function GetIsValid( ): Boolean; virtual;
-    class function GetImageIndex( ): Integer; virtual;
+    procedure SetIconIndex( AIconIndex: Integer );
   public
     constructor Create( AParent: TPGItem; AName: string ); overload;
     destructor Destroy( ); override;
@@ -38,6 +41,7 @@ type
     property Name: string read FName write SetName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property readonly: Boolean read FReadOnly write SetReadOnly;
+    property IconIndex: Integer read FIconIndex write SetIconIndex;
     property isValid: Boolean read GetIsValid;
     property Parent: TPGItem read FParent write SetParent;
     property Node: TTreeNode read FNode write SetNode;
@@ -106,6 +110,7 @@ begin
   FAbout := '';
   FEnabled := True;
   FReadOnly := True;
+  FIconIndex := 0;
   FNode := nil;
   FParent := AParent;
   if Assigned( AParent ) then
@@ -139,6 +144,7 @@ begin
   FAbout := '';
   FEnabled := False;
   FReadOnly := False;
+  FIconIndex := 0;
   if Assigned( FParent ) then
     FParent.Extract( Self );
   FParent := nil;
@@ -151,6 +157,32 @@ begin
   if Assigned( FNode ) then
   begin
     FNode.Enabled := FEnabled;
+  end;
+end;
+
+procedure TPGItem.UpdateIconIndex( );
+begin
+  if Assigned( FNode ) then
+  begin
+    FNode.ImageIndex := FIconIndex;
+    FNode.SelectedIndex := FIconIndex;
+    FNode.ExpandedImageIndex := FIconIndex;
+  end;
+end;
+
+procedure TPGItem.SetIconIndex(AIconIndex: Integer);
+begin
+  FIconIndex := AIconIndex;
+  Self.UpdateIconIndex();
+end;
+
+procedure TPGItem.SetNode( AValue: TTreeNode );
+begin
+  FNode := AValue;
+  if Assigned( FNode ) then
+  begin
+    FNode.Data := Self;
+    Self.UpdateIconIndex();
   end;
 end;
 
@@ -194,18 +226,6 @@ begin
   end;
 end;
 
-procedure TPGItem.SetNode( AValue: TTreeNode );
-begin
-  FNode := AValue;
-  if Assigned( FNode ) then
-  begin
-    FNode.Data := Self;
-    Self.Node.ImageIndex := GetImageIndex( );
-    Self.Node.SelectedIndex := GetImageIndex( );
-    Self.Node.ExpandedImageIndex := GetImageIndex( );
-  end;
-end;
-
 procedure TPGItem.Frame( AParent: TObject );
 begin
   TPGItemFrame.Create( Self, AParent );
@@ -219,11 +239,6 @@ begin
     Result := TPGItemCollect( Self )
   else
     Result := nil;
-end;
-
-class function TPGItem.GetImageIndex: Integer;
-begin
-  Result := 0;
 end;
 
 function TPGItem.GetIsValid: Boolean;

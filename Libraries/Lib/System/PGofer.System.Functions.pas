@@ -4,25 +4,24 @@ interface
 
 uses
   System.Classes,
-  PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
+  PGofer.Types, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
   PGofer.Sintatico.Classes, PGofer.System.Variants;
 
 type
 
   {$M+}
+  [TPGAttribIcon(pgiFunction)]
   TPGFunction = class( TPGItemCMD )
   private
     FTokenList: TTokenList;
     FVariantList: TPGItem;
     FScript: TStrings;
-    class var FImageIndex: Integer;
     procedure SetScript( AValue: string );
     function GetScript: string;
   public
     constructor Create( AItemDad: TPGItem; AName: string ); overload;
     destructor Destroy( ); override;
     class var GlobList: TPGItem;
-    class function GetImageIndex( ): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
     property Script: string read GetScript write SetScript;
@@ -43,8 +42,7 @@ implementation
 
 uses
   PGofer.Sintatico.Controls,
-  PGofer.System.Functions.Frame,
-  PGofer.ImageList;
+  PGofer.System.Functions.Frame;
 
 { TPGFunction }
 
@@ -117,11 +115,6 @@ end;
 procedure TPGFunction.Frame( AParent: TObject );
 begin
   TPGFunctionFrame.Create( Self, AParent );
-end;
-
-class function TPGFunction.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 function TPGFunction.GetScript: string;
@@ -208,7 +201,6 @@ initialization
 
 TPGFunctionDeclare.Create( GlobalItemCommand, 'Function' );
 TPGFunction.GlobList := TPGFolder.Create( GlobalCollection, 'Functions' );
-TPGFunction.FImageIndex := GlogalImageList.AddIcon( 'Function' );
 
 finalization
 

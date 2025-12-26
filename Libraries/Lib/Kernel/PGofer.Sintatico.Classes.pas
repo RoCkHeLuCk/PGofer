@@ -4,18 +4,16 @@ interface
 
 uses
   System.Generics.Collections, System.RTTI,
-  PGofer.Classes, PGofer.Sintatico;
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico;
 
 type
-
+  [TPGAttribIcon(pgiMethod)]
   TPGItemCMD = class( TPGItem )
   private
-    class var FImageIndex: Integer;
     procedure RttiCreate( );
     function RttiGenerate(AObject: TRttiObject): string;
     function RttiAttrib(AObject: TRttiObject): string;
   protected
-    class function GetImageIndex( ): Integer; override;
     procedure RttiExecute( Gramatica: TGramatica; AItem: TPGItemCMD );
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
@@ -25,16 +23,16 @@ type
   end;
 
   {$M+}
+  [TPGAttribIcon(pgiFolder)]
   TPGFolder = class( TPGItemCMD )
   private
     FExpanded: Boolean;
     function GetExpanded( ): Boolean;
     procedure SetExpanded( AValue: Boolean );
   protected
-    class var FImageIndex: Integer;
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
+    destructor Destroy( ); override;
   published
     property _Expanded: Boolean read GetExpanded write SetExpanded;
   end;
@@ -44,8 +42,7 @@ implementation
 
 uses
   System.TypInfo,
-  PGofer.Lexico, PGofer.Types, PGofer.Sintatico.Controls, PGofer.ImageList,
-  PGofer.Attributes;
+  PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.IconList;
 
 { TPGItemCMD }
 constructor TPGItemCMD.Create( AItemDad: TPGItem; AName: string = '' );
@@ -70,11 +67,6 @@ begin
     Gramatica.TokenList.GetNextToken;
     Self.RttiExecute( Gramatica, Self );
   end;
-end;
-
-class function TPGItemCMD.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 function TPGItemCMD.isItemExist( AName: string; ALocal: Boolean ): Boolean;
@@ -154,6 +146,11 @@ begin
     if Attrib is TPGAttribText then
     begin
       Result := Result + TPGAttribText(Attrib).Text + #13;
+    end else begin
+      if Attrib is TPGAttribIcon then
+      begin
+         Self.IconIndex := Ord( TPGAttribIcon(Attrib).IconIndex );
+      end;
     end;
   end;
 end;
@@ -275,21 +272,23 @@ begin
 end;
 
 { TPGFolder }
-
 constructor TPGFolder.Create( AItemDad: TPGItem; AName: string );
 begin
   inherited Create( AItemDad, AName );
+  FExpanded := False;
   Self.ReadOnly := False;
+end;
+
+destructor TPGFolder.Destroy;
+begin
+  Self.ReadOnly := False;
+  FExpanded := False;
+  inherited Destroy( );
 end;
 
 function TPGFolder.GetExpanded: Boolean;
 begin
   Result := FExpanded;
-end;
-
-class function TPGFolder.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 procedure TPGFolder.SetExpanded( AValue: Boolean );
@@ -302,8 +301,6 @@ end;
 initialization
 
 TriggersCollect.RegisterClass( 'Folder', TPGFolder );
-TPGItemCMD.FImageIndex := GlogalImageList.AddIcon( 'Method' );
-TPGFolder.FImageIndex := GlogalImageList.AddIcon( 'Folder' );
 
 finalization
 

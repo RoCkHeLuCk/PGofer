@@ -89,6 +89,7 @@ constructor TPGItemMirror.Create( AItemDad: TPGItem;
 begin
   inherited Create( AItemDad, AItemOriginal.Name );
   FItemOriginal := AItemOriginal;
+  IconIndex := AItemOriginal.IconIndex;
 end;
 
 destructor TPGItemMirror.Destroy( );

@@ -5,14 +5,15 @@ interface
 uses
   System.Classes,
   Vcl.Forms,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Component.Form;
 
 type
+
   {$M+}
+  [TPGAttribIcon(pgiForm)]
   TPGForm = class( TPGItemCMD )
   private
-    class var FImageIndex: Integer;
     function GetAlphaBlend( ): Boolean;
     procedure SetAlphaBlend( AAlphaBlend: Boolean );
     function GetAlphaBlendValue( ): Byte;
@@ -37,7 +38,6 @@ type
     procedure SetWindowState( AWindowState: Byte );
   protected
     FForm: TFormEx;
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
@@ -69,7 +69,6 @@ implementation
 uses
   PGofer.Lexico, PGofer.Forms.Controls,
   PGofer.Forms.Frame,
-  PGofer.ImageList,
   PGofer.Process.Controls;
 
 { TPGForm }
@@ -129,11 +128,6 @@ end;
 function TPGForm.GetHeigth( ): Integer;
 begin
   Result := FForm.Height;
-end;
-
-class function TPGForm.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 procedure TPGForm.SetLeft( ALeft: Integer );
@@ -240,7 +234,6 @@ end;
 initialization
 
 TPGForm.GlobList := TPGFolder.Create( GlobalCollection, 'Forms' );
-TPGForm.FImageIndex := GlogalImageList.AddIcon( 'Form' );
 
 finalization
 

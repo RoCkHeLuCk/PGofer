@@ -1,20 +1,19 @@
-unit PGofer.System.Variants;
+ï»¿unit PGofer.System.Variants;
 
 interface
 
 uses
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
 
 type
 
   {$M+}
+  [TPGAttribIcon(pgiVariant)]
   TPGVariant = class( TPGItemCMD )
   private
     FValue: Variant;
     FConstant: Boolean;
-    class var FImageIndex: Integer;
   protected
-    class function GetImageIndex( ): Integer; override;
   public
     class var GlobList: TPGItem;
     constructor Create( AItemDad: TPGItem; AName: string; AValue: Variant;
@@ -41,8 +40,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.System.Variants.Frame,
-  PGofer.ImageList;
+  PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.System.Variants.Frame;
 
 { TPGVariant }
 
@@ -70,7 +68,7 @@ begin
     if ( Gramatica.TokenList.Token.Classe <> cmdAttrib ) then
       Gramatica.Pilha.Empilhar( Self.FValue )
     else
-      Gramatica.ErroAdd( 'Constante é somente leitura.' );
+      Gramatica.ErroAdd( 'Constante ï¿½ somente leitura.' );
   end else begin
     if AtribuicaoNivel1( Gramatica ) then
       Self.FValue := Gramatica.Pilha.Desempilhar( Self.FValue )
@@ -82,11 +80,6 @@ end;
 procedure TPGVariant.Frame( AParent: TObject );
 begin
   TPGVariantsFrame.Create( Self, AParent );
-end;
-
-class function TPGVariant.GetImageIndex: Integer;
-begin
-  Result := FImageIndex;
 end;
 
 { TPGVariantDeclare }
@@ -165,7 +158,7 @@ initialization
 TPGVariantDeclare.Create( GlobalItemCommand, 'Const' );
 TPGVariantDeclare.Create( GlobalItemCommand, 'Var' );
 TPGVariant.GlobList := TPGFolder.Create( GlobalCollection, 'Variants' );
-TPGVariant.FImageIndex := GlogalImageList.AddIcon( 'Variants' );
+
 
 finalization
 

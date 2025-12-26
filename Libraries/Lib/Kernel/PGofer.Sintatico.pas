@@ -73,7 +73,7 @@ var
 implementation
 
 uses
-  PGofer.Sintatico.Classes, PGofer.Sintatico.Controls, PGofer.ImageList;
+  PGofer.Sintatico.Classes, PGofer.Sintatico.Controls, PGofer.IconList;
 
 { TPilha }
 
@@ -233,13 +233,6 @@ GlobalItemCommand := TPGFolder.Create( GlobalCollection, 'Commands' );
 GlobalItemTrigger := TPGFolder.Create( GlobalCollection, 'Triggers' );
 
 TriggersCollect := TPGItemCollect.Create( 'Triggers', True );
-
-{$IFNDEF DEBUG}
-GlogalImageList.CurrentPath := DirCurrent + 'Icons\';
-{$ELSE}
-GlogalImageList.CurrentPath := '..\..\..\..\Documents\Imagens\Icons\';
-{$ENDIF}
-GlogalImageList.AddIcon( 'Item' );
 
 finalization
 

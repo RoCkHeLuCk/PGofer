@@ -4,11 +4,12 @@ interface
 
 uses
   System.Classes,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
   PGofer.Triggers;
 
 type
   {$M+}
+  [TPGAttribIcon(pgiLink)]
   TPGLink = class( TPGItemTrigger )
   private
     FFile: string;
@@ -21,7 +22,6 @@ type
     FRunAdmin: Boolean;
     FCaptureMsg: Boolean;
     FCanExecute: Boolean;
-    class var FImageIndex: Integer;
     function GetDirExist( ): Boolean;
     function GetFileExist( ): Boolean;
     function GetFileRepeat( ): Boolean;
@@ -34,7 +34,6 @@ type
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
     function GetIsValid( ): Boolean; override;
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AName: string; AMirror: TPGItemMirror );
     destructor Destroy( ); override;
@@ -71,7 +70,6 @@ type
   TPGLinkMirror = class( TPGItemMirror )
   private
   protected
-    class function GetImageIndex( ): Integer; override;
   public
     constructor Create( AItemDad: TPGItem; AName: string );
     procedure Frame( AParent: TObject ); override;
@@ -88,8 +86,7 @@ uses
   PGofer.Files.WinShell,
   PGofer.Process.Controls,
   PGofer.Triggers.Links.Frame,
-  PGofer.Triggers.Links.Thread,
-  PGofer.ImageList;
+  PGofer.Triggers.Links.Thread;
 
 { TPGLinks }
 
@@ -165,11 +162,6 @@ begin
       Break;
     end;
   end;
-end;
-
-class function TPGLink.GetImageIndex( ): Integer;
-begin
-  Result := FImageIndex;
 end;
 
 function TPGLink.GetScriptAfter( ): string;
@@ -363,18 +355,11 @@ begin
   TPGLinkFrame.Create( Self.ItemOriginal, AParent );
 end;
 
-class function TPGLinkMirror.GetImageIndex: Integer;
-begin
-  Result := TPGLink.FImageIndex;
-end;
-
 initialization
 
 TPGLinkDeclare.Create( GlobalItemCommand, 'Link' );
 TPGLink.GlobList := TPGFolder.Create( GlobalCollection, 'Links' );
-
 TriggersCollect.RegisterClass( 'Link', TPGLinkMirror );
-TPGLink.FImageIndex := GlogalImageList.AddIcon( 'Link' );
 
 finalization
 
