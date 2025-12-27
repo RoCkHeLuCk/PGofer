@@ -40,7 +40,7 @@ type
     property About: string read FAbout write FAbout;
     property Name: string read FName write SetName;
     property Enabled: Boolean read FEnabled write SetEnabled;
-    property readonly: Boolean read FReadOnly write SetReadOnly;
+    property ReadOnly: Boolean read FReadOnly write SetReadOnly;
     property IconIndex: Integer read FIconIndex write SetIconIndex;
     property isValid: Boolean read GetIsValid;
     property Parent: TPGItem read FParent write SetParent;

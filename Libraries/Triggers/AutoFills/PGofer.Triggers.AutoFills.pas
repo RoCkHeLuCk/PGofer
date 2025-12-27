@@ -11,8 +11,10 @@ type
 
   {$M+}
   [TPGAttribIcon(pgiAutoFill)]
+  [TPGAttribText('Trigger AutoFill;')]
   TPGAutoFills = class( TPGItemTrigger )
   private
+    FDelay : Cardinal;
     FSpeed : Cardinal;
     FMode : Byte;
     FText : String;
@@ -25,12 +27,17 @@ type
     class var GlobList: TPGItem;
     procedure Triggering( ); override;
   published
+    [TPGAttribText('0:Write; 1:Send Point; 2:Copy; 3:Copy and Paste; 4:Script;')]
     property Mode: Byte read FMode write FMode;
+    [TPGAttribText('Value millesecond;')]
+    property Delay: Cardinal read FDelay write FDelay;
+    [TPGAttribText('Value millesecond;')]
     property Speed: Cardinal read FSpeed write FSpeed;
     property Text: string read FText write FText;
   end;
   {$TYPEINFO ON}
 
+  [TPGAttribText('Create AutoFill;')]
   TPGAutoFillsDeclare = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
@@ -65,6 +72,7 @@ begin
   Self.ReadOnly := False;
   FText := '';
   FSpeed := 10;
+  FDelay := 0;
   FMode := 0;
 end;
 
@@ -72,6 +80,7 @@ destructor TPGAutoFills.Destroy( );
 begin
   FText := '';
   FSpeed := 10;
+  FDelay := 0;
   FMode := 0;
   inherited Destroy( );
 end;
@@ -108,7 +117,7 @@ procedure TPGAutoFills.Triggering( );
 var
   KeyPost: TKeyPost;
 begin
-  sleep(500);
+  sleep(FDelay);
   case self.Mode of
      0:begin
         KeyPost := TKeyPost.Create( self.Text, self.Speed);
@@ -171,6 +180,9 @@ begin
       else
         AutoFills := TPGAutoFills( id );
 
+      if Quantidade >= 4 then
+        AutoFills.Delay := Gramatica.Pilha.Desempilhar( 0 );
+
       if Quantidade >= 3 then
         AutoFills.Speed := Gramatica.Pilha.Desempilhar( 10 );
 
@@ -182,7 +194,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado ou j� existente.' );
+    Gramatica.ErroAdd( 'Identificador esperado ou já existente.' );
 end;
 
 { TPGAutoFillsMirror }

@@ -4,15 +4,25 @@ interface
 
 uses
   System.Classes,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls, Vcl.Dialogs,
   PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit, PGofer.VaultFolder;
 
 type
   TPGVaultFolderFrame = class( TPGItemFrame )
-    LblFilename: TLabel;
-    EdtFileName: TEdit;
-    procedure EdtFileNameKeyUp( Sender: TObject; var Key: Word;
+    LblPassword: TLabel;
+    LblFileName: TLabel;
+    EdtFile: TEdit;
+    BtnFile: TButton;
+    EdtPassword: TEdit;
+    BtnPassword: TButton;
+    ckbSavePassword: TCheckBox;
+    svdVault: TSaveDialog;
+    procedure EdtPasswordKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
+    procedure EdtFileKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ckbSavePasswordClick(Sender: TObject);
+    procedure BtnPasswordClick(Sender: TObject);
+    procedure BtnFileClick(Sender: TObject);
   private
     { Private declarations }
     FItem: TPGVaultFolder;
@@ -27,6 +37,10 @@ var
 
 implementation
 
+uses
+  System.SysUtils,
+  PGofer.Files.Controls;
+
 {$R *.dfm}
 { TPGFrameVariants }
 
@@ -34,7 +48,9 @@ constructor TPGVaultFolderFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGVaultFolder( AItem );
-  EdtFileName.Text := FItem.FileName;
+  EdtFile.Text := FItem.FileName;
+  EdtPassword.Text := FItem.Password;
+  ckbSavePassword.Checked := FItem.SavePassword;
 end;
 
 destructor TPGVaultFolderFrame.Destroy;
@@ -43,10 +59,46 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGVaultFolderFrame.EdtFileNameKeyUp( Sender: TObject; var Key: Word;
+procedure TPGVaultFolderFrame.BtnFileClick(Sender: TObject);
+begin
+  svdVault.Title := 'Vault File';
+  svdVault.Filter := 'PGofer Vault (*.pgv)|*.pgv|All Files (*.*)|*.*';
+  svdVault.InitialDir := FileLimitPathExist( EdtFile.Text );
+  svdVault.FileName := ExtractFileName( EdtFile.Text );
+
+  if svdVault.Execute then
+  begin
+    FItem.FileName := FileUnExpandPath( svdVault.FileName );
+    EdtFile.Text := FItem.FileName;
+  end;
+end;
+
+procedure TPGVaultFolderFrame.EdtFileKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  FItem.FileName := EdtFile.Text;
+end;
+
+procedure TPGVaultFolderFrame.EdtPasswordKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.FileName := EdtFileName.Text;
+  FItem.Password := EdtPassword.Text;
+end;
+
+procedure TPGVaultFolderFrame.BtnPasswordClick(Sender: TObject);
+begin
+  if EdtPassword.PasswordChar = '*' then
+  begin
+    EdtPassword.PasswordChar := #0;
+    BtnPassword.Caption := '(O)';
+  end else begin
+    EdtPassword.PasswordChar := '*';
+    BtnPassword.Caption := '(_)';
+  end;
+end;
+
+procedure TPGVaultFolderFrame.ckbSavePasswordClick(Sender: TObject);
+begin
+  FItem.SavePassword := ckbSavePassword.Checked;
 end;
 
 end.

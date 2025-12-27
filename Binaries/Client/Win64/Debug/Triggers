@@ -34,21 +34,21 @@
     <Script Type="string"></Script>
   </HotKey>
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">6</Occurrence>
+    <Occurrence Type="Cardinal">14</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string"></Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
   <AutoFill Name="AutoFill1" Enabled="true" ReadOnly="false">
     <Mode Type="Byte">0</Mode>
+    <Delay Type="Cardinal">0</Delay>
     <Speed Type="Cardinal">10</Speed>
     <Text Type="string"></Text>
   </AutoFill>
-  <VaultFolder Name="VaultFolder" Enabled="true" ReadOnly="false">
-    <FileName Type="string"></FileName>
-    <Locked Type="Boolean">True</Locked>
+  <VaultFolder Name="melecaVault" Enabled="true" ReadOnly="false">
+    <FileName Type="string">E:\teste.pgv</FileName>
     <Password Type="string"></Password>
-    <SavePassword Type="Boolean">False</SavePassword>
+    <SavePassword Type="Boolean">True</SavePassword>
     <_Expanded Type="Boolean">False</_Expanded>
   </VaultFolder>
 </Triggers>

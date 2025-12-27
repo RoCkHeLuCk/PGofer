@@ -9,7 +9,6 @@ uses
   PGofer.Triggers, PGofer.Triggers.AutoFills, PGofer.Triggers.Frame,
   PGofer.Component.Edit, PGofer.Component.RichEdit;
 
-
 type
   TPGAutoFillsFrame = class( TPGTriggerFrame )
     GrbText: TGroupBox;
@@ -20,11 +19,19 @@ type
     UpdSpeed: TUpDown;
     LblMode: TLabel;
     CmbMode: TComboBox;
+    LblDelay: TLabel;
+    EdtDelay: TEditEx;
+    updDelay: TUpDown;
+    Lblmilisec1: TLabel;
+    Lblmilisec2: TLabel;
     procedure CmbModeChange(Sender: TObject);
     procedure EdtSpeedKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure UpdSpeedChangingEx(Sender: TObject; var AllowChange: Boolean;
       NewValue: Integer; Direction: TUpDownDirection);
     procedure EdtTextKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EdtDelayKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure updDelayChangingEx(Sender: TObject; var AllowChange: Boolean; NewValue: Integer;
+      Direction: TUpDownDirection);
   private
     FItem: TPGAutoFills;
   protected
@@ -41,6 +48,7 @@ uses
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
+
 { TPGAutoFillsFrame }
 constructor TPGAutoFillsFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
@@ -56,6 +64,17 @@ begin
   FrmAutoComplete.EditCtrlRemove( EdtText );
   FItem := nil;
   inherited Destroy( );
+end;
+
+procedure TPGAutoFillsFrame.EdtDelayKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  FItem.Delay := StrToInt(EdtDelay.Text);
+end;
+
+procedure TPGAutoFillsFrame.updDelayChangingEx(Sender: TObject; var AllowChange: Boolean;
+  NewValue: Integer; Direction: TUpDownDirection);
+begin
+  FItem.Delay := NewValue;
 end;
 
 procedure TPGAutoFillsFrame.UpdSpeedChangingEx(Sender: TObject;

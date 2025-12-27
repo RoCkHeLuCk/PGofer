@@ -15,14 +15,16 @@ type
     FLocked: Boolean;
     FPassword: string;
     FSavePassword: Boolean;
+    function GetPassword( ) : string;
   protected
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
     destructor Destroy( ); override;
+    procedure Frame( AParent: TObject ); override;
+    property Locked: Boolean read FLocked write FLocked;
+    property Password: string read GetPassword write FPassword;
   published
     property FileName: string read FFileName write FFileName;
-    property Locked: Boolean read FLocked write FLocked;
-    property Password: string read FPassword write FPassword;
     property SavePassword: Boolean read FSavePassword write FSavePassword;
   end;
   {$TYPEINFO ON}
@@ -31,7 +33,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico;
+  PGofer.Sintatico, PGofer.VaultFolder.Frame;
 
 { TPGVaultFolder }
 
@@ -44,13 +46,26 @@ begin
   FSavePassword := False;
 end;
 
-destructor TPGVaultFolder.Destroy;
+destructor TPGVaultFolder.Destroy( );
 begin
   FFileName := '';
   FLocked := True;
   FPassword := '';
   FSavePassword := False;
   inherited Destroy( );
+end;
+
+procedure TPGVaultFolder.Frame(AParent: TObject);
+begin
+  inherited Frame( AParent );
+  TPGVaultFolderFrame.Create( Self, AParent );
+end;
+
+function TPGVaultFolder.GetPassword: string;
+begin
+  Result := '';
+  if FSavePassword then
+    Result := FPassword;
 end;
 
 initialization
