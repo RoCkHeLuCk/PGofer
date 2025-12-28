@@ -41,7 +41,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Lexico, PGofer.Sintatico.Controls,
+  PGofer.Types, PGofer.Lexico, PGofer.Sintatico.Controls,
   PGofer.Key.Controls;
 
 { TPGItemTrigger }

@@ -5,6 +5,9 @@ interface
 uses
   System.SysUtils, System.Rtti;
 
+const
+  LowString = low( string );
+
 type
   TPGAttribText = class(TCustomAttribute)
   private

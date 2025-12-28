@@ -131,7 +131,7 @@ implementation
 
 uses
   System.TypInfo,
-  PGofer.Classes, PGofer.Math.Controls;
+  PGofer.Types, PGofer.Classes, PGofer.Math.Controls;
 
 { TCordenada }
 

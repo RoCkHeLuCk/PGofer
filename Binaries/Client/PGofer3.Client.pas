@@ -60,6 +60,7 @@ var
 implementation
 
 uses
+  PGofer.Types,
   PGofer.Classes,
   PGofer.Sintatico,
   PGofer.System.Controls,

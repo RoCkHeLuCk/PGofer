@@ -34,7 +34,7 @@
     <Script Type="string"></Script>
   </HotKey>
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">14</Occurrence>
+    <Occurrence Type="Cardinal">17</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string"></Script>
     <Trigger Type="Byte">0</Trigger>
@@ -46,8 +46,8 @@
     <Text Type="string"></Text>
   </AutoFill>
   <VaultFolder Name="melecaVault" Enabled="true" ReadOnly="false">
+    <Password Type="string">12345</Password>
     <FileName Type="string">E:\teste.pgv</FileName>
-    <Password Type="string"></Password>
     <SavePassword Type="Boolean">True</SavePassword>
     <_Expanded Type="Boolean">False</_Expanded>
   </VaultFolder>

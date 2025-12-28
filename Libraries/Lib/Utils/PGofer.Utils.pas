@@ -10,7 +10,7 @@ function SplitEx( Text, Separator: string ): TArray<string>;
 implementation
 
 uses
-  PGofer.Classes;
+  PGofer.Types, PGofer.Classes;
 
 function SplitEx( Text, Separator: string ): TArray<string>;
 var

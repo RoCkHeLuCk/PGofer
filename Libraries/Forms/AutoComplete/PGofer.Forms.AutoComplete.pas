@@ -81,7 +81,7 @@ implementation
 uses
   Winapi.Messages,
   Vcl.Dialogs,
-  PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Controls,
+  PGofer.Types, PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Controls,
   PGofer.Files.Controls, PGofer.Forms.Controls, PGofer.Utils;
 
 {$R *.dfm}
