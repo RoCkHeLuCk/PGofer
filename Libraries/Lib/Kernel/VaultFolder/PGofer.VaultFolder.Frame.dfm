@@ -78,13 +78,22 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
     object ckbSavePassword: TCheckBox
       Left = 70
       Top = 84
-      Width = 97
+      Width = 131
       Height = 17
       Caption = 'Save Password'
-      Checked = True
-      State = cbChecked
       TabOrder = 5
       OnClick = ckbSavePasswordClick
+    end
+    object ckbLocked: TCheckBox
+      Left = 239
+      Top = 84
+      Width = 120
+      Height = 17
+      Caption = 'Locked'
+      Checked = True
+      State = cbChecked
+      TabOrder = 6
+      OnClick = ckbLockedClick
     end
   end
   inherited sptAbout: TPanel

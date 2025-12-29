@@ -24,7 +24,8 @@ type
     constructor Create(AItemDad: TPGItem; AName: string = ''); overload;
     destructor Destroy(); override;
     procedure Frame(AParent: TObject); override;
-    property Locked: Boolean read FLocked write FLocked;
+    property Locked: Boolean read FLocked;
+    procedure Updade();
   published
     property Password: string read GetPassword write FPassword;
     property FileName: string read FFileName write FFileName;
@@ -45,32 +46,37 @@ function TPGVaultFolder.BeforeXMLLoad(ItemCollect: TPGItemCollect): Boolean;
 var
   Stream: TStream;
 begin
-  Result := True;
-  Stream := AESDecryptFileToStream(FFileName, FPassword);
-  if Assigned(Stream) then
+  Result := False;
+  FLocked := True;
+  if (FPassword <> '') and (FileExists(FFileName)) then
   begin
-    Stream.Position := 0;
-    ItemCollect.XMLLoadFromStream(Self, Stream);
-    Stream.Free;
-  end
-  else
-    raise Exception.Create('Senha incorreta ou arquivo corrompido.');
+    Stream := AESDecryptFileToStream(FFileName, FPassword);
+    if Assigned(Stream) then
+    begin
+      Stream.Position := 0;
+      ItemCollect.XMLLoadFromStream(Self, Stream);
+      Stream.Free;
+      FLocked := False;
+    end
+    else
+      raise Exception.Create('Senha incorreta ou arquivo corrompido.');
+  end;
 end;
 
 function TPGVaultFolder.BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean;
 var
   Stream: TStream;
 begin
-  Result := True;
-  if FPassword = '' then
-    Exit;
-  Stream := TMemoryStream.Create();
-  ItemCollect.XMLSaveToStream(Self, Stream);
-  Stream.Position := 0;
-  if not AESEncryptStreamToFile(Stream, FFileName, FPassword) then
-    raise Exception.Create('Falha na criptografia AES ao salvar.');
-  Stream.Free;
   Result := False;
+  if (not FLocked) and (FPassword <> '') and (FFileName <> '') then
+  begin
+    Stream := TMemoryStream.Create();
+    ItemCollect.XMLSaveToStream(Self, Stream);
+    Stream.Position := 0;
+    if not AESEncryptStreamToFile(Stream, FFileName, FPassword) then
+      raise Exception.Create('Falha na criptografia AES ao salvar.');
+    Stream.Free;
+  end;
 end;
 
 constructor TPGVaultFolder.Create(AItemDad: TPGItem; AName: string);
@@ -102,6 +108,17 @@ begin
   Result := '';
   if FSavePassword then
     Result := FPassword;
+end;
+
+procedure TPGVaultFolder.Updade( );
+begin
+  if FLocked then
+  begin
+    Self.BeforeXMLLoad( TriggersCollect );
+  end else begin
+    Self.Clear;
+    FLocked := True;
+  end;
 end;
 
 initialization

@@ -17,12 +17,14 @@ type
     BtnPassword: TButton;
     ckbSavePassword: TCheckBox;
     svdVault: TSaveDialog;
+    ckbLocked: TCheckBox;
     procedure EdtPasswordKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure EdtFileKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ckbSavePasswordClick(Sender: TObject);
     procedure BtnPasswordClick(Sender: TObject);
     procedure BtnFileClick(Sender: TObject);
+    procedure ckbLockedClick(Sender: TObject);
   private
     { Private declarations }
     FItem: TPGVaultFolder;
@@ -94,6 +96,12 @@ begin
     EdtPassword.PasswordChar := '*';
     BtnPassword.Caption := '(_)';
   end;
+end;
+
+procedure TPGVaultFolderFrame.ckbLockedClick(Sender: TObject);
+begin
+  FItem.Updade( );
+  ckbLocked.Checked := FItem.Locked;
 end;
 
 procedure TPGVaultFolderFrame.ckbSavePasswordClick(Sender: TObject);
