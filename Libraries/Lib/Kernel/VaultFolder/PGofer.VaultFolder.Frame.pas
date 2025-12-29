@@ -53,6 +53,7 @@ begin
   EdtFile.Text := FItem.FileName;
   EdtPassword.Text := FItem.Password;
   ckbSavePassword.Checked := FItem.SavePassword;
+  ckbLocked.Checked := FItem.Locked;
 end;
 
 destructor TPGVaultFolderFrame.Destroy;
@@ -100,7 +101,7 @@ end;
 
 procedure TPGVaultFolderFrame.ckbLockedClick(Sender: TObject);
 begin
-  FItem.Updade( );
+  FItem.ToggleLock( );
   ckbLocked.Checked := FItem.Locked;
 end;
 

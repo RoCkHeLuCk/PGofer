@@ -355,9 +355,7 @@ begin
   if ALoadFile then
   begin
     FFileName := PGofer.Sintatico.DirCurrent + '\' + AName + '.xml';
-  end
-  else
-  begin
+  end else begin
     FFileName := '';
   end;
 end;
@@ -499,7 +497,7 @@ begin
   XMLDocument.Encoding := 'utf-8';
   XMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
   XMLDocument.Active := True;
-  XMLRoot := XMLDocument.AddChild(Self.Name);
+  XMLRoot := XMLDocument.AddChild(ItemFirst.Name);
   XMLRoot.Attributes['Version'] := '1.0';
   for Item in ItemFirst do
   begin
@@ -603,17 +601,18 @@ procedure TPGItemCollect.XMLLoadFromStream(ItemFirst: TPGItem; AStream: TStream)
 
 var
   XMLDocument: IXMLDocument;
-  XMLNode: IXMLNode;
+  XMLRoot, XMLNode: IXMLNode;
 begin
   ItemFirst.Clear;
   XMLDocument := NewXMLDocument;
   try
     XMLDocument.LoadFromStream(AStream);
     XMLDocument.Active := True;
-    XMLNode := XMLDocument.ChildNodes.FindNode(Self.Name);
-    if Assigned(XMLNode) then
+    XMLRoot := XMLDocument.DocumentElement;
+    //childNodes.FindNode(ItemFirst.Name);
+    if Assigned(XMLRoot) then
     begin
-      XMLNode := XMLNode.ChildNodes.First;
+      XMLNode := XMLRoot.ChildNodes.First;
       while Assigned(XMLNode) do
       begin
         CreateItem(ItemFirst, XMLNode);
@@ -629,7 +628,7 @@ procedure TPGItemCollect.XMLLoadFromFile(AFileName: string);
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  Stream := TFileStream.Create(AFileName, fmOpenRead);
   try
     Self.XMLLoadFromStream(Self, Stream);
   finally

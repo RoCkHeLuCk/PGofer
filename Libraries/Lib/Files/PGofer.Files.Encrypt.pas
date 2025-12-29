@@ -241,6 +241,7 @@ function AESEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Password: s
 var
   fsOut: TFileStream;
 begin
+  Result := False;
   fsOut := TFileStream.Create(FileTo, fmCreate);
   try
     Result := AESEncryptStream(StreamFrom, fsOut, Password);
@@ -270,6 +271,7 @@ function AESEncryptStringToFile(StringFrom: string; FileTo: string; Password: st
 var
   ssIn: TStringStream;
 begin
+  Result := False;
   ssIn := TStringStream.Create(StringFrom, TEncoding.UTF8);
   try
     Result := AESEncryptStreamToFile(ssIn, FileTo, Password);
@@ -456,6 +458,7 @@ function DPAPIEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Entropy: 
 var
   fsOut: TFileStream;
 begin
+  Result := False;
   fsOut := TFileStream.Create(FileTo, fmCreate);
   try
     Result := DPAPIEncryptStream(StreamFrom, fsOut, Entropy);
@@ -486,6 +489,7 @@ function DPAPIEncryptStringToFile(StringFrom: string; const FileTo: string;
 var
   ssIn: TStringStream;
 begin
+  Result := False;
   ssIn := TStringStream.Create(StringFrom, TEncoding.UTF8);
   try
     Result := DPAPIEncryptStreamToFile(ssIn, FileTo, Entropy);

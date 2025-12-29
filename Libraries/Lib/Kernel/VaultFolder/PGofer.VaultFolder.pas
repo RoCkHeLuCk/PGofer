@@ -25,7 +25,7 @@ type
     destructor Destroy(); override;
     procedure Frame(AParent: TObject); override;
     property Locked: Boolean read FLocked;
-    procedure Updade();
+    procedure ToggleLock();
   published
     property Password: string read GetPassword write FPassword;
     property FileName: string read FFileName write FFileName;
@@ -41,6 +41,24 @@ uses
   PGofer.Sintatico, PGofer.VaultFolder.Frame;
 
 { TPGVaultFolder }
+
+constructor TPGVaultFolder.Create(AItemDad: TPGItem; AName: string);
+begin
+  inherited Create(AItemDad, AName);
+  FFileName := '';
+  FPassword := '';
+  FSavePassword := False;
+  FLocked := True;
+end;
+
+destructor TPGVaultFolder.Destroy();
+begin
+  FLocked := True;
+  FSavePassword := False;
+  FPassword := '';
+  FFileName := '';
+  inherited Destroy();
+end;
 
 function TPGVaultFolder.BeforeXMLLoad(ItemCollect: TPGItemCollect): Boolean;
 var
@@ -68,7 +86,8 @@ var
   Stream: TStream;
 begin
   Result := False;
-  if (not FLocked) and (FPassword <> '') and (FFileName <> '') then
+  if (FPassword <> '') and (FFileName <> '') and
+   ( (not FLocked) or (not FileExists(FFileName)) ) then
   begin
     Stream := TMemoryStream.Create();
     ItemCollect.XMLSaveToStream(Self, Stream);
@@ -76,25 +95,8 @@ begin
     if not AESEncryptStreamToFile(Stream, FFileName, FPassword) then
       raise Exception.Create('Falha na criptografia AES ao salvar.');
     Stream.Free;
+    FLocked := False;
   end;
-end;
-
-constructor TPGVaultFolder.Create(AItemDad: TPGItem; AName: string);
-begin
-  inherited Create(AItemDad, AName);
-  FFileName := '';
-  FLocked := True;
-  FPassword := '';
-  FSavePassword := False;
-end;
-
-destructor TPGVaultFolder.Destroy();
-begin
-  FFileName := '';
-  FLocked := True;
-  FPassword := '';
-  FSavePassword := False;
-  inherited Destroy();
 end;
 
 procedure TPGVaultFolder.Frame(AParent: TObject);
@@ -110,14 +112,17 @@ begin
     Result := FPassword;
 end;
 
-procedure TPGVaultFolder.Updade( );
+procedure TPGVaultFolder.ToggleLock( );
 begin
+  Exit;
   if FLocked then
   begin
     Self.BeforeXMLLoad( TriggersCollect );
   end else begin
     Self.Clear;
     FLocked := True;
+    if not FSavePassword then
+      FPassword := '';
   end;
 end;
 

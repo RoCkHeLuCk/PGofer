@@ -207,9 +207,7 @@ begin
   if Assigned(TPGHotKey.FOnProcessKeys) then
   begin
     TPGHotKey.FOnProcessKeys(AParamInput);
-  end
-  else
-  begin
+  end else begin
     TPGHotKey.DefaultOnProcessKeys(AParamInput);
   end;
 end;
@@ -251,9 +249,7 @@ begin
   if Assigned(ProcessKeys) then
   begin
     TPGHotKey.FOnProcessKeys := ProcessKeys;
-  end
-  else
-  begin
+  end else begin
     TPGHotKey.FOnProcessKeys := nil;
   end;
 end;
@@ -292,7 +288,7 @@ begin
 
     2:
       begin
-        {$IFDEF DEBUG}
+        {$IFNDEF DEBUG}
         TPGHotKeyDeclare.FInputType := THookInput.Create();
         {$ENDIF}
       end;
