@@ -1,22 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <AutoFill Name="Teste" Enabled="true" ReadOnly="false">
-    <Mode Type="Byte">0</Mode>
-    <Speed Type="Cardinal">10</Speed>
-    <Text Type="string">1234567890-=
-!@#$%^&amp;*()_+
-¡²³¤€¼½¾‘’¥×
-qwertyuiop[]\
-QWERTYUIOP{}|
-</Text>
-  </AutoFill>
+  <Link Name="Link1" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <Folder Name="Folder" Enabled="true" ReadOnly="false">
+    <_Expanded Type="Boolean">False</_Expanded>
+  </Folder>
+  <Link Name="Link2" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
   <HotKey Name="HotKey" Enabled="true" ReadOnly="false">
-    <HotKeysHex Type="string">0A2001</HotKeysHex>
+    <HotKeysHex Type="string"></HotKeysHex>
     <Detect Type="Byte">0</Detect>
     <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string">FrmPGofer.Left := System.Mouse.CursorPosX;
-FrmPGofer.Top := System.Mouse.CursorPosY;
-FrmPGofer;
-</Script>
+    <Script Type="string"></Script>
   </HotKey>
+  <Task Name="Task" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">24</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string"></Script>
+    <Trigger Type="Byte">0</Trigger>
+  </Task>
+  <AutoFill Name="AutoFill1" Enabled="true" ReadOnly="false">
+    <Mode Type="Byte">0</Mode>
+    <Delay Type="Cardinal">0</Delay>
+    <Speed Type="Cardinal">10</Speed>
+    <Text Type="string"></Text>
+  </AutoFill>
+  <VaultFolder Name="melecaVault" Enabled="true" ReadOnly="false">
+    <Password Type="string">123456</Password>
+    <FileName Type="string">E:\teste.pgv</FileName>
+    <SavePassword Type="Boolean">True</SavePassword>
+    <_Expanded Type="Boolean">False</_Expanded>
+  </VaultFolder>
 </Triggers>
