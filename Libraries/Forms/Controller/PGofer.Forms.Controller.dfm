@@ -205,6 +205,7 @@ object FrmController: TFrmController
       OnCustomDrawItem = TrvControllerCustomDrawItem
       OnDragDrop = TrvControllerDragDrop
       OnDragOver = TrvControllerDragOver
+      OnExpanded = TrvControllerExpanded
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
       OnKeyUp = TrvControllerKeyUp
       OnMouseDown = TrvControllerMouseDown
@@ -259,6 +260,7 @@ object FrmController: TFrmController
     end
   end
   object PpmCreate: TPopupMenu
+    OnPopup = PpmCreatePopup
     Left = 68
     Top = 36
   end

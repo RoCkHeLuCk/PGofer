@@ -72,6 +72,8 @@ type
     procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
       Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
     procedure PnlFrameResize( Sender: TObject );
+    procedure TrvControllerExpanded(Sender: TObject; Node: TTreeNode);
+    procedure PpmCreatePopup(Sender: TObject);
   private
     FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
@@ -81,7 +83,8 @@ type
     procedure CreatePopups( );
     procedure FrameShow( );
     procedure FrameHide( );
-    function GetTargetWorking( ): TPGItem;
+    function GetTargetWorking( Node: TTreeNode ): TPGItem;
+    function GetFolderWorking( ): TPGItem;
   protected
     FCollectItem: TPGItemCollect;
     FSelectedItem: TPGItem;
@@ -217,7 +220,7 @@ procedure TFrmController.PanelCleaning( );
 var
   c: Integer;
 begin
-  FCollectItem.SaveToFile( );
+  FCollectItem. XMLSaveToFile( );
   for c := PnlFrame.ControlCount - 1 downto 0 do
   begin
     PnlFrame.Controls[ c ].Free( );
@@ -264,6 +267,16 @@ procedure TFrmController.PnlFrameResize( Sender: TObject );
 begin
   inherited;
   FFrameWidth := PnlFrame.Width;
+end;
+
+procedure TFrmController.PpmCreatePopup(Sender: TObject);
+begin
+  if Assigned( GetFolderWorking(  ) ) then
+  begin
+    PpmCreate.Items.Enabled := True;
+  end else begin
+    PpmCreate.Items.Enabled := False;
+  end;
 end;
 
 procedure TFrmController.SptControllerCanResize( Sender: TObject;
@@ -380,19 +393,36 @@ begin
     begin
       Sender.Canvas.Font.Color := clGray;
     end;
+
+    if ( Item is TPGFolder ) and ( TPGFolder(Item).Locked ) then
+    begin
+      Sender.Canvas.Font.Style := [ fsItalic ];
+    end;
   end;
 end;
 
-function TFrmController.GetTargetWorking( ): TPGItem;
+function TFrmController.GetTargetWorking( Node: TTreeNode ): TPGItem;
 begin
-  if Assigned( TrvController.TargetDrag ) then
+  Result := nil;
+  if Assigned( Node ) and Assigned( Node.Data ) then
+     Result := TPGItem( Node.Data );
+end;
+
+function TFrmController.GetFolderWorking( ): TPGItem;
+begin
+  Result := GetTargetWorking( TrvController.TargetDrag );
+  if Assigned(Result) then
   begin
-    Result := TPGItem( TrvController.TargetDrag.Data );
-    if not( Result is TPGFolder ) then
+    if not (Result is TPGFolder ) then
+    begin
       Result := Result.Parent;
-  end
-  else
+    end else begin
+      if (TPGFolder(Result).Locked) then
+        Result := nil;
+    end;
+  end else begin
     Result := FCollectItem;
+  end;
 end;
 
 procedure TFrmController.TrvControllerDropFiles( Sender: TObject;
@@ -401,17 +431,25 @@ var
   sFileName: string;
   ItemDad: TPGItem;
 begin
-  ItemDad := GetTargetWorking( );
-  for sFileName in AFiles do
+  ItemDad := GetFolderWorking( );
+  if Assigned(ItemDad) then
   begin
-    with TPGLink( TPGLinkMirror.Create( ItemDad,
-      FileExtractOnlyFileName( sFileName ) ).ItemOriginal ) do
+    for sFileName in AFiles do
     begin
-      FileName := FileUnExpandPath( sFileName );
-      Directory := FileUnExpandPath( ExtractFilePath( sFileName ) );
+      with TPGLink( TPGLinkMirror.Create( ItemDad,
+        FileExtractOnlyFileName( sFileName ) ).ItemOriginal ) do
+      begin
+        FileName := FileUnExpandPath( sFileName );
+        Directory := FileUnExpandPath( ExtractFilePath( sFileName ) );
+      end;
     end;
+    FCollectItem.XMLSaveToFile( );
   end;
-  FCollectItem.SaveToFile( );
+end;
+
+procedure TFrmController.TrvControllerExpanded(Sender: TObject; Node: TTreeNode);
+begin
+  //
 end;
 
 procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
@@ -420,34 +458,40 @@ var
   Node: TTreeNode;
   ItemDad: TPGItem;
 begin
-  ItemDad := GetTargetWorking( );
+  ItemDad := GetFolderWorking( );
 
-  for Node in TrvController.SelectionsDrag do
+  if Assigned(ItemDad) then
   begin
-    if Assigned( Node.Data ) and ( TPGItem( Node.Data ) is TPGItem ) then
+    for Node in TrvController.SelectionsDrag do
     begin
-      TPGItem( Node.Data ).Parent := ItemDad;
+      if Assigned( Node.Data ) and ( TPGItem( Node.Data ) is TPGItem ) then
+      begin
+        TPGItem( Node.Data ).Parent := ItemDad;
+      end;
     end;
+    FCollectItem.XMLSaveToFile;
   end;
-  FCollectItem.SaveToFile;
 end;
 
 procedure TFrmController.TrvControllerDragOver( Sender, Source: TObject;
   X, Y: Integer; State: TDragState; var Accept: Boolean );
+var
+  Item : TPGItem;
 begin
   Accept := Sender = Source;
   if Accept then
   begin
-    if Assigned( TrvController.TargetDrag ) and
-      Assigned( TrvController.TargetDrag.Data ) and
-      ( TPGItem( TrvController.TargetDrag.Data ) is TPGFolder ) then
+    Item := GetTargetWorking(TrvController.TargetDrag);
+    if Assigned(Item) then
     begin
-      Accept := True;
-      TrvController.AttachMode := naInsert;
-    end;
-
-    if not Assigned( TrvController.TargetDrag ) then
-    begin
+      if ( Item is TPGFolder ) and (not TPGFolder(Item).Locked ) then
+      begin
+        Accept := True;
+        TrvController.AttachMode := naInsert;
+      end else begin
+        Accept := False;
+      end;
+    end else begin
       Accept := True;
       TrvController.AttachMode := naAdd;
     end;
@@ -456,15 +500,18 @@ end;
 
 procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;
   Node: TTreeNode );
+var
+  Item : TPGItem;
 begin
   if PnlFrame.Visible then
   begin
-    if TrvController.isSelectWork then
+    Item := GetTargetWorking(TrvController.Selected);
+    if Assigned(Item) then
     begin
-      if ( TPGItem( TrvController.Selected.Data ) <> FSelectedItem ) then
+      if ( Item <> FSelectedItem ) then
       begin
         Self.PanelCleaning( );
-        FSelectedItem := TPGItem( TrvController.Selected.Data );
+        FSelectedItem := Item;
         FSelectedItem.Frame( PnlFrame );
       end;
     end else begin
@@ -587,7 +634,7 @@ begin
   begin
     FSelectedItem := FCollectItem;
   end else begin
-    if ( not( FSelectedItem is TPGFolder ) ) then
+    if ( not( FSelectedItem is TPGFolder ) ) or ( TPGFolder(FSelectedItem).Locked ) then
     begin
       FSelectedItem := FSelectedItem.Parent;
     end;

@@ -13,11 +13,13 @@ package PGoferComponent;
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
 {$OPTIMIZATION OFF}
+{$OPTIMIZATION ON}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
 {$STACKFRAMES ON}
+{$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
@@ -36,6 +38,7 @@ requires
   xmlrtl;
 
 contains
+  Pgofer.Component.Checkbox in '..\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.Edit in '..\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\Source\PGofer.Component.TreeView.pas',

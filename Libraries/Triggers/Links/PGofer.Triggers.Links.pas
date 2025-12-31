@@ -12,7 +12,7 @@ type
   [TPGAttribIcon(pgiLink)]
   TPGLink = class( TPGItemTrigger )
   private
-    FFile: string;
+    FFileName: string;
     FParameter: string;
     FDirectory: string;
     FScriptBefor: TStrings;
@@ -41,7 +41,7 @@ type
     procedure Frame( AParent: TObject ); override;
     procedure Triggering( ); override;
   published
-    property FileName: string read FFile write FFile;
+    property FileName: string read FFileName write FFileName;
     property Parameter: string read FParameter write FParameter;
     property Directory: string read FDirectory write FDirectory;
     property State: Byte read FState write FState;
@@ -94,7 +94,7 @@ constructor TPGLink.Create( AName: string; AMirror: TPGItemMirror );
 begin
   inherited Create( TPGLink.GlobList, AName, AMirror );
   Self.ReadOnly := False;
-  FFile := '';
+  FFileName := '';
   FParameter := '';
   FDirectory := '';
   FState := 1;
@@ -107,7 +107,7 @@ end;
 
 destructor TPGLink.Destroy( );
 begin
-  FFile := '';
+  FFileName := '';
   FParameter := '';
   FDirectory := '';
   FState := 1;
@@ -132,7 +132,7 @@ end;
 
 function TPGLink.GetIsRunning( ): Boolean;
 begin
-  Result := ProcessFileToPID( ExtractFileName( FFile ) ) <> 0;
+  Result := ProcessFileToPID( ExtractFileName( FFileName ) ) <> 0;
 end;
 
 function TPGLink.GetIsValid( ): Boolean;
@@ -142,7 +142,7 @@ end;
 
 function TPGLink.GetFileExist( ): Boolean;
 begin
-  Result := FileExists( FileExpandPath( FFile ) );
+  Result := FileExists( FileExpandPath( FFileName ) );
 end;
 
 function TPGLink.GetFileRepeat( ): Boolean;
@@ -151,10 +151,10 @@ var
   Text: string;
 begin
   Result := False;
-  Text := FileUnExpandPath( Self.FFile );
+  Text := FileUnExpandPath( Self.FFileName );
   for Item in TPGLink.GlobList do
   begin
-    if SameText( FileUnExpandPath( TPGLink( Item ).FFile ), Text ) and
+    if SameText( FileUnExpandPath( TPGLink( Item ).FFileName ), Text ) and
       SameText( TPGLink( Item ).FParameter, Self.FParameter ) and ( Item <> Self )
     then
     begin
@@ -176,7 +176,7 @@ end;
 
 function TPGLink.KillMe( ): Boolean;
 begin
-  Result := ProcessKill( ProcessFileToPID( ExtractFileName( FFile ) ) );
+  Result := ProcessKill( ProcessFileToPID( ExtractFileName( FFileName ) ) );
 end;
 
 procedure TPGLink.SetScriptAfter( AValue: string );
@@ -317,12 +317,12 @@ procedure TPGLinkDeclare.Auto( ADir: string; AMask: string );
           if Ext = '.lnk' then
           begin
             Shell := GetShellLinkInfo( ASubDir + SearchRec.Name );
-            Link.FFile := FileUnExpandPath( Shell.PathName );
+            Link.FFileName := FileUnExpandPath( Shell.PathName );
             Link.FParameter := FileUnExpandPath( Shell.Arguments );
             Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
             Link.FState := Shell.ShowCmd;
           end else begin
-            Link.FFile := FileUnExpandPath( ASubDir + SearchRec.Name );
+            Link.FFileName := FileUnExpandPath( ASubDir + SearchRec.Name );
           end;
 
           if ( not Link.isFileExist ) or ( Link.isFileRepeat ) then

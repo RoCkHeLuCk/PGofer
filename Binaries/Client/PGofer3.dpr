@@ -71,7 +71,7 @@ uses
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
   PGofer.Triggers.AutoFills.Frame in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.Frame.pas' {PGAutoFillsFrame: TFrame},
-  PGofer.Component.Edit in '..\..\Libraries\Componet\Source\PGofer.Component.Edit.pas',
+  PGofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
@@ -80,7 +80,8 @@ uses
   Winapi.Windows,
   Vcl.Forms,
   PGofer.VaultFolder in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas',
-  PGofer.VaultFolder.Frame in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame};
+  PGofer.VaultFolder.Frame in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
+  Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas';
 
 {$R *.res}
 
@@ -101,8 +102,8 @@ begin
   Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
   Application.CreateForm(TFrmConsole, FrmConsole);
   FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
-    GlobalCollection.LoadFromFile( );
-    TriggersCollect.LoadFromFile( );
+    GlobalCollection.XMLLoadFromFile( );
+    TriggersCollect.XMLLoadFromFile( );
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );
     Application.Run;

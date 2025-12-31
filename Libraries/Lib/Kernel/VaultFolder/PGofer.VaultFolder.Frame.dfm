@@ -84,9 +84,9 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       TabOrder = 5
       OnClick = ckbSavePasswordClick
     end
-    object ckbLocked: TCheckBox
-      Left = 239
-      Top = 84
+    object ckbLocked: TCheckBoxEx
+      Left = 240
+      Top = 85
       Width = 120
       Height = 17
       Caption = 'Locked'

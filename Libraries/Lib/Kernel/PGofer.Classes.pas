@@ -78,11 +78,11 @@ type
     FForm: TForm;
     FFileName: string;
   protected
-    procedure XMLLoadFromFile(AFileName: string);
-    procedure XMLSaveToFile(AFileName: string);
   public
     procedure XMLLoadFromStream(ItemFirst: TPGItem; AStream: TStream);
+    procedure XMLLoadFromFile();
     procedure XMLSaveToStream(ItemFirst: TPGItem; AStream: TStream);
+    procedure XMLSaveToFile();
     property TreeView: TTreeViewEx read FTreeView;
     property RegClassList: TClassList read FClassList write FClassList;
     procedure RegisterClass(AName: string; AClass: TClass);
@@ -90,8 +90,6 @@ type
     procedure TreeViewAttach();
     procedure TreeViewDetach();
     procedure FormShow();
-    procedure LoadFromFile();
-    procedure SaveToFile();
   end;
 
 implementation
@@ -507,15 +505,18 @@ begin
   XMLDocument.Active := False;
 end;
 
-procedure TPGItemCollect.XMLSaveToFile(AFileName: string);
+procedure TPGItemCollect.XMLSaveToFile();
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create(AFileName, fmCreate);
-  try
-    Self.XMLSaveToStream(Self, Stream);
-  finally
-    Stream.Free;
+  if (FFileName <> '') then
+  begin
+    Stream := TFileStream.Create(FFileName, fmCreate);
+    try
+      Self.XMLSaveToStream(Self, Stream);
+    finally
+      Stream.Free;
+    end;
   end;
 end;
 
@@ -550,9 +551,9 @@ procedure TPGItemCollect.XMLLoadFromStream(ItemFirst: TPGItem; AStream: TStream)
       RttiContext.Free;
       RttiContext := TRttiContext.Create();
       RttiType := RttiContext.GetType(ItemOriginal.ClassType);
-    end
-    else
+    end else begin
       ItemOriginal := Item;
+    end;
 
     if XMLNode.HasAttribute('Enabled') then
       ItemOriginal.Enabled := XMLNode.Attributes['Enabled'];
@@ -609,7 +610,6 @@ begin
     XMLDocument.LoadFromStream(AStream);
     XMLDocument.Active := True;
     XMLRoot := XMLDocument.DocumentElement;
-    //childNodes.FindNode(ItemFirst.Name);
     if Assigned(XMLRoot) then
     begin
       XMLNode := XMLRoot.ChildNodes.First;
@@ -624,29 +624,20 @@ begin
   end;
 end;
 
-procedure TPGItemCollect.XMLLoadFromFile(AFileName: string);
+procedure TPGItemCollect.XMLLoadFromFile();
 var
   Stream: TStream;
 begin
-  Stream := TFileStream.Create(AFileName, fmOpenRead);
-  try
-    Self.XMLLoadFromStream(Self, Stream);
-  finally
-    Stream.Free;
+  FForm := TFrmController.Create(Self);
+  if (FFileName <> '') and FileExists(FFileName) then
+  begin
+    Stream := TFileStream.Create(FFileName, fmOpenRead);
+    try
+      Self.XMLLoadFromStream(Self, Stream);
+    finally
+      Stream.Free;
+    end;
   end;
-end;
-
-procedure TPGItemCollect.LoadFromFile();
-begin
-  Self.FForm := TFrmController.Create(Self);
-  if (Self.FFileName <> '') and FileExists(Self.FFileName) then
-    Self.XMLLoadFromFile(Self.FFileName);
-end;
-
-procedure TPGItemCollect.SaveToFile();
-begin
-  if (Self.FFileName <> '') then
-    Self.XMLSaveToFile(Self.FFileName);
 end;
 
 initialization

@@ -59,13 +59,13 @@
         <DCCReference Include="vclactnband.dcp"/>
         <DCCReference Include="vclx.dcp"/>
         <DCCReference Include="xmlrtl.dcp"/>
+        <DCCReference Include="..\Source\Pgofer.Component.Checkbox.pas"/>
         <DCCReference Include="..\Source\Pgofer.Component.Edit.pas"/>
         <DCCReference Include="..\Source\PGofer.Component.ListView.pas"/>
         <DCCReference Include="..\Source\PGofer.Component.TreeView.pas"/>
         <DCCReference Include="..\Source\PGofer.Component.RichEdit.pas"/>
         <DCCReference Include="..\Source\PGofer.Component.Form.pas">
             <Form>FormEx</Form>
-            <FormType>dfm</FormType>
         </DCCReference>
         <None Include="PGoferComponent.dpk"/>
         <BuildConfiguration Include="Base">

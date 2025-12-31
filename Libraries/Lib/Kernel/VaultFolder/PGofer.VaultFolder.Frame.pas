@@ -5,7 +5,8 @@ interface
 uses
   System.Classes,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls, Vcl.Dialogs,
-  PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit, PGofer.VaultFolder;
+  PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit,
+  Pgofer.Component.Checkbox, PGofer.VaultFolder;
 
 type
   TPGVaultFolderFrame = class( TPGItemFrame )
@@ -17,7 +18,7 @@ type
     BtnPassword: TButton;
     ckbSavePassword: TCheckBox;
     svdVault: TSaveDialog;
-    ckbLocked: TCheckBox;
+    ckbLocked: TCheckBoxEx;
     procedure EdtPasswordKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure EdtFileKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -28,6 +29,9 @@ type
   private
     { Private declarations }
     FItem: TPGVaultFolder;
+  protected
+    procedure isFileName( );
+    procedure isPassword( );
   public
     { Public declarations }
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
@@ -41,6 +45,7 @@ implementation
 
 uses
   System.SysUtils,
+  Vcl.Graphics,
   PGofer.Files.Controls;
 
 {$R *.dfm}
@@ -51,9 +56,10 @@ begin
   inherited Create( AItem, AParent );
   FItem := TPGVaultFolder( AItem );
   EdtFile.Text := FItem.FileName;
+  Self.isFileName( );
   EdtPassword.Text := FItem.Password;
   ckbSavePassword.Checked := FItem.SavePassword;
-  ckbLocked.Checked := FItem.Locked;
+  ckbLocked.SetCheckedSilent( FItem.Locked );
 end;
 
 destructor TPGVaultFolderFrame.Destroy;
@@ -73,18 +79,21 @@ begin
   begin
     FItem.FileName := FileUnExpandPath( svdVault.FileName );
     EdtFile.Text := FItem.FileName;
+    Self.isFileName( );
   end;
 end;
 
 procedure TPGVaultFolderFrame.EdtFileKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   FItem.FileName := EdtFile.Text;
+  Self.isFileName( );
 end;
 
 procedure TPGVaultFolderFrame.EdtPasswordKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   FItem.Password := EdtPassword.Text;
+  Self.isPassword();
 end;
 
 procedure TPGVaultFolderFrame.BtnPasswordClick(Sender: TObject);
@@ -101,13 +110,33 @@ end;
 
 procedure TPGVaultFolderFrame.ckbLockedClick(Sender: TObject);
 begin
-  FItem.ToggleLock( );
-  ckbLocked.Checked := FItem.Locked;
+  try
+    FItem.Locked := ckbLocked.Checked;
+  finally
+    ckbLocked.SetCheckedSilent( FItem.Locked );
+  end;
 end;
 
 procedure TPGVaultFolderFrame.ckbSavePasswordClick(Sender: TObject);
 begin
   FItem.SavePassword := ckbSavePassword.Checked;
 end;
+
+procedure TPGVaultFolderFrame.isFileName( );
+begin
+  if FItem.isFileName then
+    EdtFile.Color := clWindow
+  else
+    EdtFile.Color := clRed;
+end;
+
+procedure TPGVaultFolderFrame.isPassword( );
+begin
+  if FItem.isPassword then
+    EdtPassword.Color := clWindow
+  else
+    EdtPassword.Color := clRed;
+end;
+
 
 end.

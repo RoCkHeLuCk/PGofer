@@ -27,14 +27,16 @@ type
   TPGFolder = class( TPGItemCMD )
   private
     FExpanded: Boolean;
-    function GetExpanded( ): Boolean;
     procedure SetExpanded( AValue: Boolean );
   protected
+    FLocked: Boolean;
+    procedure SetLocked(AValue:Boolean); virtual;
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
     destructor Destroy( ); override;
+    property Locked: Boolean read FLocked write SetLocked;
   published
-    property _Expanded: Boolean read GetExpanded write SetExpanded;
+    property _Expanded: Boolean read FExpanded write SetExpanded;
   end;
   {$TYPEINFO ON}
 
@@ -275,27 +277,34 @@ end;
 constructor TPGFolder.Create( AItemDad: TPGItem; AName: string );
 begin
   inherited Create( AItemDad, AName );
+  FLocked := False;
   FExpanded := False;
   Self.ReadOnly := False;
 end;
 
-destructor TPGFolder.Destroy;
+destructor TPGFolder.Destroy( );
 begin
   Self.ReadOnly := False;
+  FLocked := False;
   FExpanded := False;
   inherited Destroy( );
 end;
 
-function TPGFolder.GetExpanded: Boolean;
-begin
-  Result := FExpanded;
-end;
-
 procedure TPGFolder.SetExpanded( AValue: Boolean );
 begin
-  FExpanded := AValue;
-  if Assigned( Node ) then
-    Node.Expanded := FExpanded;
+  if not FLocked then
+  begin
+    FExpanded := AValue;
+    if Assigned( Self.Node ) then
+      Self.Node.Expanded := FExpanded;
+  end;
+end;
+
+procedure TPGFolder.SetLocked(AValue: Boolean);
+begin
+   FLocked := AValue;
+   if FLocked then
+     Self._Expanded := False;
 end;
 
 initialization
