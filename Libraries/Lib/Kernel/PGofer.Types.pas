@@ -6,7 +6,8 @@ uses
   System.SysUtils, System.Rtti;
 
 const
-  LowString = low( string );
+  LOW_STRING = low( string );
+  GUID_SIZE = SizeOf(TGUID);
 
 type
   TPGAttribText = class(TCustomAttribute)

@@ -20,7 +20,7 @@ begin
   SetLength( Result, RstLength );
   TxtLength := Text.Length + 1;
   SptLength := Separator.Length;
-  TxtBgn := LowString;
+  TxtBgn := LOW_STRING;
   while TxtBgn <= TxtLength do
   begin
     TxtEnd := Pos( Separator, Text, TxtBgn );

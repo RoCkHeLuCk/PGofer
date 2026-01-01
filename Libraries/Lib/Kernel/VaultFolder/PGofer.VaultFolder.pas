@@ -13,23 +13,24 @@ type
   TPGVaultFolder = class(TPGFolder)
   private
     FFileName: string;
+    FFileID: TGUID;
     FPassword: string;
     FSavePassword: Boolean;
-    function GetPassword(): string;
     function GetIsFileName(): Boolean;
     function GetIsPassword(): Boolean;
   protected
-    function BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean; override;
     function BeforeXMLLoad(ItemCollect: TPGItemCollect): Boolean; override;
+    function BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean; override;
     procedure SetLocked(AValue:Boolean); override;
     function GetIsValid( ): Boolean; override;
   public
     constructor Create(AItemDad: TPGItem; AName: string = ''); overload;
     destructor Destroy(); override;
     procedure Frame(AParent: TObject); override;
+    property PasswordFrame: string read FPassword write FPassword;
   published
-    property Password: string read GetPassword write FPassword;
     property FileName: string read FFileName write FFileName;
+    property Password: string write FPassword;
     property SavePassword: Boolean read FSavePassword write FSavePassword;
     property isFileName: Boolean read GetIsFileName;
     property isPassword: Boolean read GetIsPassword;
@@ -41,7 +42,8 @@ implementation
 uses
   System.Classes, System.SysUtils,
   PGofer.Files.Encrypt,
-  PGofer.Files.Controls, PGofer.Sintatico, PGofer.VaultFolder.Frame;
+  PGofer.Files.Controls, PGofer.Sintatico, PGofer.VaultFolder.Frame,
+  PGofer.VaultFolder.KeyStore;
 
 { TPGVaultFolder }
 
@@ -51,12 +53,12 @@ begin
   FFileName := '';
   FPassword := '';
   FSavePassword := False;
-  inherited SetLocked( True );
+  FLocked := False;
 end;
 
 destructor TPGVaultFolder.Destroy();
 begin
-  inherited SetLocked( True );
+  FLocked := False;
   FSavePassword := False;
   FPassword := '';
   FFileName := '';
@@ -65,21 +67,23 @@ end;
 
 function TPGVaultFolder.BeforeXMLLoad(ItemCollect: TPGItemCollect): Boolean;
 var
-  Stream: TStream;
+  XMLStream : TStream;
 begin
   Result := False;
   if (not FLocked) and (Self.isValid) then
   begin
     FLocked := True;
-    Stream := AESDecryptFileToStream(FFileName, FPassword);
-    if Assigned(Stream) then
-    begin
-      Stream.Position := 0;
-      ItemCollect.XMLLoadFromStream(Self, Stream);
-      Stream.Free;
-      FLocked := False;
-    end else begin
-      raise Exception.Create('Senha incorreta ou arquivo corrompido.');
+    XMLStream := KeyStoreXMLFromAES(FFileName, FPassword);
+    try
+      if Assigned(XMLStream) then
+      begin
+        XMLStream.Position := 0;
+        ItemCollect.XMLLoadFromStream(Self, XMLStream);
+      end else begin
+        raise Exception.Create('Senha incorreta ou arquivo corrompido.');
+      end;
+    finally
+      XMLStream.Free;
     end;
   end;
   inherited SetLocked(FLocked);
@@ -87,19 +91,22 @@ end;
 
 function TPGVaultFolder.BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean;
 var
-  Stream: TStream;
+  XMLStream: TStream;
 begin
   Result := False;
-  if (FFileName <> '') and ( (not FLocked) or (not Self.GetIsFileName())) then
+  if (not FLocked) and (FFileName <> '') and (GetIsPassword) then
   begin
-    Stream := TMemoryStream.Create();
+    XMLStream := TMemoryStream.Create();
     try
-      ItemCollect.XMLSaveToStream(Self, Stream);
-      Stream.Position := 0;
-      if not AESEncryptStreamToFile(Stream, FFileName, FPassword) then
-        raise Exception.Create('Falha na criptografia AES ao salvar.');
+      ItemCollect.XMLSaveToStream(Self, XMLStream);
+      if Assigned(XMLStream) then
+      begin
+        FFileID := KeyStoreSavePassword(FFileID, FPassword );
+        if not KeyStoreXMLToAES(XMLStream, FFileName, FPassword, FFileID) then
+           raise Exception.Create('Falha na criptografia AES ao salvar.');
+      end;
     finally
-      Stream.Free;
+      XMLStream.Free;
     end;
   end;
 end;
@@ -123,13 +130,14 @@ end;
 function TPGVaultFolder.GetIsValid: Boolean;
 begin
   Result := ( GetIsFileName() and GetIsPassword() );
-end;
+  if Result and FSavePassword then
+  begin
+    if FFileID = TGUID.Empty then
+      FFileID := KeyStoreIDFromFile(FFileName);
 
-function TPGVaultFolder.GetPassword( ): string;
-begin
-  Result := '';
-  if FSavePassword then
-    Result := FPassword;
+    if (FPassword = '') and (FFileID <> TGUID.Empty) then
+      FPassword := KeyStoreLoadPassoword(FFileID);
+  end;
 end;
 
 procedure TPGVaultFolder.SetLocked(AValue: Boolean);
@@ -142,8 +150,6 @@ begin
         Self.BeforeXMLLoad( TriggersCollect );
       end else begin
         Self.Clear;
-        if not FSavePassword then
-          FPassword := '';
         inherited SetLocked(True);
       end;
    end;

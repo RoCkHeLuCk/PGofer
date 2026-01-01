@@ -117,7 +117,7 @@ begin
 
   if AName <> '' then
   begin
-    if not CharInSet( AName[ LowString ], [ 'A' .. 'Z', '_', 'a' .. 'z'] ) then
+    if not CharInSet( AName[ LOW_STRING ], [ 'A' .. 'Z', '_', 'a' .. 'z'] ) then
       AName := 'New' + AName;
   end else
     AName := 'New';

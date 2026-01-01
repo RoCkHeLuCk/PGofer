@@ -72,8 +72,7 @@ type
     procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
       Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
     procedure PnlFrameResize( Sender: TObject );
-    procedure TrvControllerExpanded(Sender: TObject; Node: TTreeNode);
-    procedure PpmCreatePopup(Sender: TObject);
+    procedure BtnCreateContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
   private
     FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
@@ -84,7 +83,7 @@ type
     procedure FrameShow( );
     procedure FrameHide( );
     function GetTargetWorking( Node: TTreeNode ): TPGItem;
-    function GetFolderWorking( ): TPGItem;
+    function GetFolderWorking( Node: TTreeNode ): TPGItem;
   protected
     FCollectItem: TPGItemCollect;
     FSelectedItem: TPGItem;
@@ -269,16 +268,6 @@ begin
   FFrameWidth := PnlFrame.Width;
 end;
 
-procedure TFrmController.PpmCreatePopup(Sender: TObject);
-begin
-  if Assigned( GetFolderWorking(  ) ) then
-  begin
-    PpmCreate.Items.Enabled := True;
-  end else begin
-    PpmCreate.Items.Enabled := False;
-  end;
-end;
-
 procedure TFrmController.SptControllerCanResize( Sender: TObject;
   var NewSize: Integer; var Accept: Boolean );
 begin
@@ -408,9 +397,9 @@ begin
      Result := TPGItem( Node.Data );
 end;
 
-function TFrmController.GetFolderWorking( ): TPGItem;
+function TFrmController.GetFolderWorking( Node: TTreeNode ): TPGItem;
 begin
-  Result := GetTargetWorking( TrvController.TargetDrag );
+  Result := GetTargetWorking( Node );
   if Assigned(Result) then
   begin
     if not (Result is TPGFolder ) then
@@ -431,7 +420,7 @@ var
   sFileName: string;
   ItemDad: TPGItem;
 begin
-  ItemDad := GetFolderWorking( );
+  ItemDad := GetFolderWorking( TrvController.TargetDrag );
   if Assigned(ItemDad) then
   begin
     for sFileName in AFiles do
@@ -447,18 +436,13 @@ begin
   end;
 end;
 
-procedure TFrmController.TrvControllerExpanded(Sender: TObject; Node: TTreeNode);
-begin
-  //
-end;
-
 procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
   X, Y: Integer );
 var
   Node: TTreeNode;
   ItemDad: TPGItem;
 begin
-  ItemDad := GetFolderWorking( );
+  ItemDad := GetFolderWorking( TrvController.TargetDrag );
 
   if Assigned(ItemDad) then
   begin
@@ -645,6 +629,13 @@ begin
   Value := RttiType.GetMethod( 'Create' )
     .Invoke( IClass, [ FSelectedItem, IName ] );
   TrvController.SuperSelected( TPGItem( Value.AsObject ).Node );
+end;
+
+procedure TFrmController.BtnCreateContextPopup(Sender: TObject; MousePos: TPoint;
+  var Handled: Boolean);
+begin
+  inherited;
+  //
 end;
 
 procedure TFrmController.BtnRecallClick( Sender: TObject );

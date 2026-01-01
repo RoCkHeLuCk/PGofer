@@ -329,7 +329,7 @@ begin
     if ( Item1.SubItems.Count > 1 ) then
       TryStrToInt( Item1.SubItems[ 1 ], v1 );
 
-    b1 := SameText( Copy( Item1.Caption, LowString, FCommandCompareLength ),
+    b1 := SameText( Copy( Item1.Caption, LOW_STRING, FCommandCompareLength ),
       FCommandCompare );
   end;
 
@@ -340,7 +340,7 @@ begin
     if ( Item2.SubItems.Count > 1 ) then
       TryStrToInt( Item2.SubItems[ 1 ], v2 );
 
-    b2 := SameText( Copy( Item2.Caption, LowString, FCommandCompareLength ),
+    b2 := SameText( Copy( Item2.Caption, LOW_STRING, FCommandCompareLength ),
       FCommandCompare );
   end;
 

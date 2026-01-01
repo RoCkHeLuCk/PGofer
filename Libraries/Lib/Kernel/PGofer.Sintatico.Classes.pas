@@ -166,7 +166,7 @@ procedure TPGItemCMD.RttiCreate( );
     for RttiMember in RttiMemberList do
     begin
       if ( RttiMember.Visibility in [ mvPublished ] ) and
-        ( RttiMember.Name[ LowString ] <> '_' ) then
+        ( RttiMember.Name[ LOW_STRING ] <> '_' ) then
       begin
         Item := TPGItem.Create( Self, RttiMember.Name );
         Item.About := Self.RttiGenerate(RttiMember);

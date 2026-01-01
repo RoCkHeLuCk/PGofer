@@ -179,7 +179,7 @@ begin
 
   MaxLength := Length( EdtScript.Text ) - 1;
   IndexMaxLength := 1;
-  for Counter := LowString to MaxLength do
+  for Counter := LOW_STRING to MaxLength do
   begin
     if EdtScript.Text[ Counter ] = #13 then
       Inc( IndexMaxLength );

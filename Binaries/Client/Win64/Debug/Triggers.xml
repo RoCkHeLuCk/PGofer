@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <VaultFolder Name="VaultFolder" Enabled="true" ReadOnly="false">
-    <Password Type="string">123456</Password>
     <FileName Type="string">E:\teste.pgv</FileName>
     <SavePassword Type="Boolean">True</SavePassword>
     <_Expanded Type="Boolean">False</_Expanded>
   </VaultFolder>
-  <Folder Name="Folder" Enabled="true" ReadOnly="false">
-    <_Expanded Type="Boolean">False</_Expanded>
-  </Folder>
 </Triggers>

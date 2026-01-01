@@ -57,7 +57,7 @@ begin
   FItem := TPGVaultFolder( AItem );
   EdtFile.Text := FItem.FileName;
   Self.isFileName( );
-  EdtPassword.Text := FItem.Password;
+  EdtPassword.Text := FItem.PasswordFrame;
   ckbSavePassword.Checked := FItem.SavePassword;
   ckbLocked.SetCheckedSilent( FItem.Locked );
 end;
@@ -79,20 +79,20 @@ begin
   begin
     FItem.FileName := FileUnExpandPath( svdVault.FileName );
     EdtFile.Text := FItem.FileName;
-    Self.isFileName( );
+    Self.isFileName();
   end;
 end;
 
 procedure TPGVaultFolderFrame.EdtFileKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   FItem.FileName := EdtFile.Text;
-  Self.isFileName( );
+  Self.isFileName();
 end;
 
 procedure TPGVaultFolderFrame.EdtPasswordKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.Password := EdtPassword.Text;
+  FItem.PasswordFrame := EdtPassword.Text;
   Self.isPassword();
 end;
 

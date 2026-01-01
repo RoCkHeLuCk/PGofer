@@ -150,14 +150,14 @@ procedure TCordenada.IncRow;
 begin
   Inc( FSingle, 1 );
   Inc( FRow );
-  FCol := LowString;
+  FCol := LOW_STRING;
 end;
 
 procedure TCordenada.Zero;
 begin
-  FSingle := LowString;
-  FRow := LowString;
-  FCol := LowString;
+  FSingle := LOW_STRING;
+  FRow := LOW_STRING;
+  FCol := LOW_STRING;
 end;
 
 function CreateCordenada( ): TCordenada;
