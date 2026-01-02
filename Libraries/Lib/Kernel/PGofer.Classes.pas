@@ -79,9 +79,9 @@ type
     FFileName: string;
   protected
   public
-    procedure XMLLoadFromStream(ItemFirst: TPGItem; AStream: TStream);
+    procedure XMLLoadFromStream(ItemFirst: TPGItem; AXMLStream: TStream);
     procedure XMLLoadFromFile();
-    procedure XMLSaveToStream(ItemFirst: TPGItem; AStream: TStream);
+    procedure XMLSaveToStream(ItemFirst: TPGItem; AXMLStream: TStream);
     procedure XMLSaveToFile();
     property TreeView: TTreeViewEx read FTreeView;
     property RegClassList: TClassList read FClassList;
@@ -434,7 +434,7 @@ begin
   end;
 end;
 
-procedure TPGItemCollect.XMLSaveToStream(ItemFirst: TPGItem; AStream: TStream);
+procedure TPGItemCollect.XMLSaveToStream(ItemFirst: TPGItem; AXMLStream: TStream);
 
   procedure CreateNode(Item: TPGItem; XMLNodeDad: IXMLNode);
   var
@@ -486,18 +486,22 @@ var
   XMLRoot: IXMLNode;
   Item: TPGItem;
 begin
-  XMLDocument := NewXMLDocument;
-  XMLDocument.Encoding := 'utf-8';
-  XMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
-  XMLDocument.Active := True;
-  XMLRoot := XMLDocument.AddChild(ItemFirst.Name);
-  XMLRoot.Attributes['Version'] := '1.0';
-  for Item in ItemFirst do
+  if Assigned(AXMLStream) then
   begin
-    CreateNode(Item, XMLRoot);
+    XMLDocument := NewXMLDocument;
+    XMLDocument.Encoding := 'utf-8';
+    XMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
+    XMLDocument.Active := True;
+    XMLRoot := XMLDocument.AddChild(ItemFirst.Name);
+    XMLRoot.Attributes['Version'] := '1.0';
+    for Item in ItemFirst do
+    begin
+      CreateNode(Item, XMLRoot);
+    end;
+    AXMLStream.Position := 0;
+    XMLDocument.SaveToStream(AXMLStream);
+    XMLDocument.Active := False;
   end;
-  XMLDocument.SaveToStream(AStream);
-  XMLDocument.Active := False;
 end;
 
 procedure TPGItemCollect.XMLSaveToFile();
@@ -515,7 +519,7 @@ begin
   end;
 end;
 
-procedure TPGItemCollect.XMLLoadFromStream(ItemFirst: TPGItem; AStream: TStream);
+procedure TPGItemCollect.XMLLoadFromStream(ItemFirst: TPGItem; AXMLStream: TStream);
 
   procedure CreateItem(ItemDad: TPGItem; XMLNode: IXMLNode);
   var
@@ -599,23 +603,27 @@ var
   XMLDocument: IXMLDocument;
   XMLRoot, XMLNode: IXMLNode;
 begin
-  ItemFirst.Clear;
-  XMLDocument := NewXMLDocument;
-  try
-    XMLDocument.LoadFromStream(AStream);
-    XMLDocument.Active := True;
-    XMLRoot := XMLDocument.DocumentElement;
-    if Assigned(XMLRoot) then
-    begin
-      XMLNode := XMLRoot.ChildNodes.First;
-      while Assigned(XMLNode) do
+  if Assigned(AXMLStream) then
+  begin
+    ItemFirst.Clear;
+    XMLDocument := NewXMLDocument;
+    try
+      AXMLStream.Position := 0;
+      XMLDocument.LoadFromStream(AXMLStream);
+      XMLDocument.Active := True;
+      XMLRoot := XMLDocument.DocumentElement;
+      if Assigned(XMLRoot) then
       begin
-        CreateItem(ItemFirst, XMLNode);
-        XMLNode := XMLNode.NextSibling;
+        XMLNode := XMLRoot.ChildNodes.First;
+        while Assigned(XMLNode) do
+        begin
+          CreateItem(ItemFirst, XMLNode);
+          XMLNode := XMLNode.NextSibling;
+        end;
       end;
+    finally
+      XMLDocument.Active := False;
     end;
-    XMLDocument.Active := False;
-  except
   end;
 end;
 

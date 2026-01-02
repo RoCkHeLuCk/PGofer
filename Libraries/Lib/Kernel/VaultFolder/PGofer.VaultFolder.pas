@@ -70,6 +70,13 @@ var
   XMLStream : TStream;
 begin
   Result := False;
+
+  if (Self.GetIsFileName) and (FFileID = TGUID.Empty) then
+    FFileID := KeyStoreIDFromFile(FFileName);
+
+  if (FSavePassword) and (FPassword = '') and (FFileID <> TGUID.Empty) then
+    FPassword := KeyStoreLoadPassoword(FFileID);
+
   if (not FLocked) and (Self.isValid) then
   begin
     FLocked := True;
@@ -77,16 +84,16 @@ begin
     try
       if Assigned(XMLStream) then
       begin
-        XMLStream.Position := 0;
         ItemCollect.XMLLoadFromStream(Self, XMLStream);
       end else begin
         raise Exception.Create('Senha incorreta ou arquivo corrompido.');
       end;
+      FLocked := False;
     finally
       XMLStream.Free;
     end;
   end;
-  inherited SetLocked(FLocked);
+  //inherited SetLocked(FLocked);
 end;
 
 function TPGVaultFolder.BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean;
@@ -130,22 +137,14 @@ end;
 function TPGVaultFolder.GetIsValid: Boolean;
 begin
   Result := ( GetIsFileName() and GetIsPassword() );
-  if Result and FSavePassword then
-  begin
-    if FFileID = TGUID.Empty then
-      FFileID := KeyStoreIDFromFile(FFileName);
-
-    if (FPassword = '') and (FFileID <> TGUID.Empty) then
-      FPassword := KeyStoreLoadPassoword(FFileID);
-  end;
 end;
 
 procedure TPGVaultFolder.SetLocked(AValue: Boolean);
 begin
-   if (Self.isValid) and (AValue <> (FLocked)) then
+   if (AValue <> (FLocked)) then
    begin
       FLocked := AValue;
-      if not FLocked then
+      if (not FLocked) and (Self.isValid) then
       begin
         Self.BeforeXMLLoad( TriggersCollect );
       end else begin

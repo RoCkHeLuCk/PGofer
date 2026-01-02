@@ -59,7 +59,7 @@ begin
   Self.isFileName( );
   EdtPassword.Text := FItem.PasswordFrame;
   ckbSavePassword.Checked := FItem.SavePassword;
-  ckbLocked.SetCheckedSilent( FItem.Locked );
+  ckbLocked.SetCheckedSilent( FItem._Locked );
 end;
 
 destructor TPGVaultFolderFrame.Destroy;
@@ -111,9 +111,9 @@ end;
 procedure TPGVaultFolderFrame.ckbLockedClick(Sender: TObject);
 begin
   try
-    FItem.Locked := ckbLocked.Checked;
+    FItem._Locked := ckbLocked.Checked;
   finally
-    ckbLocked.SetCheckedSilent( FItem.Locked );
+    ckbLocked.SetCheckedSilent( FItem._Locked );
   end;
 end;
 

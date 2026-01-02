@@ -383,7 +383,7 @@ begin
       Sender.Canvas.Font.Color := clGray;
     end;
 
-    if ( Item is TPGFolder ) and ( TPGFolder(Item).Locked ) then
+    if ( Item is TPGFolder ) and ( TPGFolder(Item)._Locked ) then
     begin
       Sender.Canvas.Font.Style := [ fsItalic ];
     end;
@@ -406,7 +406,7 @@ begin
     begin
       Result := Result.Parent;
     end else begin
-      if (TPGFolder(Result).Locked) then
+      if (TPGFolder(Result)._Locked) then
         Result := nil;
     end;
   end else begin
@@ -468,7 +468,7 @@ begin
     Item := GetTargetWorking(TrvController.TargetDrag);
     if Assigned(Item) then
     begin
-      if ( Item is TPGFolder ) and (not TPGFolder(Item).Locked ) then
+      if ( Item is TPGFolder ) and (not TPGFolder(Item)._Locked ) then
       begin
         Accept := True;
         TrvController.AttachMode := naInsert;
@@ -618,7 +618,7 @@ begin
   begin
     FSelectedItem := FCollectItem;
   end else begin
-    if ( not( FSelectedItem is TPGFolder ) ) or ( TPGFolder(FSelectedItem).Locked ) then
+    if ( not( FSelectedItem is TPGFolder ) ) or ( TPGFolder(FSelectedItem)._Locked ) then
     begin
       FSelectedItem := FSelectedItem.Parent;
     end;

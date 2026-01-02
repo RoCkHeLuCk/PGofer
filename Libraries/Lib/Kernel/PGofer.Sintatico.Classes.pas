@@ -34,9 +34,9 @@ type
   public
     constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
     destructor Destroy( ); override;
-    property Locked: Boolean read FLocked write SetLocked;
   published
     property _Expanded: Boolean read FExpanded write SetExpanded;
+    property _Locked: Boolean read FLocked write SetLocked;
   end;
   {$TYPEINFO ON}
 

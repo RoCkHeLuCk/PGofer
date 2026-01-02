@@ -4,5 +4,6 @@
     <FileName Type="string">E:\teste.pgv</FileName>
     <SavePassword Type="Boolean">True</SavePassword>
     <_Expanded Type="Boolean">False</_Expanded>
+    <_Locked Type="Boolean">False</_Locked>
   </VaultFolder>
 </Triggers>

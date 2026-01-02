@@ -66,13 +66,18 @@ function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string;
 var
   AESStream: TStream;
 begin
-  AESStream := TFileStream.Create(AFileName, fmCreate );
-  try
-    AESStream.Write( AFileID, GUID_SIZE);
-    AESStream.Position := GUID_SIZE;
-    Result := AESEncryptStream(AXMLStream, AESStream, APassword);
-  finally
-    AESStream.Free;
+  Result := False;
+  if Assigned(AXMLStream) then
+  begin
+    AESStream := TFileStream.Create(AFileName, fmCreate );
+    try
+      AESStream.Write( AFileID, GUID_SIZE);
+      AESStream.Position := GUID_SIZE;
+      AXMLStream.Position := 0;
+      Result := AESEncryptStream(AXMLStream, AESStream, APassword);
+    finally
+      AESStream.Free;
+    end;
   end;
 end;
 
