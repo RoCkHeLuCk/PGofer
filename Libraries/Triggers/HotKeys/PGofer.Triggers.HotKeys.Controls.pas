@@ -2,6 +2,8 @@ unit PGofer.Triggers.HotKeys.Controls;
 
 interface
 
+{$INLINE ON}
+
 uses
   WinApi.Windows,
   System.SysUtils;
@@ -17,7 +19,7 @@ type
     wKey: Word;
     bDetect: ( kd_Down, kd_Press, kd_Up, kd_Wheel );
   public
-    class function CalcVirtualKey( AParam: TParamInput ): TKey; static;
+    class function CalcVirtualKey( AParam: TParamInput ): TKey; static; inline;
   end;
 
   TProcessKeys = procedure( AParamInput: TParamInput ) of object;

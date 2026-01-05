@@ -177,11 +177,18 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Types.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\Utils\PGofer.Language.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\Utils\PGofer.IconList.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Classes.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.IconList.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Runtime.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas">
+            <Form>PGVaultFolderFrame</Form>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.KeyStore.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas"/>
         <DCCReference Include="..\..\libraries\lib\kernel\PGofer.Item.Frame.pas">
             <Form>PGItemFrame</Form>
@@ -227,8 +234,6 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.Utils.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Utils\PGofer.ZLib.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Frame.pas">
@@ -282,6 +287,7 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas"/>
         <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
@@ -291,15 +297,8 @@
         <DCCReference Include="PGofer3.Client.pas">
             <Form>FrmPGofer</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas">
-            <Form>PGVaultFolderFrame</Form>
-            <FormType>dfm</FormType>
-            <DesignClass>TFrame</DesignClass>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.KeyStore.pas"/>
         <None Include="PGofer3.dpr"/>
+        <None Include="..\..\Documents\languages\Language.json"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
@@ -326,10 +325,17 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
+                        <RemoteName>Logo150x150.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win64">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -376,23 +382,22 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
                 <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>PGofer3.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win64">
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 44px.png" Configuration="Debug" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
+                        <RemoteName>Logo44x44.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="New1.json" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

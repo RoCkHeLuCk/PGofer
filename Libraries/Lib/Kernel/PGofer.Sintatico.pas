@@ -3,14 +3,11 @@ unit PGofer.Sintatico;
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Generics.Collections,
+  System.Classes, System.SysUtils, System.Generics.Collections,
   Vcl.Controls,
-  PGofer.Classes, PGofer.Lexico;
+  PGofer.Types, PGofer.Classes, PGofer.Lexico;
 
 type
-  TPGConsoleNotify = procedure( AThread: TThread; AValue: string;
-    ANewLine, AShow: Boolean ) of object;
-
   TPGPilha = class( TPGItem )
     constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
@@ -52,19 +49,10 @@ procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
 function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
 
 var
-  DirCurrent: string;
-  IniConfigFile: string;
-  LogFile: string;
-
-  GlobalCollection: TPGItemCollect;
-  TriggersCollect: TPGItemCollect;
-  GlobalItemCommand: TPGItem;
-  GlobalItemTrigger: TPGItem;
   LoopLimite: Int64 = 1000000;
   FileListMax: Cardinal = 200;
   ReplyFormat: string = '';
   ReplyPrefix: Boolean = False;
-  ConsoleNotify: TPGConsoleNotify;
   ConsoleMessage: Boolean = True;
   LogMaxSize: Int64 = 10000;
   CanOff: Boolean = False;
@@ -73,7 +61,7 @@ var
 implementation
 
 uses
-  PGofer.Sintatico.Classes, PGofer.Sintatico.Controls, PGofer.IconList;
+  PGofer.Language, PGofer.IconList, PGofer.Sintatico.Controls, PGofer.Runtime;
 
 { TPilha }
 
@@ -152,16 +140,16 @@ begin
     LexicoName := ''
   else
     LexicoName := '"' + LexicoName + '" ';
-  if Assigned( ConsoleNotify ) then
-    ConsoleNotify( Self, FLocal.name + ' [' +
+
+    TrC( FLocal.name + ' [' +
       Self.TokenList.Token.Cordenada.ToString + '] ' + LexicoName + ': ' +
       AText, True, FConsoleShowMessage );
 end;
 
 procedure TGramatica.MSGsAdd( AText: string );
 begin
-  if Assigned( ConsoleNotify ) then
-    ConsoleNotify( Self, AText, True, FConsoleShowMessage );
+
+    TrC( AText, True, FConsoleShowMessage );
 end;
 
 procedure TGramatica.SetScript( AScript: string );
@@ -182,8 +170,8 @@ end;
 
 procedure TGramatica.Execute( );
 begin
-  SetCurrentDir( PGofer.Sintatico.DirCurrent );
-  ChDir( PGofer.Sintatico.DirCurrent );
+  SetCurrentDir( PGofer.Types.DirCurrent );
+  ChDir( PGofer.Types.DirCurrent );
   Sentencas( Self );
 end;
 
@@ -224,19 +212,6 @@ end;
 
 initialization
 
-DirCurrent := ExtractFilePath( ParamStr( 0 ) );
-IniConfigFile := DirCurrent + 'Config.ini';
-LogFile := DirCurrent + 'PGofer.log';
-
-GlobalCollection := TPGItemCollect.Create( 'Globals', False );
-GlobalItemCommand := TPGFolder.Create( GlobalCollection, 'Commands' );
-GlobalItemTrigger := TPGFolder.Create( GlobalCollection, 'Triggers' );
-
-TriggersCollect := TPGItemCollect.Create( 'Triggers', True );
-
 finalization
-
-GlobalCollection.Free;
-TriggersCollect.Free;
 
 end.

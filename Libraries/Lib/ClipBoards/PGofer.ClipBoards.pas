@@ -3,7 +3,7 @@ unit PGofer.ClipBoards;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
   {$M+}

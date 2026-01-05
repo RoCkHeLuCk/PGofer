@@ -3,7 +3,7 @@ unit PGofer.Registry.Environment;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
   {$M+}

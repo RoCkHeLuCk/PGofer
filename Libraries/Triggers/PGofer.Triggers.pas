@@ -3,7 +3,7 @@ unit PGofer.Triggers;
 interface
 
 uses
-  PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
+  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
   TPGItemMirror = class;

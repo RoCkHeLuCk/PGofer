@@ -29,6 +29,7 @@ uses
   WinApi.Windows,
   WinApi.ShellApi,
   Vcl.Forms,
+  PGofer.Language,
   PGofer.Sintatico,
   PGofer.Files.Controls,
   PGofer.Triggers.Links.ProcessUI;
@@ -121,7 +122,7 @@ begin
       ProcessInfo) then
     begin
       pBuffer := AllocMem(CReadBuffer + 1);
-      ConsoleNotify(Self, 'Link ' + FLink.Name + ' : ', True, ConsoleMessage);
+      TrC('Link ' + FLink.Name + ' : ', True, ConsoleMessage);
 
       repeat
         dRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
@@ -131,7 +132,7 @@ begin
           pBuffer[dRead] := #0;
 
           OemToAnsi(pBuffer, pBuffer);
-          ConsoleNotify(Self, string(pBuffer), False, ConsoleMessage);
+          TrC(string(pBuffer), False, ConsoleMessage);
         until (dRead < CReadBuffer);
       until (dRunning <> WAIT_TIMEOUT);
 
@@ -183,8 +184,7 @@ begin
   end else begin
     if ReturnCode <> 0 then
     begin
-      ConsoleNotify(
-        Self,
+      TrC(
         'Link ' + FLink.Name + ' : ' + SysErrorMessage(ReturnCode),
         True,
         ConsoleMessage
@@ -226,7 +226,7 @@ begin
 
   sText := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp, True);
   if sText <> '' then
-    ConsoleNotify(Self, 'Link ' + FLink.Name + ' : ' + sText, True,
+    TrC('Link ' + FLink.Name + ' : ' + sText, True,
       ConsoleMessage);
 
   if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then

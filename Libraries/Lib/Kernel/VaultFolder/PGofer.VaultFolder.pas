@@ -3,12 +3,12 @@ unit PGofer.VaultFolder;
 interface
 
 uses
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico.Classes;
+  PGofer.Types, PGofer.Classes, PGofer.Runtime;
 
 type
-{$M+}
 
-  [TPGAttribText('Pasta criptografada.')]
+  {$M+}
+  [TPGAttribText('About_Vault')]
   [TPGAttribIcon(pgiVault)]
   TPGVaultFolder = class(TPGFolder)
   private
@@ -35,13 +35,13 @@ type
     property isFileName: Boolean read GetIsFileName;
     property isPassword: Boolean read GetIsPassword;
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 implementation
 
 uses
   System.Classes, System.SysUtils,
-  PGofer.Files.Encrypt,
+  PGofer.Language, PGofer.Files.Encrypt,
   PGofer.Files.Controls, PGofer.Sintatico, PGofer.VaultFolder.Frame,
   PGofer.VaultFolder.KeyStore;
 
@@ -86,7 +86,7 @@ begin
       begin
         ItemCollect.XMLLoadFromStream(Self, XMLStream);
       end else begin
-        raise Exception.Create('Senha incorreta ou arquivo corrompido.');
+        TrC('Error_VaultLoad',[FFileName]);
       end;
       FLocked := False;
     finally
@@ -110,7 +110,7 @@ begin
       begin
         FFileID := KeyStoreSavePassword(FFileID, FPassword );
         if not KeyStoreXMLToAES(XMLStream, FFileName, FPassword, FFileID) then
-           raise Exception.Create('Falha na criptografia AES ao salvar.');
+           TrC('Error_VaultSave',[FFileName]);
       end;
     finally
       XMLStream.Free;

@@ -3,7 +3,7 @@ unit PGofer.Key;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
 

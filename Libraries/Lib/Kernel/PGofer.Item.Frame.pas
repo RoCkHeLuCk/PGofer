@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.IniFiles, Vcl.Dialogs,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Sintatico.Classes, PGofer.Component.Edit;
+  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit;
 
 type
   TPGItemFrame = class( TFrame )
@@ -40,7 +40,7 @@ implementation
 {$R *.dfm}
 
 uses
-  PGofer.Sintatico;
+  PGofer.Types;
 
 constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
@@ -55,7 +55,7 @@ begin
 
   rceAbout.Lines.Text := FItem.About;
 
-  FIniFile := TIniFile.Create( PGofer.Sintatico.IniConfigFile );
+  FIniFile := TIniFile.Create( PGofer.Types.IniConfigFile );
   Self.IniConfigLoad( );
 end;
 

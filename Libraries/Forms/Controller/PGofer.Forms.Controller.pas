@@ -100,7 +100,7 @@ uses
   System.RTTI, System.UITypes, System.SysUtils,
   WinApi.Windows,
   Vcl.Dialogs,
-  PGofer.Sintatico.Classes, PGofer.Files.Controls,
+  PGofer.Runtime, PGofer.Files.Controls,
   PGofer.Triggers.Links,
   PGofer.Component.RichEdit,
   PGofer.Triggers,
@@ -118,7 +118,7 @@ begin
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
   CreatePopups( );
-  TrvController.Images := GlobIconList.ImageList;
+  TrvController.Images := TPGIconList.ImageList;
 end;
 
 destructor TFrmController.Destroy( );

@@ -3,7 +3,7 @@ unit PGofer.Net.Socket;
 interface
 
 uses
-  System.Win.ScktComp, PGofer.Classes, PGofer.Sintatico.Classes;
+  System.Win.ScktComp, PGofer.Classes, PGofer.Runtime;
 
 type
   {$M+}
@@ -75,14 +75,13 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Sintatico, PGofer.Sintatico.Controls, PGofer.Net.Controls;
+  PGofer.Language, PGofer.Sintatico, PGofer.Sintatico.Controls, PGofer.Net.Controls;
 
 { TPGNetServer }
 
 procedure TPGNetServer.ConsoleSendMSG( Value: string );
 begin
-  if Assigned( ConsoleNotify ) then
-    ConsoleNotify( nil, Value, True, ConsoleMessage );
+    TrC( Value, True, ConsoleMessage );
 end;
 
 constructor TPGNetServer.Create( AItemDad: TPGItem );
@@ -222,8 +221,7 @@ end;
 
 procedure TPGNetClient.ConsoleSendMSG( Value: string );
 begin
-  if Assigned( ConsoleNotify ) then
-    ConsoleNotify( nil, Value, True, ConsoleMessage );
+    TrC( Value, True, ConsoleMessage );
 end;
 
 constructor TPGNetClient.Create( AItemDad: TPGItem );

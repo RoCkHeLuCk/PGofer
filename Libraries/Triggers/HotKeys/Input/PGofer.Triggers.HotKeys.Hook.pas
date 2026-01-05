@@ -15,7 +15,7 @@ type
     FKBHook: HHook;
     FMBHook: HHook;
     class function LowLevelProc( ACode: Integer; AwParam: wParam;
-      AlParam: lParam ): LRESULT; stdcall; static; inline;
+      AlParam: lParam ): LRESULT; stdcall; static;
   public
     constructor Create( ); overload;
     destructor Destroy( ); override;
@@ -49,16 +49,20 @@ class function THookInput.LowLevelProc( ACode: Integer; AwParam: wParam;
   AlParam: lParam ): LRESULT;
 var
   ParamInput: TParamInput;
+  PKB: PKBDLLHOOKSTRUCT;
+  PMS: PMSLLHOOKSTRUCT;
 begin
   if ( ACode = HC_ACTION ) then
   begin
     ParamInput.wParam := AwParam;
     if AwParam < WM_MOUSEFIRST then
     begin
-      ParamInput.dwVkData := PKBDLLHOOKSTRUCT( AlParam ).dwVkCode;
-      ParamInput.dwScan := PKBDLLHOOKSTRUCT( AlParam ).dwScan;
+      PKB := PKBDLLHOOKSTRUCT( AlParam );
+      ParamInput.dwVkData := PKB.dwVkCode;
+      ParamInput.dwScan := PKB.dwScan;
     end else begin
-      ParamInput.dwVkData := PMSLLHOOKSTRUCT( AlParam ).dwMData;
+      PMS := PMSLLHOOKSTRUCT( AlParam );
+      ParamInput.dwVkData := PMS.dwMData;
     end;
     TPGHotKey.OnProcessKeys( ParamInput );
   end;

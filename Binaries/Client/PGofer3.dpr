@@ -3,11 +3,15 @@ program PGofer3;
 
 uses
   PGofer.Types in '..\..\Libraries\Lib\Kernel\PGofer.Types.pas',
+  PGofer.Language in '..\..\Libraries\Lib\Kernel\Utils\PGofer.Language.pas',
+  PGofer.IconList in '..\..\Libraries\Lib\Kernel\Utils\PGofer.IconList.pas',
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
-  PGofer.IconList in '..\..\Libraries\Lib\Kernel\PGofer.IconList.pas',
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
-  PGofer.Sintatico.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Classes.pas',
+  PGofer.Runtime in '..\..\Libraries\Lib\Kernel\PGofer.Runtime.pas',
+  PGofer.VaultFolder in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas',
+  PGofer.VaultFolder.Frame in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
+  PGofer.VaultFolder.KeyStore in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.KeyStore.pas',
   PGofer.Sintatico.Controls in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas',
   PGofer.Item.Frame in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGItemFrame: TFrame},
   PGofer.ClipBoards in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas',
@@ -44,8 +48,6 @@ uses
   PGofer.System.Functions in '..\..\Libraries\Lib\System\PGofer.System.Functions.pas',
   PGofer.System.Functions.Frame in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFunctionFrame: TFrame},
   PGofer.System.VirtualDesktop in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
-  PGofer.Utils in '..\..\Libraries\Lib\Utils\PGofer.Utils.pas',
-  PGofer.ZLib in '..\..\Libraries\Lib\Utils\PGofer.ZLib.pas',
   PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
   PGofer.Forms.Frame in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFormsFrame: TFrame},
@@ -72,17 +74,14 @@ uses
   PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
   PGofer.Triggers.AutoFills.Frame in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.Frame.pas' {PGAutoFillsFrame: TFrame},
   Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
+  Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
   Winapi.Windows,
-  Vcl.Forms,
-  PGofer.VaultFolder in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas',
-  PGofer.VaultFolder.Frame in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
-  Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
-  PGofer.VaultFolder.KeyStore in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.KeyStore.pas';
+  Vcl.Forms;
 
 {$R *.res}
 
@@ -100,9 +99,9 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.XMLLoadFromFile( );
     TriggersCollect.XMLLoadFromFile( );
     TPGTask.Working( 0, False );

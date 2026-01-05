@@ -1,0 +1,7 @@
+﻿{
+  "Code": "pt_BR",
+  "Language": "Portugues Brasil",
+  "Error_IconNoFound": "Erro: Icone '%s' não encontrado",
+  "Error_XMLValueLoad": "Erro: XML Item '%s', propriedade '%s' do arquivo: '%s'.",
+  "About_Vault": "Pasta Criptografada 'AES'",
+}

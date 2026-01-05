@@ -10,7 +10,7 @@ function LerParamentros( Gramatica: TGramatica;
   const QuantMin, QuantMax: Byte ): Byte;
 procedure EncontrarFim( Gramatica: TGramatica; BeginEnd: Boolean;
   TokenList: TTokenList = nil );
-// --------------------------------ATRIBUIÇÃO----------------------------------//
+// --------------------------------ATRIBUIï¿½ï¿½O----------------------------------//
 function AtribuicaoNivel1( Gramatica: TGramatica ): Boolean;
 function Atribuicao( Gramatica: TGramatica; Valor: Variant ): Variant;
 // --------------------------------SENTENCAS-----------------------------------//
@@ -36,7 +36,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Sintatico.Classes, PGofer.Math.Controls;
+  PGofer.Runtime, PGofer.Math.Controls;
 
 function LerParamentros( Gramatica: TGramatica;
   const QuantMin, QuantMax: Byte ): Byte;
@@ -128,7 +128,7 @@ begin
 end;
 
 // ----------------------------------------------------------------------------//
-// -----------------------------ATRIBUIÇÃO-------------------------------------//
+// -----------------------------ATRIBUIï¿½ï¿½O-------------------------------------//
 // ----------------------------------------------------------------------------//
 function AtribuicaoNivel1( Gramatica: TGramatica ): Boolean;
 begin
@@ -172,7 +172,7 @@ begin
       cmdEOF:
         ;
       cmdUnDeclar:
-        Gramatica.ErroAdd( 'Comando ou valor não reconhecido.' );
+        Gramatica.ErroAdd( 'Comando ou valor nï¿½o reconhecido.' );
     end;
 end;
 
@@ -208,7 +208,7 @@ begin
       Identificador( Gramatica );
 
   else
-    Gramatica.ErroAdd( 'Extrutura não reconhecida.' );
+    Gramatica.ErroAdd( 'Extrutura nï¿½o reconhecida.' );
   end;
 end;
 
@@ -296,7 +296,7 @@ begin
       if TryStrToFloat( S1, N1, FormatSettings ) and
         TryStrToFloat( S2, N2, FormatSettings ) then
       begin
-        // executa a operação matematica
+        // executa a operaï¿½ï¿½o matematica
         case Operador of
           cmdAdd:
             N1 := N1 + N2;
@@ -315,7 +315,7 @@ begin
         Gramatica.Pilha.Empilhar( S1 );
       end;
     end else begin
-      // se nao compara com relação boleana
+      // se nao compara com relaï¿½ï¿½o boleana
       B1 := S1.ToBoolean;
       B2 := S2.ToBoolean;
       case Operador of
@@ -348,31 +348,31 @@ begin
     N2 := Gramatica.Pilha.Desempilhar( 0.0 );
     N1 := Gramatica.Pilha.Desempilhar( 0.0 );
 
-    // calcula a operação matematica
+    // calcula a operaï¿½ï¿½o matematica
     case Operador of
       cmdMult:
         Gramatica.Pilha.Empilhar( N1 * N2 );
       cmdBar:
         begin
-          // verifica divisão por 0
+          // verifica divisï¿½o por 0
           if N2 <> 0 then
           begin
             N1 := N1 / N2;
             Gramatica.Pilha.Empilhar( N1 );
           end
           else
-            Gramatica.ErroAdd( 'Divisão por 0.' );
+            Gramatica.ErroAdd( 'Divisï¿½o por 0.' );
         end;
       cmdRes_mod:
         begin
-          // verifica divisão por 0
+          // verifica divisï¿½o por 0
           if N2 <> 0 then
           begin
             N1 := Trunc( N1 ) mod Trunc( N2 );
             Gramatica.Pilha.Empilhar( N1 )
           end
           else
-            Gramatica.ErroAdd( 'Divisão por 0.' );
+            Gramatica.ErroAdd( 'Divisï¿½o por 0.' );
         end;
     end;
     ExpressaoMulDiv( Gramatica );
@@ -399,7 +399,7 @@ begin
     if TryStrToFloat( S1, N1, FormatSettings ) and
       TryStrToFloat( S2, N2, FormatSettings ) then
     begin
-      // calcula a operação matematica
+      // calcula a operaï¿½ï¿½o matematica
       case Operador of
         cmdTone:
           begin
@@ -430,14 +430,14 @@ begin
       end;
 
     end else begin
-      // se nao compara com relação boleana
+      // se nao compara com relaï¿½ï¿½o boleana
       case Operador of
         cmdEqual:
           Gramatica.Pilha.Empilhar( S1 = S2 );
         cmdDifferent:
           Gramatica.Pilha.Empilhar( S1 <> S2 );
       else
-        Gramatica.ErroAdd( 'Operação não reconhecida.' );
+        Gramatica.ErroAdd( 'Operaï¿½ï¿½o nï¿½o reconhecida.' );
       end;
     end;
     ExpressaoPowSqt( Gramatica );
@@ -487,7 +487,7 @@ begin
           ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
       end;
   else
-    Gramatica.ErroAdd( 'Expressão Invalida.' );
+    Gramatica.ErroAdd( 'Expressï¿½o Invalida.' );
   end;
 end;
 
@@ -528,7 +528,7 @@ begin
     if Assigned( ID ) then
       ID.Execute( Gramatica )
     else
-      Gramatica.ErroAdd( 'Identificador não existente.' );
+      Gramatica.ErroAdd( 'Identificador nï¿½o existente.' );
   end;
 end;
 

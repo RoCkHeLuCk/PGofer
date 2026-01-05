@@ -3,7 +3,7 @@ unit PGofer.System;
 interface
 
 uses
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico.Classes;
+  PGofer.Types, PGofer.Classes, PGofer.Runtime;
 
 type
   {$M+}
@@ -105,7 +105,7 @@ end;
 
 function TPGSystem.GetDirCurrent: string;
 begin
-  Result := PGofer.Sintatico.DirCurrent;
+  Result := PGofer.Types.DirCurrent;
 end;
 
 function TPGSystem.GetFileListMax: Cardinal;

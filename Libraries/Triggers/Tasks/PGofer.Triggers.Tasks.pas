@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type

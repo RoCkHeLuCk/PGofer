@@ -4,7 +4,7 @@ interface
 
 uses
   PGofer.Sintatico,
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
   TPGCopy = class( TPGItemCMD )
@@ -188,7 +188,7 @@ procedure TPGIf.Execute( Gramatica: TGramatica );
 var
   Continuar: Boolean;
 begin
-  // executa a condição
+  // executa a condiï¿½ï¿½o
   Gramatica.TokenList.GetNextToken;
   Expressao( Gramatica );
 
@@ -222,7 +222,7 @@ begin
       Gramatica.ErroAdd( '"Then" Esperado.' );
   end
   else
-    Gramatica.ErroAdd( '"Expressão Booleana" Esperado.' );
+    Gramatica.ErroAdd( '"Expressï¿½o Booleana" Esperado.' );
 end;
 
 { TPGisDef }
@@ -295,10 +295,10 @@ begin
   PositionIni := Gramatica.TokenList.Position;
   repeat
     Gramatica.TokenList.Position := PositionIni;
-    // executa a sentença
+    // executa a sentenï¿½a
     Sentencas( Gramatica );
 
-    // verifica a condição
+    // verifica a condiï¿½ï¿½o
     if ( Gramatica.TokenList.Token.Classe = cmdRes_until ) then
     begin
       Gramatica.TokenList.GetNextToken;

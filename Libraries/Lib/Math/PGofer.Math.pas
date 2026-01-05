@@ -3,7 +3,7 @@ unit PGofer.Math;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
   // ????????? Arrumar o Deg, RAD, GRA do Math

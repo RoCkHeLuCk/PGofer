@@ -6,7 +6,7 @@ uses
   System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   Vcl.Dialogs, Vcl.Graphics,
-  PGofer.Classes, PGofer.Sintatico.Classes, PGofer.Component.Edit,
+  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit,
   PGofer.Item.Frame, PGofer.Triggers;
 
 type

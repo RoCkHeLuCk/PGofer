@@ -6,4 +6,16 @@
     <_Expanded Type="Boolean">False</_Expanded>
     <_Locked Type="Boolean">False</_Locked>
   </VaultFolder>
+  <Link Name="Meleca" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
 </Triggers>

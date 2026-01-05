@@ -1,4 +1,4 @@
-unit PGofer.Sintatico.Classes;
+unit PGofer.Runtime;
 
 interface
 
@@ -39,6 +39,12 @@ type
     property _Locked: Boolean read FLocked write SetLocked;
   end;
   {$TYPEINFO ON}
+
+var
+  GlobalCollection: TPGItemCollect;
+  TriggersCollect: TPGItemCollect;
+  GlobalItemCommand: TPGItem;
+  GlobalItemTrigger: TPGItem;
 
 implementation
 
@@ -217,11 +223,11 @@ begin
     if RttiProperty.IsReadable then
       Valor := RttiProperty.GetValue( AItem );
 
-    Aux := ConvertValueToVatiant( Valor, RttiProperty.PropertyType.TypeKind );
+    Aux := ConvertValueToVariant( Valor, RttiProperty.PropertyType.TypeKind );
     Aux := Atribuicao( Gramatica, Aux );
     if not Gramatica.Erro then
     begin
-      Valor := ConvertVatiantToValue( Aux, RttiProperty.PropertyType.TypeKind );
+      Valor := ConvertVariantToValue( Aux, RttiProperty.PropertyType.TypeKind );
 
       if RttiProperty.IsWritable then
         RttiProperty.SetValue( AItem, Valor );
@@ -240,14 +246,14 @@ begin
         for Tamanho := Tamanho - 1 downto 0 do
         begin
           Aux := Gramatica.Pilha.Desempilhar( '' );
-          Valores[ Tamanho ] := ConvertVatiantToValue( Aux,
+          Valores[ Tamanho ] := ConvertVariantToValue( Aux,
             Parametros[ Tamanho ].ParamType.TypeKind );
         end;
 
         if Assigned( RttiMethods.ReturnType ) then
         begin
           Valor := RttiMethods.Invoke( AItem, Valores );
-          Aux := ConvertValueToVatiant( Valor,
+          Aux := ConvertValueToVariant( Valor,
             RttiMethods.ReturnType.TypeKind );
           Gramatica.Pilha.Empilhar( Aux );
         end
@@ -309,8 +315,15 @@ end;
 
 initialization
 
-TriggersCollect.RegisterClass( 'Folder', TPGFolder );
+  GlobalCollection := TPGItemCollect.Create( 'Globals', False );
+  GlobalItemCommand := TPGFolder.Create( GlobalCollection, 'Commands' );
+  GlobalItemTrigger := TPGFolder.Create( GlobalCollection, 'Triggers' );
+  TriggersCollect := TPGItemCollect.Create( 'Triggers', True );
+  TriggersCollect.RegisterClass( 'Folder', TPGFolder );
 
 finalization
+
+  TriggersCollect.Free;
+  GlobalCollection.Free;
 
 end.

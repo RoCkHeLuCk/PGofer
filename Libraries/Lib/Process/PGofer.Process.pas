@@ -3,7 +3,7 @@ unit PGofer.Process;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
   {$M+}

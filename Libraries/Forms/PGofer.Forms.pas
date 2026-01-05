@@ -5,7 +5,7 @@ interface
 uses
   System.Classes,
   Vcl.Forms,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Component.Form;
 
 type

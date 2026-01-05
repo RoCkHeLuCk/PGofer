@@ -97,7 +97,7 @@ implementation
 uses
   System.SysUtils, System.RTTI, System.TypInfo,
   XML.XMLDoc,
-  PGofer.Item.Frame, PGofer.Sintatico, PGofer.Sintatico.Classes,
+  PGofer.Language, PGofer.Sintatico, PGofer.Runtime, PGofer.Item.Frame,
   PGofer.Forms.Controller, PGofer.Triggers;
 
 { TPGItem }
@@ -118,9 +118,7 @@ begin
     if Assigned(AParent.FNode) then
     begin
       Self.Node := TTreeView(AParent.FNode.TreeView).Items.AddChild(AParent.FNode, FName);
-    end
-    else
-    begin
+    end else begin
       if (AParent is TPGItemCollect) and (Assigned(TPGItemCollect(AParent).TreeView)) then
       begin
         Self.Node := TPGItemCollect(AParent).TreeView.Items.AddChild(nil, FName);
@@ -347,7 +345,7 @@ begin
   FClassList := TClassList.Create();
   if ALoadFile then
   begin
-    FFileName := PGofer.Sintatico.DirCurrent + '\' + AName + '.xml';
+    FFileName := PGofer.Types.DirCurrent + '\' + AName + '.xml';
   end else begin
     FFileName := '';
   end;
@@ -580,8 +578,7 @@ procedure TPGItemCollect.XMLLoadFromStream(ItemFirst: TPGItem; AXMLStream: TStre
                 RttiProperty.SetValue(ItemOriginal, UnicodeString(XMLNodeProperty.Text));
             end;
           except
-            raise Exception.Create('Erro: "' + XMLNode.NodeName + '", Campo "' + RttiProperty.Name +
-              '" contem valor invalido.');
+            TrC('Error_XMLValueLoad',[XMLNode.NodeName,RttiProperty.Name,FFileName]);
           end;
         end;
       end;

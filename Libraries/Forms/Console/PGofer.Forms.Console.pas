@@ -41,8 +41,8 @@ type
     procedure IniConfigLoad( ); override;
   public
     property AutoClose: Boolean read GetAutoClose;
-    procedure ConsoleNotifyMessage( AThread: TThread; AValue: string;
-      ANewLine, AShow: Boolean );
+    procedure ConsoleNotifyMessage(const AValue: string;
+      const ANewLine, AShow: Boolean );
     procedure ForceShow( AFocus: Boolean ); override;
   end;
 
@@ -75,7 +75,7 @@ implementation
 
 uses
   Winapi.Messages,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Forms.Controls,
+  PGofer.Language, PGofer.Classes, PGofer.Forms.Controls,
   PGofer.Forms.Console.Frame;
 
 { TFrmConsole }
@@ -90,7 +90,7 @@ end;
 procedure TFrmConsole.FormCreate( Sender: TObject );
 begin
   FItem := TPGFrmConsole.Create( Self );
-  PGofer.Sintatico.ConsoleNotify := Self.ConsoleNotifyMessage;
+  PGofer.Language.TPGLanguage.ConsoleNotify := Self.ConsoleNotifyMessage;
   inherited FormCreate( Sender );
 end;
 
@@ -126,7 +126,7 @@ end;
 procedure TFrmConsole.FormDestroy( Sender: TObject );
 begin
   inherited FormDestroy( Sender );
-  ConsoleNotify := nil;
+  PGofer.Language.TPGLanguage.ConsoleNotify := nil;
   FItem := nil;
 end;
 
@@ -196,10 +196,11 @@ begin
   end;
 end;
 
-procedure TFrmConsole.ConsoleNotifyMessage( AThread: TThread; AValue: string;
-  ANewLine, AShow: Boolean );
+procedure TFrmConsole.ConsoleNotifyMessage(const AValue: string;
+  const ANewLine, AShow: Boolean );
 begin
-  TThread.Synchronize( AThread, procedure
+  RunInMainThread(
+    procedure
     begin
       if ANewLine then
         Self.EdtConsole.Lines.Append( AValue )
@@ -215,7 +216,8 @@ begin
         Self.ForceShow( False );
         Application.ProcessMessages( );
       end;
-    end );
+    end
+  );
 end;
 
 { TPGFrmConsole }

@@ -3,7 +3,7 @@ unit PGofer.Registry;
 interface
 
 uses
-  PGofer.Classes, PGofer.Sintatico.Classes;
+  PGofer.Classes, PGofer.Runtime;
 
 type
   {$M+}

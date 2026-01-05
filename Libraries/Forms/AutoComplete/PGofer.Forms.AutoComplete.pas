@@ -81,8 +81,8 @@ implementation
 uses
   Winapi.Messages,
   Vcl.Dialogs,
-  PGofer.Types, PGofer.Lexico, PGofer.Sintatico, PGofer.Sintatico.Controls,
-  PGofer.Files.Controls, PGofer.Forms.Controls, PGofer.Utils;
+  PGofer.Types, PGofer.Lexico, PGofer.Runtime, PGofer.Sintatico, PGofer.Sintatico.Controls,
+  PGofer.Files.Controls, PGofer.Forms.Controls;
 
 {$R *.dfm}
 
@@ -103,7 +103,7 @@ procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
   // carrega arquivos ini
-  FMemoryIniFile := TIniFile.Create( PGofer.Sintatico.DirCurrent +
+  FMemoryIniFile := TIniFile.Create( PGofer.Types.DirCurrent +
     'AutoComplete.ini' );
   // controle de memorização de comandos
   FMemoryNoCtrl := False;
@@ -459,7 +459,7 @@ var
   ItemAux: TPGItem;
   c, l: Integer;
 begin
-  SubCMD := SplitEx( ACommand, '.' );
+  SubCMD := ACommand.Split(['.']);//  SplitEx( ACommand, '.' );
   l := Length( SubCMD );
   if l = 1 then
   begin
@@ -539,7 +539,7 @@ var
   c: Integer;
   d: Cardinal;
 begin
-  ChDir( PGofer.Sintatico.DirCurrent );
+  ChDir( PGofer.Types.DirCurrent );
 
   c := FindFirst( AFileName + '*', faAnyFile, SearchRec );
   d := 0;
@@ -555,7 +555,7 @@ begin
   end;
 
   FindClose( SearchRec );
-  ChDir( PGofer.Sintatico.DirCurrent );
+  ChDir( PGofer.Types.DirCurrent );
   CommandCompare := ExtractFileName( AFileName );
 end;
 

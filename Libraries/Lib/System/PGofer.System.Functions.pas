@@ -5,7 +5,7 @@ interface
 uses
   System.Classes,
   PGofer.Types, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
-  PGofer.Sintatico.Classes, PGofer.System.Variants;
+  PGofer.Runtime, PGofer.System.Variants;
 
 type
 

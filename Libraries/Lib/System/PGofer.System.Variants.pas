@@ -3,7 +3,7 @@
 interface
 
 uses
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Sintatico.Classes;
+  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
 

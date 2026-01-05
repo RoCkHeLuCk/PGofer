@@ -3,59 +3,71 @@ unit PGofer.Types;
 interface
 
 uses
-  System.SysUtils, System.Rtti;
+  System.Classes, System.SysUtils, System.Rtti;
 
 const
   LOW_STRING = low( string );
   GUID_SIZE = SizeOf(TGUID);
 
 type
+  TPGIcon = ( pgiItem, pgiMethod, pgiFolder, pgiVault, pgiSystem, pgiVariant,
+              pgiFunction, pgiForm, pgiAutoFill, pgiHotKey, pgiLink, pgiTask );
+
   TPGAttribText = class(TCustomAttribute)
   private
     FText: string;
+    FTranslate: Boolean;
   public
-    constructor Create(AText: string); overload;
+    constructor Create(const AText: string; const ATranslate: Boolean = True); overload;
     destructor Destroy( ); override;
     property Text: string read FText;
   end;
-
-  TPGIcon = ( pgiItem, pgiMethod, pgiFolder, pgiVault, pgiSystem, pgiVariant, pgiFunction,
-              pgiForm, pgiAutoFill, pgiHotKey, pgiLink, pgiTask );
 
   TPGAttribIcon = class(TCustomAttribute)
   private
     FIconIndex: TPGIcon;
   public
-    constructor Create(AIconIndex: TPGIcon); overload;
+    constructor Create(const AIconIndex: TPGIcon); overload;
     destructor Destroy( ); override;
     property IconIndex: TPGIcon read FIconIndex;
   end;
 
-  function ConvertVatiantToValue( Valor: Variant; TypeKind: TTypeKind ): TValue;
-  function ConvertValueToVatiant( Valor: TValue; TypeKind: TTypeKind ): Variant;
+  function ConvertVariantToValue(const AValor: Variant;const ATypeKind: TTypeKind ): TValue;
+  function ConvertValueToVariant(const AValor: TValue;const ATypeKind: TTypeKind ): Variant;
+
+  procedure RunInMainThread(AMethod: TThreadMethod); overload;
+  procedure RunInMainThread(AProc: TProc); overload;
+
+  function SplitEx(const AText, ASeparator: string ): TArray<string>;
+
+var
+  DirCurrent: string;
+  IniConfigFile: string;
 
 implementation
 
 uses
-  System.Variants;
+  System.Variants, Winapi.Windows;
 
 { TPGAttribText }
 
-constructor TPGAttribText.Create(AText: string);
+constructor TPGAttribText.Create(const AText: string; const ATranslate: Boolean = True);
 begin
   inherited Create( );
   FText := AText;
+  FTranslate := ATranslate;
 end;
 
 destructor TPGAttribText.Destroy( );
 begin
   FText := '';
+  FTranslate := False;
   inherited Destroy( );
 end;
 
 { PGAttribIcon }
 
-constructor TPGAttribIcon.Create(AIconIndex: TPGIcon);
+constructor TPGAttribIcon.Create(const AIconIndex: TPGIcon);
 begin
   inherited Create( );
   FIconIndex := AIconIndex;
@@ -69,26 +81,26 @@ end;
 
 { ConvertV }
 
-function ConvertVatiantToValue( Valor: Variant; TypeKind: TTypeKind ): TValue;
+function ConvertVariantToValue(const AValor: Variant;const ATypeKind: TTypeKind ): TValue;
 begin
-  case TypeKind of
+  case ATypeKind of
     tkUnknown:
       ;
 
     tkEnumeration:
-      Result := Boolean( Valor );
+      Result := Boolean( AValor );
 
     tkInteger:
-      Result := Integer( Valor );
+      Result := Integer( AValor );
 
     tkInt64:
-      Result := Int64( Valor );
+      Result := Int64( AValor );
 
     tkFloat:
-      Result := Currency( Valor );
+      Result := Double( AValor );
 
     tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
-      Result := string( Valor );
+      Result := string( AValor );
 
     tkSet:
       ;
@@ -97,7 +109,7 @@ begin
     tkMethod:
       ;
     tkVariant:
-      Result.FromVariant( Valor );
+      Result.FromVariant( AValor );
     tkArray:
       ;
     tkRecord:
@@ -116,26 +128,26 @@ begin
 
 end;
 
-function ConvertValueToVatiant( Valor: TValue; TypeKind: TTypeKind ): Variant;
+function ConvertValueToVariant(const AValor: TValue; const ATypeKind: TTypeKind ): Variant;
 begin
-  case TypeKind of
+  case ATypeKind of
     tkUnknown:
       ;
 
     tkEnumeration:
-      Result := Valor.AsBoolean;
+      Result := AValor.AsBoolean;
 
     tkInteger:
-      Result := Valor.AsInteger;
+      Result := AValor.AsInteger;
 
     tkInt64:
-      Result := Valor.AsInt64;
+      Result := AValor.AsInt64;
 
     tkFloat:
-      Result := Valor.AsCurrency;
+      Result := AValor.AsCurrency;
 
     tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
-      Result := Valor.AsString;
+      Result := AValor.AsString;
 
     tkSet:
       ;
@@ -144,7 +156,7 @@ begin
     tkMethod:
       ;
     tkVariant:
-      Result := Valor.AsVariant;
+      Result := AValor.AsVariant;
     tkArray:
       ;
     tkRecord:
@@ -161,5 +173,57 @@ begin
       ;
   end;
 end;
+
+procedure RunInMainThread(AMethod: TThreadMethod);
+begin
+  if GetCurrentThreadId = MainThreadID then
+    AMethod()
+  else
+    TThread.Synchronize(nil, AMethod);
+end;
+
+procedure RunInMainThread(AProc: TProc);
+begin
+  if GetCurrentThreadId = MainThreadID then
+    AProc()
+  else
+    TThread.Synchronize(nil, procedure
+    begin
+      AProc();
+    end);
+end;
+
+function SplitEx(const AText, ASeparator: string ): TArray<string>;
+var
+  TxtBgn, TxtEnd, RstLength, TxtLength, SptLength: FixedInt;
+begin
+  RstLength := 0;
+  SetLength( Result, RstLength );
+  TxtLength := AText.Length + 1;
+  SptLength := ASeparator.Length;
+  TxtBgn := LOW_STRING;
+  while TxtBgn <= TxtLength do
+  begin
+    TxtEnd := Pos( ASeparator, AText, TxtBgn );
+    if TxtEnd = 0 then
+      TxtEnd := TxtLength + 1;
+
+    Inc( RstLength );
+    SetLength( Result, RstLength );
+    Result[ RstLength - 1 ] := Copy( AText, TxtBgn, TxtEnd - TxtBgn );
+    TxtBgn := TxtEnd + SptLength;
+  end;
+end;
+
+initialization
+
+  DirCurrent := ExtractFilePath( ParamStr( 0 ) );
+  IniConfigFile := DirCurrent + 'Config.ini';
+
+finalization
+
+  DirCurrent := '';
+  IniConfigFile := '';
+
 
 end.

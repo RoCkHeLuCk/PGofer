@@ -3,7 +3,7 @@ unit PGofer.Files;
 interface
 
 uses
-  PGofer.Sintatico.Classes;
+  PGofer.Runtime;
 
 type
   {$WARN SYMBOL_PLATFORM OFF}
