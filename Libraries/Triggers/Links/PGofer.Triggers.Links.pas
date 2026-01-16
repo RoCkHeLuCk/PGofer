@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type
@@ -79,9 +79,10 @@ implementation
 
 uses
   System.SysUtils,
+  PGofer.Language,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
-  PGofer.Key.Controls,
+
   PGofer.Files.Controls,
   PGofer.Files.WinShell,
   PGofer.Process.Controls,
@@ -127,7 +128,7 @@ end;
 
 function TPGLink.GetDirExist: Boolean;
 begin
-  Result := DirectoryExists( FileExpandPath( FDirectory ) );
+  Result := DirectoryExistsEx( FDirectory );
 end;
 
 function TPGLink.GetIsRunning( ): Boolean;
@@ -142,7 +143,7 @@ end;
 
 function TPGLink.GetFileExist( ): Boolean;
 begin
-  Result := FileExists( FileExpandPath( FFileName ) );
+  Result := FileExistsEx( FFileName );
 end;
 
 function TPGLink.GetFileRepeat( ): Boolean;
@@ -229,7 +230,7 @@ begin
       Gramatica.TokenList.GetNextToken;
     end
     else
-      Gramatica.ErroAdd( '")" Esperado.' )
+      Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
   end else if not Gramatica.Erro then
     Self.Triggering();
 end;

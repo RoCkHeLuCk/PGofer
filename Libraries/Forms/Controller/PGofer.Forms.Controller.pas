@@ -4,10 +4,10 @@ interface
 
 uses
   System.Classes, System.Types,
-  WinApi.Messages,
+
   Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Menus, Vcl.Graphics,
-  PGofer.Classes, PGofer.Forms, PGofer.Component.TreeView,
+  PGofer.Classes, PGofer.Runtime, PGofer.Forms, PGofer.Component.TreeView,
   PGofer.Component.Form;
 
 type
@@ -62,17 +62,14 @@ type
     procedure MniExpandClick( Sender: TObject );
     procedure MniUnExpandClick( Sender: TObject );
     procedure BtnRecallClick( Sender: TObject );
-    procedure SptControllerCanResize( Sender: TObject; var NewSize: Integer;
-      var Accept: Boolean );
-    procedure SptControllerMoved( Sender: TObject );
     procedure PnlFrameMouseWheelDown( Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean );
     procedure PnlFrameMouseWheelUp( Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean );
     procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
       Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
-    procedure PnlFrameResize( Sender: TObject );
-    procedure BtnCreateContextPopup(Sender: TObject; MousePos: TPoint; var Handled: Boolean);
+    procedure PnlFrameResize(Sender: TObject);
+    procedure PnlTreeViewResize(Sender: TObject);
   private
     FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
@@ -89,6 +86,7 @@ type
     FSelectedItem: TPGItem;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    procedure CreateParams( var AParams: TCreateParams ); override;
   public
   end;
 
@@ -100,11 +98,19 @@ uses
   System.RTTI, System.UITypes, System.SysUtils,
   WinApi.Windows,
   Vcl.Dialogs,
-  PGofer.Runtime, PGofer.Files.Controls,
+  PGofer.Files.Controls,
   PGofer.Triggers.Links,
   PGofer.Component.RichEdit,
   PGofer.Triggers,
   PGofer.IconList;
+
+{ TFrmController }
+
+procedure TFrmController.CreateParams( var AParams: TCreateParams );
+begin
+  inherited;
+  Self.ForceResizable := True;
+end;
 
 constructor TFrmController.Create( ACollectItem: TPGItemCollect );
 begin
@@ -114,6 +120,7 @@ begin
   FAlphaSortFolder := True;
   FSelectedItem := nil;
   FFrameWidth := PnlFrame.Width;
+  FTreeViewWidth := PnlTreeView.Width;
   Self.Name := 'Frm' + FCollectItem.Name;
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
@@ -123,6 +130,7 @@ end;
 
 destructor TFrmController.Destroy( );
 begin
+  FTreeViewWidth := 0;
   FFrameWidth := 0;
   FSelectedItem := nil;
   FAlphaSort := False;
@@ -142,7 +150,7 @@ end;
 procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
   inherited FormClose( Sender, Action );
-  FrameHide( );
+  Self.FrameHide( );
   FCollectItem.TreeViewDetach( );
 end;
 
@@ -154,27 +162,18 @@ end;
 procedure TFrmController.FormDestroy( Sender: TObject );
 begin
   inherited FormDestroy( Sender );
-  //
-end;
-
-procedure TFrmController.FormResize( Sender: TObject );
-begin
-  if not Self.PnlFrame.Visible then
-  begin
-    Self.PnlTreeView.ClientHeight := Self.ClientHeight;
-    Self.PnlTreeView.ClientWidth := Self.ClientWidth;
-  end;
 end;
 
 procedure TFrmController.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  PnlTreeView.ClientWidth := FIniFile.ReadInteger( Self.Name, 'TreeViewWidth',
-    TrvController.ClientWidth );
+  FTreeViewWidth := FIniFile.ReadInteger( Self.Name, 'TreeViewWidth', PnlTreeView.ClientWidth );
   FFrameWidth := FIniFile.ReadInteger( Self.Name, 'FrameWidth', FFrameWidth );
   FAlphaSort := FIniFile.ReadBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
-  FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder',
-    FAlphaSortFolder );
+  FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
+
+  PnlTreeView.ClientWidth := FTreeViewWidth;
+  PnlFrame.ClientWidth := FFrameWidth;
   MniAlphaSortFolder.Checked := FAlphaSortFolder;
   if FAlphaSort then
     MniAZ.Click
@@ -184,7 +183,8 @@ end;
 
 procedure TFrmController.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.Name, 'TreeViewWidth', PnlTreeView.ClientWidth );
+  FCollectItem.XMLSaveToFile( );
+  FIniFile.WriteInteger( Self.Name, 'TreeViewWidth', FTreeViewWidth );
   FIniFile.WriteInteger( Self.Name, 'FrameWidth', FFrameWidth );
   FIniFile.WriteBool( Self.Name, 'AlphaSort', FAlphaSort );
   FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
@@ -193,33 +193,45 @@ end;
 
 procedure TFrmController.FrameHide( );
 begin
-  Self.PanelCleaning( );
   PnlFrame.Visible := False;
   SptController.Visible := False;
+  Self.PanelCleaning( );
+  Self.ClientWidth := FTreeViewWidth;
   BtnRecall.Caption := '>>';
-  Self.Constraints.MinWidth := PnlTreeView.Constraints.MinWidth + 16;
-  Self.ClientWidth := PnlTreeView.ClientWidth;
 end;
 
 procedure TFrmController.FrameShow( );
 begin
   PnlFrame.OnResize := nil;
   PnlFrame.Visible := True;
+  Self.ClientWidth := FTreeViewWidth + SptController.ClientWidth + FFrameWidth;
   SptController.Visible := True;
   BtnRecall.Caption := '<<';
-  Self.Constraints.MinWidth := PnlTreeView.Constraints.MinWidth + 16 +
-    SptController.Width + PnlFrame.Constraints.MinWidth;
-  Self.ClientWidth := PnlTreeView.ClientWidth + SptController.ClientWidth +
-    FFrameWidth;
-  PnlFrame.OnResize := Self.PnlFrameResize;
   TrvController.OnGetSelectedIndex( nil, nil );
+  PnlFrame.OnResize := PnlFrameResize;
+end;
+
+procedure TFrmController.PnlFrameResize(Sender: TObject);
+begin
+  if PnlFrame.Visible then
+     FFrameWidth := PnlFrame.ClientWidth;
+end;
+
+procedure TFrmController.PnlTreeViewResize(Sender: TObject);
+begin
+  FTreeViewWidth := PnlTreeView.ClientWidth;
+end;
+
+procedure TFrmController.FormResize( Sender: TObject );
+begin
+  if not PnlFrame.Visible then
+    PnlTreeView.ClientWidth := Self.ClientWidth;
 end;
 
 procedure TFrmController.PanelCleaning( );
 var
   c: Integer;
 begin
-  FCollectItem. XMLSaveToFile( );
   for c := PnlFrame.ControlCount - 1 downto 0 do
   begin
     PnlFrame.Controls[ c ].Free( );
@@ -232,7 +244,6 @@ procedure TFrmController.PnlFrameMouseWheelDown( Sender: TObject;
 var
   Control: TWinControl;
 begin
-  inherited;
   Control := FindVCLWindow( MousePos );
   if ( Control is TRichEditEx ) then
   begin
@@ -251,7 +262,6 @@ procedure TFrmController.PnlFrameMouseWheelUp( Sender: TObject;
 var
   Control: TWinControl;
 begin
-  inherited;
   Control := FindVCLWindow( MousePos );
   if ( Control is TRichEditEx ) then
   begin
@@ -260,27 +270,6 @@ begin
   end;
   PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos -
     PnlFrame.VertScrollBar.Increment;
-end;
-
-procedure TFrmController.PnlFrameResize( Sender: TObject );
-begin
-  inherited;
-  FFrameWidth := PnlFrame.Width;
-end;
-
-procedure TFrmController.SptControllerCanResize( Sender: TObject;
-  var NewSize: Integer; var Accept: Boolean );
-begin
-  inherited;
-  FTreeViewWidth := PnlFrame.ClientWidth;
-  Accept := True;
-end;
-
-procedure TFrmController.SptControllerMoved( Sender: TObject );
-begin
-  inherited;
-  Self.ClientWidth := PnlTreeView.ClientWidth + SptController.ClientWidth +
-    FTreeViewWidth;
 end;
 
 procedure TFrmController.EdtFindKeyPress( Sender: TObject; var Key: Char );
@@ -406,7 +395,7 @@ begin
     begin
       Result := Result.Parent;
     end else begin
-      if (TPGFolder(Result)._Locked) then
+      if TPGFolder(Result)._Locked then
         Result := nil;
     end;
   end else begin
@@ -629,13 +618,6 @@ begin
   Value := RttiType.GetMethod( 'Create' )
     .Invoke( IClass, [ FSelectedItem, IName ] );
   TrvController.SuperSelected( TPGItem( Value.AsObject ).Node );
-end;
-
-procedure TFrmController.BtnCreateContextPopup(Sender: TObject; MousePos: TPoint;
-  var Handled: Boolean);
-begin
-  inherited;
-  //
 end;
 
 procedure TFrmController.BtnRecallClick( Sender: TObject );

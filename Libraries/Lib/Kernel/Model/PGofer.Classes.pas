@@ -5,10 +5,11 @@ interface
 uses
   System.Classes,
   System.Generics.Collections,
-  Vcl.Forms, Vcl.Comctrls,
+  Vcl.Comctrls,
   XML.XMLIntf,
+  PGofer.Component.Form,
   PGofer.Component.TreeView,
-  PGofer.Types;
+  PGofer.Core;
 
 type
   TPGItemCollect = class;
@@ -75,7 +76,7 @@ type
   private
     FClassList: TClassList;
     FTreeView: TTreeViewEx;
-    FForm: TForm;
+    FForm: TFormEx;
     FFileName: string;
   protected
   public
@@ -96,8 +97,9 @@ implementation
 
 uses
   System.SysUtils, System.RTTI, System.TypInfo,
+
   XML.XMLDoc,
-  PGofer.Language, PGofer.Sintatico, PGofer.Runtime, PGofer.Item.Frame,
+  PGofer.Language, PGofer.Item.Frame,
   PGofer.Forms.Controller, PGofer.Triggers;
 
 { TPGItem }
@@ -345,7 +347,7 @@ begin
   FClassList := TClassList.Create();
   if ALoadFile then
   begin
-    FFileName := PGofer.Types.DirCurrent + '\' + AName + '.xml';
+    FFileName := TPGKernel.GetVar('_PathCurrent','') + AName + '.xml';
   end else begin
     FFileName := '';
   end;
@@ -363,7 +365,7 @@ end;
 
 procedure TPGItemCollect.FormShow();
 begin
-  FForm.Show;
+  FForm.ForceShow(True);
 end;
 
 procedure TPGItemCollect.RegisterClass(AName: string; AClass: TClass);
@@ -504,15 +506,27 @@ end;
 
 procedure TPGItemCollect.XMLSaveToFile();
 var
-  Stream: TStream;
+  FileStream: TFileStream;
+  MemStream: TMemoryStream;
 begin
   if (FFileName <> '') then
   begin
-    Stream := TFileStream.Create(FFileName, fmCreate);
+    MemStream := TMemoryStream.Create;
     try
-      Self.XMLSaveToStream(Self, Stream);
+      try
+        Self.XMLSaveToStream(Self, MemStream);
+        MemStream.Position := 0;
+        FileStream := TFileStream.Create(FFileName, fmCreate);
+        try
+          FileStream.CopyFrom(MemStream, 0);
+        finally
+          FileStream.Free;
+        end;
+      except
+        on E: Exception do TrC('Error_XML_Save', [FFileName, E.Message]);
+      end;
     finally
-      Stream.Free;
+      MemStream.Free;
     end;
   end;
 end;
@@ -578,7 +592,7 @@ procedure TPGItemCollect.XMLLoadFromStream(ItemFirst: TPGItem; AXMLStream: TStre
                 RttiProperty.SetValue(ItemOriginal, UnicodeString(XMLNodeProperty.Text));
             end;
           except
-            TrC('Error_XMLValueLoad',[XMLNode.NodeName,RttiProperty.Name,FFileName]);
+            TrC('Error_XML_LoadValue',[XMLNode.NodeName, RttiProperty.Name, FFileName]);
           end;
         end;
       end;
@@ -606,9 +620,13 @@ begin
     XMLDocument := NewXMLDocument;
     try
       AXMLStream.Position := 0;
-      XMLDocument.LoadFromStream(AXMLStream);
-      XMLDocument.Active := True;
-      XMLRoot := XMLDocument.DocumentElement;
+      try
+        XMLDocument.LoadFromStream(AXMLStream);
+        XMLDocument.Active := True;
+        XMLRoot := XMLDocument.DocumentElement;
+      except
+        TrC('Error_XML_Load',[FFileName]);
+      end;
       if Assigned(XMLRoot) then
       begin
         XMLNode := XMLRoot.ChildNodes.First;
@@ -628,7 +646,11 @@ procedure TPGItemCollect.XMLLoadFromFile();
 var
   Stream: TStream;
 begin
-  FForm := TFrmController.Create(Self);
+  if not Assigned(FForm) then
+  begin
+    FForm := TFrmController.Create(Self);
+  end;
+
   if (FFileName <> '') and FileExists(FFileName) then
   begin
     Stream := TFileStream.Create(FFileName, fmOpenRead);

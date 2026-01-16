@@ -20,8 +20,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     Align = alTop
     Caption = 'Text'
     Constraints.MinHeight = 60
-    TabOrder = 0
-    ExplicitTop = 62
+    TabOrder = 2
     object EdtText: TRichEditEx
       Left = 2
       Top = 15
@@ -53,12 +52,12 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
   inherited grbAbout: TGroupBox
     Top = 181
     Height = 92
-    TabOrder = 2
-    ExplicitTop = 159
-    ExplicitHeight = 72
+    TabOrder = 1
+    ExplicitTop = 181
+    ExplicitHeight = 92
     inherited rceAbout: TRichEdit
       Height = 75
-      ExplicitHeight = 55
+      ExplicitHeight = 75
     end
   end
   inherited pnlItem: TPanel
@@ -99,7 +98,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     object Lblmilisec1: TLabel [4]
       Left = 367
       Top = 36
-      Width = 26
+      Width = 13
       Height = 13
       Anchors = [akTop, akRight]
       Caption = 'ms'
@@ -107,7 +106,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     object Lblmilisec2: TLabel [5]
       Left = 169
       Top = 36
-      Width = 26
+      Width = 13
       Height = 13
       Caption = 'ms'
     end
@@ -118,11 +117,10 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Height = 21
       Anchors = [akTop, akRight]
       Color = clSilver
-      TabOrder = 1
+      TabOrder = 3
       Text = '10'
-      OnKeyUp = EdtSpeedKeyUp
-      RegExamples = reNone
-      RegExpression = '^\d*$'
+      StyleElements = [seFont, seBorder]
+      OnAfterValidate = EdtSpeedAfterValidate
     end
     object UpdSpeed: TUpDown
       Left = 345
@@ -133,7 +131,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Associate = EdtSpeed
       Max = 255
       Position = 10
-      TabOrder = 2
+      TabOrder = 4
       OnChangingEx = UpdSpeedChangingEx
     end
     object CmbMode: TComboBox
@@ -144,7 +142,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Style = csDropDownList
       Color = clSilver
       ItemIndex = 0
-      TabOrder = 3
+      TabOrder = 5
       Text = 'Write'
       OnChange = CmbModeChange
       Items.Strings = (
@@ -160,26 +158,25 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Width = 75
       Height = 21
       Color = clSilver
-      TabOrder = 4
+      TabOrder = 1
       Text = '0'
-      OnKeyUp = EdtDelayKeyUp
-      RegExamples = reNone
-      RegExpression = '^\d*$'
+      StyleElements = [seFont, seBorder]
+      OnAfterValidate = EdtDelayAfterValidate
     end
     object updDelay: TUpDown
-      Left = 147
+      Left = 145
       Top = 33
       Width = 16
       Height = 21
       Associate = EdtDelay
       Max = 255
-      TabOrder = 5
+      TabOrder = 2
       OnChangingEx = updDelayChangingEx
     end
   end
   inherited sptAbout: TPanel
     Top = 276
     TabOrder = 3
-    ExplicitTop = 234
+    ExplicitTop = 276
   end
 end

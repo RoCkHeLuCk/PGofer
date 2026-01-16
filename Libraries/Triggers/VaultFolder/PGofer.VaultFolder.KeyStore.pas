@@ -2,7 +2,7 @@ unit PGofer.VaultFolder.KeyStore;
 
 interface
 uses
-   System.Classes;
+  System.Classes;
 
   function KeyStoreIDFromFile(AFileName: string):TGUID;
   function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string; AFileID: TGUID):Boolean;
@@ -13,24 +13,21 @@ uses
 implementation
 
 uses
-  System.SysUtils, System.JSON, System.NetEncoding,
-  PGofer.Types, PGofer.Sintatico,
+  System.SysUtils, System.JSON,
+  PGofer.Core,
   PGofer.Files.Encrypt;
 
 const
-  KEY_STORE_FILENAME = 'KeyStore.pgk';
   ENTROPY_SECRET = 'PGofer MasterKey';
-
-var
-  KeyStorePath : String;
 
 function _KeyStoreLoadFile( ): TJSONObject;
 var
   Content: string;
   JSONValue: TJSONValue;
 begin
-  if FileExists(KeyStorePath) then
-    Content := DPAPIDecryptFileToString(KeyStorePath, ENTROPY_SECRET)
+  Content := TPGKernel.GetVar('_FileKeyStore', '');
+  if FileExists(Content) then
+    Content := DPAPIDecryptFileToString(Content, ENTROPY_SECRET)
   else
     Content := '';
 
@@ -116,7 +113,7 @@ begin
     if APassword <> '' then
       JSONObject.AddPair(Content, APassword);
     Content := JSONObject.ToString;
-    if not DPAPIEncryptStringToFile(Content, KeyStorePath, ENTROPY_SECRET) then
+    if not DPAPIEncryptStringToFile(Content, TPGKernel.GetVar('_FileKeyStore',''), ENTROPY_SECRET) then
     begin
       Result := TGUID.Empty;
     end;
@@ -147,8 +144,6 @@ begin
 end;
 
 initialization
-
-  KeyStorePath := DirCurrent + KEY_STORE_FILENAME;
 
 finalization
 

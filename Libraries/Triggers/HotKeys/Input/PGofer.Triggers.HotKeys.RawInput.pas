@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Messages,
   System.Classes,
-  System.Generics.Collections,
+
   PGofer.Triggers.HotKeys.MMRawInput,
   PGofer.Triggers.HotKeys.Controls;
 

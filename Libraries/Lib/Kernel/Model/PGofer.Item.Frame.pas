@@ -3,9 +3,9 @@ unit PGofer.Item.Frame;
 interface
 
 uses
-  System.Classes, System.IniFiles, Vcl.Dialogs,
+  System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit;
+  PGofer.Classes, PGofer.Component.Edit;
 
 type
   TPGItemFrame = class( TFrame )
@@ -15,21 +15,22 @@ type
     LblName: TLabel;
     EdtName: TEditEx;
     sptAbout: TPanel;
-    procedure EdtNameKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
     procedure sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer );
     procedure sptAboutMouseMove( Sender: TObject; Shift: TShiftState;
       X, Y: Integer );
     procedure sptAboutMouseUp( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer );
+    procedure EdtNameAfterValidate(Sender: TObject);
   private
-    FItem: TPGItem;
     FAboutSplitter: Boolean;
   protected
+    FItem: TPGItem;
     FIniFile: TIniFile;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
+    function GetItem( ): TPGItem;
+    property Item: TPGItem read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -40,41 +41,41 @@ implementation
 {$R *.dfm}
 
 uses
-  PGofer.Types;
+  PGofer.Core;
 
 constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( nil );
+  FItem := AItem;
   Self.Parent := TWinControl( AParent );
   Self.Width := TControl( AParent ).Width - 16;
-  FItem := AItem;
   FAboutSplitter := False;
   EdtName.Text := FItem.Name;
   EdtName.ReadOnly := FItem.ReadOnly;
-  EdtName.ParentColor := FItem.ReadOnly;
-
   rceAbout.Lines.Text := FItem.About;
-
-  FIniFile := TIniFile.Create( PGofer.Types.IniConfigFile );
+  FIniFile := TIniFile.Create( TPGKernel.GetVar('_FileIniConfig','') );
   Self.IniConfigLoad( );
 end;
 
-destructor TPGItemFrame.Destroy;
+destructor TPGItemFrame.Destroy( );
 begin
   Self.IniConfigSave( );
   FIniFile.Free;
+  FIniFile := nil;
   FItem := nil;
   inherited Destroy( );
 end;
 
 procedure TPGItemFrame.IniConfigLoad( );
 begin
+  inherited;
   Self.Height := FIniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
 procedure TPGItemFrame.IniConfigSave( );
 begin
   FIniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
+  inherited;
 end;
 
 procedure TPGItemFrame.sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
@@ -99,10 +100,14 @@ begin
   FAboutSplitter := False;
 end;
 
-procedure TPGItemFrame.EdtNameKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
+procedure TPGItemFrame.EdtNameAfterValidate(Sender: TObject);
 begin
   FItem.Name := EdtName.Text;
+end;
+
+function TPGItemFrame.GetItem( ): TPGItem;
+begin
+   Result := FItem;
 end;
 
 end.

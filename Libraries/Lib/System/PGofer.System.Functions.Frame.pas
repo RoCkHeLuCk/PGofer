@@ -4,10 +4,10 @@ interface
 
 uses
   System.Classes,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls,
-  PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit,
+  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Controls,
+  PGofer.Classes, PGofer.Item.Frame,
   PGofer.System.Functions,
-  PGofer.Component.RichEdit;
+  PGofer.Component.RichEdit, PGofer.Component.Edit, Vcl.ComCtrls;
 
 type
   TPGFunctionFrame = class( TPGItemFrame )
@@ -17,10 +17,11 @@ type
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
   private
-    FItem: TPGFunction;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    function GetItem( ): TPGFunction; virtual;
+    property Item: TPGFunction read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -40,17 +41,20 @@ uses
 constructor TPGFunctionFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FItem := TPGFunction( AItem );
-  EdtScript.Text := FItem.Script;
+  EdtScript.Text := Item.Script;
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
 destructor TPGFunctionFrame.Destroy( );
 begin
   FrmAutoComplete.EditCtrlRemove( EdtScript );
-  FItem.CompileScript( );
-  FItem := nil;
+  Item.CompileScript( );
   inherited Destroy( );
+end;
+
+function TPGFunctionFrame.GetItem: TPGFunction;
+begin
+  Result := TPGFunction(FItem);
 end;
 
 procedure TPGFunctionFrame.IniConfigLoad;
@@ -69,7 +73,7 @@ end;
 procedure TPGFunctionFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.Script := EdtScript.Text;
+  Item.Script := EdtScript.Text;
 end;
 
 end.

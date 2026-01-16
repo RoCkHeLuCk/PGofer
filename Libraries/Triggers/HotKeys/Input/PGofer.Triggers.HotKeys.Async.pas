@@ -5,9 +5,9 @@ interface
 uses
   WinApi.Windows,
   System.Classes,
-  System.SysUtils,
-  System.Generics.Collections,
-  PGofer.Triggers.HotKeys.MMHook,
+
+
+
   PGofer.Triggers.HotKeys.Controls;
 
 type

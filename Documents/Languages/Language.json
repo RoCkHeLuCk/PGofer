@@ -1,7 +1,61 @@
 ﻿{
-  "Code": "pt_BR",
+  "Lg": "pt_BR",
   "Language": "Portugues Brasil",
+
   "Error_IconNoFound": "Erro: Icone '%s' não encontrado",
-  "Error_XMLValueLoad": "Erro: XML Item '%s', propriedade '%s' do arquivo: '%s'.",
+
+  "Error_XML_Save": "Erro: Ao salvar XML '%s', mensagem: '%s'.",
+  "Error_XML_Load": "Erro: XML corrompido do arquivo: '%s'.",
+  "Error_XML_LoadValue": "Erro: XML Item '%s', propriedade '%s' do arquivo: '%s'.",
+
   "About_Vault": "Pasta Criptografada 'AES'",
-}
+
+  "Error_VaultSave": "Erro: '%s' was not saved.",
+  "Error_VaultLoad": "Erro: '%s' corrupt file or wrong password.",
+
+  "Error_Interpreter_(": "'(' Esperado.",
+  "Error_Interpreter_)": "')' Esperado.",
+  "Error_Interpreter_,": "',' Esperado.",
+  "Error_Interpreter_;": "';' Esperado.",
+  "Error_Interpreter_Begin": "'Begin' Esperado.",
+  "Error_Interpreter_Boolean": "Expressão Booleana esperada.",
+  "Error_Interpreter_Const": "Constante é somente leitura.",
+  "Error_Interpreter_Div0": "Divisão por 0.",
+  "Error_Interpreter_Do": "'Do' esperado.",
+  "Error_Interpreter_End": "'End' Esperado.",
+  "Error_Interpreter_Expression": "Expressão Invalida.",
+  "Error_Interpreter_Id": "Identificador esperado.",
+  "Error_Interpreter_IdExist": "Identificador esperado ou já existente.",
+  "Error_Interpreter_IdUnRec": "Identificador não reconhecido.",
+  "Error_Interpreter_Loop": "Loops Excedidos.",
+  "Error_Interpreter_Math": "Operação não reconhecida.",
+  "Error_Interpreter_Pow": "Potencia Invalida.",
+  "Error_Interpreter_Root": "Raiz Invalida.",
+  "Error_Interpreter_Struct": "Extrutura não reconhecida.",
+  "Error_Interpreter_Then": "'Then' Esperado.",
+  "Error_Interpreter_ToDownTo": "'To' ou 'DownTo' esperado.",
+  "Error_Interpreter_Until": "'Until' esperado.",
+  "Error_Interpreter_Unrecog": "Comando ou valor não reconhecido.",
+  "Error_Interpreter_Variable": "Variavel esperada.",
+
+  "Warning_Interpreter_Stack": "Pilha '%s' terminou com: %d",
+  "Warning_Interpreter_StackChild": "Pilha Filhos '%s' terminou com: %d",
+  "Warning_Interpreter_Redeclare": "'%s' Identificador Redeclarado.",
+
+  "Ok_ShellExecute_Executed": "OK: Executado com exito.",
+
+  "Error_ShellExecute_FileNotFound": "Erro: O arquivo especificado não foi encontrado.",
+  "Error_ShellExecute_PathNotFound": "Erro: O caminho da pasta não foi encontrado.",
+  "Error_ShellExecute_BadFormat": "Erro: O arquivo não é um executável válido ou é incompatível com a arquitetura (32/64 bits).",
+  "Error_ShellExecute_AccessDenied": "Erro: O sistema negou o acesso. Tente executar como administrador.",
+  "Error_ShellExecute_AssociationIncomplete": "Erro: A associação do arquivo está incompleta ou corrompida.",
+  "Error_ShellExecute_DDEBusy": "Erro: A operação DDE não pôde ser concluída porque o sistema está ocupado.",
+  "Error_ShellExecute_DDEFail": "Erro: Falha na transação DDE.",
+  "Error_ShellExecute_DDETimeout": "Erro: O tempo de resposta da transação DDE expirou.",
+  "Error_ShellExecute_DLLNotFound": "Erro: Uma biblioteca DLL necessária para esta operação não foi encontrada.",
+  "Error_ShellExecute_NoAssociation": "Erro: Não há aplicativo instalado associado a este tipo de arquivo.",
+  "Error_ShellExecute_OutOfMemory": "Erro: Não há memória ou recursos de sistema suficientes para executar o arquivo.",
+  "Error_ShellExecute_ShareViolation": "Erro: O arquivo está sendo usado por outro processo.",
+  "Error_ShellExecute_UnknownError": "Erro: Executar o arquivo Código Desconhecido '%d'."
+}
+

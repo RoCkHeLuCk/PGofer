@@ -32,49 +32,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       AutoSize = False
       Caption = 'File:'
     end
-    object EdtFile: TEdit
-      Left = 70
-      Top = 33
-      Width = 290
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
-      Constraints.MinWidth = 290
-      TabOrder = 1
-      OnKeyUp = EdtFileKeyUp
-    end
-    object BtnFile: TButton
-      Left = 366
-      Top = 33
-      Width = 29
-      Height = 21
-      Anchors = [akTop, akRight]
-      Caption = '...'
-      TabOrder = 2
-      OnClick = BtnFileClick
-    end
-    object EdtPassword: TEdit
-      Left = 70
-      Top = 60
-      Width = 290
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
-      Constraints.MinWidth = 290
-      PasswordChar = '*'
-      TabOrder = 3
-      OnKeyUp = EdtPasswordKeyUp
-    end
-    object BtnPassword: TButton
-      Left = 366
-      Top = 59
-      Width = 29
-      Height = 21
-      Anchors = [akTop, akRight]
-      Caption = '(_)'
-      TabOrder = 4
-      OnClick = BtnPasswordClick
-    end
     object ckbSavePassword: TCheckBox
       Left = 70
       Top = 84
@@ -95,17 +52,39 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       TabOrder = 6
       OnClick = ckbLockedClick
     end
+    object EdtFile: TEditEx
+      Left = 70
+      Top = 33
+      Width = 290
+      Height = 21
+      Color = clRed
+      TabOrder = 1
+      StyleElements = [seFont, seBorder]
+      ValidationMode = vmSaveFile
+      ActionButtonShow = True
+      PathAutoUnExpand = True
+      PathDialogFilter = 'PGofer Vault (*.pgv)|*.pgv|All Files (*.*)|*.*'
+      PathDialogTitle = 'Vault File'
+      OnAfterValidate = EdtFileAfterValidate
+    end
+    object EdtPassword: TEditEx
+      Left = 70
+      Top = 60
+      Width = 290
+      Height = 21
+      Color = clRed
+      PasswordChar = '*'
+      TabOrder = 3
+      StyleElements = [seFont, seBorder]
+      ValidationMode = vmPassword
+      ActionButtonShow = True
+      RegExExpression = '^.{6,}$'
+      SelectAllOnFocus = True
+      OnAfterValidate = EdtPasswordAfterValidate
+    end
   end
   inherited sptAbout: TPanel
     Top = 177
     ExplicitTop = 177
-  end
-  object svdVault: TSaveDialog
-    DefaultExt = '.pgv'
-    Filter = 'PGofer Vault (*.pgv)|*.pgv|All Files (*.*)|*.*'
-    Options = [ofEnableSizing]
-    Title = 'Save Vault'
-    Left = 200
-    Top = 32
   end
 end

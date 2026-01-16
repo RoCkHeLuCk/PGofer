@@ -14,6 +14,7 @@ const
   WM_PG_SCRIPT = WM_USER + 5;
   WM_PG_LINKUPD = WM_USER + 6;
   WM_PG_HOTHEYUPD = WM_USER + 7;
+  WM_PG_SHUTDOWN = WM_USER + 101;
 
 function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
 function FormBeforeInitialize( Classe: PWideChar; DefaultWM: Cardinal )
@@ -28,7 +29,7 @@ uses
   System.SysUtils,
   WinApi.Windows,
   Vcl.Forms,
-  PGofer.Sintatico, PGofer.Sintatico.Controls;
+  PGofer.Sintatico, PGofer.Triggers.Tasks;
 
 function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
 var
@@ -114,6 +115,11 @@ begin
       begin
         if TWMNCLButtonDown( AMessage ).HitTest = HTCAPTION then
           Application.BringToFront;
+      end;
+
+    WM_PG_SHUTDOWN:
+      begin
+         TPGTask.Working( 2, False );
       end;
   end;
 end;

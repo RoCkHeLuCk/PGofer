@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants, System.Classes, System.IniFiles,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs;
+  System.SysUtils, System.Classes, System.IniFiles,
+  Vcl.Controls, Vcl.Forms;
 
 type
   TFormEx = class( TForm )
@@ -20,6 +20,7 @@ type
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
     procedure WMNCHitTest( var AMessage: TWMNCHitTest ); message WM_NCHITTEST;
+    procedure CreateParams( var AParams: TCreateParams ); override;
   public
     procedure ForceShow( AFocus: boolean ); virtual;
   published
@@ -28,6 +29,8 @@ type
       default False;
     // property ParentsColor: boolean read FParentsColor write FParentsColor default True;
   end;
+
+  procedure SwitchToThisWindow(hWnd: HWND; fAltTab: BOOL); stdcall; external user32 name 'SwitchToThisWindow';
 
 procedure Register;
 
@@ -40,6 +43,13 @@ end;
 
 {$R *.dfm}
 { TFormEx }
+
+procedure TFormEx.CreateParams(var AParams: TCreateParams);
+begin
+  inherited;
+  if Assigned(Application.MainForm) and (Application.MainForm <> Self) then
+    AParams.WndParent := Application.MainForm.Handle;
+end;
 
 procedure TFormEx.FormCreate( Sender: TObject );
 begin
@@ -121,6 +131,98 @@ begin
     end;
 end;
 
+
+procedure TFormEx.ForceShow(AFocus: Boolean);
+var
+  ForegroundThreadID, ThisThreadID, timeout: Cardinal;
+  hWinPosInfo: HDWP; // Handle da transação
+begin
+  //1. destrava o windows
+  SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, Pointer(0), SPIF_SENDCHANGE);
+  AllowSetForegroundWindow(GetCurrentProcessId);
+
+  //2. Prepara as flags
+  ThisThreadID := SWP_SHOWWINDOW or SWP_NOMOVE or SWP_NOSIZE;
+  if not AFocus then ThisThreadID := ThisThreadID or SWP_NOACTIVATE;
+
+  //3. mostra a tela
+  if AFocus then
+  begin
+    Self.Show;
+    ShowWindow(Self.Handle, Integer(Self.WindowState));
+    SetForegroundWindow(Self.Handle);
+  end else begin
+    Self.Visible := true;
+    ShowWindow(Self.Handle, SW_SHOWNOACTIVATE);
+  end;
+
+  // 4. Tenta iniciar a transação para 1 janela
+  hWinPosInfo := BeginDeferWindowPos(1);
+  if hWinPosInfo <> 0 then
+  begin
+    // 5. Tenta adicionar a janela à transação
+    hWinPosInfo := DeferWindowPos(hWinPosInfo, Self.Handle, HWND_TOPMOST,
+                                 Self.Left, Self.Top, Self.Width, Self.Height,
+                                 ThisThreadID);
+    if hWinPosInfo <> 0 then
+    begin
+      // 6. Tenta aplicar tudo. Se falhar aqui, o Windows libera o handle sozinho.
+      EndDeferWindowPos(hWinPosInfo);
+    end;
+  end;
+
+  // 7. Joga tudo para o Topo
+  SetWindowPos(Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
+    Self.Height, ThisThreadID);
+
+  // 8. Força para o topo com foco
+  if AFocus then
+  begin
+    BringWindowToTop(Self.Handle);
+
+    // [MODERNO] SwitchToThisWindow: O "fura-fila" para janelas exclusivas (Quake 3)
+    SwitchToThisWindow(Self.Handle, True);
+
+    if IsIconic(Self.Handle) then
+      ShowWindow(Self.Handle, SW_RESTORE);
+
+    ForegroundThreadID := GetWindowThreadProcessID(GetForegroundWindow, nil);
+    ThisThreadID := GetWindowThreadProcessID(Self.Handle, nil);
+
+    if (ForegroundThreadID <> 0) and (ThisThreadID <> ForegroundThreadID) then
+    begin
+      if AttachThreadInput(ThisThreadID, ForegroundThreadID, true) then
+      begin
+        try
+          BringWindowToTop(Self.Handle);
+          SetForegroundWindow(Self.Handle);
+          //// Reforço do foco para o Windows 11
+          ///SwitchToThisWindow(Self.Handle, True);
+        finally
+          AttachThreadInput(ThisThreadID, ForegroundThreadID, False);
+        end;
+      end;
+    end;
+
+    // 9. controle de Timeout
+    SystemParametersInfo($2000, 0, @timeout, 0);
+    SystemParametersInfo($2001, 0, Pointer(0), SPIF_SENDCHANGE);
+    BringWindowToTop(Self.Handle);
+    SetForegroundWindow(Self.Handle);
+    SystemParametersInfo($2001, 0, Pointer(timeout), SPIF_SENDCHANGE);
+
+    SetWindowLong(Self.Handle, GWL_EXSTYLE,
+      GetWindowLong(Self.Handle, GWL_EXSTYLE) or WS_EX_TOPMOST);
+
+    Self.SetFocus;
+  end;
+
+  Self.MakeFullyVisible(Self.Monitor);
+end;
+//}
+
+
+{ //OLD
 procedure TFormEx.ForceShow( AFocus: boolean );
 var
   ForegroundThreadID: Cardinal;
@@ -146,10 +248,11 @@ begin
 
   try
     C := BeginDeferWindowPos( 1 );
-    C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
-      Self.Width, Self.Height, ThisThreadID );
-    // C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, 0, 0, 0, 0,
-    // ThisThreadID );
+    if c <> 0 then
+    begin
+      C := DeferWindowPos( C, Self.Handle, HWND_TOPMOST, Self.Left, Self.Top,
+        Self.Width, Self.Height, ThisThreadID );
+    end;
     EndDeferWindowPos( C );
   except
     // windows bugado do carai.
@@ -157,7 +260,6 @@ begin
 
   SetWindowPos( Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
     Self.Height, ThisThreadID );
-  // SetWindowPos( Self.Handle, HWND_TOPMOST, 0, 0, 0, 0, ThisThreadID );
 
   if AFocus then
   begin
@@ -202,5 +304,8 @@ begin
 
   Self.MakeFullyVisible( Self.Monitor );
 end;
+//}
+
+
 
 end.

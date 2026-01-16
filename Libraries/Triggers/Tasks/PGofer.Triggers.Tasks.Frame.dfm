@@ -19,7 +19,7 @@ inherited PGTaskFrame: TPGTaskFrame
     Align = alTop
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
-    TabOrder = 0
+    TabOrder = 2
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -50,7 +50,7 @@ inherited PGTaskFrame: TPGTaskFrame
   end
   inherited grbAbout: TGroupBox
     Top = 185
-    TabOrder = 2
+    TabOrder = 1
     ExplicitTop = 185
   end
   inherited pnlItem: TPanel
@@ -69,7 +69,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Caption = 'Trigger:'
       ParentBiDiMode = False
     end
-    object lblOccurrence: TLabel [2]
+    object LblOccurrence: TLabel [2]
       Left = 137
       Top = 63
       Width = 59
@@ -101,7 +101,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Style = csDropDownList
       Color = clSilver
       ItemIndex = 0
-      TabOrder = 0
+      TabOrder = 5
       Text = 'Initializing'
       OnChange = CmbTriggerChange
       Items.Strings = (
@@ -117,12 +117,10 @@ inherited PGTaskFrame: TPGTaskFrame
       Color = clSilver
       TabOrder = 1
       Text = '0'
-      OnExit = EdtOccurrenceExit
-      OnKeyUp = EdtOccurrenceKeyUp
-      RegExamples = reNone
-      RegExpression = '^\d*$'
+      StyleElements = [seFont, seBorder]
+      OnAfterValidate = EdtOccurrenceAfterValidate
     end
-    object updOccurrence: TUpDown [6]
+    object UpdOccurrence: TUpDown [6]
       Left = 247
       Top = 60
       Width = 16
@@ -130,7 +128,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Associate = EdtOccurrence
       Max = 999999999
       TabOrder = 2
-      OnChangingEx = updOccurrenceChangingEx
+      OnChangingEx = UpdOccurrenceChangingEx
     end
     object EdtRepeat: TEditEx [7]
       Left = 70
@@ -140,9 +138,8 @@ inherited PGTaskFrame: TPGTaskFrame
       Color = clSilver
       TabOrder = 3
       Text = '0'
-      OnKeyUp = EdtRepeatKeyUp
-      RegExamples = reNone
-      RegExpression = '^\d*$'
+      StyleElements = [seFont, seBorder]
+      OnAfterValidate = EdtRepeatAfterValidate
     end
     object UpdRepeat: TUpDown [8]
       Left = 115
@@ -153,9 +150,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Max = 999999999
       TabOrder = 4
       OnChangingEx = UpdRepeatChangingEx
-    end
-    inherited EdtName: TEditEx
-      TabOrder = 5
     end
   end
   inherited sptAbout: TPanel

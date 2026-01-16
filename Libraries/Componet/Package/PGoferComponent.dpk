@@ -12,20 +12,17 @@ package PGoferComponent;
 {$LOCALSYMBOLS ON}
 {$LONGSTRINGS ON}
 {$OPENSTRINGS ON}
-{$OPTIMIZATION OFF}
 {$OPTIMIZATION ON}
 {$OVERFLOWCHECKS OFF}
 {$RANGECHECKS OFF}
 {$REFERENCEINFO ON}
 {$SAFEDIVIDE OFF}
-{$STACKFRAMES ON}
 {$STACKFRAMES OFF}
 {$TYPEDADDRESS OFF}
 {$VARSTRINGCHECKS ON}
 {$WRITEABLECONST OFF}
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
-{$DEFINE DEBUG}
 {$ENDIF IMPLICITBUILDING}
 {$IMPLICITBUILD ON}
 
@@ -38,6 +35,7 @@ requires
   xmlrtl;
 
 contains
+  PGofer.Files.Controls in '..\..\Lib\Files\PGofer.Files.Controls.pas',
   Pgofer.Component.Checkbox in '..\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.Edit in '..\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\Source\PGofer.Component.ListView.pas',

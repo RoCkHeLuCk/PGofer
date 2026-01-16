@@ -11,6 +11,7 @@ object FrmController: TFrmController
   ClientWidth = 602
   Color = clGray
   Constraints.MinHeight = 300
+  Constraints.MinWidth = 195
   DefaultMonitor = dmDesktop
   ParentFont = True
   OldCreateOrder = False
@@ -35,10 +36,7 @@ object FrmController: TFrmController
     Margins.Bottom = 0
     Beveled = True
     Visible = False
-    OnCanResize = SptControllerCanResize
-    OnMoved = SptControllerMoved
-    ExplicitLeft = 241
-    ExplicitHeight = 536
+    ExplicitTop = 5
   end
   object PnlTreeView: TPanel
     Left = 0
@@ -54,6 +52,7 @@ object FrmController: TFrmController
     Constraints.MinWidth = 180
     ParentColor = True
     TabOrder = 0
+    OnResize = PnlTreeViewResize
     object PnlFind: TPanel
       Left = 0
       Top = 0
@@ -157,7 +156,6 @@ object FrmController: TFrmController
         Visible = False
         WordWrap = True
         OnClick = onCreateItemPopUpClick
-        OnContextPopup = BtnCreateContextPopup
       end
       object BtnEdit: TButton
         AlignWithMargins = True

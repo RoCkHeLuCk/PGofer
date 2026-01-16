@@ -4,10 +4,10 @@ interface
 
 uses
   System.Classes,
-  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  Vcl.Dialogs,
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls,
+
   PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
-  PGofer.Component.Edit, PGofer.Item.Frame;
+  PGofer.Component.Edit, PGofer.Item.Frame, Vcl.Dialogs, Vcl.ExtCtrls;
 
 type
   TPGConsoleFrame = class( TPGFormsFrame )

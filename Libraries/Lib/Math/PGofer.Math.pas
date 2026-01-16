@@ -46,7 +46,7 @@ implementation
 
 uses
   System.SysUtils, System.Math,
-  PGofer.Sintatico, PGofer.Math.Controls;
+  PGofer.Math.Controls;
 
 { TPGMath }
 

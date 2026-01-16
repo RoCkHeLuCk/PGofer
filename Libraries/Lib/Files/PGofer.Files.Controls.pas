@@ -11,6 +11,9 @@ function FileTimeToDateTime(FileTime: TFileTime): TDateTime;
 function FileLimitPathExist(Path: string): string;
 function FileExpandPath(const PathName: string): string;
 function FileUnExpandPath(const PathName: string): string;
+function FileExistsEx(const FileName: string): Boolean;
+function DirectoryExistsEx(const PathName: string): Boolean;
+function DirectoryExistsFileEx(const FileName: string): Boolean;
 function FileExec(Arquivo, Parametro, Diretorio: string; ShowControl: Integer;
   Operation: Byte; Prioridade: Byte): string;
 function FileControl(FileName, FileAlter: string;
@@ -19,8 +22,8 @@ function FileGetSize(FileName: string): Int64;
 function FileLoadFromText(FileName: string): string;
 function FileSaveToText(FileName, Value: string): Boolean;
 function FileListDir(MaskName: string; ExcludeExt: Boolean = False): string;
-function FileOpenDialog(const Dir: string): string;
-function FileDirDialog(Dir: string): string;
+function FileOpenSaveDialog(const ATitle, AFilter, AFileName: string; ASave:Boolean = False): string;
+function FileDirDialog(AInitialDir: string): string;
 function FileSetDateTime(FileName: string;
   CreateTime, ModifyTime, AcessTime: TDateTime): Boolean;
 function FileGetCreateTime(FileName: string): string;
@@ -35,14 +38,14 @@ function CreateSymbolicLinkW(lpSymlinkFileName: PWideChar;
 {$WARN SYMBOL_PLATFORM ON}
 function GetOperationToStr(Operation: Byte): PWideChar;
 function GetProcessPri(Prioridade: Byte): Word;
-function GetShellExMSGToStr(InstApp: Cardinal; AErrorOnly: Boolean): string;
+function GetShellExMSGToStr(InstApp: THandle): string;
 
 implementation
 
 uses
 {$WARN UNIT_PLATFORM OFF}
   Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
-  WinApi.ShellApi, WinApi.ShlwApi, WinApi.ActiveX, WinApi.ShlObj,
+  WinApi.ShellApi, WinApi.ShlwApi,
   System.SysUtils, System.Classes;
 {$WARN UNIT_PLATFORM ON}
 
@@ -116,6 +119,21 @@ begin
     Result := Trim(chrResult);
 end;
 
+function FileExistsEx(const FileName: string): Boolean;
+begin
+  Result:= FileExists( FileExpandPath( FileName ) );
+end;
+
+function DirectoryExistsEx(const PathName: string): Boolean;
+begin
+  Result:= DirectoryExists( FileExpandPath( PathName ) );
+end;
+
+function DirectoryExistsFileEx(const FileName: string): Boolean;
+begin
+  Result:= DirectoryExists(ExtractFilePath(FileExpandPath( FileName )));
+end;
+
 function GetOperationToStr(Operation: Byte): PWideChar;
 begin
   case Operation of
@@ -158,41 +176,41 @@ begin
   end;
 end;
 
-function GetShellExMSGToStr(InstApp: Cardinal; AErrorOnly: Boolean): string;
+
+function GetShellExMSGToStr(InstApp: THandle): string;
 begin
-  Result := '';
-  case InstApp of
-    0:
-      Result := 'Erro: Memoria cheia.';
-    SE_ERR_FNF:
-      Result := 'Erro: Arquivo não encontrado.';
-    SE_ERR_PNF:
-      Result := 'Erro: Diretorio não encontrado.';
-    SE_ERR_ACCESSDENIED:
-      Result := 'Erro: Acesso negado.';
-    SE_ERR_OOM:
-      Result := 'Erro: Memoria cheia.';
-    SE_ERR_DLLNOTFOUND:
-      Result := 'Erro: Dll não encontrado.';
-    SE_ERR_SHARE:
-      Result := 'Erro: Compartilhamento não encontrado.';
-    SE_ERR_ASSOCINCOMPLETE:
-      Result := 'Erro: Associação incompleta.';
-    SE_ERR_DDETIMEOUT:
-      Result := 'Erro: Tempo escotado.';
-    SE_ERR_DDEFAIL:
-      Result := 'Erro: Falha no acesso.';
-    SE_ERR_DDEBUSY:
-      Result := 'Erro: Debuger.';
-    SE_ERR_NOASSOC:
-      Result := 'Erro: Nada associado.';
-    33, 42:
-      begin
-        if not AErrorOnly then
-          Result := 'OK: Executado com exito.';
-      end
-  else
-    Result := 'Erro: Executar Numero: "' + InstApp.ToString + '".';
+  if InstApp > 32 then
+  begin
+    Result := 'Ok: File Executed.';
+  end else begin
+    case InstApp of
+      ERROR_FILE_NOT_FOUND:
+        Result := 'Error: File Execute Not Found.';
+      ERROR_PATH_NOT_FOUND:
+        Result := 'Error: File Execute Path Not Found.';
+      ERROR_BAD_FORMAT:
+        Result := 'Error: File Execute Bad Format.';
+      SE_ERR_ACCESSDENIED:
+        Result := 'Error: File Execute Access Denied.';
+      SE_ERR_ASSOCINCOMPLETE:
+        Result := 'Error: File Execute Association Incomplete.';
+      SE_ERR_DDEBUSY:
+        Result := 'Error: File Execute DDE Busy.';
+      SE_ERR_DDEFAIL:
+        Result := 'Error: File Execute DDE Fail.';
+      SE_ERR_DDETIMEOUT:
+        Result := 'Error: File Execute DDE Timeout.';
+      SE_ERR_DLLNOTFOUND:
+        Result := 'Error: File Execute DLL Not Found.';
+      SE_ERR_NOASSOC:
+        Result := 'Error: File Execute No Association.';
+      SE_ERR_OOM:
+        Result := 'Error: File Execute Out Of Memory.';
+      SE_ERR_SHARE:
+        Result := 'Error: File Execute Share Violation.';
+    else
+      Result := 'Error: File Execute Unknown '+ intToStr(InstApp);
+    end;
   end;
 end;
 
@@ -223,7 +241,7 @@ begin
     SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(Prioridade));
   end;
 
-  Result := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp, True);
+  Result := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);
 end;
 
 function FileControl(FileName, FileAlter: string;
@@ -310,23 +328,36 @@ begin
   FindClose(SearchRec);
 end;
 
-function FileOpenDialog(const Dir: string): string;
+function FileOpenSaveDialog(const ATitle, AFilter, AFileName: string; ASave:Boolean = False): string;
 var
-  OpenDialog: TOpenDialog;
+  CommonDialog: TOpenDialog;
 begin
   Result := '';
-  OpenDialog := TOpenDialog.Create(Application);
-  OpenDialog.InitialDir := Dir;
-  if OpenDialog.Execute then
-    Result := OpenDialog.FileName;
-  OpenDialog.Free;
+  if ASave then
+    CommonDialog := TSaveDialog.Create(Application)
+  else
+    CommonDialog := TOpenDialog.Create(Application);
+
+  try
+    CommonDialog.Title := ATitle;
+    CommonDialog.Filter := AFilter;
+    if AFileName <> '' then
+    begin
+      CommonDialog.InitialDir := ExtractFilePath(FileLimitPathExist(FileExpandPath( AFileName )));
+      CommonDialog.FileName := ExtractFileName(FileExpandPath( AFileName ));
+    end;
+    if CommonDialog.Execute then
+      Result := CommonDialog.FileName;
+  finally
+    CommonDialog.Free;
+  end;
 end;
 
-function FileDirDialog(Dir: string): string;
+function FileDirDialog(AInitialDir: string): string;
 begin
-  Dir := ExtractFilePath(FileLimitPathExist(Dir));
-  if SelectDirectory(Dir, [sdAllowCreate, sdPerformCreate, sdPrompt], 1000) then
-    Result := FileUnExpandPath(Dir)
+  AInitialDir := ExtractFilePath(FileLimitPathExist(FileExpandPath( AInitialDir )));
+  if SelectDirectory(AInitialDir, [sdAllowCreate, sdPerformCreate, sdPrompt], 1000) then
+    Result := FileUnExpandPath(AInitialDir)
   else
     Result := '';
 end;

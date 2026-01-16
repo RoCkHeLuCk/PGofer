@@ -3,11 +3,11 @@ unit UnitServices;
 interface
 
 uses
-  Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ImgList, Vcl.Controls, Vcl.StdCtrls,
-  Vcl.Buttons, Vcl.ComCtrls, Vcl.CheckLst, Vcl.ExtCtrls,
-  Winapi.Messages, Winapi.Winsvc, Winapi.Windows,
-  System.Classes, System.SysUtils, System.ImageList, System.UITypes,
-  System.IniFiles, Pgofer.Component.ListView, Pgofer.Component.Form;
+  Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.Controls, Vcl.StdCtrls,
+  Vcl.ComCtrls, Vcl.CheckLst, Vcl.ExtCtrls,
+  Winapi.Winsvc, Winapi.Windows,
+  System.Classes, System.SysUtils, System.UITypes,
+  Pgofer.Component.ListView, Pgofer.Component.Form, System.ImageList, Vcl.ImgList;
 
 type
   TFrmServices = class( TFormEx )
@@ -114,7 +114,7 @@ implementation
 
 uses
   Pgofer.ClipBoards.Controls,
-  Pgofer.Files.Controls,
+
   Pgofer.Services.Controls,
   Pgofer.Services.Thread;
 

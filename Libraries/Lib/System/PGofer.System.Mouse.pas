@@ -24,8 +24,7 @@ implementation
 
 uses
   Vcl.Controls,
-  System.Types,
-  PGofer.Sintatico, PGofer.Sintatico.Controls;
+  System.Types;
 
 { TPGMouse }
 

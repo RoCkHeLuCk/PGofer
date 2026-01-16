@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.Sound.Controls;
+  PGofer.Sound.Controls;
 
 { TPGSound }
 

@@ -5,6 +5,9 @@ interface
 uses
   Winapi.Windows, System.SysUtils;
 
+
+function SystemShutDownReasonCreate(hWnd: HWND; pwszReason: LPCWSTR): BOOL; stdcall; external user32 name 'ShutdownBlockReasonCreate';
+function SystemShutDownReasonDestroy(hWnd: HWND): BOOL; stdcall; external user32 name 'ShutdownBlockReasonDestroy';
 function SystemShutDown( Off: Cardinal ): Boolean;
 function SystemSetSuspendState( hibernate, forcecritical, disablewakeevent
   : Boolean ): Boolean; stdcall; external 'powrprof.dll' name 'SetSuspendState';
@@ -19,7 +22,6 @@ function SystemGetWindowsTextFromPoint( ): string;
 function SystemDialogMessage( Text: string ): Boolean;
 function SystemMonitorPower( OnOff: Boolean ): NativeInt;
 function SystemGetControlFocus( ): HDWP;
-
 // QueryPerformanceCounter(StartTime);
 // QueryPerformanceFrequency(Frequency);
 
@@ -27,8 +29,7 @@ implementation
 
 uses
   Vcl.Graphics,
-  System.UITypes, Vcl.Dialogs, Vcl.Forms,
-  PGofer.Files.Controls;
+  System.UITypes, Vcl.Dialogs, Vcl.Forms;
 
 function SystemShutDown( Off: Cardinal ): Boolean;
 var

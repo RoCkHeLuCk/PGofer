@@ -3,7 +3,7 @@ unit PGofer.Language;
 interface
 
 uses
-  System.Classes, System.Generics.Collections, System.JSON;
+  PGofer.Core, System.Generics.Collections;
 
 type
   TPGConsoleNotify = procedure(const AValue: string; const ANewLine, AShow: Boolean) of object;
@@ -20,6 +20,7 @@ type
     class var FConsoleNotify: TPGConsoleNotify;
     class var FActive: Boolean;
     class var FLogBuffer: TList<TLogBufferItem>;
+    class var FLanguage: string;
     class procedure InternalLog(const AMsg: String; const ANewLine, AShow: Boolean); static;
     class procedure SetConsoleNotify(const AValue: TPGConsoleNotify); static;
   public
@@ -32,6 +33,7 @@ type
     class procedure ConsoleTranslate(const AKey: string; const ATranslating: Boolean = True); overload; static;
     class procedure ConsoleTranslate(const AKey: string; const AArgs: array of const; const ATranslating: Boolean = True); overload; static;
     class procedure ConsoleTranslate(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = False); overload; static;
+    class property Language: string read FLanguage;
   end;
 
   function Tr(const AKey: string): string; overload; inline;
@@ -43,8 +45,8 @@ type
 implementation
 
 uses
-  System.SysUtils, System.IOUtils, Winapi.Windows,
-  PGofer.Types;
+  System.SysUtils, System.IOUtils, System.JSON, Winapi.Windows,
+  PGofer.Files.Controls;
 
 { TPGLanguage }
 
@@ -54,6 +56,7 @@ begin
   FLogBuffer := TList<TLogBufferItem>.Create;
   FActive := False;
   FConsoleNotify := nil;
+  LoadLangFromFile(TPGKernel.GetVar('_FileLanguage',''));
 end;
 
 class destructor TPGLanguage.Destroy;
@@ -70,7 +73,12 @@ var
 begin
   if Assigned(FConsoleNotify) then
   begin
-    FConsoleNotify(AMsg, ANewLine, AShow);
+    RunInMainThread(
+      procedure
+      begin
+        FConsoleNotify(AMsg, ANewLine, AShow);
+      end
+    );
   end else begin
     {$IFDEF DEBUG}
     OutputDebugString(PChar('PGofer: ' + AMsg));
@@ -108,36 +116,32 @@ begin
   FDictionary.Clear;
   FActive := False;
 
-  if FileExists(AFileName) then
+  if FileExistsEx(AFileName) then
   begin
-    try
-      Content := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-      JSONValue := TJSONObject.ParseJSONValue(Content);
-      if Assigned(JSONValue) then
-      begin
-        try
-          if (JSONValue is TJSONObject) then
+    Content := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+    JSONValue := TJSONObject.ParseJSONValue(Content);
+    if Assigned(JSONValue) then
+    begin
+      try
+        if (JSONValue is TJSONObject) then
+        begin
+          JSONObject := TJSONObject(JSONValue);
+          for JSONPair in JSONObject do
           begin
-            JSONObject := TJSONObject(JSONValue);
-            for JSONPair in JSONObject do
-            begin
-              FDictionary.AddOrSetValue(
-                JSONPair.JsonString.Value,
-                JSONPair.JsonValue.Value
-              );
-            end;
-            FActive := (FDictionary.Count > 0);
+            FDictionary.AddOrSetValue(
+              JSONPair.JsonString.Value,
+              JSONPair.JsonValue.Value
+            );
           end;
-        finally
-          JSONValue.Free;
+          FActive := (FDictionary.Count > 0);
+          FDictionary.TryGetValue('Language',FLanguage);
         end;
+      finally
+        JSONValue.Free;
       end;
-    except
+    end else
       TPGLanguage.InternalLog('Error: JSON invalid: ' + AFileName, True, True);
-    end;
-  end
-  else
-  begin
+  end else begin
     TPGLanguage.InternalLog('Error: Lang file missing: ' + AFileName, True, True);
   end;
 end;
@@ -213,11 +217,6 @@ begin
 end;
 
 initialization
-  {$IFNDEF DEBUG}
-    TPGLanguage.LoadLangFromFile(DirCurrent + '\Language.json');
-  {$ELSE}
-    TPGLanguage.LoadLangFromFile(DirCurrent + '..\..\..\..\Documents\Languages\Language.json');
-  {$ENDIF}
 
 finalization
 

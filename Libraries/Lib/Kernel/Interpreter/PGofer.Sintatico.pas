@@ -4,8 +4,8 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.Generics.Collections,
-  Vcl.Controls,
-  PGofer.Types, PGofer.Classes, PGofer.Lexico;
+
+  PGofer.Core, PGofer.Classes, PGofer.Lexico;
 
 type
   TPGPilha = class( TPGItem )
@@ -48,20 +48,10 @@ procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
   AWaitFor: Boolean = False );
 function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
 
-var
-  LoopLimite: Int64 = 1000000;
-  FileListMax: Cardinal = 200;
-  ReplyFormat: string = '';
-  ReplyPrefix: Boolean = False;
-  ConsoleMessage: Boolean = True;
-  LogMaxSize: Int64 = 10000;
-  CanOff: Boolean = False;
-  CanClose: Boolean = True;
-
 implementation
 
 uses
-  PGofer.Language, PGofer.IconList, PGofer.Sintatico.Controls, PGofer.Runtime;
+  PGofer.Language, PGofer.Sintatico.Controls, PGofer.Runtime;
 
 { TPilha }
 
@@ -101,7 +91,7 @@ begin
   inherited Create( True );
   Self.FreeOnTerminate := ATerminate;
   Self.Priority := tpNormal;
-  FConsoleShowMessage := ConsoleMessage;
+  FConsoleShowMessage := TPGKernel.GetVar('ConsoleMessage',True);
   FPai := AItemDad;
   if Assigned( FPai ) then
     FLocal := TPGFolder.Create( AItemDad, AName )
@@ -115,8 +105,14 @@ end;
 
 destructor TGramatica.Destroy( );
 begin
-  // MSGsAdd('Pilha ['+FLocal.Titulo+'] terminou com: '+FPilha.Count.ToString);
-  // MSGsAdd('Filhos ['+FLocal.Titulo+'] terminou com '+FLocal.Count.ToString);
+  if TPGKernel.GetVar('ReportMemoryLeaks',False) then
+  begin
+    if FPilha.Count > 1 then
+       MSGsAdd( Tr('Warning_Interpreter_Stack', [FPilha.name, FPilha.Count-1]) );
+    if FLocal.Count > 1 then
+       MSGsAdd( Tr('Warning_Interpreter_StackChild', [FLocal.name, FLocal.Count-1]) );
+  end;
+
   FPilha.Free;
   FPilha := nil;
   FLocal.Free;
@@ -148,7 +144,6 @@ end;
 
 procedure TGramatica.MSGsAdd( AText: string );
 begin
-
     TrC( AText, True, FConsoleShowMessage );
 end;
 
@@ -169,9 +164,12 @@ begin
 end;
 
 procedure TGramatica.Execute( );
+var
+  Dir: String;
 begin
-  SetCurrentDir( PGofer.Types.DirCurrent );
-  ChDir( PGofer.Types.DirCurrent );
+  Dir := TPGKernel.GetVar('_PathCurrent','');
+  SetCurrentDir( Dir );
+  ChDir( Dir );
   Sentencas( Self );
 end;
 

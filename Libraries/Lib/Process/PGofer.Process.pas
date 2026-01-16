@@ -25,7 +25,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Sintatico, PGofer.Process.Controls;
+  PGofer.Process.Controls;
 
 { TPGProcess }
 

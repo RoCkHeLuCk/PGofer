@@ -6,29 +6,28 @@ uses
   System.SysUtils, System.Classes, Winapi.Windows;
 
 { AES }
-function AESEncryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean; overload;
-function AESDecryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean; overload;
-function AESEncryptStream(StreamFrom: TStream; Password: string): TStream; overload;
-function AESDecryptStream(StreamFrom: TStream; Password: string): TStream; overload;
-function AESEncryptFile(FileFrom, FileTo: string; Password: string): Boolean;
-function AESDecryptFile(FileFrom, FileTo: string; Password: string): Boolean;
-function AESEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Password: string): Boolean;
-function AESDecryptFileToStream(FileFrom: string; Password: string): TStream;
-function AESEncryptStringToFile(StringFrom: string; FileTo: string; Password: string): Boolean;
-function AESDecryptFileToString(FileFrom: string; Password: string): string;
+function AESEncryptStream(StreamFrom, StreamTo: TStream; const Password: string): Boolean; overload;
+function AESDecryptStream(StreamFrom, StreamTo: TStream; const Password: string): Boolean; overload;
+function AESEncryptStream(StreamFrom: TStream; const Password: string): TStream; overload;
+function AESDecryptStream(StreamFrom: TStream; const Password: string): TStream; overload;
+function AESEncryptFile(const FileFrom, FileTo, Password: string): Boolean;
+function AESDecryptFile(const FileFrom, FileTo, Password: string): Boolean;
+function AESEncryptStreamToFile(StreamFrom: TStream; const FileTo, Password: string): Boolean;
+function AESDecryptFileToStream(const FileFrom, Password: string): TStream;
+function AESEncryptStringToFile(const StringFrom, FileTo, Password: string): Boolean;
+function AESDecryptFileToString(const FileFrom, Password: string): string;
 
 { DPAPI }
-function DPAPIEncryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean; overload;
-function DPAPIDecryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean; overload;
-function DPAPIEncryptStream(StreamFrom: TStream; Entropy: string): TStream; overload;
-function DPAPIDecryptStream(StreamFrom: TStream; Entropy: string): TStream; overload;
-function DPAPIEncryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
-function DPAPIDecryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
-function DPAPIEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Entropy: string): Boolean;
-function DPAPIDecryptFileToStream(FileFrom: string; Entropy: string): TStream;
-function DPAPIEncryptStringToFile(StringFrom: string; const FileTo: string;
-  Entropy: string): Boolean;
-function DPAPIDecryptFileToString(FileFrom: string; Entropy: string): string;
+function DPAPIEncryptStream(StreamFrom, StreamTo: TStream; const Entropy: string): Boolean; overload;
+function DPAPIDecryptStream(StreamFrom, StreamTo: TStream; const Entropy: string): Boolean; overload;
+function DPAPIEncryptStream(StreamFrom: TStream; const Entropy: string): TStream; overload;
+function DPAPIDecryptStream(StreamFrom: TStream; const Entropy: string): TStream; overload;
+function DPAPIEncryptFile(const FileFrom, FileTo, Entropy: string): Boolean;
+function DPAPIDecryptFile(const FileFrom, FileTo, Entropy: string): Boolean;
+function DPAPIEncryptStreamToFile(StreamFrom: TStream; const FileTo, Entropy: string): Boolean;
+function DPAPIDecryptFileToStream(const FileFrom, Entropy: string): TStream;
+function DPAPIEncryptStringToFile(const StringFrom, FileTo, Entropy: string): Boolean;
+function DPAPIDecryptFileToString(const FileFrom, Entropy: string): string;
 
 implementation
 
@@ -81,7 +80,7 @@ function CryptUnprotectData(pDataIn: PDATA_BLOB; ppszDataDescr: PPWideChar;
   pDataOut: PDATA_BLOB): BOOL; stdcall; external 'crypt32.dll' name 'CryptUnprotectData';
 
 { AES }
-function AESEncryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean;
+function AESEncryptStream(StreamFrom, StreamTo: TStream; const Password: string): Boolean;
 var
   hProv: HCRYPTPROV;
   hHash: HCRYPTHASH;
@@ -125,7 +124,7 @@ begin
   end;
 end;
 
-function AESDecryptStream(StreamFrom, StreamTo: TStream; Password: string): Boolean;
+function AESDecryptStream(StreamFrom, StreamTo: TStream; const Password: string): Boolean;
 var
   hProv: HCRYPTPROV;
   hHash: HCRYPTHASH;
@@ -168,7 +167,7 @@ begin
   end;
 end;
 
-function AESEncryptStream(StreamFrom: TStream; Password: string): TStream;
+function AESEncryptStream(StreamFrom: TStream; const Password: string): TStream;
 begin
   Result := TMemoryStream.Create;
   if not AESEncryptStream(StreamFrom, Result, Password) then
@@ -177,7 +176,7 @@ begin
     Result.Position := 0;
 end;
 
-function AESDecryptStream(StreamFrom: TStream; Password: string): TStream;
+function AESDecryptStream(StreamFrom: TStream; const Password: string): TStream;
 begin
   Result := TMemoryStream.Create;
   if not AESDecryptStream(StreamFrom, Result, Password) then
@@ -186,7 +185,7 @@ begin
     Result.Position := 0;
 end;
 
-function AESEncryptFile(FileFrom, FileTo: string; Password: string): Boolean;
+function AESEncryptFile(const FileFrom, FileTo, Password: string): Boolean;
 var
   fsIn, fsOut: TFileStream;
 begin
@@ -203,7 +202,7 @@ begin
   end;
 end;
 
-function AESDecryptFile(FileFrom, FileTo: string; Password: string): Boolean;
+function AESDecryptFile(const FileFrom, FileTo, Password: string): Boolean;
 var
   fsIn, fsOut: TFileStream;
 begin
@@ -220,7 +219,7 @@ begin
   end;
 end;
 
-function AESEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Password: string): Boolean;
+function AESEncryptStreamToFile(StreamFrom: TStream; const FileTo, Password: string): Boolean;
 var
   fsOut: TFileStream;
 begin
@@ -232,7 +231,7 @@ begin
     DeleteFile(PWideChar(FileTo));
 end;
 
-function AESDecryptFileToStream(FileFrom: string; Password: string): TStream;
+function AESDecryptFileToStream(const FileFrom, Password: string): TStream;
 var
   fsIn: TFileStream;
 begin
@@ -245,7 +244,7 @@ begin
   end;
 end;
 
-function AESEncryptStringToFile(StringFrom: string; FileTo: string; Password: string): Boolean;
+function AESEncryptStringToFile(const StringFrom, FileTo, Password: string): Boolean;
 var
   ssIn: TStringStream;
 begin
@@ -255,7 +254,7 @@ begin
   ssIn.Free;
 end;
 
-function AESDecryptFileToString(FileFrom: string; Password: string): string;
+function AESDecryptFileToString(const FileFrom, Password: string): string;
 var
   msOut: TStream;
   ssOut: TStringStream;
@@ -274,7 +273,7 @@ end;
 
 { DPAPI }
 
-function DPAPIEncryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean;
+function DPAPIEncryptStream(StreamFrom, StreamTo: TStream; const Entropy: string): Boolean;
 var
   Input, Output, EntropyBlob: DATA_BLOB;
   pEntropy: PDATA_BLOB;
@@ -310,7 +309,7 @@ begin
   InputMem.Free;
 end;
 
-function DPAPIDecryptStream(StreamFrom, StreamTo: TStream; Entropy: string): Boolean;
+function DPAPIDecryptStream(StreamFrom, StreamTo: TStream; const Entropy: string): Boolean;
 var
   Input, Output, EntropyBlob: DATA_BLOB;
   pEntropy: PDATA_BLOB;
@@ -349,7 +348,7 @@ begin
   end;
 end;
 
-function DPAPIEncryptStream(StreamFrom: TStream; Entropy: string): TStream;
+function DPAPIEncryptStream(StreamFrom: TStream; const Entropy: string): TStream;
 begin
   Result := TMemoryStream.Create;
   if not DPAPIEncryptStream(StreamFrom, Result, Entropy) then
@@ -358,7 +357,7 @@ begin
     Result.Position := 0;
 end;
 
-function DPAPIDecryptStream(StreamFrom: TStream; Entropy: string): TStream;
+function DPAPIDecryptStream(StreamFrom: TStream; const Entropy: string): TStream;
 begin
   Result := TMemoryStream.Create;
   if not DPAPIDecryptStream(StreamFrom, Result, Entropy) then
@@ -367,7 +366,7 @@ begin
     Result.Position := 0;
 end;
 
-function DPAPIEncryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
+function DPAPIEncryptFile(const FileFrom, FileTo, Entropy: string): Boolean;
 var
   fsIn, fsOut: TFileStream;
 begin
@@ -384,7 +383,7 @@ begin
   end;
 end;
 
-function DPAPIDecryptFile(FileFrom, FileTo: string; Entropy: string): Boolean;
+function DPAPIDecryptFile(const FileFrom, FileTo, Entropy: string): Boolean;
 var
   fsIn, fsOut: TFileStream;
 begin
@@ -401,7 +400,7 @@ begin
   end;
 end;
 
-function DPAPIEncryptStreamToFile(StreamFrom: TStream; FileTo: string; Entropy: string): Boolean;
+function DPAPIEncryptStreamToFile(StreamFrom: TStream; const FileTo, Entropy: string): Boolean;
 var
   fsOut: TFileStream;
 begin
@@ -413,7 +412,7 @@ begin
     DeleteFile(PWideChar(FileTo));
 end;
 
-function DPAPIDecryptFileToStream(FileFrom: string; Entropy: string): TStream;
+function DPAPIDecryptFileToStream(const FileFrom, Entropy: string): TStream;
 var
   fsIn: TFileStream;
 begin
@@ -426,8 +425,7 @@ begin
   end;
 end;
 
-function DPAPIEncryptStringToFile(StringFrom: string; const FileTo: string;
-  Entropy: string): Boolean;
+function DPAPIEncryptStringToFile(const StringFrom, FileTo, Entropy: string): Boolean;
 var
   ssIn: TStringStream;
 begin
@@ -437,7 +435,7 @@ begin
   ssIn.Free;
 end;
 
-function DPAPIDecryptFileToString(FileFrom: string; Entropy: string): string;
+function DPAPIDecryptFileToString(const FileFrom, Entropy: string): string;
 var
   msOut: TStream;
   ssOut: TStringStream;

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type
@@ -56,10 +56,11 @@ implementation
 uses
   Winapi.Windows,
   System.SysUtils,
+  PGofer.Language,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
   PGofer.Triggers.AutoFills.Frame,
-  PGofer.Key.Controls,
+
   PGofer.Key.Post,
   PGofer.ClipBoards.Controls,
   PGofer.Process.Controls;
@@ -98,11 +99,9 @@ begin
       VParam := Gramatica.Pilha.Desempilhar( '' );
       if not Gramatica.Erro then
         Self.Triggering();
-
       Gramatica.TokenList.GetNextToken;
-    end
-    else
-      Gramatica.ErroAdd( '")" Esperado.' )
+    end else
+      Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
   end else if not Gramatica.Erro then
     Self.Triggering();
 end;
@@ -194,7 +193,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado ou já existente.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_IdExist') );
 end;
 
 { TPGAutoFillsMirror }

@@ -1,4 +1,4 @@
-unit PGofer.Forms.Console;
+ï»¿unit PGofer.Forms.Console;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
   Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Types, PGofer.Forms;
+  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Core, PGofer.Forms;
 
 type
   TPGFrmConsole = class;
@@ -29,7 +29,6 @@ type
     procedure FormShow( Sender: TObject );
     procedure FormCreate( Sender: TObject );
     procedure FormDestroy( Sender: TObject );
-    procedure FormActivate( Sender: TObject );
   private
     { Private declarations }
     FMouseA: TPoint;
@@ -53,7 +52,8 @@ type
     FDelay: Cardinal;
     FShowMessage: Boolean;
     FAutoClose: Boolean;
-    procedure SetAutoClose( Value: Boolean );
+    procedure SetAutoClose( AValue: Boolean );
+    procedure SetDelay( AValue: Cardinal );
   public
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
@@ -61,7 +61,7 @@ type
   published
     property AutoClose: Boolean read FAutoClose write SetAutoClose;
     procedure Clear( );
-    property Delay: Cardinal read FDelay write FDelay;
+    property Delay: Cardinal read FDelay write SetDelay;
     property ShowMessage: Boolean read FShowMessage write FShowMessage;
   end;
   {$TYPEINFO ON}
@@ -74,17 +74,18 @@ implementation
 {$R *.dfm}
 
 uses
-  Winapi.Messages,
-  PGofer.Language, PGofer.Classes, PGofer.Forms.Controls,
+
+  PGofer.Language, PGofer.Classes,
   PGofer.Forms.Console.Frame;
 
 { TFrmConsole }
 procedure TFrmConsole.CreateParams( var AParams: TCreateParams );
 begin
   inherited;
+  AParams.Style := AParams.Style or WS_BORDER;
   AParams.ExStyle := WS_EX_NOACTIVATE;
   Application.AddPopupForm( Self );
-  Self.ForceResizable := True;
+  Self.ForceResizable := True
 end;
 
 procedure TFrmConsole.FormCreate( Sender: TObject );
@@ -96,8 +97,11 @@ end;
 
 procedure TFrmConsole.FormShow( Sender: TObject );
 begin
-  Self.TmrConsole.Enabled := False;
+  inherited;
   Self.TmrConsole.Interval := FItem.Delay;
+  Self.TmrConsole.Enabled := False;
+  Self.Left := Application.MainForm.Left;
+  Self.Top := Application.MainForm.Top + Application.MainForm.Height;
   Self.BtnFixed.Down := ( not FItem.AutoClose );
   Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
 end;
@@ -106,15 +110,6 @@ procedure TFrmConsole.ForceShow( AFocus: Boolean );
 begin
   FItem.AutoClose := not AFocus;
   inherited ForceShow( AFocus );
-end;
-
-procedure TFrmConsole.FormActivate( Sender: TObject );
-begin
-  // arruma a bagaça para não dar um bug sinistro.
-  Width := Width - 1;
-  Update;
-  Width := Width + 1;
-  Update;
 end;
 
 procedure TFrmConsole.FormClose( Sender: TObject; var Action: TCloseAction );
@@ -126,6 +121,7 @@ end;
 procedure TFrmConsole.FormDestroy( Sender: TObject );
 begin
   inherited FormDestroy( Sender );
+  TmrConsole.Enabled := False;
   PGofer.Language.TPGLanguage.ConsoleNotify := nil;
   FItem := nil;
 end;
@@ -173,7 +169,7 @@ begin
   if ( ( Mouse.CursorPos.X < Left ) or ( Mouse.CursorPos.Y < Top ) or
     ( Mouse.CursorPos.X > Left + Width ) or ( Mouse.CursorPos.Y > Top + Height )
     ) and ( Self.Visible ) then
-    Hide;
+    Self.Close;
 end;
 
 procedure TFrmConsole.PnlArrastarMouseDown( Sender: TObject;
@@ -199,25 +195,18 @@ end;
 procedure TFrmConsole.ConsoleNotifyMessage(const AValue: string;
   const ANewLine, AShow: Boolean );
 begin
-  RunInMainThread(
-    procedure
-    begin
-      if ANewLine then
-        Self.EdtConsole.Lines.Append( AValue )
-      else
-        Self.EdtConsole.Text := Self.EdtConsole.Text + AValue;
+  if ANewLine then
+    Self.EdtConsole.Lines.Append( AValue )
+  else
+    Self.EdtConsole.Text := Self.EdtConsole.Text + AValue;
 
-      Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Count;
+  Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Count;
 
-      if AShow then
-      begin
-        Self.Left := Application.MainForm.Left;
-        Self.Top := Application.MainForm.Top + Application.MainForm.Height;
-        Self.ForceShow( False );
-        Application.ProcessMessages( );
-      end;
-    end
-  );
+  if AShow then
+  begin
+    Self.ForceShow( False );
+  end;
+
 end;
 
 { TPGFrmConsole }
@@ -242,10 +231,16 @@ begin
   TPGConsoleFrame.Create( Self, AParent );
 end;
 
-procedure TPGFrmConsole.SetAutoClose( Value: Boolean );
+procedure TPGFrmConsole.SetAutoClose( AValue: Boolean );
 begin
-  FAutoClose := Value;
+  FAutoClose := AValue;
   TFrmConsole( FForm ).BtnFixed.Down := ( not FAutoClose );
+end;
+
+procedure TPGFrmConsole.SetDelay(AValue: Cardinal);
+begin
+   if (AValue > 500) then
+     FDelay := AValue;
 end;
 
 procedure TPGFrmConsole.Clear;

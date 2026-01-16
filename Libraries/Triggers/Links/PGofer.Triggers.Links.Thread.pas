@@ -11,6 +11,7 @@ type
   private
     FLink: TPGLink;
     FParam: string;
+    FConsoleMessage: Boolean;
     procedure PipeLines();
     procedure ShellExec();
     procedure CreateProcess();
@@ -29,6 +30,7 @@ uses
   WinApi.Windows,
   WinApi.ShellApi,
   Vcl.Forms,
+  PGofer.Core,
   PGofer.Language,
   PGofer.Sintatico,
   PGofer.Files.Controls,
@@ -44,6 +46,7 @@ begin
   Self.Priority := tpIdle;
   FLink := ALink;
   FParam := AParam;
+  FConsoleMessage := TPGKernel.GetVar('ConsoleMessage',True);
 end;
 
 destructor TLinkThread.Destroy();
@@ -122,7 +125,7 @@ begin
       ProcessInfo) then
     begin
       pBuffer := AllocMem(CReadBuffer + 1);
-      TrC('Link ' + FLink.Name + ' : ', True, ConsoleMessage);
+      TrC('Link ' + FLink.Name + ' : ', True, FConsoleMessage);
 
       repeat
         dRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
@@ -132,7 +135,7 @@ begin
           pBuffer[dRead] := #0;
 
           OemToAnsi(pBuffer, pBuffer);
-          TrC(string(pBuffer), False, ConsoleMessage);
+          TrC(string(pBuffer), False, FConsoleMessage);
         until (dRead < CReadBuffer);
       until (dRunning <> WAIT_TIMEOUT);
 
@@ -187,7 +190,7 @@ begin
       TrC(
         'Link ' + FLink.Name + ' : ' + SysErrorMessage(ReturnCode),
         True,
-        ConsoleMessage
+        FConsoleMessage
       );
     end else begin
       if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then
@@ -224,10 +227,10 @@ begin
     SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(FLink.Priority));
   end;
 
-  sText := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp, True);
+  sText := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);
   if sText <> '' then
     TrC('Link ' + FLink.Name + ' : ' + sText, True,
-      ConsoleMessage);
+      FConsoleMessage);
 
   if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then
   begin

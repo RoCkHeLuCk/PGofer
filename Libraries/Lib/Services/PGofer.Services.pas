@@ -26,7 +26,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.Services.Controls;
+  PGofer.Services.Controls;
 
 { TPGService }
 

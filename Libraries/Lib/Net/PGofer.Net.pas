@@ -30,7 +30,7 @@ var
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.Net.Controls, PGofer.Net.Socket;
+  PGofer.Net.Controls, PGofer.Net.Socket;
 
 { TPGNet }
 
@@ -43,8 +43,10 @@ end;
 
 destructor TPGNet.Destroy;
 begin
-  FClient.Free;
-  FServer.Free;
+  if Assigned(FClient) then
+    FClient.Free;
+  if Assigned(FServer) then
+    FServer.Free;
   inherited Destroy( );
 end;
 

@@ -4,8 +4,8 @@ interface
 
 uses
   System.Classes,
-  Vcl.Forms, Vcl.Dialogs, Vcl.Controls, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Graphics,
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Triggers, PGofer.Triggers.Links, PGofer.Triggers.Frame,
   PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame;
 
@@ -16,15 +16,12 @@ type
     LblDirectory: TLabel;
     LblState: TLabel;
     LblPriority: TLabel;
-    EdtFile: TEdit;
-    BtnFile: TButton;
-    EdtPatameter: TEdit;
-    EdtDiretory: TEdit;
-    BtnDiretory: TButton;
+    EdtFile: TEditEx;
+    EdtPatameter: TEditEx;
+    EdtDiretory: TEditEx;
     CmbState: TComboBox;
     CmbPriority: TComboBox;
     BtnTest: TButton;
-    OpdLinks: TOpenDialog;
     GrbScriptBefore: TGroupBox;
     EdtScriptBefore: TRichEditEx;
     GrbScriptAfter: TGroupBox;
@@ -35,28 +32,23 @@ type
     ckbAdministrator: TCheckBox;
     procedure CmbStateChange( Sender: TObject );
     procedure CmbPriorityChange( Sender: TObject );
-    procedure BtnFileClick( Sender: TObject );
-    procedure BtnDiretoryClick( Sender: TObject );
     procedure BtnTestClick( Sender: TObject );
-    procedure EdtFileKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
-    procedure EdtPatameterKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
-    procedure EdtDiretoryKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
     procedure EdtScriptBeforeKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure ckbCaptureClick( Sender: TObject );
     procedure ckbAdministratorClick(Sender: TObject);
+    procedure EdtFileAfterValidate(Sender: TObject);
+    procedure EdtPatameterAfterValidate(Sender: TObject);
+    procedure EdtDiretoryAfterValidate(Sender: TObject);
+    procedure EdtFileActionButtonClick(Sender: TObject);
   private
-    FItem: TPGLink;
-    procedure isFileName( );
-    procedure isDirectory( );
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    function GetItem( ): TPGLink; virtual;
+    property Item: TPGLink read GetItem;
   public
     constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -65,8 +57,8 @@ type
 implementation
 
 uses
-  System.SysUtils,
-  PGofer.Files.Controls, PGofer.Sintatico,
+
+  PGofer.Files.Controls,
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
@@ -75,22 +67,15 @@ uses
 constructor TPGLinkFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FItem := TPGLink( AItem );
-
-  EdtFile.Text := FItem.FileName;
-  isFileName( );
-
-  EdtPatameter.Text := FItem.Parameter;
-  EdtDiretory.Text := FItem.Directory;
-  isDirectory( );
-
-  CmbState.ItemIndex := FItem.State;
-  CmbPriority.ItemIndex := FItem.Priority;
-  ckbAdministrator.Checked := FItem.RunAdmin;
-  ckbCapture.Checked := FItem.CaptureMsg;
-  EdtScriptBefore.Lines.Text := FItem.ScriptBefor;
-  EdtScriptAfter.Lines.Text := FItem.ScriptAfter;
-
+  EdtFile.Text := Item.FileName;
+  EdtPatameter.Text := Item.Parameter;
+  EdtDiretory.Text := Item.Directory;
+  CmbState.ItemIndex := Item.State;
+  CmbPriority.ItemIndex := Item.Priority;
+  ckbAdministrator.Checked := Item.RunAdmin;
+  ckbCapture.Checked := Item.CaptureMsg;
+  EdtScriptBefore.Lines.Text := Item.ScriptBefor;
+  EdtScriptAfter.Lines.Text := Item.ScriptAfter;
   FrmAutoComplete.EditCtrlAdd( EdtScriptBefore );
   FrmAutoComplete.EditCtrlAdd( EdtScriptAfter );
 end;
@@ -99,97 +84,12 @@ destructor TPGLinkFrame.Destroy( );
 begin
   FrmAutoComplete.EditCtrlRemove( EdtScriptBefore );
   FrmAutoComplete.EditCtrlRemove( EdtScriptAfter );
-  FItem := nil;
   inherited Destroy( );
 end;
 
-procedure TPGLinkFrame.BtnFileClick( Sender: TObject );
+function TPGLinkFrame.GetItem: TPGLink;
 begin
-  OpdLinks.Title := 'File';
-  OpdLinks.Filter := 'All Files(*.*)|*.*';
-  OpdLinks.InitialDir := FileLimitPathExist( EdtFile.Text );
-  OpdLinks.FileName := ExtractFileName( EdtFile.Text );
-
-  if OpdLinks.Execute then
-  begin
-    FItem.FileName := FileUnExpandPath( OpdLinks.FileName );
-    FItem.Directory := FileUnExpandPath( ExtractFilePath( OpdLinks.FileName ) );
-    EdtFile.Text := FItem.FileName;
-    EdtDiretory.Text := FItem.Directory;
-    isFileName( );
-    isDirectory( );
-  end;
-end;
-
-procedure TPGLinkFrame.BtnDiretoryClick( Sender: TObject );
-begin
-  FItem.Directory := FileUnExpandPath( FileDirDialog( EdtDiretory.Text ) );
-  EdtDiretory.Text := FItem.Directory;
-  isDirectory( );
-end;
-
-procedure TPGLinkFrame.BtnTestClick( Sender: TObject );
-begin
-  FItem.Triggering( );
-end;
-
-procedure TPGLinkFrame.ckbAdministratorClick(Sender: TObject);
-begin
-  FItem.RunAdmin := ckbAdministrator.Checked;
-end;
-
-procedure TPGLinkFrame.ckbCaptureClick( Sender: TObject );
-begin
-  FItem.CaptureMsg := ckbCapture.Checked;
-  if ckbCapture.Checked then
-  begin
-    ckbAdministrator.Checked := True;
-    ckbAdministrator.Enabled := False;
-  end else begin
-    ckbAdministrator.Enabled := True;
-  end;
-end;
-
-procedure TPGLinkFrame.CmbStateChange( Sender: TObject );
-begin
-  FItem.State := CmbState.ItemIndex;
-end;
-
-procedure TPGLinkFrame.CmbPriorityChange( Sender: TObject );
-begin
-  FItem.Priority := CmbPriority.ItemIndex;
-end;
-
-procedure TPGLinkFrame.EdtFileKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  FItem.FileName := EdtFile.Text;
-  isFileName( );
-end;
-
-procedure TPGLinkFrame.EdtDiretoryKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  FItem.Directory := EdtDiretory.Text;
-  isDirectory( );
-end;
-
-procedure TPGLinkFrame.EdtPatameterKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  FItem.Parameter := EdtPatameter.Text;
-end;
-
-procedure TPGLinkFrame.EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  FItem.ScriptAfter := EdtScriptAfter.Lines.Text;
-end;
-
-procedure TPGLinkFrame.EdtScriptBeforeKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
-begin
-  FItem.ScriptBefor := EdtScriptBefore.Lines.Text;
+  Result := TPGLink(FItem);
 end;
 
 procedure TPGLinkFrame.IniConfigLoad( );
@@ -210,20 +110,68 @@ begin
   inherited IniConfigSave( );
 end;
 
-procedure TPGLinkFrame.isDirectory;
+procedure TPGLinkFrame.BtnTestClick( Sender: TObject );
 begin
-  if FItem.isDirExist then
-    EdtDiretory.Color := clWindow
-  else
-    EdtDiretory.Color := clRed;
+  Item.Triggering( );
 end;
 
-procedure TPGLinkFrame.isFileName;
+procedure TPGLinkFrame.ckbAdministratorClick(Sender: TObject);
 begin
-  if FItem.isFileExist then
-    EdtFile.Color := clWindow
-  else
-    EdtFile.Color := clRed;
+  Item.RunAdmin := ckbAdministrator.Checked;
+end;
+
+procedure TPGLinkFrame.ckbCaptureClick( Sender: TObject );
+begin
+  Item.CaptureMsg := ckbCapture.Checked;
+  if ckbCapture.Checked then
+  begin
+    ckbAdministrator.Checked := True;
+    ckbAdministrator.Enabled := False;
+  end else begin
+    ckbAdministrator.Enabled := True;
+  end;
+end;
+
+procedure TPGLinkFrame.CmbStateChange( Sender: TObject );
+begin
+  Item.State := CmbState.ItemIndex;
+end;
+
+procedure TPGLinkFrame.CmbPriorityChange( Sender: TObject );
+begin
+  Item.Priority := CmbPriority.ItemIndex;
+end;
+
+procedure TPGLinkFrame.EdtFileActionButtonClick(Sender: TObject);
+begin
+  EdtDiretory.Text := FileLimitPathExist( EdtFile.Text );
+end;
+
+procedure TPGLinkFrame.EdtFileAfterValidate(Sender: TObject);
+begin
+  Item.FileName := EdtFile.Text;
+end;
+
+procedure TPGLinkFrame.EdtDiretoryAfterValidate(Sender: TObject);
+begin
+  Item.Directory := EdtDiretory.Text;
+end;
+
+procedure TPGLinkFrame.EdtPatameterAfterValidate(Sender: TObject);
+begin
+  Item.Parameter := EdtPatameter.Text;
+end;
+
+procedure TPGLinkFrame.EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
+begin
+  Item.ScriptAfter := EdtScriptAfter.Lines.Text;
+end;
+
+procedure TPGLinkFrame.EdtScriptBeforeKeyUp( Sender: TObject; var Key: Word;
+  Shift: TShiftState );
+begin
+  Item.ScriptBefor := EdtScriptBefore.Lines.Text;
 end;
 
 end.

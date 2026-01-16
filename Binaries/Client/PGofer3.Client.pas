@@ -4,16 +4,18 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils, System.Variants,
+  System.SysUtils,
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs, Vcl.ExtCtrls, Vcl.Menus,
+  Vcl.ExtCtrls, Vcl.Menus,
   Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Forms,
+  PGofer.Core, PGofer.Forms,
   PGofer.Component.RichEdit,
   PGofer.Component.Form;
 
 type
+  TPGFrmPGofer = class;
+
   TFrmPGofer = class( TFormEx )
     EdtScript: TRichEditEx;
     TryPGofer: TTrayIcon;
@@ -43,16 +45,28 @@ type
   private
     FMouse: TPoint;
     FHotKey_FrmPGofer: ATOM;
+    FItem: TPGFrmPGofer;
     procedure FormAutoSize( );
   protected
     procedure CreateParams( var AParams: TCreateParams ); override;
-    procedure OnQueryEndSession( var Msg: TWMQueryEndSession );
-      message WM_QUERYENDSESSION;
+    procedure OnQueryEndSession( var Msg: TWMQueryEndSession ); message WM_QUERYENDSESSION;
     procedure OnEndSession(var Msg: TWMEndSession); message WM_ENDSESSION;
     procedure WndProc( var Msg: TMessage ); override;
     procedure WMHotKey( var Msg: TWMHotKey ); message WM_HOTKEY;
   public
   end;
+
+  {$M+}
+  [TPGAttribIcon(pgiForm)]
+  TPGFrmPGofer = class( TPGForm )
+  private
+  public
+    constructor Create( AForm: TForm ); reintroduce;
+    destructor Destroy( ); override;
+    procedure Frame( AParent: TObject ); override;
+  published
+  end;
+  {$TYPEINFO ON}
 
 var
   FrmPGofer: TFrmPGofer;
@@ -60,13 +74,13 @@ var
 implementation
 
 uses
-  PGofer.Types,
   PGofer.Classes,
   PGofer.Sintatico,
-  PGofer.System.Controls,
-  PGofer.Forms.Controls, PGofer.Forms.Console,
-  PGofer.Triggers.Links, PGofer.Triggers.Tasks,
-  PGofer.Triggers.HotKeys.Hook,
+  PGofer.Runtime,
+
+  PGofer.Forms.Controls, PGofer.Forms.Console, PGofer.Forms.Frame,
+  PGofer.Triggers.Tasks,
+
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
@@ -76,14 +90,17 @@ procedure TFrmPGofer.CreateParams( var AParams: TCreateParams );
 begin
   inherited;
   AParams.Style := AParams.Style or WS_BORDER;
-  AParams.ExStyle := WS_EX_TOOLWINDOW and ( not WS_EX_APPWINDOW );
+  AParams.ExStyle := (AParams.ExStyle or WS_EX_TOOLWINDOW) and (not WS_EX_APPWINDOW);
   Self.ForceResizable := True;
 end;
 
 procedure TFrmPGofer.WMHotKey( var Msg: TWMHotKey );
 begin
   if Msg.HotKey = FHotKey_FrmPGofer then
-    FrmPGofer.ForceShow( True );
+  begin
+    Self.Hide;
+    Self.ForceShow( True );
+  end;
 end;
 
 procedure TFrmPGofer.WndProc( var Msg: TMessage );
@@ -95,32 +112,30 @@ end;
 procedure TFrmPGofer.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
+  FItem := TPGFrmPGofer.Create( Self );
+
   Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
   Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
-  TPGForm.Create( Self );
-
-  // {$IFNDEF DEBUG}
+  {$IFNDEF DEBUG}
   FHotKey_FrmPGofer := GlobalAddAtom( 'FrmPGofer' );
   RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
-  // {$ENDIF}
+  {$ENDIF}
 end;
 
 procedure TFrmPGofer.FormShow( Sender: TObject );
 begin
-  FormAutoSize( );
+  Self.FormAutoSize( );
 end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
 begin
-  TPGTask.Working( 2, True );
-  if PGofer.Sintatico.CanOff then
+  if not TPGKernel.GetVar('CanOff',True) then
   begin
     Msg.Result := 0;
-    // Impede o desligamento
-    setThreadExecutionState( ES_CONTINUOUS or ES_SYSTEM_REQUIRED);
+    PostMessage(Handle, WM_USER + 100, 0, 0);
   end else begin
-    Msg.Result := 1; // Permite o desligamento
+    Msg.Result := 1;
   end;
 end;
 
@@ -140,12 +155,11 @@ end;
 procedure TFrmPGofer.FormCloseQuery( Sender: TObject; var CanClose: Boolean );
 begin
   TPGTask.Working( 1, True );
-  CanClose := PGofer.Sintatico.CanClose;
+  CanClose := TPGKernel.GetVar('CanClose', True);
 end;
 
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
-  // FormAutoSize( );
   FrmAutoComplete.EditCtrlRemove( FrmPGofer.EdtScript );
   inherited FormClose( Sender, Action );
 end;
@@ -153,6 +167,7 @@ end;
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
   UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
+  FItem := nil;
   inherited FormDestroy( Sender );
 end;
 
@@ -193,7 +208,6 @@ end;
 
 procedure TFrmPGofer.EdtScriptChange( Sender: TObject );
 begin
-  inherited;
   FormAutoSize( );
 end;
 
@@ -261,6 +275,22 @@ end;
 procedure TFrmPGofer.TryPGoferClick( Sender: TObject );
 begin
   FrmPGofer.ForceShow( True );
+end;
+
+{ TPGFrmPGofer }
+constructor TPGFrmPGofer.Create( AForm: TForm );
+begin
+  inherited Create( AForm );
+end;
+
+destructor TPGFrmPGofer.Destroy( );
+begin
+  inherited Destroy( );
+end;
+
+procedure TPGFrmPGofer.Frame( AParent: TObject );
+begin
+  TPGFormsFrame.Create( Self, AParent );
 end;
 
 end.

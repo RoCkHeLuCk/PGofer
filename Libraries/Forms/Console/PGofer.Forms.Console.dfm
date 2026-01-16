@@ -19,7 +19,6 @@ object FrmConsole: TFrmConsole
   Padding.Bottom = 2
   OldCreateOrder = True
   Position = poDefault
-  OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy

@@ -13,7 +13,7 @@ function ProcessGetFocusedControl( ): Cardinal;
 implementation
 
 uses
-  Winapi.Windows, Winapi.PsApi, System.SysUtils, Vcl.Controls;
+  Winapi.Windows, Winapi.PsApi, System.SysUtils;
 
 function ProcessFileToPID( AFileName: string ): THandle;
 var

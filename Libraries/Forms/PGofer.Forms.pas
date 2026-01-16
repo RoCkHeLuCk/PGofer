@@ -5,7 +5,7 @@ interface
 uses
   System.Classes,
   Vcl.Forms,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Component.Form;
 
 type
@@ -67,9 +67,8 @@ type
 implementation
 
 uses
-  PGofer.Lexico, PGofer.Forms.Controls,
-  PGofer.Forms.Frame,
-  PGofer.Process.Controls;
+  PGofer.Lexico,
+  PGofer.Forms.Frame;
 
 { TPGForm }
 

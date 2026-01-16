@@ -122,7 +122,6 @@ type
     constructor Create( );
     destructor Destroy( ); override;
     function TokenListCreate( Algoritimo: string ): TTokenList;
-    function TokenListToStr( TokenList: TTokenList ): string;
   end;
 
 function CreateCordenada( ): TCordenada;
@@ -131,7 +130,7 @@ implementation
 
 uses
   System.TypInfo,
-  PGofer.Types, PGofer.Classes, PGofer.Math.Controls;
+  PGofer.Core, PGofer.Math.Controls;
 
 { TCordenada }
 
@@ -636,23 +635,6 @@ begin
       Result.TokenAdd( FLexema.Lexema, FLexema.Classe, FLexema.Cordenada );
 
   until ( FLexema.Classe in [ cmdEOF ] );
-end;
-
-function TAutomato.TokenListToStr( TokenList: TTokenList ): string;
-begin
-  TokenList.Position := 0;
-  repeat
-    Result := Result + ' ' + string( TokenList.Token.Lexema );
-    case TokenList.Token.Classe of
-      cmdDotComa, cmdRes_begin, cmdRes_do, cmdRes_downto, cmdRes_else,
-        cmdRes_end, cmdRes_then:
-        begin
-          Result := Result + #10#13;
-        end;
-    end;
-
-    TokenList.GetNextToken;
-  until TokenList.Token.Classe = cmdEOF;
 end;
 
 initialization

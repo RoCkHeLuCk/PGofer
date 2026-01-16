@@ -56,7 +56,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Sintatico, PGofer.Files.Controls, PGofer.Files.Encrypt;
+  PGofer.Sintatico, PGofer.Files.Controls;
 
 { TPGFile }
 
@@ -194,7 +194,7 @@ end;
 
 function TPGFile.FileDialog( Directory: string ): string;
 begin
-  Result := FileOpenDialog( Directory );
+  Result := FileOpenSaveDialog('', '', Directory, False );
 end;
 
 function TPGFile.DirDialog( Directory: string ): string;

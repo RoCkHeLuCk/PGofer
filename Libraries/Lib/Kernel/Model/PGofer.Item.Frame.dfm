@@ -22,7 +22,7 @@ object PGItemFrame: TPGItemFrame
     Align = alClient
     Caption = 'About'
     Constraints.MinHeight = 60
-    TabOrder = 0
+    TabOrder = 2
     object rceAbout: TRichEdit
       Left = 2
       Top = 15
@@ -56,9 +56,10 @@ object PGItemFrame: TPGItemFrame
     Height = 32
     Align = alTop
     BevelOuter = bvNone
+    Constraints.MinWidth = 400
     ParentColor = True
     ShowCaption = False
-    TabOrder = 1
+    TabOrder = 0
     DesignSize = (
       400
       32)
@@ -78,12 +79,12 @@ object PGItemFrame: TPGItemFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
-      Color = clSilver
-      Constraints.MinWidth = 321
+      Color = clRed
       TabOrder = 0
-      OnKeyUp = EdtNameKeyUp
-      RegExamples = reNone
-      RegExpression = '^[A-Za-z_]+\w*$'
+      StyleElements = [seFont, seBorder]
+      RegExBlockInvalidKeys = True
+      RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'
+      OnAfterValidate = EdtNameAfterValidate
     end
   end
   object sptAbout: TPanel
@@ -104,7 +105,7 @@ object PGItemFrame: TPGItemFrame
     Locked = True
     ParentColor = True
     ShowCaption = False
-    TabOrder = 2
+    TabOrder = 1
     OnMouseDown = sptAboutMouseDown
     OnMouseMove = sptAboutMouseMove
     OnMouseUp = sptAboutMouseUp

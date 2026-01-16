@@ -95,7 +95,6 @@ inherited PGLinkFrame: TPGLinkFrame
   inherited pnlItem: TPanel
     Height = 170
     Anchors = []
-    TabOrder = 0
     ExplicitHeight = 170
     object LblFile: TLabel [0]
       Left = 5
@@ -142,28 +141,26 @@ inherited PGLinkFrame: TPGLinkFrame
       AutoSize = False
       Caption = 'Priority:'
     end
-    object EdtFile: TEdit [6]
+    object EdtFile: TEditEx [6]
       Left = 70
       Top = 33
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
+      AutoSize = False
+      Color = clRed
       Constraints.MinWidth = 290
-      TabOrder = 0
-      OnKeyUp = EdtFileKeyUp
-    end
-    object BtnFile: TButton [7]
-      Left = 366
-      Top = 33
-      Width = 29
-      Height = 21
-      Anchors = [akTop, akRight]
-      Caption = '...'
       TabOrder = 1
-      OnClick = BtnFileClick
+      StyleElements = [seFont, seBorder]
+      ValidationMode = vmOpenFile
+      ActionButtonShow = True
+      PathAutoUnExpand = True
+      PathDialogFilter = 'All Files(*.*)|*.*'
+      PathDialogTitle = 'File'
+      OnActionButtonClick = EdtFileActionButtonClick
+      OnAfterValidate = EdtFileAfterValidate
     end
-    object EdtPatameter: TEdit [8]
+    object EdtPatameter: TEditEx [7]
       Left = 70
       Top = 60
       Width = 325
@@ -171,31 +168,26 @@ inherited PGLinkFrame: TPGLinkFrame
       Anchors = [akLeft, akTop, akRight]
       Color = clSilver
       Constraints.MinWidth = 325
-      TabOrder = 2
-      OnKeyUp = EdtPatameterKeyUp
+      TabOrder = 3
+      StyleElements = [seFont, seBorder]
+      OnAfterValidate = EdtPatameterAfterValidate
     end
-    object EdtDiretory: TEdit [9]
+    object EdtDiretory: TEditEx [8]
       Left = 70
       Top = 87
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
+      Color = clRed
       Constraints.MinWidth = 290
-      TabOrder = 3
-      OnKeyUp = EdtDiretoryKeyUp
-    end
-    object BtnDiretory: TButton [10]
-      Left = 366
-      Top = 87
-      Width = 29
-      Height = 21
-      Anchors = [akTop, akRight]
-      Caption = '...'
       TabOrder = 4
-      OnClick = BtnDiretoryClick
+      StyleElements = [seFont, seBorder]
+      ValidationMode = vmPathExists
+      ActionButtonShow = True
+      PathAutoUnExpand = True
+      OnAfterValidate = EdtDiretoryAfterValidate
     end
-    object CmbState: TComboBox [11]
+    object CmbState: TComboBox [9]
       Left = 70
       Top = 114
       Width = 119
@@ -203,7 +195,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Style = csDropDownList
       Color = clSilver
       ItemIndex = 1
-      TabOrder = 5
+      TabOrder = 6
       Text = 'Normal'
       OnChange = CmbStateChange
       Items.Strings = (
@@ -212,7 +204,7 @@ inherited PGLinkFrame: TPGLinkFrame
         'Minimized'
         'Maxmized')
     end
-    object CmbPriority: TComboBox [12]
+    object CmbPriority: TComboBox [10]
       Left = 70
       Top = 141
       Width = 119
@@ -220,7 +212,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Style = csDropDownList
       Color = clSilver
       ItemIndex = 2
-      TabOrder = 6
+      TabOrder = 7
       Text = 'Normal'
       OnChange = CmbPriorityChange
       Items.Strings = (
@@ -231,27 +223,24 @@ inherited PGLinkFrame: TPGLinkFrame
         'High'
         'Real time')
     end
-    object BtnTest: TButton [13]
-      Left = 340
-      Top = 141
+    object BtnTest: TButton [11]
+      Left = 341
+      Top = 146
       Width = 56
       Height = 21
       Anchors = [akTop, akRight]
       Caption = 'Test'
-      TabOrder = 7
+      TabOrder = 10
       OnClick = BtnTestClick
     end
-    object ckbCapture: TCheckBox [14]
+    object ckbCapture: TCheckBox [12]
       Left = 209
       Top = 143
       Width = 97
       Height = 17
       Caption = 'CaptureMsg'
-      TabOrder = 8
-      OnClick = ckbCaptureClick
-    end
-    inherited EdtName: TEditEx
       TabOrder = 9
+      OnClick = ckbCaptureClick
     end
     object ckbAdministrator: TCheckBox
       Left = 209
@@ -259,7 +248,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 97
       Height = 17
       Caption = 'Run Admintrator'
-      TabOrder = 10
+      TabOrder = 8
       OnClick = ckbAdministratorClick
     end
   end
@@ -267,9 +256,5 @@ inherited PGLinkFrame: TPGLinkFrame
     Top = 380
     TabOrder = 4
     ExplicitTop = 380
-  end
-  object OpdLinks: TOpenDialog
-    Left = 199
-    Top = 39
   end
 end

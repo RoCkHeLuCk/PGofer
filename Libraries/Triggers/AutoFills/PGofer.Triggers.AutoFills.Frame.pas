@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.SysUtils,
-  Winapi.Windows,
+
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Triggers, PGofer.Triggers.AutoFills, PGofer.Triggers.Frame,
   PGofer.Component.Edit, PGofer.Component.RichEdit;
@@ -25,18 +25,19 @@ type
     Lblmilisec1: TLabel;
     Lblmilisec2: TLabel;
     procedure CmbModeChange(Sender: TObject);
-    procedure EdtSpeedKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure UpdSpeedChangingEx(Sender: TObject; var AllowChange: Boolean;
       NewValue: Integer; Direction: TUpDownDirection);
     procedure EdtTextKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure EdtDelayKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure updDelayChangingEx(Sender: TObject; var AllowChange: Boolean; NewValue: Integer;
       Direction: TUpDownDirection);
+    procedure EdtDelayAfterValidate(Sender: TObject);
+    procedure EdtSpeedAfterValidate(Sender: TObject);
   private
-    FItem: TPGAutoFills;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    function GetItem( ): TPGAutoFills; reintroduce;
+    property Item: TPGAutoFills read GetItem;
   public
     constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -53,52 +54,54 @@ uses
 constructor TPGAutoFillsFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FItem := TPGAutoFills( AItem );
-  EdtText.Lines.Text := FItem.Text;
-  CmbMode.ItemIndex := FItem.Mode;
-  EdtSpeed.Text := FItem.Speed.ToString();
+  EdtText.Lines.Text := Item.Text;
+  CmbMode.ItemIndex := Item.Mode;
+  EdtSpeed.Text := Item.Speed.ToString();
 end;
 
 destructor TPGAutoFillsFrame.Destroy( );
 begin
   FrmAutoComplete.EditCtrlRemove( EdtText );
-  FItem := nil;
   inherited Destroy( );
 end;
 
-procedure TPGAutoFillsFrame.EdtDelayKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+function TPGAutoFillsFrame.GetItem: TPGAutoFills;
 begin
-  FItem.Delay := StrToInt(EdtDelay.Text);
+  Result := TPGAutoFills(FItem);
+end;
+
+procedure TPGAutoFillsFrame.EdtDelayAfterValidate(Sender: TObject);
+begin
+  Item.Delay := StrToInt(EdtDelay.Text);
 end;
 
 procedure TPGAutoFillsFrame.updDelayChangingEx(Sender: TObject; var AllowChange: Boolean;
   NewValue: Integer; Direction: TUpDownDirection);
 begin
-  FItem.Delay := NewValue;
+  Item.Delay := NewValue;
 end;
 
 procedure TPGAutoFillsFrame.UpdSpeedChangingEx(Sender: TObject;
   var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
 begin
-  FItem.Speed := NewValue;
+  Item.Speed := NewValue;
 end;
 
-procedure TPGAutoFillsFrame.EdtSpeedKeyUp(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
+procedure TPGAutoFillsFrame.EdtSpeedAfterValidate(Sender: TObject);
 begin
-  FItem.Speed := StrToInt(EdtSpeed.Text);
+  Item.Speed := StrToInt(EdtSpeed.Text);
 end;
 
 procedure TPGAutoFillsFrame.EdtTextKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  FItem.Text := EdtText.Lines.Text;
+  Item.Text := EdtText.Lines.Text;
 end;
 
 procedure TPGAutoFillsFrame.CmbModeChange(Sender: TObject);
 begin
-  FItem.Mode := CmbMode.ItemIndex;
-  if FItem.Mode = 4 then
+  Item.Mode := CmbMode.ItemIndex;
+  if Item.Mode = 4 then
   begin
      FrmAutoComplete.EditCtrlAdd( EdtText );
   end else begin

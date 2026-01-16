@@ -1,10 +1,10 @@
-unit PGofer.Runtime;
+ï»¿unit PGofer.Runtime;
 
 interface
 
 uses
   System.Generics.Collections, System.RTTI,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico;
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico;
 
 type
   [TPGAttribIcon(pgiMethod)]
@@ -49,8 +49,8 @@ var
 implementation
 
 uses
-  System.TypInfo,
-  PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.IconList;
+  System.SysUtils, System.TypInfo,
+  PGofer.Language, PGofer.Lexico, PGofer.Sintatico.Controls;
 
 { TPGItemCMD }
 constructor TPGItemCMD.Create( AItemDad: TPGItem; AName: string = '' );
@@ -172,7 +172,7 @@ procedure TPGItemCMD.RttiCreate( );
     for RttiMember in RttiMemberList do
     begin
       if ( RttiMember.Visibility in [ mvPublished ] ) and
-        ( RttiMember.Name[ LOW_STRING ] <> '_' ) then
+        ( not RttiMember.Name.StartsWith('_') ) then
       begin
         Item := TPGItem.Create( Self, RttiMember.Name );
         Item.About := Self.RttiGenerate(RttiMember);
@@ -268,8 +268,7 @@ begin
         ItemAux.Execute( Gramatica );
       end
       else
-        Gramatica.ErroAdd( 'Identificador não reconhecido: ' +
-          Gramatica.TokenList.Token.Lexema );
+        Gramatica.ErroAdd( Tr('Error_Interpreter_IdUnRec') ); //Gramatica.TokenList.Token.Lexema
     end;
   end;
 

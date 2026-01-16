@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.SysUtils, System.IniFiles,
   Vcl.Controls, Vcl.ComCtrls,
-  WinApi.Windows, WinApi.CommCtrl;
+  WinApi.Windows;
 
 type
   TListViewEx = class( TListView )

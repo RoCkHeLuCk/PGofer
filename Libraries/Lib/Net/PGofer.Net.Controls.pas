@@ -10,15 +10,12 @@ procedure NetSendMessage( Texto: string; Socket: TCustomWinSocket );
 function NetSetTCPIP( NetworkCard, IPAddress, Mask, GateWay: string ): Integer;
 procedure NetLogSrvSocket( Text: string );
 
-var
-  LogFile : String;
-
 implementation
 
 uses
   System.Variants, System.Win.ComObj, System.Classes, System.SysUtils,
   Winapi.ActiveX,
-  PGofer.Types, PGofer.Sintatico, PGofer.Sintatico.Controls;
+  PGofer.Core;
 
 function NetErrorToStr( Error: TErrorEvent ): string;
 begin
@@ -109,21 +106,22 @@ end;
 
 procedure NetLogSrvSocket( Text: string );
 var
+  LFileName: String;
   Arquivo: TStringList;
 begin
+  LFileName:= TPGKernel.GetVar('_FileLog','');
   Arquivo := TStringList.Create;
-  if FileExists( LogFile ) then
-    Arquivo.LoadFromFile( LogFile );
+  if FileExists( LFileName ) then
+    Arquivo.LoadFromFile( LFileName );
   Arquivo.Add( Text );
-  while ( Arquivo.Count > PGofer.Sintatico.LogMaxSize ) do
+  while ( Arquivo.Count > TPGKernel.GetVar('LogMaxSize',0) ) do
     Arquivo.Delete( 0 );
-  Arquivo.SaveToFile( LogFile );
+  Arquivo.SaveToFile( LFileName );
   Arquivo.Free;
 end;
 
 initialization
-  LogFile := DirCurrent + 'PGofer.log';
+
 finalization
-  LogFile := '';
 
 end.

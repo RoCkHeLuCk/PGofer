@@ -75,7 +75,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Language, PGofer.Sintatico, PGofer.Sintatico.Controls, PGofer.Net.Controls;
+  PGofer.Language, PGofer.Sintatico, PGofer.Net.Controls;
 
 { TPGNetServer }
 
@@ -237,7 +237,7 @@ begin
   FPassWord := '';
 end;
 
-destructor TPGNetClient.Destroy;
+destructor TPGNetClient.Destroy( );
 begin
   FPassWord := '';
   FClient.OnConnecting := nil;
@@ -246,7 +246,8 @@ begin
   FClient.OnRead := nil;
   FClient.OnError := nil;
   FClient.Free;
-  inherited Destroy( );
+  if Assigned( Self ) then
+    inherited Destroy( );
 end;
 
 function TPGNetClient.GetActive: Boolean;

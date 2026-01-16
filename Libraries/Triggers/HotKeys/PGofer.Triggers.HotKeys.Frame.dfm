@@ -14,7 +14,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
   end
   inherited grbAbout: TGroupBox
     Top = 234
-    TabOrder = 2
+    TabOrder = 1
     ExplicitTop = 234
   end
   object GrbScript: TGroupBox [2]
@@ -26,7 +26,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     Align = alTop
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
-    TabOrder = 0
+    TabOrder = 2
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -74,7 +74,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Height = 72
       Anchors = [akLeft, akTop, akRight]
       Caption = 'HotKeys'
-      TabOrder = 0
+      TabOrder = 4
       object MmoHotKeys: TMemo
         Left = 2
         Top = 15
@@ -93,7 +93,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
           '')
         ParentColor = True
         ParentFont = False
-        PopupMenu = PpmNull
         ReadOnly = True
         TabOrder = 0
         WantReturns = False
@@ -143,18 +142,10 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       TabOrder = 3
       OnClick = CkbInhibitClick
     end
-    inherited EdtName: TEditEx
-      TabOrder = 4
-    end
   end
   inherited sptAbout: TPanel
     Top = 297
     TabOrder = 3
     ExplicitTop = 297
-  end
-  object PpmNull: TPopupMenu
-    OwnerDraw = True
-    Left = 245
-    Top = 65
   end
 end

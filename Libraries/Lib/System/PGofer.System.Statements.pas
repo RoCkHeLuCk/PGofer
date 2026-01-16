@@ -1,4 +1,4 @@
-unit PGofer.System.Statements;
+﻿unit PGofer.System.Statements;
 
 interface
 
@@ -72,8 +72,8 @@ implementation
 uses
   System.SysUtils,
   Vcl.Dialogs,
-  PGofer.Classes,
-  PGofer.Lexico,
+  PGofer.Core, PGofer.Language,
+  PGofer.Classes, PGofer.Lexico,
   PGofer.Sintatico.Controls,
   PGofer.System.Variants;
 
@@ -119,10 +119,11 @@ var
   ID: TPGItem;
   Variavel: TPGVariant;
   VarInicio, VarLimite: Int64;
-  LoopContador: Int64;
+  LoopContador, LoopLimite: Int64;
   Decrecente: Boolean;
   PositionIni: FixedInt;
 begin
+  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
   Gramatica.TokenList.GetNextToken;
   ID := IdentificadorLocalizar( Gramatica );
 
@@ -164,7 +165,7 @@ begin
 
           if ( LoopContador >= LoopLimite ) then
           begin
-            Gramatica.ErroAdd( 'Loops Excedidos.' );
+            Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
           end;
 
         end
@@ -173,13 +174,13 @@ begin
             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end
       else
-        Gramatica.ErroAdd( '"Do" esperado.' );
+        Gramatica.ErroAdd( Tr('Error_Interpreter_Do') );
     end
     else
-      Gramatica.ErroAdd( '"To" ou "DownTo" esperado.' );
+      Gramatica.ErroAdd( Tr('Error_Interpreter_ToDownTo') );
   end
   else
-    Gramatica.ErroAdd( 'Variavel esperada.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Variable') );
 end;
 
 { TPGIf }
@@ -219,10 +220,10 @@ begin
 
     end
     else
-      Gramatica.ErroAdd( '"Then" Esperado.' );
+      Gramatica.ErroAdd( Tr('Error_Interpreter_Thend') );
   end
   else
-    Gramatica.ErroAdd( '"Express�o Booleana" Esperado.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Boolean') );
 end;
 
 { TPGisDef }
@@ -237,7 +238,7 @@ begin
     Gramatica.TokenList.GetNextToken;
     Expressao( Gramatica );
     if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-      Gramatica.ErroAdd( '")" Esperado.' )
+      Gramatica.ErroAdd( Tr('Error_Interpreter_)') )
     else
     begin
       Nome := Gramatica.Pilha.Desempilhar( '' );
@@ -246,7 +247,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( '"(" Esperado.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
 end;
 
 { TPGInsert }
@@ -285,10 +286,11 @@ end;
 
 procedure TPGRepeat.Execute( Gramatica: TGramatica );
 var
-  LoopContador: Int64;
+  LoopContador, LoopLimite: Int64;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
+  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
   LoopContador := 0;
   Continuar := false;
   Gramatica.TokenList.GetNextToken;
@@ -306,13 +308,13 @@ begin
       Continuar := Gramatica.Pilha.Desempilhar( false );
     end
     else
-      Gramatica.ErroAdd( '"Until" esperado' );
+      Gramatica.ErroAdd( Tr('Error_Interpreter_Until') );
     Inc( LoopContador );
     // verifica e executa novamente
   until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
 
   if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( 'Loops Excedidos.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
 end;
 
 { TPGUnDef }
@@ -328,7 +330,7 @@ begin
     Gramatica.TokenList.GetNextToken;
     Expressao( Gramatica );
     if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-      Gramatica.ErroAdd( '")" Esperado.' )
+      Gramatica.ErroAdd( Tr('Error_Interpreter_)') )
     else
     begin
       Nome := Gramatica.Pilha.Desempilhar( '' );
@@ -344,17 +346,18 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( '"(" Esperado.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
 end;
 
 { TPGWaitFor }
 
 procedure TPGWaitFor.Execute( Gramatica: TGramatica );
 var
-  LoopContador: Int64;
+  LoopContador, LoopLimite: Int64;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
+  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
   LoopContador := 0;
   PositionIni := Gramatica.TokenList.Position;
   repeat
@@ -367,17 +370,18 @@ begin
   until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
 
   if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( 'Loops Excedidos.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
 end;
 
 { TPGWhile }
 
 procedure TPGWhile.Execute( Gramatica: TGramatica );
 var
-  LoopContador: Int64;
+  LoopContador, LoopLimite: Int64;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
+  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
   Gramatica.TokenList.GetNextToken;
   PositionIni := Gramatica.TokenList.Position;
   LoopContador := 0;
@@ -402,13 +406,13 @@ begin
             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end
       else
-        Gramatica.ErroAdd( '"Do" esperado.' );
+        Gramatica.ErroAdd( Tr('Error_Interpreter_Do') );
     end;
     Inc( LoopContador );
   end;
 
   if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( 'Loops Excedidos.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
 end;
 
 { TPGWrite }

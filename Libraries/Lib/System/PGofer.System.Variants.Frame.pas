@@ -4,23 +4,20 @@ interface
 
 uses
   System.Classes,
-  Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Vcl.Controls,
+  Vcl.StdCtrls, Vcl.Controls,
   PGofer.Classes, PGofer.Item.Frame,
-  PGofer.System.Variants, PGofer.Component.Edit;
+  PGofer.System.Variants, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
   TPGVariantsFrame = class( TPGItemFrame )
     LblValue: TLabel;
-    EdtValue: TEdit;
-    procedure EdtValueKeyUp( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
+    EdtValue: TEditEx;
+    procedure EdtValueAfterValidate(Sender: TObject);
   private
-    { Private declarations }
-    FItem: TPGVariant;
   public
-    { Public declarations }
+    function GetItem( ): TPGVariant; virtual;
+    property Item: TPGVariant read GetItem;
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
-    destructor Destroy( ); override;
   end;
 
 var
@@ -34,21 +31,18 @@ implementation
 constructor TPGVariantsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FItem := TPGVariant( AItem );
-  EdtValue.Text := FItem.Value;
-  EdtValue.ReadOnly := FItem.Constant;
+  EdtValue.Text := Item.Value;
+  EdtValue.ReadOnly := Item.Constant;
 end;
 
-destructor TPGVariantsFrame.Destroy;
+function TPGVariantsFrame.GetItem: TPGVariant;
 begin
-  FItem := nil;
-  inherited Destroy( );
+  Result := TPGVariant(FItem);
 end;
 
-procedure TPGVariantsFrame.EdtValueKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
+procedure TPGVariantsFrame.EdtValueAfterValidate(Sender: TObject);
 begin
-  FItem.Value := EdtValue.Text;
+  Item.Value := EdtValue.Text;
 end;
 
 end.

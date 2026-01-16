@@ -24,7 +24,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.Registry.Controls, PGofer.Registry.Environment;
+  PGofer.Registry.Controls, PGofer.Registry.Environment;
 
 { TPGRegistry }
 

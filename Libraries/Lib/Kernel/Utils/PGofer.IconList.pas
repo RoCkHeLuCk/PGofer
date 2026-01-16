@@ -3,7 +3,7 @@ unit PGofer.IconList;
 interface
 
 uses
-  Vcl.Controls, PGofer.Types;
+  Vcl.Controls;
 
 type
   TPGIconList = class
@@ -19,15 +19,16 @@ type
 implementation
 
 uses
-  System.SysUtils, System.TypInfo,
+  System.TypInfo,
   Vcl.Graphics,
-  PGofer.Sintatico, PGofer.Language;
+  PGofer.Core, PGofer.Language, PGofer.Files.Controls;
 
 { TPGGlobIconList }
 
 class constructor TPGIconList.Create( );
 begin
   FImageList := TImageList.Create(nil);
+  LoadIconFromPath(TPGKernel.GetVar('_PathIcons',''));
 end;
 
 class destructor TPGIconList.Destroy( );
@@ -50,7 +51,7 @@ begin
 
     Icon := TIcon.Create( );
     try
-      if FileExists( FileName ) then
+      if FileExistsEx( FileName ) then
       begin
         Icon.LoadFromFile( FileName );
       end else begin
@@ -64,12 +65,6 @@ begin
 end;
 
 initialization
-
-{$IFNDEF DEBUG}
-  TPGIconList.LoadIconFromPath( DirCurrent + 'Icons\' );
-{$ELSE}
-  TPGIconList.LoadIconFromPath( '..\..\..\..\Documents\Imagens\Icons\' );
-{$ENDIF}
 
 finalization
 

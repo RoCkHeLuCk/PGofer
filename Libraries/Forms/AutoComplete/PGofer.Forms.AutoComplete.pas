@@ -1,4 +1,4 @@
-unit PGofer.Forms.AutoComplete;
+ï»¿unit PGofer.Forms.AutoComplete;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   Winapi.Windows,
   System.Classes, System.SysUtils, System.IniFiles, System.Generics.Collections,
   Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Forms, PGofer.Component.ListView,
+  PGofer.Classes, PGofer.Component.ListView,
   PGofer.Component.RichEdit, PGofer.Component.Form, Vcl.StdCtrls;
 
 type
@@ -41,6 +41,7 @@ type
     procedure rceAboutDblClick(Sender: TObject);
     procedure ltvAutoCompleteMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure FormShow(Sender: TObject);
   private
     FEditList: TDictionary<TRichEditEx, TEditOnCtrl>;
     FEditCtrl: TRichEditEx;
@@ -58,7 +59,6 @@ type
     procedure FileNameList( AFileName: string );
     procedure FindCMD( );
     procedure SelectCMD( ASelected: TSelectCMD );
-    procedure ShowAutoComplete( );
     procedure SetCommandCompare( AValue: string );
     property CommandCompare: string read FCommandCompare
       write SetCommandCompare;
@@ -79,10 +79,10 @@ var
 implementation
 
 uses
-  Winapi.Messages,
+
   Vcl.Dialogs,
-  PGofer.Types, PGofer.Lexico, PGofer.Runtime, PGofer.Sintatico, PGofer.Sintatico.Controls,
-  PGofer.Files.Controls, PGofer.Forms.Controls;
+  PGofer.Core, PGofer.Lexico, PGofer.Runtime, PGofer.Sintatico, PGofer.Sintatico.Controls,
+  PGofer.Files.Controls;
 
 {$R *.dfm}
 
@@ -94,6 +94,7 @@ const
 procedure TFrmAutoComplete.CreateParams( var AParams: TCreateParams );
 begin
   inherited;
+  AParams.Style := AParams.Style or WS_BORDER;
   AParams.ExStyle := WS_EX_NOACTIVATE;
   Application.AddPopupForm( Self );
   Self.ForceResizable := True;
@@ -103,9 +104,8 @@ procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
   // carrega arquivos ini
-  FMemoryIniFile := TIniFile.Create( PGofer.Types.DirCurrent +
-    'AutoComplete.ini' );
-  // controle de memorização de comandos
+  FMemoryIniFile := TIniFile.Create( TPGKernel.GetVar('_FileAutoComplete','') );
+  // controle de memorizaï¿½ï¿½o de comandos
   FMemoryNoCtrl := False;
   FMemoryPosition := 0;
   FMemoryList := TStringList.Create( );
@@ -117,9 +117,9 @@ end;
 procedure TFrmAutoComplete.FormClose( Sender: TObject;
   var Action: TCloseAction );
 begin
-  inherited FormClose( Sender, Action );
   trmAutoComplete.Enabled := False;
   rceAbout.Text :=  '';
+  inherited FormClose( Sender, Action );
 end;
 
 procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
@@ -141,6 +141,9 @@ procedure TFrmAutoComplete.FormDropFile( Sender: TObject; AFiles: TStrings );
 var
   OnDrop: TOnDropFile;
 begin
+  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+    exit;
+
   FEditCtrl := TRichEditEx( Sender );
 
   if AFiles.Text <> '' then
@@ -159,8 +162,10 @@ var
   c: Word;
   OnKeyDown: TOnKeyDownUP;
 begin
-  FEditCtrl := TRichEditEx( Sender );
+  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+    exit;
 
+  FEditCtrl := TRichEditEx( Sender );
   if Self.Visible then
   begin
     case Key of
@@ -259,6 +264,9 @@ procedure TFrmAutoComplete.FormKeyPress( Sender: TObject; var Key: Char );
 var
   OnKeyPress: TOnKeyPress;
 begin
+  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+    exit;
+
   FEditCtrl := TRichEditEx( Sender );
   if ( Key = ' ' ) and ( GetKeyState( VK_CONTROL ) < 0 ) then
   begin
@@ -274,6 +282,9 @@ procedure TFrmAutoComplete.FormKeyUp( Sender: TObject; var Key: Word;
 var
   OnKeyUp: TOnKeyDownUP;
 begin
+  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+    exit;
+
   FEditCtrl := TRichEditEx( Sender );
   if Shift = [ ] then
     case Key of
@@ -300,6 +311,18 @@ begin
   OnKeyUp := FEditList.Items[ FEditCtrl ].OnKeyUp;
   if Assigned( OnKeyUp ) then
     OnKeyUp( Sender, Key, Shift );
+end;
+
+procedure TFrmAutoComplete.FormShow(Sender: TObject);
+var
+  Point: TPoint;
+begin
+  inherited;
+  Point := FEditCtrl.DisplayXY;
+  Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + FEditCtrl.CharHeight + 2;
+  Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
+  trmAutoComplete.Enabled := True;
+  Self.ForceShow( False );
 end;
 
 procedure TFrmAutoComplete.IniConfigLoad( );
@@ -407,19 +430,6 @@ begin
   FMemoryIniFile.UpdateFile( );
 end;
 
-procedure TFrmAutoComplete.ShowAutoComplete( );
-var
-  Point: TPoint;
-begin
-  Point := FEditCtrl.DisplayXY;
-  Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + FEditCtrl.CharHeight + 2;
-  Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
-  trmAutoComplete.Enabled := True;
-  // Self.ForceShow( True );
-  // FEditCtrl.SetFocus;
-  Self.ForceShow( False );
-end;
-
 procedure TFrmAutoComplete.ListViewAdd( ACaption, AOrigin: string );
 var
   ListItem: TListItem;
@@ -459,33 +469,36 @@ var
   ItemAux: TPGItem;
   c, l: Integer;
 begin
-  SubCMD := ACommand.Split(['.']);//  SplitEx( ACommand, '.' );
+  SubCMD := ACommand.Split(['.']);
   l := Length( SubCMD );
-  if l = 1 then
+  if l > 0 then
   begin
-    for Item in GlobalCollection do
+    if l = 1 then
     begin
-      for ItemAux in Item.FindNameList( SubCMD[ 0 ], True ) do
+      for Item in GlobalCollection do
       begin
-        ListViewAdd( ItemAux );
+        for ItemAux in Item.FindNameList( SubCMD[ 0 ], True ) do
+        begin
+          ListViewAdd( ItemAux );
+        end;
       end;
+      CommandCompare := SubCMD[ 0 ];
+    end else begin
+      Item := GlobalCollection;
+      c := 0;
+      repeat
+        Item := FindID( Item, SubCMD[ c ] );
+        Inc( c );
+      until ( c > l - 2 ) or ( not Assigned( Item ) );
+
+      if Assigned( Item ) then
+        for ItemAux in Item.FindNameList( SubCMD[ c ], True ) do
+        begin
+          ListViewAdd( ItemAux );
+        end;
+
+      CommandCompare := SubCMD[ c ];
     end;
-    CommandCompare := SubCMD[ 0 ];
-  end else begin
-    Item := GlobalCollection;
-    c := 0;
-    repeat
-      Item := FindID( Item, SubCMD[ c ] );
-      Inc( c );
-    until ( c > l - 2 ) or ( not Assigned( Item ) );
-
-    if Assigned( Item ) then
-      for ItemAux in Item.FindNameList( SubCMD[ c ], True ) do
-      begin
-        ListViewAdd( ItemAux );
-      end;
-
-    CommandCompare := SubCMD[ c ];
   end;
 end;
 
@@ -535,15 +548,18 @@ end;
 
 procedure TFrmAutoComplete.FileNameList( AFileName: string );
 var
+  Path : string;
   SearchRec: TSearchRec;
   c: Integer;
-  d: Cardinal;
+  d, FileListMax: Cardinal;
 begin
-  ChDir( PGofer.Types.DirCurrent );
+  Path := TPGKernel.GetVar('_PathCurrent', '');
+  FileListMax := TPGKernel.GetVar('FileListMax', 0);
 
+  ChDir( Path );
   c := FindFirst( AFileName + '*', faAnyFile, SearchRec );
   d := 0;
-  while ( c = 0 ) and ( d < PGofer.Sintatico.FileListMax ) do
+  while ( c = 0 ) and ( d < FileListMax ) do
   begin
     if ( SearchRec.Attr and faDirectory ) = faDirectory then
       ListViewAdd( SearchRec.Name + '\', 'Directory' )
@@ -555,7 +571,7 @@ begin
   end;
 
   FindClose( SearchRec );
-  ChDir( PGofer.Types.DirCurrent );
+  ChDir( Path );
   CommandCompare := ExtractFileName( AFileName );
 end;
 
@@ -571,7 +587,7 @@ begin
   ltvAutoComplete.OnCompare := nil;
   ltvAutoComplete.Items.Clear( );
 
-  // pega a posição do cursor texto
+  // pega a posiï¿½ï¿½o do cursor texto
   SelStart := FEditCtrl.SelStart + FEditCtrl.CaretY - 1;
 
   // le o algoritimo
@@ -594,7 +610,7 @@ begin
   end;
   TokenList.Free;
 
-  // verificar se é arquivo
+  // verificar se ï¿½ arquivo
   if ( Classe = cmdString ) and ( Length( Comando ) > 2 ) then
     Diretorio := ExtractFilePath( FileExpandPath( Comando ) );
 
@@ -611,7 +627,7 @@ begin
   begin
     ltvAutoComplete.OnCompare := ltvAutoCompleteCompare;
     ltvAutoComplete.AlphaSort;
-    ShowAutoComplete( );
+    Self.Visible := True;
     ltvAutoComplete.SuperSelected( ltvAutoComplete.Items[ 0 ] );
     rceAbout.Text :=  TPGItem(ltvAutoComplete.ItemFocused.Data).About;
     FEditCtrl.SetFocus;

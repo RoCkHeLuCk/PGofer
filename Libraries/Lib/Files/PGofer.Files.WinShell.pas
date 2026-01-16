@@ -3,7 +3,7 @@ unit PGofer.Files.WinShell;
 interface
 
 uses
-  SysUtils, Windows, Registry, ActiveX, ShlObj;
+  SysUtils, Windows, ActiveX, ShlObj;
 
 type
   EShellOleError = class( Exception );

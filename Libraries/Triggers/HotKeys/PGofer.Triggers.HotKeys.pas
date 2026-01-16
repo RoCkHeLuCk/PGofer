@@ -5,7 +5,7 @@ interface
 uses
   System.Classes,
   System.Generics.Collections,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers, PGofer.Triggers.HotKeys.Controls;
 
 type
@@ -49,11 +49,11 @@ type
   TPGHotKeyDeclare = class(TPGItemCMD)
   private
     class var FInputType: TObject;
-    procedure SetInput(AType: Integer);
   public
     constructor Create(AItemDad: TPGItem; AName: string = '';
       AType: Integer = 2); overload;
     destructor Destroy(); override;
+    class procedure SetInput(AType: Integer);
     procedure Execute(Gramatica: TGramatica); override;
   published
     property InputType: Integer write SetInput;
@@ -70,6 +70,7 @@ implementation
 
 uses
   System.SysUtils,
+  PGofer.Language,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
   PGofer.Key.Controls,
@@ -175,6 +176,8 @@ var
   Find: Boolean;
 begin
   Result := nil;
+  if not Assigned(Keys) then
+   exit;
 
   KeysCount := Keys.Count;
   if KeysCount > 1 then
@@ -217,6 +220,9 @@ var
   Key: TKey;
   VHotKey: TPGHotKey;
 begin
+  if not Assigned(FShootKeys) then
+    Exit;
+
   Key := TKey.CalcVirtualKey(AParamInput);
 
   if Key.wKey > 0 then
@@ -264,15 +270,11 @@ end;
 
 destructor TPGHotKeyDeclare.Destroy();
 begin
-  if Assigned(TPGHotKeyDeclare.FInputType) then
-  begin
-    TPGHotKeyDeclare.FInputType.Free();
-    TPGHotKeyDeclare.FInputType := nil;
-  end;
+  TPGHotKeyDeclare.SetInput(0);
   inherited Destroy();
 end;
 
-procedure TPGHotKeyDeclare.SetInput(AType: Integer);
+class procedure TPGHotKeyDeclare.SetInput(AType: Integer);
 begin
   if Assigned(TPGHotKeyDeclare.FInputType) then
   begin
@@ -341,7 +343,7 @@ begin
       end;
     end
     else
-      Gramatica.ErroAdd('Identificador esperado ou j� existente.');
+      Gramatica.ErroAdd( Tr('Error_Interpreter_IdExist') );
   end;
 end;
 
@@ -364,14 +366,16 @@ initialization
 TPGHotKey.FShootKeys := TList<Word>.Create();
 TPGHotKey.FOnProcessKeys := nil;
 
-TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey', 1);
+TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey', 2);
 TPGHotKey.GlobList := TPGFolder.Create(GlobalItemTrigger, 'HotKeys');
 
 TriggersCollect.RegisterClass('HotKey', TPGHotKeyMirror);
 
 finalization
 
+TPGHotKeyDeclare.SetInput(0);
 TPGHotKey.FOnProcessKeys := nil;
 TPGHotKey.FShootKeys.Free();
+TPGHotKey.FShootKeys := nil;
 
 end.

@@ -3,7 +3,7 @@ unit PGofer.Sound.MMDevApi;
 interface
 
 uses
-  Winapi.Windows, Winapi.ActiveX, System.Win.ComObj;
+  Winapi.Windows, Winapi.ActiveX;
 
 const
   CLASS_IMMDeviceEnumerator: TGUID = '{BCDE0395-E52F-467C-8E3D-C4579291692E}';

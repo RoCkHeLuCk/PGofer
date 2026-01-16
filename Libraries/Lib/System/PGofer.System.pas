@@ -3,7 +3,7 @@ unit PGofer.System;
 interface
 
 uses
-  PGofer.Types, PGofer.Classes, PGofer.Runtime;
+  PGofer.Core, PGofer.Classes, PGofer.Runtime;
 
 type
   {$M+}
@@ -13,7 +13,7 @@ type
     FMouse: TPGItemCMD;
     function GetCanClose( ): Boolean;
     procedure SetCanClose( Value: Boolean );
-    function GetDirCurrent( ): string;
+    function GetPathCurrent( ): string;
     function GetLoopLimite( ): Int64;
     procedure SetLoopLimite( Value: Int64 );
     function GetCanOff( ): Boolean;
@@ -24,7 +24,10 @@ type
     procedure SetReplyPrefix( Value: Boolean );
     function GetFileListMax( ): Cardinal;
     procedure SetFileListMax( Value: Cardinal );
-  protected
+    function GetLanguage():string;
+
+    function GetReportMemoryLeaks: Boolean;
+    procedure SetReportMemoryLeaks(const Value: Boolean);
   public
     constructor Create( AItemDad: TPGItem );
     destructor Destroy( ); override;
@@ -35,7 +38,7 @@ type
     function DateTimeNow( Format: string ): string;
     procedure Delay( Valor: Cardinal );
     function DialogMessage( Text: string ): Boolean;
-    property DirCurrent: string read GetDirCurrent;
+    property PathCurrent: string read GetPathCurrent;
     property FileListMax: Cardinal read GetFileListMax write SetFileListMax;
     function FindWindow( Valor: string ): NativeUInt;
     function GetTextFromPoint( ): string;
@@ -52,6 +55,8 @@ type
     function ShutDown( Valor: Cardinal ): Boolean;
     property ReplyFormat: string read GetReplyFormat write SetReplyFormat;
     property ReplyPrefix: Boolean read GetReplyPrefix write SetReplyPrefix;
+    property Language:string read GetLanguage;
+    property ReportMemoryLeaks: Boolean read GetReportMemoryLeaks write SetReportMemoryLeaks;
   end;
   {$TYPEINFO ON}
 
@@ -60,8 +65,9 @@ implementation
 uses
   WinApi.Windows,
   System.SysUtils, System.Classes,
-  Vcl.Forms,
-  PGofer.Sintatico, PGofer.System.Controls,
+  Vcl.Forms, Vcl.Dialogs,
+  PGofer.Language,
+  PGofer.System.Controls,
   PGofer.System.Mouse;
 
 { TPGSystem }
@@ -95,37 +101,47 @@ end;
 
 function TPGSystem.GetCanClose: Boolean;
 begin
-  Result := PGofer.Sintatico.CanClose;
+  Result := TPGKernel.GetVar('CanClose',True);
 end;
 
 function TPGSystem.GetCanOff: Boolean;
 begin
-  Result := PGofer.Sintatico.CanOff;
+  Result := TPGKernel.GetVar('CanOff',True);
 end;
 
-function TPGSystem.GetDirCurrent: string;
+function TPGSystem.GetPathCurrent: string;
 begin
-  Result := PGofer.Types.DirCurrent;
+  Result := TPGKernel.GetVar('_PathCurrent','');
 end;
 
 function TPGSystem.GetFileListMax: Cardinal;
 begin
-  Result := PGofer.Sintatico.FileListMax;
+  Result := TPGKernel.GetVar('FileListMax',0);
+end;
+
+function TPGSystem.GetLanguage: string;
+begin
+  Result := TPGLanguage.Language;
 end;
 
 function TPGSystem.GetLoopLimite: Int64;
 begin
-  Result := PGofer.Sintatico.LoopLimite;
+  Result := TPGKernel.GetVar('LoopLimite',0);
 end;
 
 function TPGSystem.GetReplyFormat: string;
 begin
-  Result := PGofer.Sintatico.ReplyFormat;
+  Result := TPGKernel.GetVar('ReplyFormat','');
 end;
 
 function TPGSystem.GetReplyPrefix: Boolean;
 begin
-  Result := PGofer.Sintatico.ReplyPrefix;
+  Result := TPGKernel.GetVar('ReplyPrefix',False);
+end;
+
+function TPGSystem.GetReportMemoryLeaks: Boolean;
+begin
+  Result := TPGKernel.GetVar('ReportMemoryLeaks',False);
 end;
 
 function TPGSystem.GetTextFromPoint: string;
@@ -159,38 +175,49 @@ end;
 
 procedure TPGSystem.SetCanClose( Value: Boolean );
 begin
-  PGofer.Sintatico.CanClose := Value;
+  TPGKernel.SetVar('ReplyPrefix', Value);
 end;
 
 procedure TPGSystem.SetCanOff( Value: Boolean );
 begin
-  if Value then
+  if TPGKernel.GetVar('CanOff', True) <> Value then
   begin
-    SetThreadExecutionState(ES_CONTINUOUS or ES_SYSTEM_REQUIRED or ES_AWAYMODE_REQUIRED);
-  end else begin
-    SetThreadExecutionState(ES_CONTINUOUS);
+    TPGKernel.SetVar('CanOff', Value);
+    if not Value then
+    begin
+      SystemShutDownReasonCreate(
+        Application.Handle ,
+        PWideChar('PGofer: Desligamento bloqueado!')
+      );
+    end else begin
+      SystemShutDownReasonDestroy( Application.Handle );
+    end;
   end;
-  PGofer.Sintatico.CanOff := Value;
 end;
 
 procedure TPGSystem.SetFileListMax( Value: Cardinal );
 begin
-  PGofer.Sintatico.FileListMax := Value;
+  TPGKernel.SetVar('FileListMax', Value);
 end;
 
 procedure TPGSystem.SetLoopLimite( Value: Int64 );
 begin
-  PGofer.Sintatico.LoopLimite := Value;
+  TPGKernel.SetVar('LoopLimite', Value);
 end;
 
 procedure TPGSystem.SetReplyFormat( Value: string );
 begin
-  PGofer.Sintatico.ReplyFormat := Value;
+  TPGKernel.SetVar('ReplyFormat', Value);
 end;
 
 procedure TPGSystem.SetReplyPrefix( Value: Boolean );
 begin
-  PGofer.Sintatico.ReplyPrefix := Value;
+  TPGKernel.SetVar('ReplyPrefix', Value);
+end;
+
+procedure TPGSystem.SetReportMemoryLeaks(const Value: Boolean);
+begin
+  TPGKernel.SetVar('ReportMemoryLeaks', Value);
 end;
 
 function TPGSystem.SetScreen( Height, Width, Monitor: Integer ): Boolean;
@@ -209,19 +236,23 @@ function TPGSystem.DialogMessage( Text: string ): Boolean;
 var
   R: Boolean;
 begin
-  TThread.Synchronize( nil, procedure
+  RunInMainThread(
+    procedure
     begin
       R := PGofer.System.Controls.SystemDialogMessage( Text );
-    end );
+    end
+  );
   Result := R;
 end;
 
 procedure TPGSystem.ShowMessage( Texto: string );
 begin
-  TThread.Synchronize( nil, procedure
+  RunInMainThread(
+    procedure
     begin
-      ShowMessage( Texto );
-    end );
+      Vcl.Dialogs.ShowMessage( Texto );
+    end
+  );
 end;
 
 function TPGSystem.ShutDown( Valor: Cardinal ): Boolean;

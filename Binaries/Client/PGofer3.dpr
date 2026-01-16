@@ -2,86 +2,113 @@ program PGofer3;
 {$DEFINE MSWINDOWS}
 
 uses
-  PGofer.Types in '..\..\Libraries\Lib\Kernel\PGofer.Types.pas',
+
+  { Native Units }
+  Winapi.Windows, Vcl.Forms,
+
+  { PGofer Kernel }
+  PGofer.Core in '..\..\Libraries\Lib\Kernel\PGofer.Core.pas',
   PGofer.Language in '..\..\Libraries\Lib\Kernel\Utils\PGofer.Language.pas',
   PGofer.IconList in '..\..\Libraries\Lib\Kernel\Utils\PGofer.IconList.pas',
-  PGofer.Classes in '..\..\Libraries\Lib\Kernel\PGofer.Classes.pas',
-  PGofer.Lexico in '..\..\Libraries\Lib\Kernel\PGofer.Lexico.pas',
-  PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.pas',
-  PGofer.Runtime in '..\..\Libraries\Lib\Kernel\PGofer.Runtime.pas',
-  PGofer.VaultFolder in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.pas',
-  PGofer.VaultFolder.Frame in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
-  PGofer.VaultFolder.KeyStore in '..\..\Libraries\Lib\Kernel\VaultFolder\PGofer.VaultFolder.KeyStore.pas',
-  PGofer.Sintatico.Controls in '..\..\Libraries\Lib\Kernel\PGofer.Sintatico.Controls.pas',
-  PGofer.Item.Frame in '..\..\libraries\lib\kernel\PGofer.Item.Frame.pas' {PGItemFrame: TFrame},
-  PGofer.ClipBoards in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas',
+  PGofer.Classes in '..\..\Libraries\Lib\Kernel\Model\PGofer.Classes.pas',
+  PGofer.Lexico in '..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Lexico.pas',
+  PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Sintatico.pas',
+  PGofer.Sintatico.Controls in '..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Sintatico.Controls.pas',
+  PGofer.Runtime in '..\..\Libraries\Lib\Kernel\Model\PGofer.Runtime.pas',
+  PGofer.Item.Frame in '..\..\libraries\lib\kernel\Model\PGofer.Item.Frame.pas' {PGItemFrame: TFrame},
+
+  { PGofer Libs }
   PGofer.ClipBoards.Controls in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',
-  PGofer.Files in '..\..\Libraries\Lib\Files\PGofer.Files.pas',
+  PGofer.ClipBoards in '..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.pas',
+
   PGofer.Files.Controls in '..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas',
   PGofer.Files.WinShell in '..\..\Libraries\Lib\Files\PGofer.Files.WinShell.pas',
   PGofer.Files.Encrypt in '..\..\Libraries\Lib\Files\PGofer.Files.Encrypt.pas',
-  PGofer.Key in '..\..\Libraries\Lib\Key\PGofer.Key.pas',
+  PGofer.Files in '..\..\Libraries\Lib\Files\PGofer.Files.pas',
+
   PGofer.Key.Controls in '..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas',
   PGofer.Key.Post in '..\..\Libraries\Lib\Key\PGofer.Key.Post.pas',
-  PGofer.Math in '..\..\Libraries\Lib\Math\PGofer.Math.pas',
+  PGofer.Key in '..\..\Libraries\Lib\Key\PGofer.Key.pas',
+
   PGofer.Math.Controls in '..\..\Libraries\Lib\Math\PGofer.Math.Controls.pas',
-  PGofer.Net in '..\..\Libraries\Lib\Net\PGofer.Net.pas',
+  PGofer.Math in '..\..\Libraries\Lib\Math\PGofer.Math.pas',
+
   PGofer.Net.Controls in '..\..\Libraries\Lib\Net\PGofer.Net.Controls.pas',
   PGofer.Net.Socket in '..\..\Libraries\Lib\Net\PGofer.Net.Socket.pas',
-  PGofer.Process in '..\..\Libraries\Lib\Process\PGofer.Process.pas',
+  PGofer.Net in '..\..\Libraries\Lib\Net\PGofer.Net.pas',
+
   PGofer.Process.Controls in '..\..\Libraries\Lib\Process\PGofer.Process.Controls.pas',
-  PGofer.Registry in '..\..\Libraries\Lib\Registry\PGofer.Registry.pas',
+  PGofer.Process in '..\..\Libraries\Lib\Process\PGofer.Process.pas',
+
   PGofer.Registry.Controls in '..\..\Libraries\Lib\Registry\PGofer.Registry.Controls.pas',
   PGofer.Registry.Environment in '..\..\Libraries\Lib\Registry\PGofer.Registry.Environment.pas',
-  PGofer.Services in '..\..\Libraries\Lib\Services\PGofer.Services.pas',
+  PGofer.Registry in '..\..\Libraries\Lib\Registry\PGofer.Registry.pas',
+
   PGofer.Services.Controls in '..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas',
   PGofer.Services.Thread in '..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas',
-  PGofer.Sound in '..\..\Libraries\Lib\Sound\PGofer.Sound.pas',
+  PGofer.Services in '..\..\Libraries\Lib\Services\PGofer.Services.pas',
+
   PGofer.Sound.Controls in '..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas',
   PGofer.Sound.MMDevApi in '..\..\Libraries\Lib\Sound\PGofer.Sound.MMDevApi.pas',
-  PGofer.System in '..\..\Libraries\Lib\System\PGofer.System.pas',
-  PGofer.System.Mouse in '..\..\Libraries\Lib\System\PGofer.System.Mouse.pas',
+  PGofer.Sound in '..\..\Libraries\Lib\Sound\PGofer.Sound.pas',
+
   PGofer.System.Controls in '..\..\Libraries\Lib\System\PGofer.System.Controls.pas',
-  PGofer.System.Statements in '..\..\Libraries\Lib\System\PGofer.System.Statements.pas',
   PGofer.System.Variants in '..\..\Libraries\Lib\System\PGofer.System.Variants.pas',
   PGofer.System.Variants.Frame in '..\..\Libraries\Lib\System\PGofer.System.Variants.Frame.pas' {PGVariantsFrame: TFrame},
   PGofer.System.Functions in '..\..\Libraries\Lib\System\PGofer.System.Functions.pas',
   PGofer.System.Functions.Frame in '..\..\Libraries\Lib\System\PGofer.System.Functions.Frame.pas' {PGFunctionFrame: TFrame},
   PGofer.System.VirtualDesktop in '..\..\Libraries\Lib\System\PGofer.System.VirtualDesktop.pas',
-  PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
+  PGofer.System.Mouse in '..\..\Libraries\Lib\System\PGofer.System.Mouse.pas',
+  PGofer.System.Statements in '..\..\Libraries\Lib\System\PGofer.System.Statements.pas',
+  PGofer.System in '..\..\Libraries\Lib\System\PGofer.System.pas',
+
+  { PGofer Forms }
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
+  PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Frame in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFormsFrame: TFrame},
   PGofer.Forms.Controller in '..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas' {FrmController},
   PGofer.Forms.AutoComplete in '..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas' {FrmAutoComplete},
   PGofer.Forms.Console in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas' {FrmConsole},
   PGofer.Forms.Console.Frame in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas' {PGConsoleFrame: TFrame},
+
+  { PGofer Triggers }
   PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
   PGofer.Triggers.Frame in '..\..\Libraries\Triggers\PGofer.Triggers.Frame.pas' {PGTriggerFrame: TFrame},
-  PGofer.Triggers.HotKeys in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas',
+
+  PGofer.VaultFolder.KeyStore in '..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.KeyStore.pas',
+  PGofer.VaultFolder in '..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.pas',
+  PGofer.VaultFolder.Frame in '..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
+
   PGofer.Triggers.HotKeys.Controls in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Controls.pas',
   PGofer.Triggers.HotKeys.MMHook in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMHook.pas',
   PGofer.Triggers.HotKeys.Hook in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.Hook.pas',
   PGofer.Triggers.HotKeys.MMRawInput in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMRawInput.pas',
   PGofer.Triggers.HotKeys.RawInput in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.RawInput.pas',
   PGofer.Triggers.HotKeys.Async in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.Async.pas',
+  PGofer.Triggers.HotKeys in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas',
   PGofer.Triggers.HotKeys.Frame in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas' {PGHotKeyFrame: TFrame},
-  PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
+
   PGofer.Triggers.Links.Thread in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Thread.pas',
   PGofer.Triggers.Links.ProcessUI in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ProcessUI.pas',
+  PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
+
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
+
   PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
   PGofer.Triggers.AutoFills.Frame in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.Frame.pas' {PGAutoFillsFrame: TFrame},
-  Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
+
+  { Componentes }
   Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
-  PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
+  Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
+  PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
-  Winapi.Windows,
-  Vcl.Forms;
+
+  { MainForm }
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
 
@@ -91,8 +118,16 @@ begin
     {$IFDEF DEBUG}
     ReportMemoryLeaksOnShutdown := True;
     {$ENDIF}
+
+    //Define Prioridades maxima
     SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
     SetProcessPriorityBoost( GetCurrentProcess, False );
+    // Trava o conjunto de trabalho na RAM para resposta instantânea
+    // O tamanho depende do consumo do seu EXE, aqui um exemplo de 10MB a 15MB
+    SetProcessWorkingSetSize( GetCurrentProcess, 10*1024*1024, 15*1024*1024);
+    //prioridade de desligamento
+    SetProcessShutdownParameters($4FF, 0);
+
 
     Application.Initialize;
     Application.MainFormOnTaskbar := True;

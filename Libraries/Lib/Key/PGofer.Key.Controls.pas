@@ -14,7 +14,7 @@ function StrInSet( const S: string; const StringSet: array of string): Boolean;
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils, System.Character;
+  Winapi.Windows, System.SysUtils;
 
 procedure KeyPressAllUp( );
 var

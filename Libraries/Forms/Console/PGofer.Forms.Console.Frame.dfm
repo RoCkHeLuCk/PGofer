@@ -33,11 +33,11 @@ inherited PGConsoleFrame: TPGConsoleFrame
       Top = 254
       Width = 51
       Height = 21
+      Color = clSilver
       TabOrder = 14
       Text = '0'
+      StyleElements = [seFont, seBorder]
       OnExit = edtDelayExit
-      RegExamples = reNone
-      RegExpression = '^\d*$'
     end
     object updDelay: TUpDown [24]
       Left = 121

@@ -3,7 +3,7 @@
 interface
 
 uses
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
 
@@ -40,7 +40,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.System.Variants.Frame;
+  PGofer.Language, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.System.Variants.Frame;
 
 { TPGVariant }
 
@@ -68,7 +68,7 @@ begin
     if ( Gramatica.TokenList.Token.Classe <> cmdAttrib ) then
       Gramatica.Pilha.Empilhar( Self.FValue )
     else
-      Gramatica.ErroAdd( 'Constante � somente leitura.' );
+      Gramatica.ErroAdd( Tr('Error_Interpreter_Const') );
   end else begin
     if AtribuicaoNivel1( Gramatica ) then
       Self.FValue := Gramatica.Pilha.Desempilhar( Self.FValue )
@@ -116,7 +116,7 @@ begin
       with TPGVariant( ID ) do
       begin
         Value := vValue;
-        Gramatica.MSGsAdd( 'Redeclare: ' + name );
+        Gramatica.MSGsAdd( Tr('Warning_Interpreter_Redeclare',[name]) );
       end;
     end;
 
@@ -128,7 +128,7 @@ begin
 
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Id') );
 end;
 
 procedure TPGVariantDeclare.Execute( Gramatica: TGramatica );

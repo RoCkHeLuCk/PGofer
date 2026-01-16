@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes,
-  PGofer.Types, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type
@@ -52,6 +52,7 @@ implementation
 
 uses
   System.SysUtils,
+  PGofer.Language,
   PGofer.Sintatico.Controls,
   PGofer.Triggers.Tasks.Frame;
 
@@ -104,17 +105,25 @@ class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );
 var
   Item: TPGTask;
   C: Integer;
+  NeedSave: Boolean;
 begin
-  for C := 0 to TPGTask.GlobList.Count - 1 do
+  NeedSave := False;
+  if Assigned(TPGTask.GlobList) then
   begin
-    Item := TPGTask( TPGTask.GlobList[ C ] );
-    if ( Item.Trigger = AType ) and ( Item.Enabled ) and
-      ( ( Item.Repeats = 0 ) or ( Item.Occurrence < Item.Repeats ) ) then
+    for C := 0 to TPGTask.GlobList.Count - 1 do
     begin
-      ScriptExec( 'Task: ' + Item.Name, TPGTask( Item ).Script, nil, AWaitFor );
-      Item.Occurrence := Item.Occurrence + 1;
-      Item.CollectDad.XMLSaveToFile( );
+      Item := TPGTask( TPGTask.GlobList[ C ] );
+      if ( Item.Trigger = AType ) and ( Item.Enabled ) and
+        ( ( Item.Repeats = 0 ) or ( Item.Occurrence < Item.Repeats ) ) then
+      begin
+        ScriptExec( 'Task: ' + Item.Name, TPGTask( Item ).Script, nil, AWaitFor );
+        Item.Occurrence := Item.Occurrence + 1;
+        NeedSave := True;
+      end;
     end;
+
+    if NeedSave and Assigned(TPGTask.GlobList.CollectDad) then
+       TPGTask.GlobList.CollectDad.XMLSaveToFile( );
   end;
 end;
 
@@ -151,7 +160,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado ou j� existente.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_IdExist') );
 end;
 
 { TPGTaskMirror }

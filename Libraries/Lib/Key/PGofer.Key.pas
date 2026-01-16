@@ -25,7 +25,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.Key.Controls, PGofer.Key.Post;
+  PGofer.Key.Controls, PGofer.Key.Post;
 
 { TPGRegistry }
 

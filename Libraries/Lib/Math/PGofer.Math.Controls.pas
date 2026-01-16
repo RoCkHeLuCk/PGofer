@@ -13,7 +13,7 @@ function TryPower( Base, Expoente: Extended; out Resposta: Extended ): Boolean;
 implementation
 
 uses
-  System.SysUtils, System.Math;
+  System.SysUtils;
 
 function BoolToStr( const Valor: Boolean ): string; overload;
 begin

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes,
-  PGofer.Types, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
+  PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
   PGofer.Runtime, PGofer.System.Variants;
 
 type
@@ -41,8 +41,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico.Controls,
-  PGofer.System.Functions.Frame;
+  PGofer.Language, PGofer.Sintatico.Controls, PGofer.System.Functions.Frame;
 
 { TPGFunction }
 
@@ -171,17 +170,17 @@ begin
             end;
           end
           else
-            Gramatica.ErroAdd( '";" Esperado.' );
+            Gramatica.ErroAdd( Tr('Error_Interpreter_;') );
         end
         else
-          Gramatica.ErroAdd( '")" Esperado.' );
+          Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
       end;
     end
     else
-      Gramatica.ErroAdd( '"(" Esperado.' );
+      Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
   end
   else
-    Gramatica.ErroAdd( 'Identificador esperado.' );
+    Gramatica.ErroAdd( Tr('Error_Interpreter_Id') );
 end;
 
 procedure TPGFunctionDeclare.Execute( Gramatica: TGramatica );

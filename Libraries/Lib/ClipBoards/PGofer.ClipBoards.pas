@@ -23,7 +23,7 @@ type
 implementation
 
 uses
-  PGofer.Sintatico, PGofer.ClipBoards.Controls;
+  PGofer.ClipBoards.Controls;
 
 { TPGClipBoard }
 

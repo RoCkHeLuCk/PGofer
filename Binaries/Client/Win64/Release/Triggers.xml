@@ -1,2 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Triggers Version="1.0"/>
+<Triggers Version="1.0">
+  <Task Name="Task" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">6</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string">system.CanClose := 0;
+</Script>
+    <Trigger Type="Byte">0</Trigger>
+  </Task>
+  <Task Name="Task1" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">7</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string">if not System.CanClose then
+  System.CanClose := System.DialogMessage('Fechar?');
+</Script>
+    <Trigger Type="Byte">1</Trigger>
+  </Task>
+</Triggers>

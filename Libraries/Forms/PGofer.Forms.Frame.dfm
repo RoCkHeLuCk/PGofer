@@ -184,9 +184,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Color = clSilver
       TabOrder = 9
       Text = '0'
+      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtAlphaBlendValueKeyUp
-      RegExamples = reNone
-      RegExpression = '^\d*$'
     end
     object EdtHeigth: TEditEx [18]
       Left = 70
@@ -195,9 +194,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 10
+      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtHeigthKeyUp
-      RegExamples = reNone
-      RegExpression = '^-?\d*$'
     end
     object EdtTop: TEditEx [19]
       Left = 70
@@ -206,9 +204,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 11
+      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtTopKeyUp
-      RegExamples = reNone
-      RegExpression = '^-?\d*$'
     end
     object EdtWidth: TEditEx [20]
       Left = 253
@@ -217,9 +214,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 12
+      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtWidthKeyUp
-      RegExamples = reNone
-      RegExpression = '^-?\d*$'
     end
     object EdtLeft: TEditEx [21]
       Left = 253
@@ -228,9 +224,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 13
+      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtLeftKeyUp
-      RegExamples = reNone
-      RegExpression = '^-?\d*$'
     end
     inherited EdtName: TEditEx
       TabOrder = 14
