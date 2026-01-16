@@ -7,7 +7,7 @@ uses
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Triggers, PGofer.Triggers.Links, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame;
+  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame, Pgofer.Component.Checkbox;
 
 type
   TPGLinkFrame = class( TPGTriggerFrame )
@@ -30,6 +30,7 @@ type
     ckbCapture: TCheckBox;
     sptScriptAfter: TSplitter;
     ckbAdministrator: TCheckBox;
+    CkbSingleInstance: TCheckBoxEx;
     procedure CmbStateChange( Sender: TObject );
     procedure CmbPriorityChange( Sender: TObject );
     procedure BtnTestClick( Sender: TObject );
@@ -43,6 +44,7 @@ type
     procedure EdtPatameterAfterValidate(Sender: TObject);
     procedure EdtDiretoryAfterValidate(Sender: TObject);
     procedure EdtFileActionButtonClick(Sender: TObject);
+    procedure CkbSingleInstanceClick(Sender: TObject);
   private
   protected
     procedure IniConfigSave( ); override;
@@ -73,6 +75,7 @@ begin
   CmbState.ItemIndex := Item.State;
   CmbPriority.ItemIndex := Item.Priority;
   ckbAdministrator.Checked := Item.RunAdmin;
+  CkbSingleInstance.Checked := Item.SingleInstance;
   ckbCapture.Checked := Item.CaptureMsg;
   EdtScriptBefore.Lines.Text := Item.ScriptBefor;
   EdtScriptAfter.Lines.Text := Item.ScriptAfter;
@@ -135,6 +138,11 @@ end;
 procedure TPGLinkFrame.CmbStateChange( Sender: TObject );
 begin
   Item.State := CmbState.ItemIndex;
+end;
+
+procedure TPGLinkFrame.CkbSingleInstanceClick(Sender: TObject);
+begin
+  Item.SingleInstance := CkbSingleInstance.Checked;
 end;
 
 procedure TPGLinkFrame.CmbPriorityChange( Sender: TObject );

@@ -224,9 +224,9 @@ inherited PGLinkFrame: TPGLinkFrame
         'Real time')
     end
     object BtnTest: TButton [11]
-      Left = 341
-      Top = 146
-      Width = 56
+      Left = 318
+      Top = 141
+      Width = 61
       Height = 21
       Anchors = [akTop, akRight]
       Caption = 'Test'
@@ -234,8 +234,8 @@ inherited PGLinkFrame: TPGLinkFrame
       OnClick = BtnTestClick
     end
     object ckbCapture: TCheckBox [12]
-      Left = 209
-      Top = 143
+      Left = 311
+      Top = 116
       Width = 97
       Height = 17
       Caption = 'CaptureMsg'
@@ -243,13 +243,22 @@ inherited PGLinkFrame: TPGLinkFrame
       OnClick = ckbCaptureClick
     end
     object ckbAdministrator: TCheckBox
-      Left = 209
-      Top = 117
+      Left = 199
+      Top = 116
       Width = 97
       Height = 17
       Caption = 'Run Admintrator'
       TabOrder = 8
       OnClick = ckbAdministratorClick
+    end
+    object CkbSingleInstance: TCheckBoxEx
+      Left = 199
+      Top = 143
+      Width = 97
+      Height = 17
+      Caption = 'Single Instance'
+      TabOrder = 11
+      OnClick = CkbSingleInstanceClick
     end
   end
   inherited sptAbout: TPanel

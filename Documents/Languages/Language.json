@@ -56,6 +56,8 @@
   "Error_ShellExecute_NoAssociation": "Erro: Não há aplicativo instalado associado a este tipo de arquivo.",
   "Error_ShellExecute_OutOfMemory": "Erro: Não há memória ou recursos de sistema suficientes para executar o arquivo.",
   "Error_ShellExecute_ShareViolation": "Erro: O arquivo está sendo usado por outro processo.",
-  "Error_ShellExecute_UnknownError": "Erro: Executar o arquivo Código Desconhecido '%d'."
+  "Error_ShellExecute_UnknownError": "Erro: Executar o arquivo Código Desconhecido '%d'.",
+
+  "Error_Link_SingleInstance": "Erro: Link '%s' já esta em execução."
 }
 

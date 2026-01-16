@@ -10,16 +10,31 @@ type
   TLinkThread = class(TThread)
   private
     FLink: TPGLink;
-    FParam: string;
     FConsoleMessage: Boolean;
+
+    FParameter: string;
+    FState: Byte;
+    FPriority: Byte;
+    FRunAdmin: Boolean;
+    FCaptureMsg: Boolean;
+    FSingleInstance: Boolean;
+
     procedure PipeLines();
     procedure ShellExec();
     procedure CreateProcess();
   protected
     procedure Execute; override;
   public
-    constructor Create(ALink: TPGLink; AParam: string;
-      ATerminate: Boolean); overload;
+    constructor Create(
+      ALink: TPGLink;
+      ATerminate: Boolean;
+      AParameter: string;
+      ARunAdmin: Boolean;
+      ASingleInstance: Boolean;
+      APriority: Byte;
+      AState: Byte;
+      ACaptureMsg: Boolean
+    ); overload;
     destructor Destroy(); override;
   end;
 
@@ -38,19 +53,40 @@ uses
 
 { TLinkThread }
 
-constructor TLinkThread.Create(ALink: TPGLink; AParam: string;
-  ATerminate: Boolean);
+constructor TLinkThread.Create(
+    ALink: TPGLink;
+    ATerminate: Boolean;
+    AParameter: string;
+    ARunAdmin: Boolean;
+    ASingleInstance: Boolean;
+    APriority: Byte;
+    AState: Byte;
+    ACaptureMsg: Boolean
+  );
 begin
   inherited Create(True);
   Self.FreeOnTerminate := ATerminate;
   Self.Priority := tpIdle;
+
   FLink := ALink;
-  FParam := AParam;
   FConsoleMessage := TPGKernel.GetVar('ConsoleMessage',True);
+
+  FParameter:= AParameter;
+  FState:= AState;
+  FPriority:= APriority;
+  FRunAdmin:= ARunAdmin;
+  FCaptureMsg:= ACaptureMsg;
+  FSingleInstance:= ASingleInstance;
 end;
 
 destructor TLinkThread.Destroy();
 begin
+  FParameter:= '';
+  FState:= 0;
+  FPriority:= 0;
+  FRunAdmin:= False;
+  FCaptureMsg:= False;
+  FSingleInstance:= False;
   FLink := nil;
   inherited Destroy();
 end;
@@ -61,13 +97,19 @@ begin
   if FLink.ScriptBefor <> '' then
     ScriptExec('Link Befor: ' + FLink.Name, FLink.ScriptBefor, nil, True);
 
+  if FSingleInstance and FLink.isRunning then
+  begin
+    TrC('Error_Link_SingleInstance',[FLink.Name], True, FConsoleMessage);
+    FLink.CanExecute := False;
+  end;
+
   if FLink.CanExecute then
   begin
-    if FLink.CaptureMsg then
+    if FCaptureMsg then
     begin
       PipeLines()
     end else begin
-      if FLink.RunAdmin then
+      if FRunAdmin then
          ShellExec( )
       else
          CreateProcess();
@@ -104,21 +146,21 @@ begin
     StartupInfo.hStdOutput := hWrite;
     StartupInfo.hStdError := hWrite;
     StartupInfo.dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
-    StartupInfo.wShowWindow := FLink.State;
+    StartupInfo.wShowWindow := FState;
     StartupInfo.lpTitle := PWideChar(FLink.Name);
     FileName := FileExpandPath(FLink.FileName);
-    Param := FileExpandPath(FParam);
+    Param := FileExpandPath(FParameter);
     Directory := FileExpandPath(FLink.Directory);
 
     ProcessInfo := default (TProcessInformation);
 
     if CreateProcessW(
       PWideChar(FileName),
-      PWideChar('"' + FileName + '" ' + FParam),
+      PWideChar('"' + FileName + '" ' + Param),
       @SecurityAttribute,
       @SecurityAttribute,
       True,
-      GetProcessPri(FLink.Priority),
+      GetProcessPri(FPriority),
       nil,
       PWideChar(Directory),
       StartupInfo,
@@ -159,10 +201,10 @@ begin
   StartupInfo := Default(TStartupInfo);
   StartupInfo.cb := SizeOf(TStartupInfo);
   StartupInfo.dwFlags := STARTF_USESTDHANDLES or STARTF_USESHOWWINDOW;
-  StartupInfo.wShowWindow := FLink.State;
+  StartupInfo.wShowWindow := FState;
   StartupInfo.lpTitle := PWideChar(FLink.Name);
   FileName := FileExpandPath(FLink.FileName);
-  Param := FileExpandPath(FParam);
+  Param := FileExpandPath(FParameter);
 
   if FLink.Directory <> '' then
     Directory := FileExpandPath(FLink.Directory)
@@ -173,8 +215,8 @@ begin
 
   ReturnCode := CreateProcessRunCurrent(
     FileName,                         //application
-    '"' + FileName + '" ' + FParam,   //command line
-    GetProcessPri(FLink.Priority),    //create flag
+    '"' + FileName + '" ' + Param,    //command line
+    GetProcessPri(FPriority)     ,    //create flag
     nil,                              //Enviroment
     Directory,                        //Current Diretory
     StartupInfo,                      //StartupInfo
@@ -216,15 +258,15 @@ begin
   ShellExecuteInfoW.Wnd := Application.Handle;
   ShellExecuteInfoW.lpVerb := PWideChar('RunAs');
   ShellExecuteInfoW.lpFile := PWideChar(FileExpandPath(FLink.FileName));
-  ShellExecuteInfoW.lpParameters := PWideChar(FileExpandPath(FParam));
+  ShellExecuteInfoW.lpParameters := PWideChar(FileExpandPath(FParameter));
   ShellExecuteInfoW.lpDirectory := PWideChar(FileExpandPath(FLink.Directory));
-  ShellExecuteInfoW.nShow := FLink.State;
+  ShellExecuteInfoW.nShow := FState;
 
   ShellExecuteExW(@ShellExecuteInfoW);
 
   if ShellExecuteInfoW.hProcess <> INVALID_HANDLE_VALUE then
   begin
-    SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(FLink.Priority));
+    SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(FPriority));
   end;
 
   sText := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);

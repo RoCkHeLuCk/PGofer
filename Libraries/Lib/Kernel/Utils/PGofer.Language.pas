@@ -32,7 +32,8 @@ type
     class function Translate(const AKey: string; const AArgs: array of const; const ATranslating: Boolean = True): string; overload; static;
     class procedure ConsoleTranslate(const AKey: string; const ATranslating: Boolean = True); overload; static;
     class procedure ConsoleTranslate(const AKey: string; const AArgs: array of const; const ATranslating: Boolean = True); overload; static;
-    class procedure ConsoleTranslate(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = False); overload; static;
+    class procedure ConsoleTranslate(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True); overload; static;
+    class procedure ConsoleTranslate(const AKey: string; const AArgs: array of const; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True); overload; static;
     class property Language: string read FLanguage;
   end;
 
@@ -40,7 +41,8 @@ type
   function Tr(const AKey: string; const AArgs: array of const; const ATranslating: Boolean = True): string; overload;
   procedure TrC(const AKey: string; const ATranslating: Boolean = True); overload;
   procedure TrC(const AKey: string; const AArgs: array of const; const ATranslating: Boolean = True); overload;
-  procedure TrC(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = False); overload;
+  procedure TrC(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True); overload;
+  procedure TrC(const AKey: string; const AArgs: array of const; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True); overload;
 
 implementation
 
@@ -181,11 +183,19 @@ begin
   TPGLanguage.InternalLog(msg, True, True);
 end;
 
-class procedure TPGLanguage.ConsoleTranslate(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = False);
+class procedure TPGLanguage.ConsoleTranslate(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True);
 var
   msg: string;
 begin
   msg := TPGLanguage.Translate(AValue, ATranslating);
+  TPGLanguage.InternalLog(msg, ANewLine, AShow);
+end;
+
+class procedure TPGLanguage.ConsoleTranslate(const AKey: string; const AArgs: array of const; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True);
+var
+  msg: string;
+begin
+  msg := TPGLanguage.Translate(AKey, AArgs, ATranslating);
   TPGLanguage.InternalLog(msg, ANewLine, AShow);
 end;
 
@@ -211,9 +221,14 @@ begin
   TPGLanguage.ConsoleTranslate(AKey, AArgs, ATranslating);
 end;
 
-procedure TrC(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = False);
+procedure TrC(const AValue: string; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True);
 begin
   TPGLanguage.ConsoleTranslate(AValue, ANewLine, AShow, ATranslating);
+end;
+
+procedure TrC(const AKey: string; const AArgs: array of const; const ANewLine, AShow: Boolean; const ATranslating: Boolean = True);
+begin
+  TPGLanguage.ConsoleTranslate(AKey, AArgs, ANewLine, AShow, ATranslating);
 end;
 
 initialization

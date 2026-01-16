@@ -17,6 +17,9 @@ function CreateProcessRunCurrent(
 
 implementation
 
+uses
+  PGofer.Process.Controls;
+
   function CreateProcessWithTokenW(hToken: THandle; dwLogonFlags: DWORD;
     ApplicationName: LPCWSTR; CommandLine: LPWSTR; dwCreationFlags: DWORD;
     lpEnvironment: LPVOID; CurrentDirectory: LPCWSTR;
@@ -33,8 +36,9 @@ implementation
   function GetShellWindow: HWND; stdcall;
     external 'user32.dll' name 'GetShellWindow';
 
-
-const LOGON_WITH_PROFILE = $00000001;
+const
+  LOGON_WITH_PROFILE = $00000001;
+  LOGON_NETCREDENTIALS_ONLY = $00000002;
 
 
 function CreateProcessRunCurrent(
@@ -45,49 +49,74 @@ function CreateProcessRunCurrent(
   CurrentDirectory: string;
   const StartupInfo: TStartupInfoW;
   var ProcessInformation: TProcessInformation): DWORD;
-label _CleanUp;
 var
   ExplorerHWND: THandle;
   ExplorerPID: DWORD;
   ExplorerToken: THandle;
   NewToken: THandle;
 begin
-  ExplorerPID := 0;
+  ExplorerToken := 0;
+  NewToken := 0;
+  ExplorerHWND := 0;
+  Result := ERROR_GEN_FAILURE;
+
   GetWindowThreadProcessId( GetShellWindow() , ExplorerPID);
+  if ExplorerPID = 0 then
+     ExplorerPID := ProcessFileToPID('explorer.exe');
 
-  ExplorerHWND := OpenProcess(PROCESS_QUERY_INFORMATION, False, ExplorerPID);
-
-  if (ExplorerHWND <> 0)
-  and (OpenProcessToken(ExplorerHWND, TOKEN_DUPLICATE, ExplorerToken))
-  and (DuplicateTokenEx(ExplorerToken, TOKEN_ALL_ACCESS, nil,
-       SecurityImpersonation, TokenPrimary, NewToken)) then
+  if ExplorerPID = 0 then
   begin
-    if (CreateProcessWithTokenW(
-          NewToken,
-          LOGON_WITH_PROFILE,
-          PWideChar(ApplicationName),
-          PWideChar(CommandLine),
-          CreationFlags,
-          Environment,
-          PWideChar(CurrentDirectory),
-          StartupInfo,
-          ProcessInformation
-       )) then
-    begin
-      SetLastError(ERROR_SUCCESS);
-    end;
+    Result := ERROR_FILE_NOT_FOUND;
+    Exit;
   end;
 
-  if (ExplorerToken <> 0) then
-    CloseHandle(ExplorerToken);
+  ExplorerHWND := OpenProcess(PROCESS_QUERY_INFORMATION, False, ExplorerPID);
+  if ExplorerHWND = 0 then
+  begin
+    Result := GetLastError();
+    Exit;
+  end;
 
-  if (NewToken <> 0) then
-    CloseHandle(NewToken);
+  try
+    if OpenProcessToken(ExplorerHWND, TOKEN_DUPLICATE, ExplorerToken) then
+    begin
+      if DuplicateTokenEx(
+           ExplorerToken,
+           TOKEN_ALL_ACCESS,
+           nil,
+           SecurityImpersonation,
+           TokenPrimary,
+           NewToken
+        ) then
+      begin
+        if CreateProcessWithTokenW(
+            NewToken,
+            LOGON_WITH_PROFILE,
+            PWideChar(ApplicationName),
+            PWideChar(CommandLine),
+            CreationFlags,
+            Environment,
+            PWideChar(CurrentDirectory),
+            StartupInfo,
+            ProcessInformation
+          ) then
+        begin
+          Result := ERROR_SUCCESS;
+        end else begin
+          Result := GetLastError;
+        end;
+      end else begin
+        Result := GetLastError;
+      end;
+    end else begin
+      Result := GetLastError;
+    end;
 
-  if (ExplorerHWND <> 0) then
-    CloseHandle(ExplorerHWND);
-
-  Result := GetLastError();
+  finally
+    if ExplorerToken <> 0 then CloseHandle(ExplorerToken);
+    if NewToken <> 0 then CloseHandle(NewToken);
+    if ExplorerHWND <> 0 then CloseHandle(ExplorerHWND);
+  end;
 end;
 
 end.

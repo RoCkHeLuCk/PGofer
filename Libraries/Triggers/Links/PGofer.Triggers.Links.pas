@@ -22,6 +22,7 @@ type
     FRunAdmin: Boolean;
     FCaptureMsg: Boolean;
     FCanExecute: Boolean;
+    FSingleInstance: Boolean;
     function GetDirExist( ): Boolean;
     function GetFileExist( ): Boolean;
     function GetFileRepeat( ): Boolean;
@@ -29,7 +30,15 @@ type
     function GetScriptBefor: string;
     procedure SetScriptAfter( AValue: string );
     procedure SetScriptBefor( AValue: string );
-    procedure ThreadExecute( AWaitFor: Boolean; AParam: string );
+    procedure ThreadExecute(
+        AWaitFor: Boolean;
+        AParameter: string;
+        ARunAdmin: Boolean;
+        ASingleInstance: Boolean;
+        APriority: Byte;
+        AState: Byte;
+        ACaptureMsg: Boolean
+      );
     function GetIsRunning: Boolean;
   protected
     procedure ExecutarNivel1( Gramatica: TGramatica ); override;
@@ -45,6 +54,7 @@ type
     property Parameter: string read FParameter write FParameter;
     property Directory: string read FDirectory write FDirectory;
     property State: Byte read FState write FState;
+    property SingleInstance: Boolean read FSingleInstance write FSingleInstance;
     property Priority: Byte read FPriority write FPriority;
     property RunAdmin: Boolean read FRunAdmin write FRunAdmin;
     property CaptureMsg: Boolean read FCaptureMsg write FCaptureMsg;
@@ -104,6 +114,7 @@ begin
   FScriptBefor := TStringList.Create( );
   FScriptAfter := TStringList.Create( );
   FCanExecute := true;
+  FSingleInstance := False;
 end;
 
 destructor TPGLink.Destroy( );
@@ -117,6 +128,7 @@ begin
   FScriptBefor.Free( );
   FScriptAfter.Free( );
   FCanExecute := False;
+  FSingleInstance := False;
   inherited Destroy( );
 end;
 
@@ -190,11 +202,28 @@ begin
   FScriptBefor.Text := AValue;
 end;
 
-procedure TPGLink.ThreadExecute( AWaitFor: Boolean; AParam: string );
+procedure TPGLink.ThreadExecute(
+    AWaitFor: Boolean;
+    AParameter: string;
+    ARunAdmin: Boolean;
+    ASingleInstance: Boolean;
+    APriority: Byte;
+    AState: Byte;
+    ACaptureMsg: Boolean
+  );
 var
   LinkThread: TLinkThread;
 begin
-  LinkThread := TLinkThread.Create( Self, AParam, not AWaitFor );
+  LinkThread := TLinkThread.Create(
+    Self,
+    not AWaitFor,
+    AParameter,
+    ARunAdmin,
+    ASingleInstance,
+    APriority,
+    AState,
+    ACaptureMsg
+  );
   LinkThread.Start;
   if AWaitFor then
   begin
@@ -205,34 +234,81 @@ end;
 
 procedure TPGLink.Triggering( );
 begin
-  Self.ThreadExecute( False, Self.FParameter );
+  Self.ThreadExecute(
+    False,
+    FParameter,
+    FRunAdmin,
+    FSingleInstance,
+    FPriority,
+    FState,
+    FCaptureMsg
+  );
 end;
 
-procedure TPGLink.WaitFor( );
+procedure TPGLink.WaitFor();
 begin
-  Self.ThreadExecute( true, Self.FParameter );
+  Self.ThreadExecute(
+    True,
+    FParameter,
+    FRunAdmin,
+    FSingleInstance,
+    FPriority,
+    FState,
+    FCaptureMsg
+  );
 end;
 
 procedure TPGLink.ExecutarNivel1( Gramatica: TGramatica );
 var
-  VParam: string;
+  LQuantidade: Byte;
+  LParameter: string;
+  LState: Byte;
+  LPriority: Byte;
+  LRunAdmin: Boolean;
+  LCaptureMsg: Boolean;
+  LSingleInstance: Boolean;
 begin
+  LParameter := FParameter;
+  LState:= FState;
+  LPriority:= FPriority;
+  LRunAdmin:= FRunAdmin;
+  LCaptureMsg:= FCaptureMsg;
+  LSingleInstance:= FSingleInstance;
+
   if Gramatica.TokenList.Token.Classe = cmdLPar then
   begin
     Gramatica.TokenList.GetNextToken;
     Expressao( Gramatica );
     if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
     begin
-      VParam := Gramatica.Pilha.Desempilhar( '' );
+      LQuantidade := LerParamentros( Gramatica, 0, 6 );
       if not Gramatica.Erro then
-        Self.ThreadExecute( False, VParam );
+      begin
+        if LQuantidade >= 6 then LCaptureMsg := Gramatica.Pilha.Desempilhar( LCaptureMsg );
+        if LQuantidade >= 5 then LState := Gramatica.Pilha.Desempilhar( LState );
+        if LQuantidade >= 4 then LPriority := Gramatica.Pilha.Desempilhar( LPriority );
+        if LQuantidade >= 3 then LSingleInstance := Gramatica.Pilha.Desempilhar( LSingleInstance );
+        if LQuantidade >= 2 then LRunAdmin := Gramatica.Pilha.Desempilhar( LRunAdmin );
+        if LQuantidade >= 1 then LParameter := Gramatica.Pilha.Desempilhar( LParameter );
+
+        Self.ThreadExecute(
+          False,
+          LParameter,
+          LRunAdmin,
+          LSingleInstance,
+          LPriority,
+          LState,
+          LCaptureMsg
+        );
+      end;
 
       Gramatica.TokenList.GetNextToken;
     end
     else
       Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
-  end else if not Gramatica.Erro then
-    Self.Triggering();
+  end else
+    if not Gramatica.Erro then
+      Self.Triggering();
 end;
 
 { TPGLinkDec }
@@ -261,17 +337,23 @@ begin
         else
           Link := TPGLink( Id );
 
+        if Quantidade >= 10 then
+          Link.ScriptAfter := Gramatica.Pilha.Desempilhar( '' );
+
+        if Quantidade >= 9 then
+          Link.ScriptBefor := Gramatica.Pilha.Desempilhar( '' );
+
         if Quantidade >= 8 then
-          Link.ScriptAfter := Gramatica.Pilha.Desempilhar( 0 );
-
-        if Quantidade >= 7 then
-          Link.ScriptBefor := Gramatica.Pilha.Desempilhar( 0 );
-
-        if Quantidade = 6 then
           Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
 
-        if Quantidade >= 5 then
+        if Quantidade >= 7 then
+          Link.CaptureMsg := Gramatica.Pilha.Desempilhar( False );
+
+        if Quantidade >= 6 then
           Link.RunAdmin := Gramatica.Pilha.Desempilhar( False );
+
+        if Quantidade >= 5 then
+          Link.SingleInstance := Gramatica.Pilha.Desempilhar( False );
 
         if Quantidade >= 4 then
           Link.State := Gramatica.Pilha.Desempilhar( 1 );
@@ -287,7 +369,7 @@ begin
       end;
     end
     else
-      Gramatica.ErroAdd( 'Identificador esperado ou existente.' );
+      Gramatica.ErroAdd( Tr('Error_Interpreter_IdExist') );
   end;
 end;
 
