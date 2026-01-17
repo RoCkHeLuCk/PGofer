@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="Task" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">6</Occurrence>
+    <Occurrence Type="Cardinal">8</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">system.CanClose := 0;
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
   <Task Name="Task1" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">7</Occurrence>
+    <Occurrence Type="Cardinal">9</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">if not System.CanClose then
   System.CanClose := System.DialogMessage('Fechar?');

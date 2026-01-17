@@ -57,7 +57,6 @@ var
 begin
   ExplorerToken := 0;
   NewToken := 0;
-  ExplorerHWND := 0;
   Result := ERROR_GEN_FAILURE;
 
   GetWindowThreadProcessId( GetShellWindow() , ExplorerPID);

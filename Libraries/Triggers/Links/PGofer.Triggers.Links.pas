@@ -277,11 +277,13 @@ begin
 
   if Gramatica.TokenList.Token.Classe = cmdLPar then
   begin
-    Gramatica.TokenList.GetNextToken;
-    Expressao( Gramatica );
-    if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
-    begin
-      LQuantidade := LerParamentros( Gramatica, 0, 6 );
+    LQuantidade := LerParamentros( Gramatica, 0, 6 , True);
+
+    // Gramatica.TokenList.GetNextToken;
+    //Expressao( Gramatica );
+    //if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
+    //begin
+
       if not Gramatica.Erro then
       begin
         if LQuantidade >= 6 then LCaptureMsg := Gramatica.Pilha.Desempilhar( LCaptureMsg );
@@ -301,11 +303,9 @@ begin
           LCaptureMsg
         );
       end;
-
-      Gramatica.TokenList.GetNextToken;
-    end
-    else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
+    //end
+    //else
+    //  Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
   end else
     if not Gramatica.Erro then
       Self.Triggering();

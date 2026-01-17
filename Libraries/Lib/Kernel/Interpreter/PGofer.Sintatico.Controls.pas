@@ -6,8 +6,8 @@ uses
   PGofer.Classes, PGofer.Lexico, PGofer.Sintatico;
 
 // -------------------------------ESTRUTURAS-----------------------------------//
-function LerParamentros( Gramatica: TGramatica;
-  const QuantMin, QuantMax: Byte ): Byte;
+function LerParamentros( Gramatica: TGramatica; const QuantMin, QuantMax: Byte;
+  IgnoreLPar: Boolean = False ): Byte;
 procedure EncontrarFim( Gramatica: TGramatica; BeginEnd: Boolean;
   TokenList: TTokenList = nil );
 // --------------------------------ATRIBUÍÇÃO----------------------------------//
@@ -39,12 +39,13 @@ uses
   PGofer.Core, PGofer.Language, PGofer.Runtime, PGofer.Math.Controls;
 
 function LerParamentros( Gramatica: TGramatica;
-  const QuantMin, QuantMax: Byte ): Byte;
+  const QuantMin, QuantMax: Byte; IgnoreLPar: Boolean = False ): Byte;
 var
   c: Byte;
 begin
   Result := 0;
-  Gramatica.TokenList.GetNextToken;
+  if not IgnoreLPar then
+    Gramatica.TokenList.GetNextToken;
   if ( Gramatica.TokenList.Token.Classe = cmdLPar ) then
   begin
     Gramatica.TokenList.GetNextToken;

@@ -56,6 +56,7 @@ type
     class procedure SetInput(AType: Integer);
     procedure Execute(Gramatica: TGramatica); override;
   published
+    [TPGAttribText('0:None; 1:AsyncInput; 2:THookInput; 3:RawInput;')]
     property InputType: Integer write SetInput;
   end;
 
@@ -220,9 +221,6 @@ var
   Key: TKey;
   VHotKey: TPGHotKey;
 begin
-  if not Assigned(FShootKeys) then
-    Exit;
-
   Key := TKey.CalcVirtualKey(AParamInput);
 
   if Key.wKey > 0 then

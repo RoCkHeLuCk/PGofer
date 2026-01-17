@@ -1,38 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <Folder Name="Folder" Enabled="true" ReadOnly="false">
-    <_Expanded Type="Boolean">True</_Expanded>
-    <_Locked Type="Boolean">False</_Locked>
-    <Task Name="Task" Enabled="true" ReadOnly="false">
-      <Occurrence Type="Cardinal">11</Occurrence>
-      <Repeats Type="Cardinal">0</Repeats>
-      <Script Type="string"></Script>
-      <Trigger Type="Byte">0</Trigger>
-    </Task>
-    <Link Name="Link1" Enabled="true" ReadOnly="false">
-      <FileName Type="string"></FileName>
-      <Parameter Type="string"></Parameter>
-      <Directory Type="string"></Directory>
-      <State Type="Byte">1</State>
-      <SingleInstance Type="Boolean">False</SingleInstance>
-      <Priority Type="Byte">2</Priority>
-      <RunAdmin Type="Boolean">False</RunAdmin>
-      <CaptureMsg Type="Boolean">False</CaptureMsg>
-      <ScriptBefor Type="string"></ScriptBefor>
-      <ScriptAfter Type="string"></ScriptAfter>
-      <CanExecute Type="Boolean">True</CanExecute>
-    </Link>
-    <AutoFill Name="AutoFill1" Enabled="true" ReadOnly="false">
-      <Mode Type="Byte">0</Mode>
-      <Delay Type="Cardinal">0</Delay>
-      <Speed Type="Cardinal">10</Speed>
-      <Text Type="string"></Text>
-    </AutoFill>
-  </Folder>
-  <VaultFolder Name="VaultFolder" Enabled="true" ReadOnly="false">
-    <FileName Type="string">E:\teste.pgv</FileName>
-    <SavePassword Type="Boolean">True</SavePassword>
-    <_Expanded Type="Boolean">False</_Expanded>
-    <_Locked Type="Boolean">False</_Locked>
-  </VaultFolder>
+  <Link Name="regedit" Enabled="true" ReadOnly="false">
+    <FileName Type="string">%SystemRoot%\regedit.exe</FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string">C:\Windows\</Directory>
+    <State Type="Byte">1</State>
+    <SingleInstance Type="Boolean">True</SingleInstance>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
 </Triggers>
