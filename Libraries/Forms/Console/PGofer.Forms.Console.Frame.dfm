@@ -28,6 +28,24 @@ inherited PGConsoleFrame: TPGConsoleFrame
       Width = 101
       ExplicitWidth = 101
     end
+    inherited CmbWindowState: TComboBox
+      ParentColor = True
+    end
+    inherited EdtAlphaBlendValue: TEditEx
+      StyleElements = [seFont, seClient, seBorder]
+    end
+    inherited EdtHeigth: TEditEx
+      StyleElements = [seFont, seClient, seBorder]
+    end
+    inherited EdtTop: TEditEx
+      StyleElements = [seFont, seClient, seBorder]
+    end
+    inherited EdtWidth: TEditEx
+      StyleElements = [seFont, seClient, seBorder]
+    end
+    inherited EdtLeft: TEditEx
+      StyleElements = [seFont, seClient, seBorder]
+    end
     object edtDelay: TEditEx [23]
       Left = 70
       Top = 254
@@ -36,7 +54,6 @@ inherited PGConsoleFrame: TPGConsoleFrame
       Color = clSilver
       TabOrder = 14
       Text = '0'
-      StyleElements = [seFont, seBorder]
       OnExit = edtDelayExit
     end
     object updDelay: TUpDown [24]

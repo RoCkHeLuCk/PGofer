@@ -70,7 +70,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Width = 59
       Height = 13
       Alignment = taRightJustify
-      Anchors = [akTop, akRight]
       AutoSize = False
       Caption = 'Speed:'
     end
@@ -82,9 +81,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Hint = 'Forma de enviar o Texto'
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Mode:'
-      ParentBiDiMode = False
     end
     object LblDelay: TLabel [3]
       Left = 3
@@ -100,7 +97,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Top = 36
       Width = 13
       Height = 13
-      Anchors = [akTop, akRight]
       Caption = 'ms'
     end
     object Lblmilisec2: TLabel [5]
@@ -115,11 +111,9 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Top = 33
       Width = 75
       Height = 21
-      Anchors = [akTop, akRight]
       Color = clSilver
       TabOrder = 3
       Text = '10'
-      StyleElements = [seFont, seBorder]
       OnAfterValidate = EdtSpeedAfterValidate
     end
     object UpdSpeed: TUpDown
@@ -127,7 +121,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Top = 33
       Width = 16
       Height = 21
-      Anchors = [akTop, akRight]
       Associate = EdtSpeed
       Max = 255
       Position = 10
@@ -160,7 +153,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Color = clSilver
       TabOrder = 1
       Text = '0'
-      StyleElements = [seFont, seBorder]
       OnAfterValidate = EdtDelayAfterValidate
     end
     object updDelay: TUpDown

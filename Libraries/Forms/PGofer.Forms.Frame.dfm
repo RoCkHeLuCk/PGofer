@@ -169,7 +169,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object BtnShow: TButton [16]
       Left = 70
-      Top = 219
+      Top = 224
       Width = 75
       Height = 25
       Caption = 'Show'
@@ -184,7 +184,6 @@ inherited PGFormsFrame: TPGFormsFrame
       Color = clSilver
       TabOrder = 9
       Text = '0'
-      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtAlphaBlendValueKeyUp
     end
     object EdtHeigth: TEditEx [18]
@@ -194,7 +193,6 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 10
-      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtHeigthKeyUp
     end
     object EdtTop: TEditEx [19]
@@ -204,7 +202,6 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 11
-      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtTopKeyUp
     end
     object EdtWidth: TEditEx [20]
@@ -214,7 +211,6 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 12
-      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtWidthKeyUp
     end
     object EdtLeft: TEditEx [21]
@@ -224,7 +220,6 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 13
-      StyleElements = [seFont, seBorder]
       OnKeyUp = EdtLeftKeyUp
     end
     inherited EdtName: TEditEx

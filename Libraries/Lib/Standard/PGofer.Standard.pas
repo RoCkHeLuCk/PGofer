@@ -1,4 +1,4 @@
-﻿unit PGofer.System.Statements;
+﻿unit PGofer.Standard;
 
 interface
 
@@ -13,6 +13,11 @@ type
   end;
 
   TPGDelete = class( TPGItemCMD )
+  public
+    procedure Execute( Gramatica: TGramatica ); override;
+  end;
+
+  TPGDelay = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
@@ -75,7 +80,7 @@ uses
   PGofer.Core, PGofer.Language,
   PGofer.Classes, PGofer.Lexico,
   PGofer.Sintatico.Controls,
-  PGofer.System.Variants;
+  PGofer.Standard.Variants;
 
 { TPGCopy }
 
@@ -109,6 +114,20 @@ begin
   begin
     System.Delete( Valor, Inicio, Fim );
     Gramatica.Pilha.Empilhar( Valor );
+  end;
+end;
+
+{ TPGDelay }
+
+procedure TPGDelay.Execute( Gramatica: TGramatica );
+var
+  Delay : Cardinal;
+begin
+  LerParamentros( Gramatica, 1, 1 );
+  Delay := Gramatica.Pilha.Desempilhar( 0 );
+  if ( not Gramatica.Erro ) then
+  begin
+    Sleep( Delay );
   end;
 end;
 
@@ -431,6 +450,7 @@ initialization
 
 TPGCopy.Create( GlobalItemCommand );
 TPGDelete.Create( GlobalItemCommand );
+TPGDelay.Create( GlobalItemCommand );
 TPGFor.Create( GlobalItemCommand );
 TPGIf.Create( GlobalItemCommand );
 TPGIsDef.Create( GlobalItemCommand );

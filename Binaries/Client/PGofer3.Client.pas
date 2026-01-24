@@ -53,6 +53,7 @@ type
     procedure OnEndSession(var Msg: TWMEndSession); message WM_ENDSESSION;
     procedure WndProc( var Msg: TMessage ); override;
     procedure WMHotKey( var Msg: TWMHotKey ); message WM_HOTKEY;
+    procedure WMPowerBroadcast(var Msg: TMessage); message WM_POWERBROADCAST;
   public
   end;
 
@@ -109,6 +110,18 @@ begin
   inherited WndProc( Msg );
 end;
 
+procedure TFrmPGofer.WMPowerBroadcast(var Msg: TMessage);
+const
+  PBT_APMRESUMEAUTOMATIC = $0012; // Acordou sozinho (Task, Update)
+  PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuário (Mouse/Teclado/Botão)
+begin
+  inherited; // Deixa o Windows processar o padrão
+  if (Msg.WParam = PBT_APMRESUMEAUTOMATIC) or (Msg.WParam = PBT_APMRESUMESUSPEND) then
+  begin
+    ScriptExec( 'MainMessage', 'hotkey.InputRestart;' );
+  end;
+end;
+
 procedure TFrmPGofer.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
@@ -118,8 +131,8 @@ begin
   Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
   {$IFNDEF DEBUG}
-  FHotKey_FrmPGofer := GlobalAddAtom( 'FrmPGofer' );
-  RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
+    //FHotKey_FrmPGofer := GlobalAddAtom( 'PGofer3' );
+   //RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
   {$ENDIF}
 end;
 
@@ -166,7 +179,9 @@ end;
 
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
-  UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
+  {$IFNDEF DEBUG}
+    //UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
+  {$ENDIF}
   FItem := nil;
   inherited FormDestroy( Sender );
 end;

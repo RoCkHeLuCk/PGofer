@@ -79,9 +79,8 @@ object PGItemFrame: TPGItemFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
-      Color = clRed
+      Color = clSilver
       TabOrder = 0
-      StyleElements = [seFont, seBorder]
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'
       OnAfterValidate = EdtNameAfterValidate

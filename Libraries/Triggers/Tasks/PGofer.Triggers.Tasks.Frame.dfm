@@ -65,9 +65,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Hint = 'Forma de detectar a Tarefa'
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Trigger:'
-      ParentBiDiMode = False
     end
     object LblOccurrence: TLabel [2]
       Left = 137
@@ -77,9 +75,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Hint = 'Forma de detectar a Tarefa'
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Occurrence:'
-      ParentBiDiMode = False
     end
     object LblRepeat: TLabel [3]
       Left = 13
@@ -89,9 +85,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Hint = 'Forma de detectar a Tarefa'
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Repeat:'
-      ParentBiDiMode = False
     end
     object CmbTrigger: TComboBox [4]
       Left = 70
@@ -117,7 +111,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Color = clSilver
       TabOrder = 1
       Text = '0'
-      StyleElements = [seFont, seBorder]
       OnAfterValidate = EdtOccurrenceAfterValidate
     end
     object UpdOccurrence: TUpDown [6]
@@ -138,7 +131,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Color = clSilver
       TabOrder = 3
       Text = '0'
-      StyleElements = [seFont, seBorder]
       OnAfterValidate = EdtRepeatAfterValidate
     end
     object UpdRepeat: TUpDown [8]

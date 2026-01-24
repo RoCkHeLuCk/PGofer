@@ -1,4 +1,4 @@
-unit PGofer.System.Mouse;
+unit PGofer.Windows.Input;
 
 interface
 

@@ -54,6 +54,7 @@ inherited PGLinkFrame: TPGLinkFrame
       WantTabs = True
       Zoom = 100
       OnKeyUp = EdtScriptAfterKeyUp
+      ExplicitTop = 14
     end
   end
   object GrbScriptBefore: TGroupBox [3]
@@ -148,10 +149,9 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
-      Color = clRed
+      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 1
-      StyleElements = [seFont, seBorder]
       ValidationMode = vmOpenFile
       ActionButtonShow = True
       PathAutoUnExpand = True
@@ -169,7 +169,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 3
-      StyleElements = [seFont, seBorder]
       OnAfterValidate = EdtPatameterAfterValidate
     end
     object EdtDiretory: TEditEx [8]
@@ -178,10 +177,9 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      Color = clRed
+      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 4
-      StyleElements = [seFont, seBorder]
       ValidationMode = vmPathExists
       ActionButtonShow = True
       PathAutoUnExpand = True
@@ -228,7 +226,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Top = 141
       Width = 61
       Height = 21
-      Anchors = [akTop, akRight]
       Caption = 'Test'
       TabOrder = 10
       OnClick = BtnTestClick

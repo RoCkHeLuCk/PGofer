@@ -36,30 +36,33 @@ begin
   FImageList.Free;
 end;
 
-class procedure TPGIconList.LoadIconFromPath(const ACurrentPath: string );
+class procedure TPGIconList.LoadIconFromPath(const ACurrentPath: string);
 var
   IconEnum: TPGIcon;
   FileName: string;
   Icon: TIcon;
 begin
-
-  for IconEnum := Low(TPGIcon) to High(TPGIcon) do
+  if DirectoryExistsEx( ACurrentPath ) then
   begin
-    FileName := GetEnumName(TypeInfo(TPGIcon), Ord(IconEnum));
-    FileName := copy(FileName, 4, Length(FileName));
-    FileName := ACurrentPath + FileName + '.ico';
+    FImageList.Clear;
+    for IconEnum := Low(TPGIcon) to High(TPGIcon) do
+    begin
+      FileName := GetEnumName(TypeInfo(TPGIcon), Ord(IconEnum));
+      FileName := copy(FileName, 4, Length(FileName));
+      FileName := ACurrentPath + FileName + '.ico';
 
-    Icon := TIcon.Create( );
-    try
-      if FileExistsEx( FileName ) then
-      begin
-        Icon.LoadFromFile( FileName );
-      end else begin
-        TrC('Error_IconNoFound',[FileName]);
+      Icon := TIcon.Create( );
+      try
+        if FileExistsEx( FileName ) then
+        begin
+          Icon.LoadFromFile( FileName );
+        end else begin
+          TrC('Error_IconNoFound',[FileName]);
+        end;
+        FImageList.AddIcon( Icon );
+      finally
+        Icon.Free( );
       end;
-      FImageList.AddIcon( Icon );
-    finally
-      Icon.Free( );
     end;
   end;
 end;

@@ -11,7 +11,6 @@ type
 
   {$M+}
   [TPGAttribIcon(pgiAutoFill)]
-  [TPGAttribText('Trigger AutoFill;')]
   TPGAutoFills = class( TPGItemTrigger )
   private
     FDelay : Cardinal;
@@ -37,12 +36,13 @@ type
   end;
   {$TYPEINFO ON}
 
-  [TPGAttribText('Create AutoFill;')]
+  [TPGAttribIcon(pgiAutoFill)]
   TPGAutoFillsDeclare = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
+  [TPGAttribIcon(pgiAutoFill)]
   TPGAutoFillsMirror = class( TPGItemMirror )
   protected
   public
@@ -214,7 +214,7 @@ initialization
 
 TPGAutoFillsDeclare.Create( GlobalItemCommand, 'AutoFill' );
 TPGAutoFills.GlobList := TPGFolder.Create( GlobalCollection, 'AutoFills' );
-TriggersCollect.RegisterClass( 'AutoFill', TPGAutoFillsMirror );
+TriggersCollect.RegisterClass( 'AutoFill', pgiAutoFill, TPGAutoFillsMirror );
 
 finalization
 

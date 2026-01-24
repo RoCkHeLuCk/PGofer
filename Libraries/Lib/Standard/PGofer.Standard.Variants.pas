@@ -1,4 +1,4 @@
-﻿unit PGofer.System.Variants;
+﻿unit PGofer.Standard.Variants;
 
 interface
 
@@ -40,7 +40,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Language, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.System.Variants.Frame;
+  PGofer.Language, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Standard.Variants.Frame;
 
 { TPGVariant }
 

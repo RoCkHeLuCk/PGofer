@@ -114,7 +114,6 @@ implementation
 
 uses
   Pgofer.ClipBoards.Controls,
-
   Pgofer.Services.Controls,
   Pgofer.Services.Thread;
 
@@ -334,19 +333,19 @@ begin
             end; // if filtro.
             Dispose( pConfig );
           except
-            ShowMessage( 'Erro ao Carregar Serviço: "' + ssa^[ c ]
+            ShowMessage( 'Error: When Loading Service "' + ssa^[ c ]
                .lpServiceName + '".' );
           end;
           CloseServiceHandle( Service );
         end; // if service
       end; // For
     Dispose( ssa );
-    StbSercive.Panels[ 0 ].Text := 'Conectado: ' + FHostName;
+    StbSercive.Panels[ 0 ].Text := 'Conected: ' + FHostName;
   end
   else
-    StbSercive.Panels[ 0 ].Text := 'Desconectado: ' + FHostName;
+    StbSercive.Panels[ 0 ].Text := 'Disconnected: ' + FHostName;
 
-  StbSercive.Panels[ 1 ].Text := 'Total de Serviços: ' +
+  StbSercive.Panels[ 1 ].Text := 'Total Services: ' +
      FormatFloat( '0', LtvServices.Items.Count );
   LtvServices.AlphaSort;
 end;
@@ -481,8 +480,8 @@ begin
            [ 9 ][ 1 ] + Char( TMenuItem( Sender ).tag );
       end
       else
-        ShowMessage( 'Não foi possivel configirar o serviço: ' +
-           LtvServices.Items[ c ].Caption );
+        ShowMessage( 'Error: Unable to configure the service "' +
+           LtvServices.Items[ c ].Caption + '".' );
     end; // if select
   end; // for
 end;
@@ -524,7 +523,7 @@ begin
   begin
     if LtvServices.Items[ c ].Selected then
     begin
-      if ( MessageDlg( 'Tem certeza deletar o Serviço: ' + #13 +
+      if ( MessageDlg( 'Are you sure to delete the Service?' + #13 +
          LtvServices.Items[ c ].SubItems[ 4 ], mtConfirmation, [ mbYes, mbNo ],
          mrNo ) = mrYes ) then
       begin
@@ -536,8 +535,8 @@ begin
           LtvServices.Items[ c ].SubItems[ 9 ] := #255 + #255;
         end
         else
-          ShowMessage( 'Não foi possivel deletar o serviço: ' +
-             LtvServices.Items[ c ].Caption );
+          ShowMessage( 'Error: Unable to delete the service "' +
+             LtvServices.Items[ c ].Caption + '".' );
       end;
     end; // if select
   end; // for
@@ -551,8 +550,9 @@ begin
   if SdgServices.Execute then
   begin
     Script := TStringList.Create;
-    Script.Add( '//PGofer Script Services.' );
+    Script.Add( '//PGofer Script Services V1.2' );
     Script.Add( '' );
+    Script.Add( 'Service.MachineName:='''+FHostName+''';' );
     d := 0;
     for c := 0 to LtvServices.Items.Count - 1 do
     begin
@@ -561,12 +561,12 @@ begin
         Script.Add( '//Serviço: ' + LtvServices.Items[ c ].Caption );
 
         e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 2 ] );
-        Script.Add( 'Service.SetConfig( ''' + FHostName + ''', ''' +
+        Script.Add( 'Service.SetConfig( ''' +
            LtvServices.Items[ c ].SubItems[ 4 ] + ''', ' + IntToStr( e ) +
            ' ); //' + ServiceStatusToConfig( e ) );
 
         e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 1 ] );
-        Script.Add( 'Service.SetState( ''' + FHostName + ''', ''' +
+        Script.Add( 'Service.SetState( ''' +
            LtvServices.Items[ c ].SubItems[ 4 ] + ''', ' + IntToStr( e ) +
            ' ); //' + ServiceStatusToState( e ) );
 
@@ -574,10 +574,10 @@ begin
         inc( d );
       end; // if select
     end; // for
-    Script.Add( '//Total de Serviços: ' + FormatFloat( '0', d ) );
+    Script.Add( '//Total services: ' + FormatFloat( '0', d ) );
     Script.SaveToFile( SdgServices.FileName );
     Script.Free;
-    ShowMessage( 'Script Grerado.' );
+    ShowMessage( 'Ok: Script Done!' );
   end; // if save
 end;
 
@@ -610,13 +610,13 @@ procedure TFrmServices.LtvServicesSelectItem(Sender: TObject; Item: TListItem;
   Selected: Boolean);
 begin
   if Selected then
-    MemDescription.Text := ServiceGetDesciption( FHostName,
+    MemDescription.Text := ServiceGetDescription( FHostName,
        Item.SubItems[ 4 ] );
 end;
 
 procedure TFrmServices.MniConectarClick( Sender: TObject );
 begin
-  FHostName := PChar( InputBox( 'Services', 'Nome ou ip do computador:',
+  FHostName := PChar( InputBox( 'Services', 'Name or IP:',
      FHostName ) );
   CloseServiceHandle( FHostHandle );
   FHostHandle := OpenSCManager( PChar( FHostName ), nil,

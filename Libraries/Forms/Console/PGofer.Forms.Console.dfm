@@ -135,13 +135,12 @@ object FrmConsole: TFrmConsole
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
-      BorderStyle = bsNone
       Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
+      Font.Color = clBlack
       Font.Height = -16
       Font.Name = 'Courier New'
-      Font.Style = []
+      Font.Style = [fsBold]
       HideSelection = False
       ParentFont = False
       ReadOnly = True

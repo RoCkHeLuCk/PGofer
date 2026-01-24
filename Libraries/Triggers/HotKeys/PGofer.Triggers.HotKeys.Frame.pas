@@ -37,6 +37,7 @@ type
     procedure IniConfigLoad( ); override;
     function GetItem( ): TPGHotKey; virtual;
     property Item: TPGHotKey read GetItem;
+    procedure InhibitToogle();
   public
     constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -48,10 +49,8 @@ var
 implementation
 
 uses
-
-
-
-
+  Winapi.Windows,
+  PGofer.Language,
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
@@ -65,6 +64,8 @@ begin
   EdtScript.Lines.Text := Item.Script;
   MmoHotKeys.Lines.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
+  Self.InhibitToogle();
+  CkbInhibit.Hint := Tr('Hint_HotKey_InhibitSupport');
 end;
 
 destructor TPGHotKeyFrame.Destroy( );
@@ -83,6 +84,16 @@ procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
   Item.Script := EdtScript.Lines.Text;
+end;
+
+procedure TPGHotKeyFrame.InhibitToogle();
+var
+  LVisible: Boolean;
+begin
+  LVisible := ((TPGHotKeyDeclare.GetInput = 2) and (Item.Detect = 1));
+  CkbInhibit.Checked := LVisible;
+  CkbInhibit.Enabled := LVisible;
+  CkbInhibit.ShowHint := not LVisible;
 end;
 
 procedure TPGHotKeyFrame.IniConfigLoad;
@@ -112,26 +123,19 @@ end;
 procedure TPGHotKeyFrame.CmbDetectChange( Sender: TObject );
 begin
   Item.Detect := CmbDetect.ItemIndex;
-  if Item.Detect = 2 then
-  begin
-    CkbInhibit.Checked := False;
-    CkbInhibit.Enabled := False;
-    Item.Inhibit := False;
-  end else begin
-    CkbInhibit.Enabled := True;
-  end;
+  Self.InhibitToogle();
 end;
 
 procedure TPGHotKeyFrame.MmoHotKeysEnter( Sender: TObject );
 begin
   PGHotKeyFrame := Self;
-  MmoHotKeys.Color := clRed;
+  MmoHotKeys.Color := clWhite;
   TPGHotKey.SetProcessKeys( OnProcessKeys );
 end;
 
 procedure TPGHotKeyFrame.MmoHotKeysExit( Sender: TObject );
 begin
-  MmoHotKeys.Color := clBtnFace;
+  MmoHotKeys.Color := clSilver;
   TPGHotKey.SetProcessKeys( nil );
 end;
 
@@ -142,7 +146,7 @@ begin
   Key := TKey.CalcVirtualKey( AParamInput );
   if Key.wKey > 0 then
   begin
-    if Key.bDetect in [ kd_Down, kd_Wheel ] then
+    //if Key.bDetect in [ kd_Down, kd_Wheel ] then
     begin
       if not( PGHotKeyFrame.Item.Keys.Contains( Key.wKey ) ) then
       begin

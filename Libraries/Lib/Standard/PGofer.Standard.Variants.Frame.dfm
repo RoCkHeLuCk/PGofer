@@ -29,6 +29,9 @@ inherited PGVariantsFrame: TPGVariantsFrame
       StyleElements = [seFont, seBorder]
       OnAfterValidate = EdtValueAfterValidate
     end
+    inherited EdtName: TEditEx
+      StyleElements = [seFont, seBorder]
+    end
   end
   inherited sptAbout: TPanel
     Top = 126

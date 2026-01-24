@@ -1,29 +1,27 @@
-unit PGofer.System.Controls;
+unit PGofer.Windows.Controls;
 
 interface
 
 uses
   Winapi.Windows, System.SysUtils;
 
-
-function SystemShutDownReasonCreate(hWnd: HWND; pwszReason: LPCWSTR): BOOL; stdcall; external user32 name 'ShutdownBlockReasonCreate';
-function SystemShutDownReasonDestroy(hWnd: HWND): BOOL; stdcall; external user32 name 'ShutdownBlockReasonDestroy';
-function SystemShutDown( Off: Cardinal ): Boolean;
-function SystemSetSuspendState( hibernate, forcecritical, disablewakeevent
-  : Boolean ): Boolean; stdcall; external 'powrprof.dll' name 'SetSuspendState';
-function SystemSetScreen( Height, Width, Monitor: Integer ): Boolean;
-function SystemSetSendMessage( ClassName: string; Mss: Cardinal;
-  wPar, lPar: Integer ): Integer;
-function SystemPrtScreen( Height, Width, Top, Left: Integer;
-  FileName: string ): Integer;
-function SystemGetFindWindow( ClassName: string ): NativeInt;
-function SystemGetDateTimeNow( Format: string ): string;
-function SystemGetWindowsTextFromPoint( ): string;
-function SystemDialogMessage( Text: string ): Boolean;
-function SystemMonitorPower( OnOff: Boolean ): NativeInt;
-function SystemGetControlFocus( ): HDWP;
-// QueryPerformanceCounter(StartTime);
-// QueryPerformanceFrequency(Frequency);
+  function WindowsShutDownReasonCreate(hWnd: HWND; pwszReason: LPCWSTR): BOOL; stdcall; external user32 name 'ShutdownBlockReasonCreate';
+  function WindowsShutDownReasonDestroy(hWnd: HWND): BOOL; stdcall; external user32 name 'ShutdownBlockReasonDestroy';
+  function WindowsShutDown( Off: Cardinal ): Boolean;
+  function WindowsSetSuspendState( hibernate, forcecritical, disablewakeevent
+    : Boolean ): Boolean; stdcall; external 'powrprof.dll' name 'SetSuspendState';
+  function WindowsSetScreen( Height, Width, Monitor: Integer ): Boolean;
+  function WindowsSetSendMessage( ClassName: string; Mss: Cardinal;
+    wPar, lPar: Integer ): Integer;
+  function WindowsPrtScreen( Height, Width, Top, Left: Integer;
+    FileName: string ): Integer;
+  function WindowsGetFindWindow( ClassName: string ): NativeInt;
+  function WindowsGetWindowsTextFromPoint( ): string;
+  function WindowsDialogMessage( Text: string ): Boolean;
+  function WindowsMonitorPower( OnOff: Boolean ): NativeInt;
+  function WindowsGetControlFocus( ): HDWP;
+  // QueryPerformanceCounter(StartTime);
+  // QueryPerformanceFrequency(Frequency);
 
 implementation
 
@@ -31,7 +29,7 @@ uses
   Vcl.Graphics,
   System.UITypes, Vcl.Dialogs, Vcl.Forms;
 
-function SystemShutDown( Off: Cardinal ): Boolean;
+function WindowsShutDown( Off: Cardinal ): Boolean;
 var
   TokenPriv: TTokenPrivileges;
   H: DWORD;
@@ -50,7 +48,7 @@ begin
   Result := ExitWindowsEx( Off, 0 );
 end;
 
-function SystemSetScreen( Height, Width, Monitor: Integer ): Boolean;
+function WindowsSetScreen( Height, Width, Monitor: Integer ): Boolean;
 var
   lpDevMode: TDeviceMode;
 begin
@@ -65,7 +63,7 @@ begin
   end; // enum
 end;
 
-function SystemSetSendMessage( ClassName: string; Mss: Cardinal;
+function WindowsSetSendMessage( ClassName: string; Mss: Cardinal;
   wPar, lPar: Integer ): Integer;
 var
   Prc: HWND;
@@ -82,7 +80,7 @@ begin
     Result := Prc;
 end;
 
-function SystemPrtScreen( Height, Width, Top, Left: Integer;
+function WindowsPrtScreen( Height, Width, Top, Left: Integer;
   FileName: string ): Integer;
 var
   B: TBitmap;
@@ -102,7 +100,7 @@ begin
   B.Free;
 end;
 
-function SystemGetFindWindow( ClassName: string ): NativeInt;
+function WindowsGetFindWindow( ClassName: string ): NativeInt;
 var
   C: PWideChar;
 begin
@@ -112,12 +110,7 @@ begin
     Result := FindWindow( nil, C );
 end;
 
-function SystemGetDateTimeNow( Format: string ): string;
-begin
-  Result := FormatDateTime( Format, now );
-end;
-
-function SystemGetWindowsTextFromPoint( ): string;
+function WindowsGetWindowsTextFromPoint( ): string;
 var
   Buffer: string;
   txSize: Integer;
@@ -140,12 +133,12 @@ begin
   Result := Buffer;
 end;
 
-function SystemDialogMessage( Text: string ): Boolean;
+function WindowsDialogMessage( Text: string ): Boolean;
 begin
   Result := MessageDlg( Text, mtConfirmation, [ mbYes, mbNo ], 0 ) = mrYes;
 end;
 
-function SystemMonitorPower( OnOff: Boolean ): NativeInt;
+function WindowsMonitorPower( OnOff: Boolean ): NativeInt;
 begin
   // corrigir plataforma ???????????
   if not OnOff then
@@ -159,7 +152,7 @@ begin
     Result := SendMessage( Application.Handle, $0112, SC_MONITORPOWER, -1 );
 end;
 
-function SystemGetControlFocus( ): HDWP;
+function WindowsGetControlFocus( ): HDWP;
 var
   Wnd: HWND;
   TId, PId: DWORD;

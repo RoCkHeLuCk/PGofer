@@ -57,9 +57,9 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Top = 33
       Width = 290
       Height = 21
-      Color = clRed
+      Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       TabOrder = 1
-      StyleElements = [seFont, seBorder]
       ValidationMode = vmSaveFile
       ActionButtonShow = True
       PathAutoUnExpand = True
@@ -72,10 +72,10 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Top = 60
       Width = 290
       Height = 21
-      Color = clRed
+      Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       PasswordChar = '*'
       TabOrder = 3
-      StyleElements = [seFont, seBorder]
       ValidationMode = vmPassword
       ActionButtonShow = True
       RegExExpression = '^.{6,}$'

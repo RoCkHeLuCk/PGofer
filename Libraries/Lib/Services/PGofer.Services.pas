@@ -3,80 +3,132 @@ unit PGofer.Services;
 interface
 
 uses
-  PGofer.Runtime;
+  PGofer.Core, PGofer.Classes, PGofer.Runtime;
 
 type
   {$M+}
+  [TPGAttribText('Advanced Windows Service Management')]
+  [TPGAttribText('Allows control of local or remote services.')]
   TPGService = class( TPGItemCMD )
   private
+    FMachineName: string;
   public
+    constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
   published
-    function Created( Maquina, Servico, DisplayName, PathFile: string )
-      : Cardinal;
-    function Delete( Maquina, Servico: string ): Boolean;
-    function GetConfig( Maquina, Servico: string ): Byte;
-    function GetDesciption( Maquina, Servico: string ): string;
-    function GetState( Maquina, Servico: string ): Byte;
-    function SetConfig( Maquina, Servico: string; Controle: Byte ): Boolean;
-    function SetDesciption( Maquina, Servico, Desciption: string ): Boolean;
-    function SetState( Maquina, Servico: string; Controle: Byte ): Boolean;
+
+    [TPGAttribText('Target Computer Name or IP Address.')]
+    [TPGAttribText('Leave empty for Localhost.')]
+    property MachineName: string read FMachineName write FMachineName;
+
+    [TPGAttribText('Creates a new Service. Returns the Service Handle.')]
+    [TPGAttribText('Params: ServiceName, DisplayName, ExePath')]
+    function Created( AService, ADisplayName, APathFile: string ): Cardinal;
+
+    [TPGAttribText('Deletes an existing Service. Returns True on success.')]
+    [TPGAttribText('Params: ServiceName')]
+    function Delete( AService: string ): Boolean;
+
+    [TPGAttribText('Gets Startup Type. Returns: 2=Auto, 3=Manual, 4=Disabled, 0=Boot, 1=System')]
+    function GetConfig( AService: string ): Byte;
+
+    [TPGAttribText('Gets the service description text.')]
+    function GetDescription( AService: string ): string;
+
+    [TPGAttribText('Gets Current Status. Returns: 1=Stopped, 4=Running, 7=Paused')]
+    function GetState( AService: string ): Byte;
+
+    [TPGAttribText('Sets Startup Type. Values: 2=Auto, 3=Manual, 4=Disabled')]
+    function SetConfig( AService: string; AConfig: Byte ): Boolean;
+
+    [TPGAttribText('Sets the service description text.')]
+    function SetDescription( AService, ADescription: string ): Boolean;
+
+    [TPGAttribText('Controls Service State. Action: 1=Stop, 4=Start/Continue, 7=Pause')]
+    function SetState( AService: string; AControl: Byte ): Boolean;
+
+    [TPGAttribText('Waits for service to reach a specific state.')]
+    [TPGAttribText('Params: ServiceName, TargetState=4 (1=Stop, 4=Run), TimeoutMs=2000')]
+    [TPGAttribText('Returns True if state reached, False if Timeout.')]
+    function WaitFor( AService: string; AState: Byte = 4; ATimeout: Cardinal = 2000 ): Boolean;
   end;
   {$TYPEINFO ON}
 
 implementation
 
 uses
+  WinApi.Windows,
   PGofer.Services.Controls;
 
 { TPGService }
 
-function TPGService.Created( Maquina, Servico, DisplayName, PathFile: string )
-  : Cardinal;
+constructor TPGService.Create( AItemDad: TPGItem; AName: string );
 begin
-  Result := ServiceCreate( Maquina, Servico, DisplayName, PathFile );
+  inherited Create( AItemDad, AName );
+  FMachineName := '';
 end;
 
-function TPGService.Delete( Maquina, Servico: string ): Boolean;
+function TPGService.Created( AService, ADisplayName, APathFile: string ): Cardinal;
 begin
-  Result := ServiceDelete( Maquina, Servico );
+  Result := ServiceCreate( FMachineName, AService, ADisplayName, APathFile );
 end;
 
-function TPGService.GetConfig( Maquina, Servico: string ): Byte;
+function TPGService.Delete( AService: string ): Boolean;
 begin
-  Result := ServiceGetConfig( Maquina, Servico );
+  Result := ServiceDelete( FMachineName, AService );
 end;
 
-function TPGService.GetDesciption( Maquina, Servico: string ): string;
+function TPGService.GetConfig( AService: string ): Byte;
 begin
-  Result := ServiceGetDesciption( Maquina, Servico );
+  Result := ServiceGetConfig( FMachineName, AService );
 end;
 
-function TPGService.GetState( Maquina, Servico: string ): Byte;
+function TPGService.GetDescription( AService: string ): string;
 begin
-  Result := ServiceGetState( Maquina, Servico );
+  Result := ServiceGetDescription( FMachineName, AService );
 end;
 
-function TPGService.SetConfig( Maquina, Servico: string;
-  Controle: Byte ): Boolean;
+function TPGService.GetState( AService: string ): Byte;
 begin
-  Result := ServiceSetConfig( Maquina, Servico, Controle );
+  Result := ServiceGetState( FMachineName, AService );
 end;
 
-function TPGService.SetDesciption( Maquina, Servico,
-  Desciption: string ): Boolean;
+function TPGService.SetConfig( AService: string; AConfig: Byte ): Boolean;
 begin
-  Result := ServiceSetDesciption( Maquina, Servico, Desciption );
+  Result := ServiceSetConfig( FMachineName, AService, AConfig );
 end;
 
-function TPGService.SetState( Maquina, Servico: string;
-  Controle: Byte ): Boolean;
+function TPGService.SetDescription( AService, ADescription: string ): Boolean;
 begin
-  Result := ServiceSetState( Maquina, Servico, Controle );
+  Result := ServiceSetDescription( FMachineName, AService, ADescription );
+end;
+
+function TPGService.SetState( AService: string; AControl: Byte ): Boolean;
+begin
+  Result := ServiceSetState( FMachineName, AService, AControl );
+end;
+
+function TPGService.WaitFor( AService: string; AState: Byte; ATimeout: Cardinal ): Boolean;
+var
+  Start: Cardinal;
+begin
+  Result := False;
+  Start := GetTickCount;
+  ServiceSetState( FMachineName, AService, AState );
+  while ( GetTickCount - Start ) < ATimeout do
+  begin
+    if ServiceGetState( FMachineName, AService ) = AState then
+    begin
+      Result := True;
+      Exit();
+    end;
+    Sleep( 100 );
+  end;
 end;
 
 initialization
 
-TPGService.Create( GlobalItemCommand );
+  // Register the global instance 'Service'
+  TPGService.Create( GlobalItemCommand, 'Service' );
 
 finalization
 

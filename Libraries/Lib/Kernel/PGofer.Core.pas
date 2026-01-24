@@ -40,8 +40,9 @@ type
     property Text: string read FText;
   end;
 
-  TPGIcon = ( pgiItem, pgiMethod, pgiFolder, pgiVault, pgiSystem, pgiVariant,
-              pgiFunction, pgiForm, pgiAutoFill, pgiHotKey, pgiLink, pgiTask );
+  TPGIcon = ( pgiItem, pgiFolder, pgiVariant, pgiMethod, pgiFunction,
+              pgiEnvironment, pgiWindows, pgiForm,
+              pgiAutoFill, pgiHotKey, pgiLink, pgiTask, pgiVaultFolder );
 
   TPGAttribIcon = class(TCustomAttribute)
   private
@@ -61,7 +62,7 @@ type
 implementation
 
 uses
-  System.SysUtils, Winapi.Windows;
+  System.SysUtils, System.UITypes, Winapi.Windows;
 
 { TPGKernel }
 
@@ -77,7 +78,6 @@ begin
   SetVar('_FileIniConfig', LPath + 'Config.ini');
   SetVar('_FileAutoComplete', LPath + 'AutoComplete.ini');
   SetVar('_FileLog', LPath + 'System.log');
-
 
   {$IFDEF DEBUG}
     SetVar('_FileLanguage', LPath + '..\..\..\..\Documents\Languages\Language.json');

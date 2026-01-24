@@ -6,7 +6,7 @@ uses
   System.Classes,
   Vcl.Forms,
   PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
-  PGofer.Component.Form;
+  PGofer.Component.Form, PGofer.Forms.Style;
 
 type
 
@@ -14,6 +14,8 @@ type
   [TPGAttribIcon(pgiForm)]
   TPGForm = class( TPGItemCMD )
   private
+    FForm: TFormEx;
+    FStyle: TPGItemCMD;
     function GetAlphaBlend( ): Boolean;
     procedure SetAlphaBlend( AAlphaBlend: Boolean );
     function GetAlphaBlendValue( ): Byte;
@@ -37,13 +39,14 @@ type
     function GetWindowState( ): Byte;
     procedure SetWindowState( AWindowState: Byte );
   protected
-    FForm: TFormEx;
+    property Form: TFormEx read FForm;
   public
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
     procedure Execute( Gramatica: TGramatica ); override;
     class var GlobList: TPGItem;
+    property Style: TPGItemCMD read FStyle;
   published
     property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue
@@ -76,11 +79,13 @@ constructor TPGForm.Create( AForm: TForm );
 begin
   inherited Create( TPGForm.GlobList, AForm.Name );
   FForm := TFormEx( AForm );
+  FStyle := TPGStyle.Create( Self, FForm );
 end;
 
 destructor TPGForm.Destroy( );
 begin
   FForm := nil;
+  FStyle.Free;
   inherited Destroy( );
 end;
 

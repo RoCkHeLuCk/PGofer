@@ -16,7 +16,6 @@ object FrmController: TFrmController
   ParentFont = True
   OldCreateOrder = False
   Position = poDesigned
-  ScreenSnap = True
   ShowHint = True
   OnClose = FormClose
   OnCreate = FormCreate

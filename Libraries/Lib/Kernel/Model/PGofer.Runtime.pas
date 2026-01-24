@@ -95,6 +95,8 @@ var
   Prop: TRttiProperty;
   Params: TArray<TRttiParameter>;
   i : SmallInt;
+  sPrefix: string;
+  Flag: TParamFlag;
 begin
   Result := '';
 
@@ -132,7 +134,14 @@ begin
         Params := Method.GetParameters;
         for i := Low(Params) to High(Params) do
         begin
-          Result := Result + Params[i].Name + ': ' + Params[i].ParamType.Name;
+          for Flag := Low(TParamFlag) to High(TParamFlag) do
+          begin
+            if Flag <> pfResult then
+            begin
+               sPrefix := LowerCase( Copy(GetEnumName(TypeInfo(TParamFlag), Ord(Flag)), 3, 255) ) + ' ';
+            end;
+          end;
+          Result := Result + sPrefix + Params[i].Name + ': ' + Params[i].ParamType.Name;
           if i < High(Params) then Result := Result + '; ';
         end;
         Result := Result + ')';
@@ -318,7 +327,7 @@ initialization
   GlobalItemCommand := TPGFolder.Create( GlobalCollection, 'Commands' );
   GlobalItemTrigger := TPGFolder.Create( GlobalCollection, 'Triggers' );
   TriggersCollect := TPGItemCollect.Create( 'Triggers', True );
-  TriggersCollect.RegisterClass( 'Folder', TPGFolder );
+  TriggersCollect.RegisterClass( 'Folder', pgiFolder, TPGFolder );
 
 finalization
 

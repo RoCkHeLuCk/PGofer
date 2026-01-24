@@ -63,9 +63,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Hint = 'Forma de detectar a HotKey'
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Detect:'
-      ParentBiDiMode = False
     end
     object GrbHotKeys: TGroupBox [2]
       Left = 5
@@ -122,6 +120,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Height = 21
       Hint = 'Forma de detectar a HotKey'
       Style = csDropDownList
+      Color = clSilver
       ItemIndex = 0
       TabOrder = 2
       Text = 'Down'

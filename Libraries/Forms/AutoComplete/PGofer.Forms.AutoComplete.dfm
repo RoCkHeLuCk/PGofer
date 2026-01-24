@@ -8,8 +8,8 @@ object FrmAutoComplete: TFrmAutoComplete
   BorderIcons = []
   BorderStyle = bsNone
   Caption = 'FrmAutoComplete'
-  ClientHeight = 116
-  ClientWidth = 271
+  ClientHeight = 134
+  ClientWidth = 265
   Color = clGray
   Constraints.MinHeight = 80
   Constraints.MinWidth = 260
@@ -35,25 +35,25 @@ object FrmAutoComplete: TFrmAutoComplete
   TextHeight = 13
   object sptAbout: TSplitter
     Left = 2
-    Top = 22
-    Width = 267
+    Top = 89
+    Width = 261
     Height = 5
     Cursor = crVSplit
-    Align = alTop
+    Align = alBottom
     AutoSnap = False
     Beveled = True
     MinSize = 20
-    ExplicitTop = 21
+    ExplicitTop = 5
+    ExplicitWidth = 267
   end
   object ltvAutoComplete: TListViewEx
     Left = 2
-    Top = 27
-    Width = 267
+    Top = 2
+    Width = 261
     Height = 87
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
-    BorderStyle = bsNone
     Color = clSilver
     Columns = <
       item
@@ -85,17 +85,17 @@ object FrmAutoComplete: TFrmAutoComplete
   end
   object rceAbout: TRichEditEx
     Left = 2
-    Top = 2
-    Width = 267
-    Height = 20
-    Align = alTop
+    Top = 94
+    Width = 261
+    Height = 38
+    Align = alBottom
     BevelInner = bvNone
     BevelOuter = bvNone
     BorderStyle = bsNone
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Height = -13
+    Font.Name = 'Courier New'
     Font.Style = []
     Constraints.MinHeight = 20
     ParentColor = True

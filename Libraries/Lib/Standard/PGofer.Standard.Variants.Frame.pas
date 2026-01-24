@@ -1,4 +1,4 @@
-unit PGofer.System.Variants.Frame;
+unit PGofer.Standard.Variants.Frame;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   System.Classes,
   Vcl.StdCtrls, Vcl.Controls,
   PGofer.Classes, PGofer.Item.Frame,
-  PGofer.System.Variants, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
+  PGofer.Standard.Variants, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
   TPGVariantsFrame = class( TPGItemFrame )

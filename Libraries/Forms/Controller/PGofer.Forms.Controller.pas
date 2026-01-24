@@ -126,6 +126,8 @@ begin
   TPGForm.Create( Self );
   CreatePopups( );
   TrvController.Images := TPGIconList.ImageList;
+  PpmCreate.Images := TPGIconList.ImageList;
+  PpmConttroler.Images := TPGIconList.ImageList;
 end;
 
 destructor TFrmController.Destroy( );
@@ -360,6 +362,12 @@ procedure TFrmController.TrvControllerCustomDrawItem( Sender: TCustomTreeView;
 var
   Item: TPGItem;
 begin
+  if not (cdsSelected in State) then
+  begin
+    Sender.Canvas.Brush.Color := TrvController.Color;
+    Sender.Canvas.Brush.Style := bsSolid;
+  end;
+
   inherited;
   if Assigned( Node.Data ) then
   begin
@@ -531,6 +539,7 @@ begin
       PopUpItem := TMenuItem.Create( PpmCreate );
       PpmCreate.Items.Add( PopUpItem );
       PopUpItem.Caption := FCollectItem.RegClassList.GetNameIndex( c );
+      PopUpItem.ImageIndex := FCollectItem.RegClassList.GetIconIndex( c );
       PopUpItem.ShortCut := TextToShortCut( 'ALT+' + IntToStr( c + 1 ) );
       PopUpItem.Tag := c;
       PopUpItem.OnClick := onCreateItemPopUpClick;
@@ -577,6 +586,7 @@ begin
     NewPopUpItem.Checked := SubPopUpItem.Checked;
     NewPopUpItem.OnClick := SubPopUpItem.OnClick;
     NewPopUpItem.Tag := SubPopUpItem.Tag;
+    NewPopUpItem.ImageIndex := SubPopUpItem.ImageIndex;
   end;
 
 end;

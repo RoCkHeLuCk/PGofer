@@ -57,14 +57,16 @@ type
   TClassList = class
   private
     FNameList: TList<string>;
+    FIconList: TList<TPGIcon>;
     FClassList: TList<TClass>;
   protected
   public
     constructor Create(); overload;
     destructor Destroy(); override;
-    procedure Add(AName: string; AValue: TClass);
+    procedure Add(AName: string; AIcon:TPGIcon; AValue: TClass);
     function Count(): Integer;
     function GetNameIndex(AIndex: Integer): string;
+    function GetIconIndex(AIndex: Integer): Integer;
     function GetClassIndex(AIndex: Integer): TClass;
     function TryGetValue(AName: string; out OValue: TClass): Boolean;
     function TryGetName(AValue: TClass; out OName: string): Boolean;
@@ -86,7 +88,7 @@ type
     procedure XMLSaveToFile();
     property TreeView: TTreeViewEx read FTreeView;
     property RegClassList: TClassList read FClassList;
-    procedure RegisterClass(AName: string; AClass: TClass);
+    procedure RegisterClass(AName: string; AIcon:TPGIcon; AClass: TClass);
     function GetRegClassName(AName: string): TClass;
     procedure TreeViewAttach();
     procedure TreeViewDetach();
@@ -289,12 +291,14 @@ constructor TClassList.Create();
 begin
   inherited Create();
   Self.FNameList := TList<string>.Create();
+  Self.FIconList := TList<TPGIcon>.Create();
   Self.FClassList := TList<TClass>.Create();
 end;
 
 destructor TClassList.Destroy();
 begin
   Self.FNameList.Free();
+  Self.FIconList.Free();
   Self.FClassList.Free();
   inherited Destroy();
 end;
@@ -304,14 +308,20 @@ begin
   Result := Self.FClassList[AIndex];
 end;
 
+function TClassList.GetIconIndex(AIndex: Integer): Integer;
+begin
+   Result := Ord(Self.FIconList[AIndex]);
+end;
+
 function TClassList.GetNameIndex(AIndex: Integer): string;
 begin
   Result := Self.FNameList[AIndex];
 end;
 
-procedure TClassList.Add(AName: string; AValue: TClass);
+procedure TClassList.Add(AName: string; AIcon:TPGIcon; AValue: TClass);
 begin
   Self.FNameList.Add(AName);
+  Self.FIconList.Add(AIcon);
   Self.FClassList.Add(AValue);
 end;
 
@@ -368,9 +378,9 @@ begin
   FForm.ForceShow(True);
 end;
 
-procedure TPGItemCollect.RegisterClass(AName: string; AClass: TClass);
+procedure TPGItemCollect.RegisterClass(AName: string; AIcon:TPGIcon; AClass: TClass);
 begin
-  FClassList.Add(AName, AClass);
+  FClassList.Add(AName, AIcon, AClass);
 end;
 
 function TPGItemCollect.GetRegClassName(AName: string): TClass;

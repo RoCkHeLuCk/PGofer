@@ -1,11 +1,11 @@
-unit PGofer.System.Functions;
+unit PGofer.Standard.Functions;
 
 interface
 
 uses
   System.Classes,
   PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
-  PGofer.Runtime, PGofer.System.Variants;
+  PGofer.Runtime, PGofer.Standard.Variants;
 
 type
 
@@ -41,7 +41,7 @@ type
 implementation
 
 uses
-  PGofer.Language, PGofer.Sintatico.Controls, PGofer.System.Functions.Frame;
+  PGofer.Language, PGofer.Sintatico.Controls, PGofer.Standard.Functions.Frame;
 
 { TPGFunction }
 

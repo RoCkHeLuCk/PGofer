@@ -70,6 +70,7 @@ type
   end;
   {$TYPEINFO ON}
 
+  [TPGAttribIcon(pgiLink)]
   TPGLinkDeclare = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
@@ -77,6 +78,7 @@ type
     procedure Auto( ADir: string; AMask: string );
   end;
 
+  [TPGAttribIcon(pgiLink)]
   TPGLinkMirror = class( TPGItemMirror )
   private
   protected
@@ -442,7 +444,7 @@ initialization
 
 TPGLinkDeclare.Create( GlobalItemCommand, 'Link' );
 TPGLink.GlobList := TPGFolder.Create( GlobalCollection, 'Links' );
-TriggersCollect.RegisterClass( 'Link', TPGLinkMirror );
+TriggersCollect.RegisterClass( 'Link', pgiLink, TPGLinkMirror );
 
 finalization
 

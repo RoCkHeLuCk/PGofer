@@ -235,6 +235,11 @@ begin
         FConsoleMessage
       );
     end else begin
+      TrC(
+        'Link ' + FLink.Name + ' : Ok: File Executed.',
+        True,
+        FConsoleMessage
+      );
       if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then
       begin
         while WaitForSingleObject(ProcessInfo.hProcess, 500) <> WAIT_OBJECT_0 do;

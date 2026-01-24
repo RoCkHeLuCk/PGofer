@@ -36,11 +36,13 @@ type
   end;
   {$TYPEINFO ON}
 
+  [TPGAttribIcon(pgiTask)]
   TPGTaskDeclare = class( TPGItemCMD )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
+  [TPGAttribIcon(pgiTask)]
   TPGTaskMirror = class( TPGItemMirror )
   protected
   public
@@ -181,7 +183,7 @@ initialization
 
 TPGTaskDeclare.Create( GlobalItemCommand, 'Task' );
 TPGTask.GlobList := TPGFolder.Create( GlobalItemTrigger, 'Tasks' );
-TriggersCollect.RegisterClass( 'Task', TPGTaskMirror );
+TriggersCollect.RegisterClass( 'Task', pgiTask, TPGTaskMirror );
 
 finalization
 

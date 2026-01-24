@@ -8,8 +8,7 @@ uses
 type
 
   {$M+}
-  [TPGAttribText('About_Vault')]
-  [TPGAttribIcon(pgiVault)]
+  [TPGAttribIcon(pgiVaultFolder)]
   TPGVaultFolder = class(TPGFolder)
   private
     FFileName: string;
@@ -164,7 +163,7 @@ end;
 
 initialization
 
-TriggersCollect.RegisterClass('VaultFolder', TPGVaultFolder);
+TriggersCollect.RegisterClass('VaultFolder', pgiVaultFolder, TPGVaultFolder);
 
 finalization
 

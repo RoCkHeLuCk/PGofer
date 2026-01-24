@@ -69,6 +69,7 @@ uses
 constructor TPGLinkFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
+  FLocalFind := False;
   EdtFile.Text := Item.FileName;
   EdtPatameter.Text := Item.Parameter;
   EdtDiretory.Text := Item.Directory;

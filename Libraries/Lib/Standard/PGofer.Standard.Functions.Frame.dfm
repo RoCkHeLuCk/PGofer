@@ -21,7 +21,7 @@ inherited PGFunctionFrame: TPGFunctionFrame
     Align = alTop
     Caption = 'Script (Run = F9)'
     Constraints.MinHeight = 60
-    TabOrder = 2
+    TabOrder = 3
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -42,16 +42,16 @@ inherited PGFunctionFrame: TPGFunctionFrame
       WantTabs = True
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
+      ExplicitLeft = 3
+      ExplicitTop = 14
     end
   end
   inherited grbAbout: TGroupBox
     Top = 126
-    TabOrder = 1
     ExplicitTop = 126
   end
   inherited sptAbout: TPanel
     Top = 189
-    TabOrder = 3
     ExplicitTop = 189
   end
 end

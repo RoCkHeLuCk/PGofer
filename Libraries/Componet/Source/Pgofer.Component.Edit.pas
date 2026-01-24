@@ -144,7 +144,7 @@ begin
   FRegExExpression := '';
 
   { Configuração de Estilo Visual }
-  Self.StyleElements := Self.StyleElements - [seClient];
+  Self.StyleElements := [seFont, seClient, seBorder];
   Self.Color := FValidationColorNormal;
 end;
 

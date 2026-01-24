@@ -20,11 +20,12 @@ type
     FScript: TStrings;
     class var FShootKeys: TList<Word>;
     class var FOnProcessKeys: TProcessKeys;
-    function GetKeysHex(): string;
-    procedure SetKeysHex(AValue: string);
-    function GetScript: string;
-    procedure SetScript(const AValue: string);
+    class function LocateHotKeys(Keys: TList<Word>): TPGHotKey;
     class procedure DefaultOnProcessKeys(AParamInput: TParamInput);
+    function GetKeysHex(): string;
+    function GetScript: string;
+    procedure SetKeysHex(AValue: string);
+    procedure SetScript(const AValue: string);
   protected
     procedure ExecutarNivel1(Gramatica: TGramatica); override;
   public
@@ -34,7 +35,6 @@ type
     procedure Frame(AParent: TObject); override;
     property Keys: TList<Word> read FKeys;
     function GetKeysName(): string;
-    class function LocateHotKeys(Keys: TList<Word>): TPGHotKey;
     procedure Triggering(); override;
     class procedure OnProcessKeys(AParamInput: TParamInput);
     class procedure SetProcessKeys(ProcessKeys: TProcessKeys = nil);
@@ -46,20 +46,25 @@ type
   end;
 {$TYPEINFO ON}
 
+  [TPGAttribIcon(pgiHotKey)]
   TPGHotKeyDeclare = class(TPGItemCMD)
   private
-    class var FInputType: TObject;
+    class var FTypeInput: TThread;
+    class var FTypeIndex: Byte;
   public
-    constructor Create(AItemDad: TPGItem; AName: string = '';
-      AType: Integer = 2); overload;
+    constructor Create(AItemDad: TPGItem; AName: string = ''; AType: Integer = 0); overload;
     destructor Destroy(); override;
-    class procedure SetInput(AType: Integer);
     procedure Execute(Gramatica: TGramatica); override;
+    class procedure SetInput(AType: Byte);
+    class function GetInput(): Byte;
   published
     [TPGAttribText('0:None; 1:AsyncInput; 2:THookInput; 3:RawInput;')]
-    property InputType: Integer write SetInput;
+    property InputType: Byte read GetInput write SetInput;
+    procedure InputRestart();
+    procedure ShootKeysList();
   end;
 
+  [TPGAttribIcon(pgiHotKey)]
   TPGHotKeyMirror = class(TPGItemMirror)
   protected
   public
@@ -71,6 +76,7 @@ implementation
 
 uses
   System.SysUtils,
+  Winapi.Windows,
   PGofer.Language,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
@@ -87,6 +93,7 @@ begin
   inherited Create(TPGHotKey.GlobList, AName, AMirror);
   Self.ReadOnly := False;
   FKeys := TList<Word>.Create;
+  FKeys.Capacity := 20;
   FDetect := 0;
   FInhibit := False;
   FScript := TStringList.Create;
@@ -125,17 +132,16 @@ end;
 
 procedure TPGHotKey.SetKeysHex(AValue: string);
 var
-  c: SmallInt;
-  Key: Word;
+  Count, Key: Word;
 begin
   FKeys.Clear;
-  c := low(AValue);
-  while c + 2 <= high(AValue) do
+  Count := low(AValue);
+  while Count + 2 <= high(AValue) do
   begin
-    Key := StrToInt('$' + copy(AValue, c, 3));
+    Key := StrToInt('$' + copy(AValue, Count, 3));
     if not FKeys.Contains(Key) then
       FKeys.Add(Key);
-    inc(c, 3);
+    inc(Count, 3);
   end;
 end;
 
@@ -170,38 +176,41 @@ end;
 
 class function TPGHotKey.LocateHotKeys(Keys: TList<Word>): TPGHotKey;
 var
-  KeysCount: SmallInt;
-  ListCount: SmallInt;
-  AuxHotKeys: TPGHotKey;
-  c, D: SmallInt;
-  Find: Boolean;
+  LKeysCount: Word;
+  LListCount: Word;
+  LAuxHotKeys: TPGHotKey;
+  LCount1, LCount2: Word;
+  LFind: Boolean;
 begin
   Result := nil;
-  if not Assigned(Keys) then
-   exit;
+  if not Assigned(Keys)then Exit;
 
-  KeysCount := Keys.Count;
-  if KeysCount > 1 then
+  LKeysCount := Keys.Count;
+  if LKeysCount <= 1 then Exit;
+
+  LListCount := TPGHotKey.GlobList.Count;
+  if LListCount < 1 then Exit;
+
+  for LCount1 := 0 to LListCount-1 do
   begin
-    ListCount := TPGHotKey.GlobList.Count;
-    Find := False;
-    c := 0;
-    while (c < ListCount) and (not Find) do
+    LAuxHotKeys := TPGHotKey(TPGHotKey.GlobList[LCount1]);
+    if LAuxHotKeys.Enabled and (LAuxHotKeys.FKeys.Count = LKeysCount) then
     begin
-      AuxHotKeys := TPGHotKey(TPGHotKey.GlobList[c]);
-      if AuxHotKeys.Enabled and (AuxHotKeys.FKeys.Count = KeysCount) then
+      LFind := True;
+      for LCount2 := 0 to LKeysCount-1 do
       begin
-        D := 0;
-        Find := True;
-        while (D < KeysCount) and (Find) do
+        if LAuxHotKeys.FKeys[LCount2] <> Keys[LCount2] then
         begin
-          Find := AuxHotKeys.FKeys[D] = Keys[D];
-          inc(D);
+          LFind := False;
+          Break;
         end;
-        if Find then
-          Result := AuxHotKeys;
       end;
-      inc(c);
+
+      if LFind then
+      begin
+        Result := LAuxHotKeys;
+        Break;
+      end;
     end;
   end;
 end;
@@ -231,20 +240,26 @@ begin
         Key.bDetect := kd_Press
       else
         TPGHotKey.FShootKeys.Add(Key.wKey);
-    end;
-
-    VHotKey := TPGHotKey.LocateHotKeys(FShootKeys);
-
-    if Assigned(VHotKey) then
-    begin
-      if ((Key.bDetect = kd_Wheel) or (VHotKey.Detect = Byte(Key.bDetect))) then
+    end else begin
+      if (Key.bDetect = kd_Up) and (not FShootKeys.Contains(Key.wKey)) then
       begin
-        VHotKey.Triggering();
+        TPGHotKey.FShootKeys.Add(Key.wKey);
       end;
     end;
 
-    if Key.bDetect in [kd_Up, kd_Wheel] then
-      TPGHotKey.FShootKeys.Remove(Key.wKey);
+    try
+      VHotKey := TPGHotKey.LocateHotKeys(FShootKeys);
+      if Assigned(VHotKey) then
+      begin
+        if ((Key.bDetect = kd_Wheel) or (VHotKey.Detect = Byte(Key.bDetect))) then
+        begin
+          VHotKey.Triggering();
+        end;
+      end;
+    finally
+      if Key.bDetect in [kd_Up, kd_Wheel] then
+        TPGHotKey.FShootKeys.Remove(Key.wKey);
+    end;
   end; // if key #0
 end;
 
@@ -259,11 +274,12 @@ begin
 end;
 
 { TPGHotKeyDeclare }
-constructor TPGHotKeyDeclare.Create(AItemDad: TPGItem; AName: string = '';
-  AType: Integer = 2);
+constructor TPGHotKeyDeclare.Create(AItemDad: TPGItem; AName: string = ''; AType: Integer = 0);
 begin
   inherited Create(AItemDad, AName);
-  Self.SetInput(AType);
+  FTypeIndex := 0;
+  if AType > 0 then
+    Self.SetInput(AType);
 end;
 
 destructor TPGHotKeyDeclare.Destroy();
@@ -272,32 +288,50 @@ begin
   inherited Destroy();
 end;
 
-class procedure TPGHotKeyDeclare.SetInput(AType: Integer);
+class procedure TPGHotKeyDeclare.SetInput(AType: Byte);
 begin
-  if Assigned(TPGHotKeyDeclare.FInputType) then
-  begin
-    TPGHotKeyDeclare.FInputType.Free();
-    TPGHotKeyDeclare.FInputType := nil;
+  FTypeIndex := AType;
+  try
+    if Assigned(TPGHotKeyDeclare.FTypeInput) then
+    begin
+      TPGHotKeyDeclare.FTypeInput.Free();
+      TPGHotKeyDeclare.FTypeInput := nil;
+      TPGHotKey.FShootKeys.Clear;
+    end;
+  finally
+    case AType of
+      1:begin
+          TPGHotKeyDeclare.FTypeInput := TAsyncInput.Create();
+          TrC( 'Ok_HotKey_SetAsyncInput' );
+        end;
+
+      2:begin
+          {$IFNDEF DEBUG}
+          TPGHotKeyDeclare.FTypeInput := THookInput.Create();
+          TrC( 'Ok_HotKey_SetHookInput' );
+          {$ENDIF}
+        end;
+
+      3:begin
+          TPGHotKeyDeclare.FTypeInput := TRawInput.Create();
+          TrC( 'Ok_HotKey_SetRawInput' );
+        end;
+    else
+       TrC( 'Ok_HotKey_SetNone' );
+    end;
   end;
+end;
 
-  case AType of
-    1:
-      begin
-        TPGHotKeyDeclare.FInputType := TAsyncInput.Create();
-      end;
-
-    2:
-      begin
-        {$IFNDEF DEBUG}
-        TPGHotKeyDeclare.FInputType := THookInput.Create();
-        {$ENDIF}
-      end;
-
-    3:
-      begin
-        TPGHotKeyDeclare.FInputType := TRawInput.Create();
-      end;
-  end;
+procedure TPGHotKeyDeclare.ShootKeysList;
+var
+   LKey : Word;
+begin
+   TrC('**** ShootKeysList Start ****',False);
+   for LKey in TPGHotKey.FShootKeys do
+   begin
+      TrC('  ['+LKey.ToString()+']',False);
+   end;
+   TrC('**** ShootKeysList End ****',False);
 end;
 
 procedure TPGHotKeyDeclare.Execute(Gramatica: TGramatica);
@@ -345,6 +379,16 @@ begin
   end;
 end;
 
+class function TPGHotKeyDeclare.GetInput(): Byte;
+begin
+   Result := FTypeIndex;
+end;
+
+procedure TPGHotKeyDeclare.InputRestart( );
+begin
+  Self.InputType := FTypeIndex;
+end;
+
 { TPGHotKeysMirror }
 
 constructor TPGHotKeyMirror.Create(AItemDad: TPGItem; AName: string);
@@ -364,10 +408,10 @@ initialization
 TPGHotKey.FShootKeys := TList<Word>.Create();
 TPGHotKey.FOnProcessKeys := nil;
 
-TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey', 2);
+TPGHotKeyDeclare.Create(GlobalItemCommand, 'HotKey', 3);
 TPGHotKey.GlobList := TPGFolder.Create(GlobalItemTrigger, 'HotKeys');
 
-TriggersCollect.RegisterClass('HotKey', TPGHotKeyMirror);
+TriggersCollect.RegisterClass('HotKey', pgiHotKey, TPGHotKeyMirror);
 
 finalization
 

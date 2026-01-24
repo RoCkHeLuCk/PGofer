@@ -1,4 +1,4 @@
-unit PGofer.System.Functions.Frame;
+unit PGofer.Standard.Functions.Frame;
 
 interface
 
@@ -6,7 +6,7 @@ uses
   System.Classes,
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Controls,
   PGofer.Classes, PGofer.Item.Frame,
-  PGofer.System.Functions,
+  PGofer.Standard.Functions,
   PGofer.Component.RichEdit, PGofer.Component.Edit, Vcl.ComCtrls;
 
 type
@@ -48,7 +48,8 @@ end;
 destructor TPGFunctionFrame.Destroy( );
 begin
   FrmAutoComplete.EditCtrlRemove( EdtScript );
-  Item.CompileScript( );
+  if EdtScript.Modified then
+    Item.CompileScript( );
   inherited Destroy( );
 end;
 

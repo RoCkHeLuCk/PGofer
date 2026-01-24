@@ -55,6 +55,7 @@ type
     procedure ListViewAdd( AItem: TPGItem ); overload;
     procedure PriorityStep( );
     procedure SetPriority( AValue: FixedInt );
+    procedure About( );
     procedure ProcurarComandos( ACommand: string ); overload;
     procedure FileNameList( AFileName: string );
     procedure FindCMD( );
@@ -90,6 +91,14 @@ const
   Caracteres: TSysCharSet = [ #10, #13, ' ', ',', ';', ':', '=', '+', '-', '*',
     '\', '/', '<', '>', '(', ')', '[', ']', '!', '@', '#', '%', '^', '$', '&',
     '?', '|', '''', '"', '.' ];
+
+procedure TFrmAutoComplete.About();
+begin
+  rceAbout.Text :=  '';
+  if Assigned( ltvAutoComplete.ItemFocused )
+  and Assigned( ltvAutoComplete.ItemFocused.Data ) then
+   rceAbout.Text :=  TPGItem(ltvAutoComplete.ItemFocused.Data).About;
+end;
 
 procedure TFrmAutoComplete.CreateParams( var AParams: TCreateParams );
 begin
@@ -629,7 +638,7 @@ begin
     ltvAutoComplete.AlphaSort;
     Self.Visible := True;
     ltvAutoComplete.SuperSelected( ltvAutoComplete.Items[ 0 ] );
-    rceAbout.Text :=  TPGItem(ltvAutoComplete.ItemFocused.Data).About;
+    Self.About( );
     FEditCtrl.SetFocus;
   end else begin
     // se nao encontrou fecha
@@ -696,7 +705,7 @@ begin
 
     if SuperSelect then
        ltvAutoComplete.SuperSelected( );
-    rceAbout.Text :=  TPGItem(ltvAutoComplete.ItemFocused.Data).About;
+    Self.About();
   end; // if count > 0
 end;
 

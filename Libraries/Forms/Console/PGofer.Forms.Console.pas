@@ -234,7 +234,7 @@ end;
 procedure TPGFrmConsole.SetAutoClose( AValue: Boolean );
 begin
   FAutoClose := AValue;
-  TFrmConsole( FForm ).BtnFixed.Down := ( not FAutoClose );
+  TFrmConsole( Self.Form ).BtnFixed.Down := ( not FAutoClose );
 end;
 
 procedure TPGFrmConsole.SetDelay(AValue: Cardinal);
@@ -245,7 +245,7 @@ end;
 
 procedure TPGFrmConsole.Clear;
 begin
-  TFrmConsole( FForm ).EdtConsole.Clear;
+  TFrmConsole( Self.Form ).EdtConsole.Clear;
 end;
 
 end.

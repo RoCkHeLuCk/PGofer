@@ -58,6 +58,13 @@
   "Error_ShellExecute_ShareViolation": "Erro: O arquivo está sendo usado por outro processo.",
   "Error_ShellExecute_UnknownError": "Erro: Executar o arquivo Código Desconhecido '%d'.",
 
-  "Error_Link_SingleInstance": "Erro: Link '%s' já esta em execução."
+  "Error_Link_SingleInstance": "Erro: Link '%s' já esta em execução.",
+
+  "Ok_HotKey_SetNone": "OK: HotHey definido para Desligado.",
+  "Ok_HotKey_SetAsyncInput": "OK: HotHey definido para AsyncInput.",
+  "Ok_HotKey_SetHookInput": "OK: HotHey definido para HookInput.",
+  "Ok_HotKey_SetRawInput": "OK: HotHey definido para RawInput.",
+  "Hint_HotKey_InhibitSupport": "Hint: Inibição de tecla não suportada no modo Ansync e RawInput."
+
 }
 
