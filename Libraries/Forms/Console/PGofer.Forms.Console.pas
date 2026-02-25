@@ -6,7 +6,7 @@ uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
   Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Core, PGofer.Forms;
+  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Forms;
 
 type
   TPGFrmConsole = class;
@@ -46,7 +46,6 @@ type
   end;
 
   {$M+}
-  [TPGAttribIcon(pgiForm)]
   TPGFrmConsole = class( TPGForm )
   private
     FDelay: Cardinal;
@@ -74,8 +73,8 @@ implementation
 {$R *.dfm}
 
 uses
-
-  PGofer.Language, PGofer.Classes,
+  PGofer.Core,
+  PGofer.Classes,
   PGofer.Forms.Console.Frame;
 
 { TFrmConsole }
@@ -91,7 +90,7 @@ end;
 procedure TFrmConsole.FormCreate( Sender: TObject );
 begin
   FItem := TPGFrmConsole.Create( Self );
-  PGofer.Language.TPGLanguage.ConsoleNotify := Self.ConsoleNotifyMessage;
+  TPGKernel.ConsoleNotify := Self.ConsoleNotifyMessage;
   inherited FormCreate( Sender );
 end;
 
@@ -122,7 +121,7 @@ procedure TFrmConsole.FormDestroy( Sender: TObject );
 begin
   inherited FormDestroy( Sender );
   TmrConsole.Enabled := False;
-  PGofer.Language.TPGLanguage.ConsoleNotify := nil;
+  TPGKernel.ConsoleNotify := nil;
   FItem := nil;
 end;
 

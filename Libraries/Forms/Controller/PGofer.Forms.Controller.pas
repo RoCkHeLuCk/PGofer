@@ -4,7 +4,6 @@ interface
 
 uses
   System.Classes, System.Types,
-
   Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
   Vcl.Menus, Vcl.Graphics,
   PGofer.Classes, PGofer.Runtime, PGofer.Forms, PGofer.Component.TreeView,
@@ -24,41 +23,31 @@ type
     MniZA: TMenuItem;
     MniAlphaSortFolder: TMenuItem;
     MniN1: TMenuItem;
-    BtnCreate: TButton;
     BtnEdit: TButton;
-    PpmCreate: TPopupMenu;
     BtnRecall: TButton;
     PpmEdit: TPopupMenu;
-    MniDelete: TMenuItem;
     MniExpand: TMenuItem;
     MniUnExpand: TMenuItem;
-    MniN2: TMenuItem;
     PpmConttroler: TPopupMenu;
     PnlFrame: TScrollBox;
-    constructor Create( ACollectItem: TPGItemCollect ); reintroduce;
-    destructor Destroy( ); override;
     procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormShow( Sender: TObject );
     procedure FormDestroy( Sender: TObject );
     procedure FormResize( Sender: TObject );
-    procedure onCreateItemPopUpClick( Sender: TObject );
     procedure EdtFindKeyPress( Sender: TObject; var Key: Char );
     procedure TrvControllerCompare( Sender: TObject; Node1, Node2: TTreeNode;
       Data: Integer; var Compare: Integer );
     procedure TrvControllerGetSelectedIndex( Sender: TObject; Node: TTreeNode );
-    procedure TrvControllerDragOver( Sender, Source: TObject; X, Y: Integer;
-      State: TDragState; var Accept: Boolean );
-    procedure TrvControllerDragDrop( Sender, Source: TObject; X, Y: Integer );
-    procedure TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
     procedure TrvControllerKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure TrvControllerMouseDown( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer );
+    procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
+      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
     procedure MniAZClick( Sender: TObject );
     procedure MniZAClick( Sender: TObject );
     procedure MniAlphaSortFolderClick( Sender: TObject );
-    procedure MniDeleteClick( Sender: TObject );
     procedure MniExpandClick( Sender: TObject );
     procedure MniUnExpandClick( Sender: TObject );
     procedure BtnRecallClick( Sender: TObject );
@@ -66,28 +55,28 @@ type
       MousePos: TPoint; var Handled: Boolean );
     procedure PnlFrameMouseWheelUp( Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean );
-    procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
-      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
     procedure PnlFrameResize(Sender: TObject);
     procedure PnlTreeViewResize(Sender: TObject);
   private
+    FCollectItem: TPGItemCollect;
+    FSelectedItem: TPGItem;
     FAlphaSort: Boolean;
     FAlphaSortFolder: Boolean;
     FTreeViewWidth: Integer;
     FFrameWidth: Integer;
     procedure PanelCleaning( );
-    procedure CreatePopups( );
     procedure FrameShow( );
     procedure FrameHide( );
-    function GetTargetWorking( Node: TTreeNode ): TPGItem;
-    function GetFolderWorking( Node: TTreeNode ): TPGItem;
   protected
-    FCollectItem: TPGItemCollect;
-    FSelectedItem: TPGItem;
+    procedure CreateParams( var AParams: TCreateParams ); override;
+    procedure CreatePopups( ); virtual;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    procedure CreateParams( var AParams: TCreateParams ); override;
+    function GetTargetWorking( Node: TTreeNode ): TPGItem;
+    property AlphaSortFolder: Boolean read FAlphaSortFolder;
   public
+    constructor Create( ACollectItem: TPGItemCollect ); reintroduce;
+    destructor Destroy( ); override;
   end;
 
 implementation
@@ -95,14 +84,12 @@ implementation
 {$R *.dfm}
 
 uses
-  System.RTTI, System.UITypes, System.SysUtils,
+  System.SysUtils, System.UITypes,
   WinApi.Windows,
   Vcl.Dialogs,
+  PGofer.Core,
   PGofer.Files.Controls,
-  PGofer.Triggers.Links,
-  PGofer.Component.RichEdit,
-  PGofer.Triggers,
-  PGofer.IconList;
+  PGofer.Component.RichEdit;
 
 { TFrmController }
 
@@ -124,10 +111,9 @@ begin
   Self.Name := 'Frm' + FCollectItem.Name;
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
+  TrvController.Images := TPGKernel.ImageList;
+  PpmConttroler.Images := TPGKernel.ImageList;
   CreatePopups( );
-  TrvController.Images := TPGIconList.ImageList;
-  PpmCreate.Images := TPGIconList.ImageList;
-  PpmConttroler.Images := TPGIconList.ImageList;
 end;
 
 destructor TFrmController.Destroy( );
@@ -185,12 +171,18 @@ end;
 
 procedure TFrmController.IniConfigSave( );
 begin
-  FCollectItem.XMLSaveToFile( );
   FIniFile.WriteInteger( Self.Name, 'TreeViewWidth', FTreeViewWidth );
   FIniFile.WriteInteger( Self.Name, 'FrameWidth', FFrameWidth );
   FIniFile.WriteBool( Self.Name, 'AlphaSort', FAlphaSort );
   FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
   inherited IniConfigSave( );
+end;
+
+function TFrmController.GetTargetWorking( Node: TTreeNode ): TPGItem;
+begin
+  Result := nil;
+  if Assigned( Node ) and Assigned( Node.Data ) then
+     Result := TPGItem( Node.Data );
 end;
 
 procedure TFrmController.FrameHide( );
@@ -303,17 +295,6 @@ begin
   TrvController.AlphaSort( True );
 end;
 
-procedure TFrmController.MniDeleteClick( Sender: TObject );
-begin
-  if Vcl.Dialogs.MessageDlg( 'Delete Selected Item?', mtConfirmation,
-    [ mbYes, mbNo ], 0, mbNo ) = mrYes then
-  begin
-    TrvController.DeleteSelect( );
-  end;
-  BtnEdit.Caption := MniDelete.Caption;
-  BtnEdit.OnClick := MniDelete.OnClick;
-end;
-
 procedure TFrmController.MniExpandClick( Sender: TObject );
 begin
   TrvController.FullExpand( );
@@ -362,122 +343,20 @@ procedure TFrmController.TrvControllerCustomDrawItem( Sender: TCustomTreeView;
 var
   Item: TPGItem;
 begin
-  if not (cdsSelected in State) then
-  begin
-    Sender.Canvas.Brush.Color := TrvController.Color;
-    Sender.Canvas.Brush.Style := bsSolid;
-  end;
-
   inherited;
   if Assigned( Node.Data ) then
   begin
     Item := TPGItem( Node.Data );
-    if ( not Item.isValid ) then
-    begin
-      Sender.Canvas.Font.Color := clRed;
-    end else if ( not Item.Enabled ) then
-    begin
+
+    if not Item.Enabled then
+      Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsStrikeOut];
+
+    if Item.ReadOnly then
       Sender.Canvas.Font.Color := clGray;
-    end;
-
-    if ( Item is TPGFolder ) and ( TPGFolder(Item)._Locked ) then
-    begin
-      Sender.Canvas.Font.Style := [ fsItalic ];
-    end;
   end;
+
 end;
 
-function TFrmController.GetTargetWorking( Node: TTreeNode ): TPGItem;
-begin
-  Result := nil;
-  if Assigned( Node ) and Assigned( Node.Data ) then
-     Result := TPGItem( Node.Data );
-end;
-
-function TFrmController.GetFolderWorking( Node: TTreeNode ): TPGItem;
-begin
-  Result := GetTargetWorking( Node );
-  if Assigned(Result) then
-  begin
-    if not (Result is TPGFolder ) then
-    begin
-      Result := Result.Parent;
-    end else begin
-      if TPGFolder(Result)._Locked then
-        Result := nil;
-    end;
-  end else begin
-    Result := FCollectItem;
-  end;
-end;
-
-procedure TFrmController.TrvControllerDropFiles( Sender: TObject;
-  AFiles: TStrings );
-var
-  sFileName: string;
-  ItemDad: TPGItem;
-begin
-  ItemDad := GetFolderWorking( TrvController.TargetDrag );
-  if Assigned(ItemDad) then
-  begin
-    for sFileName in AFiles do
-    begin
-      with TPGLink( TPGLinkMirror.Create( ItemDad,
-        FileExtractOnlyFileName( sFileName ) ).ItemOriginal ) do
-      begin
-        FileName := FileUnExpandPath( sFileName );
-        Directory := FileUnExpandPath( ExtractFilePath( sFileName ) );
-      end;
-    end;
-    FCollectItem.XMLSaveToFile( );
-  end;
-end;
-
-procedure TFrmController.TrvControllerDragDrop( Sender, Source: TObject;
-  X, Y: Integer );
-var
-  Node: TTreeNode;
-  ItemDad: TPGItem;
-begin
-  ItemDad := GetFolderWorking( TrvController.TargetDrag );
-
-  if Assigned(ItemDad) then
-  begin
-    for Node in TrvController.SelectionsDrag do
-    begin
-      if Assigned( Node.Data ) and ( TPGItem( Node.Data ) is TPGItem ) then
-      begin
-        TPGItem( Node.Data ).Parent := ItemDad;
-      end;
-    end;
-    FCollectItem.XMLSaveToFile;
-  end;
-end;
-
-procedure TFrmController.TrvControllerDragOver( Sender, Source: TObject;
-  X, Y: Integer; State: TDragState; var Accept: Boolean );
-var
-  Item : TPGItem;
-begin
-  Accept := Sender = Source;
-  if Accept then
-  begin
-    Item := GetTargetWorking(TrvController.TargetDrag);
-    if Assigned(Item) then
-    begin
-      if ( Item is TPGFolder ) and (not TPGFolder(Item)._Locked ) then
-      begin
-        Accept := True;
-        TrvController.AttachMode := naInsert;
-      end else begin
-        Accept := False;
-      end;
-    end else begin
-      Accept := True;
-      TrvController.AttachMode := naAdd;
-    end;
-  end;
-end;
 
 procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;
   Node: TTreeNode );
@@ -525,109 +404,35 @@ end;
 
 procedure TFrmController.CreatePopups( );
 var
-  PopUpItem, SubPopUpItem, NewPopUpItem: TMenuItem;
-  c, l: Integer;
+  LPopUpItem, LSubPopUpItem, LNewPopUpItem: TMenuItem;
 begin
-  l := FCollectItem.RegClassList.Count - 1;
-  if l > 0 then
+  LPopUpItem := TMenuItem.Create( PpmConttroler );
+  PpmConttroler.Items.Add( LPopUpItem );
+  LPopUpItem.Caption := 'Alpha Short';
+  for LSubPopUpItem in PpmAlphaSort.Items do
   begin
-    BtnCreate.Visible := True;
-    TrvController.DragMode := dmAutomatic;
-    TrvController.DropFileAccept := True;
-    for c := 0 to l do
-    begin
-      PopUpItem := TMenuItem.Create( PpmCreate );
-      PpmCreate.Items.Add( PopUpItem );
-      PopUpItem.Caption := FCollectItem.RegClassList.GetNameIndex( c );
-      PopUpItem.ImageIndex := FCollectItem.RegClassList.GetIconIndex( c );
-      PopUpItem.ShortCut := TextToShortCut( 'ALT+' + IntToStr( c + 1 ) );
-      PopUpItem.Tag := c;
-      PopUpItem.OnClick := onCreateItemPopUpClick;
-    end;
+    LNewPopUpItem := TMenuItem.Create( PpmConttroler );
+    LPopUpItem.Add( LNewPopUpItem );
+    LNewPopUpItem.Caption := LSubPopUpItem.Caption;
+    LNewPopUpItem.ShortCut := LSubPopUpItem.ShortCut;
+    LNewPopUpItem.Checked := LSubPopUpItem.Checked;
+    LNewPopUpItem.OnClick := LSubPopUpItem.OnClick;
+    LNewPopUpItem.Tag := LSubPopUpItem.Tag;
   end;
 
-  PopUpItem := TMenuItem.Create( PpmConttroler );
-  PpmConttroler.Items.Add( PopUpItem );
-  PopUpItem.Caption := 'Alpha Short';
-  for SubPopUpItem in PpmAlphaSort.Items do
+  LPopUpItem := TMenuItem.Create( PpmConttroler );
+  PpmConttroler.Items.Add( LPopUpItem );
+  LPopUpItem.Caption := 'Edit';
+  for LSubPopUpItem in PpmEdit.Items do
   begin
-    NewPopUpItem := TMenuItem.Create( PpmConttroler );
-    PopUpItem.Add( NewPopUpItem );
-    NewPopUpItem.Caption := SubPopUpItem.Caption;
-    NewPopUpItem.ShortCut := SubPopUpItem.ShortCut;
-    NewPopUpItem.Checked := SubPopUpItem.Checked;
-    NewPopUpItem.OnClick := SubPopUpItem.OnClick;
-    NewPopUpItem.Tag := SubPopUpItem.Tag;
+    LNewPopUpItem := TMenuItem.Create( PpmConttroler );
+    LPopUpItem.Add( LNewPopUpItem );
+    LNewPopUpItem.Caption := LSubPopUpItem.Caption;
+    LNewPopUpItem.ShortCut := LSubPopUpItem.ShortCut;
+    LNewPopUpItem.Checked := LSubPopUpItem.Checked;
+    LNewPopUpItem.OnClick := LSubPopUpItem.OnClick;
+    LNewPopUpItem.Tag := LSubPopUpItem.Tag;
   end;
-
-  PopUpItem := TMenuItem.Create( PpmConttroler );
-  PpmConttroler.Items.Add( PopUpItem );
-  PopUpItem.Caption := 'Edit';
-  for SubPopUpItem in PpmEdit.Items do
-  begin
-    NewPopUpItem := TMenuItem.Create( PpmConttroler );
-    PopUpItem.Add( NewPopUpItem );
-    NewPopUpItem.Caption := SubPopUpItem.Caption;
-    NewPopUpItem.ShortCut := SubPopUpItem.ShortCut;
-    NewPopUpItem.Checked := SubPopUpItem.Checked;
-    NewPopUpItem.OnClick := SubPopUpItem.OnClick;
-    NewPopUpItem.Tag := SubPopUpItem.Tag;
-  end;
-
-  PopUpItem := TMenuItem.Create( PpmConttroler );
-  PpmConttroler.Items.Add( PopUpItem );
-  PopUpItem.Caption := 'Create';
-  for SubPopUpItem in PpmCreate.Items do
-  begin
-    NewPopUpItem := TMenuItem.Create( PpmConttroler );
-    PopUpItem.Add( NewPopUpItem );
-    NewPopUpItem.Caption := SubPopUpItem.Caption;
-    NewPopUpItem.ShortCut := SubPopUpItem.ShortCut;
-    NewPopUpItem.Checked := SubPopUpItem.Checked;
-    NewPopUpItem.OnClick := SubPopUpItem.OnClick;
-    NewPopUpItem.Tag := SubPopUpItem.Tag;
-    NewPopUpItem.ImageIndex := SubPopUpItem.ImageIndex;
-  end;
-
-end;
-
-procedure TFrmController.onCreateItemPopUpClick( Sender: TObject );
-var
-  NumItem: Integer;
-  IClass: TClass;
-  IName: string;
-  RttiContext: TRttiContext;
-  RttiType: TRttiType;
-  Value: TValue;
-begin
-  if ( Sender is TMenuItem ) then
-  begin
-    with TMenuItem( Sender ) do
-    begin
-      BtnCreate.Caption := Caption;
-      BtnCreate.Tag := Tag;
-    end;
-  end;
-  NumItem := TComponent( Sender ).Tag;
-
-  IClass := FCollectItem.RegClassList.GetClassIndex( NumItem );
-  IName := FCollectItem.RegClassList.GetNameIndex( NumItem );
-
-  if not Assigned( FSelectedItem ) then
-  begin
-    FSelectedItem := FCollectItem;
-  end else begin
-    if ( not( FSelectedItem is TPGFolder ) ) or ( TPGFolder(FSelectedItem)._Locked ) then
-    begin
-      FSelectedItem := FSelectedItem.Parent;
-    end;
-  end;
-
-  RttiContext := TRttiContext.Create( );
-  RttiType := RttiContext.GetType( IClass );
-  Value := RttiType.GetMethod( 'Create' )
-    .Invoke( IClass, [ FSelectedItem, IName ] );
-  TrvController.SuperSelected( TPGItem( Value.AsObject ).Node );
 end;
 
 procedure TFrmController.BtnRecallClick( Sender: TObject );

@@ -4,9 +4,13 @@ program PGofer3;
 uses
   Winapi.Windows,
   Vcl.Forms,
+  Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
+  Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
+  PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
+  PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
+  PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
+  PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
   PGofer.Core in '..\..\Libraries\Lib\Kernel\PGofer.Core.pas',
-  PGofer.Language in '..\..\Libraries\Lib\Kernel\Utils\PGofer.Language.pas',
-  PGofer.IconList in '..\..\Libraries\Lib\Kernel\Utils\PGofer.IconList.pas',
   PGofer.Classes in '..\..\Libraries\Lib\Kernel\Model\PGofer.Classes.pas',
   PGofer.Lexico in '..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Lexico.pas',
   PGofer.Sintatico in '..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Sintatico.pas',
@@ -18,6 +22,7 @@ uses
   PGofer.Files.Controls in '..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas',
   PGofer.Files.WinShell in '..\..\Libraries\Lib\Files\PGofer.Files.WinShell.pas',
   PGofer.Files.Encrypt in '..\..\Libraries\Lib\Files\PGofer.Files.Encrypt.pas',
+  PGofer.Files.ZLib in '..\..\Libraries\Lib\Files\PGofer.Files.ZLib.pas',
   PGofer.Files in '..\..\Libraries\Lib\Files\PGofer.Files.pas',
   PGofer.Key.Controls in '..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas',
   PGofer.Key.Post in '..\..\Libraries\Lib\Key\PGofer.Key.Post.pas',
@@ -49,17 +54,19 @@ uses
   PGofer.Windows.Input in '..\..\Libraries\Lib\Windows\PGofer.Windows.Input.pas',
   PGofer.Windows in '..\..\Libraries\Lib\Windows\PGofer.Windows.pas',
   PGofer.Forms.Controls in '..\..\Libraries\Forms\PGofer.Forms.Controls.pas',
-  PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.Frame in '..\..\Libraries\Forms\PGofer.Forms.Frame.pas' {PGFormsFrame: TFrame},
+  PGofer.Forms in '..\..\Libraries\Forms\PGofer.Forms.pas',
   PGofer.Forms.AutoComplete in '..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas' {FrmAutoComplete},
-  PGofer.Forms.Console in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas' {FrmConsole},
   PGofer.Forms.Console.Frame in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas' {PGConsoleFrame: TFrame},
+  PGofer.Forms.Console in '..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas' {FrmConsole},
   PGofer.Forms.Controller in '..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas' {FrmController},
-  PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
+  PGofer.Triggers.Collections in '..\..\Libraries\Triggers\PGofer.Triggers.Collections.pas',
+  PGofer.Triggers.Form in '..\..\Libraries\Triggers\PGofer.Triggers.Form.pas' {FrmTriggerController},
   PGofer.Triggers.Frame in '..\..\Libraries\Triggers\PGofer.Triggers.Frame.pas' {PGTriggerFrame: TFrame},
-  PGofer.VaultFolder.KeyStore in '..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.KeyStore.pas',
-  PGofer.VaultFolder in '..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.pas',
-  PGofer.VaultFolder.Frame in '..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
+  PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
+  PGofer.Triggers.VaultFolder.KeyStore in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.KeyStore.pas',
+  PGofer.Triggers.VaultFolder in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.pas',
+  PGofer.Triggers.VaultFolder.Frame in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
   PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
   PGofer.Triggers.AutoFills.Frame in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.Frame.pas' {PGAutoFillsFrame: TFrame},
   PGofer.Triggers.HotKeys.Controls in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Controls.pas',
@@ -76,14 +83,7 @@ uses
   PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
-  Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
-  Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
-  PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
-  PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
-  PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
-  PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
-  PGofer.Forms.Style in '..\..\Libraries\Forms\PGofer.Forms.Style.pas';
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
 
@@ -99,17 +99,17 @@ begin
     SetProcessWorkingSetSize( GetCurrentProcess, 10*1024*1024, 15*1024*1024);
     SetProcessShutdownParameters($4FF, 0);
 
-
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
-    GlobalCollection.XMLLoadFromFile( );
-    TriggersCollect.XMLLoadFromFile( );
+    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    Application.CreateForm(TFrmTriggerController, FrmTriggerController);
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    GlobalCollection.FormCreate();
+    TriggersCollect.FormCreate();
     TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );
 

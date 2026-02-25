@@ -36,7 +36,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Core, PGofer.Language, PGofer.Runtime, PGofer.Math.Controls;
+  PGofer.Core, PGofer.Runtime, PGofer.Math.Controls;
 
 function LerParamentros( Gramatica: TGramatica;
   const QuantMin, QuantMax: Byte; IgnoreLPar: Boolean = False ): Byte;
@@ -60,11 +60,11 @@ begin
     end;
 
     if ( c < QuantMin ) then
-      Gramatica.ErroAdd( Tr('Error_Interpreter_,') )
+      Gramatica.ErroAdd( 'Error_Interpreter_,' )
     else
     begin
       if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-        Gramatica.ErroAdd( Tr('Error_Interpreter_)') )
+        Gramatica.ErroAdd( 'Error_Interpreter_)' )
       else
       begin
         Gramatica.TokenList.GetNextToken;
@@ -73,7 +73,7 @@ begin
     end;
   end else begin
     if QuantMin <> 0 then
-      Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
+      Gramatica.ErroAdd( 'Error_Interpreter_(' );
   end;
 end;
 
@@ -86,7 +86,7 @@ begin
   begin
     if ( Gramatica.TokenList.Token.Classe <> cmdRes_begin ) then
     begin
-      Gramatica.ErroAdd( Tr('Error_Interpreter_Begin') )
+      Gramatica.ErroAdd( 'Error_Interpreter_Begin' )
     end else begin
       BeginCount := 1;
       Gramatica.TokenList.GetNextToken;
@@ -110,7 +110,7 @@ begin
         ( BeginCount = 0 );
 
       if ( Gramatica.TokenList.Token.Classe <> cmdRes_end ) then
-        Gramatica.ErroAdd( Tr('Error_Interpreter_End') )
+        Gramatica.ErroAdd( 'Error_Interpreter_End' )
       else
         Gramatica.TokenList.GetNextToken;
     end;
@@ -148,8 +148,7 @@ begin
   Gramatica.TokenList.GetNextToken;
   if AtribuicaoNivel1( Gramatica ) then
     Result := Gramatica.Pilha.Desempilhar( Valor )
-  else
-  begin
+  else begin
     Gramatica.Pilha.Empilhar( Valor );
     Result := Valor;
   end;
@@ -173,7 +172,7 @@ begin
       cmdEOF:
         ;
       cmdUnDeclar:
-        Gramatica.ErroAdd( Tr('Error_Interpreter_Unrecog') );
+        Gramatica.ErroAdd('Error_Interpreter_Unrecog' );
     end;
 end;
 
@@ -189,7 +188,7 @@ begin
   end else begin
     if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe <> cmdEOF )
     then
-      Gramatica.ErroAdd( Tr('Error_Interpreter_;') );
+      Gramatica.ErroAdd( 'Error_Interpreter_;' );
   end;
 end;
 
@@ -209,7 +208,7 @@ begin
       Identificador( Gramatica );
 
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Struct') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Struct' );
   end;
 end;
 
@@ -226,7 +225,7 @@ begin
       if Gramatica.TokenList.Token.Classe = cmdRes_end then
         Gramatica.TokenList.GetNextToken
       else
-        Gramatica.ErroAdd( Tr('Error_Interpreter_End') );
+        Gramatica.ErroAdd( 'Error_Interpreter_End' );
     end;
   end;
 end;
@@ -243,8 +242,8 @@ begin
     Valor := Gramatica.Pilha.Desempilhar( '' );
     if TryStrToFloat( Valor, Numero ) then
       Gramatica.MSGsAdd( FormatConvert(
-        TPGKernel.GetVar('ReplyPrefix',False),
-        TPGKernel.GetVar('ReplyFormat',''), Numero ))
+        TPGKernel.GetVar<Boolean>('ReplyPrefix'),
+        TPGKernel.GetVar<String>('ReplyFormat'), Numero ))
     else
       Gramatica.MSGsAdd( Valor );
   end;
@@ -363,7 +362,7 @@ begin
             Gramatica.Pilha.Empilhar( N1 );
           end
           else
-            Gramatica.ErroAdd( Tr('Error_Interpreter_Div0') );
+            Gramatica.ErroAdd( 'Error_Interpreter_Div0' );
         end;
       cmdRes_mod:
         begin
@@ -374,7 +373,7 @@ begin
             Gramatica.Pilha.Empilhar( N1 )
           end
           else
-            Gramatica.ErroAdd( Tr('Error_Interpreter_Div0') );
+            Gramatica.ErroAdd( 'Error_Interpreter_Div0' );
         end;
     end;
     ExpressaoMulDiv( Gramatica );
@@ -408,14 +407,14 @@ begin
             if TryPower( N1, N2, N1 ) then
               Gramatica.Pilha.Empilhar( N1 )
             else
-              Gramatica.ErroAdd( Tr('Error_Interpreter_Pow') );
+              Gramatica.ErroAdd( 'Error_Interpreter_Pow' );
           end;
         cmdRes_root:
           begin
             if TryPower( N1, 1 / N2, N1 ) then
               Gramatica.Pilha.Empilhar( N1 )
             else
-              Gramatica.ErroAdd( Tr('Error_Interpreter_Root') );
+              Gramatica.ErroAdd( 'Error_Interpreter_Root' );
           end;
         cmdEqual:
           Gramatica.Pilha.Empilhar( N1 = N2 );
@@ -439,7 +438,7 @@ begin
         cmdDifferent:
           Gramatica.Pilha.Empilhar( S1 <> S2 );
       else
-        Gramatica.ErroAdd( Tr('Error_Interpreter_Math') );
+        Gramatica.ErroAdd( 'Error_Interpreter_Expression' );
       end;
     end;
     ExpressaoPowSqt( Gramatica );
@@ -478,7 +477,7 @@ begin
         then
           Gramatica.TokenList.GetNextToken
         else
-          Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
+          Gramatica.ErroAdd( 'Error_Interpreter_)' );
       end;
 
     cmdRes_not:
@@ -489,7 +488,7 @@ begin
           ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
       end;
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Expression') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Expression' );
   end;
 end;
 
@@ -522,15 +521,15 @@ end;
 
 procedure Identificador( Gramatica: TGramatica );
 var
-  ID: TPGItemCMD;
+  ID: TPGItemClass;
 begin
   if ( not Gramatica.Erro ) then
   begin
-    ID := TPGItemCMD( IdentificadorLocalizar( Gramatica ) );
+    ID := TPGItemClass( IdentificadorLocalizar( Gramatica ) );
     if Assigned( ID ) then
       ID.Execute( Gramatica )
     else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_IdUnRec') );
+      Gramatica.ErroAdd( 'Error_Interpreter_IdUnRec' );
   end;
 end;
 

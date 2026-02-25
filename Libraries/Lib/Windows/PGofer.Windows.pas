@@ -3,23 +3,23 @@ unit PGofer.Windows;
 interface
 
 uses
-  PGofer.Core, PGofer.Classes, PGofer.Runtime;
+  PGofer.Runtime, PGofer.Windows.Input;
 
 type
 
 {$M+}
-  [TPGAttribIcon(pgiWindows)]
-  TPGWindows = class(TPGItemCMD)
+  TPGWindows = class(TPGItemClass)
   private
-    FMouse: TPGItemCMD;
+    FCanOff: Boolean;
+    FMouse: TPGMouse;
     procedure SetCanOff(Value: Boolean);
     function GetCanOff: Boolean;
+  protected
   public
-    constructor Create(AItemDad: TPGItem);
-    destructor Destroy(); override;
-    property Mouse: TPGItemCMD read FMouse;
+    class function IconIndex(): Integer; override;
   published
     property CanOff: Boolean read GetCanOff write SetCanOff;
+    property Mouse: TPGMouse read FMouse;
     function DialogMessage(Text: string): Boolean;
     function FindWindow(Valor: string): NativeUInt;
     function GetTextFromPoint(): string;
@@ -35,29 +35,18 @@ type
   end;
 {$TYPEINFO ON}
 
+var
+   PGWindows: TPGWindows;
+
 implementation
 
 uses
   WinApi.Windows,
   System.SysUtils, System.Classes,
   Vcl.Forms, Vcl.Dialogs,
-  PGofer.Windows.Controls,
-  PGofer.Windows.Input,
-  PGofer.Windows.VirtualDesktop;
+  PGofer.Core, PGofer.Windows.Controls, PGofer.Windows.VirtualDesktop;
 
 { TPGWindows }
-
-constructor TPGWindows.Create(AItemDad: TPGItem);
-begin
-  inherited Create(AItemDad);
-  FMouse := TPGMouse.Create(Self);
-end;
-
-destructor TPGWindows.Destroy;
-begin
-  FMouse.Free;
-  inherited Destroy();
-end;
 
 function TPGWindows.FindWindow(Valor: string): NativeUInt;
 begin
@@ -66,7 +55,12 @@ end;
 
 function TPGWindows.GetCanOff: Boolean;
 begin
-  Result := TPGKernel.GetVar('CanOff', True);
+  Result := FCanOff;
+end;
+
+class function TPGWindows.IconIndex: Integer;
+begin
+  Result := Ord(pgiWindows);
 end;
 
 function TPGWindows.GetTextFromPoint: string;
@@ -106,12 +100,12 @@ end;
 
 procedure TPGWindows.SetCanOff(Value: Boolean);
 begin
-  if TPGKernel.GetVar('CanOff', True) <> Value then
+  if FCanOff <> Value then
   begin
-    TPGKernel.SetVar('CanOff', Value);
-    if not Value then
+    FCanOff := Value;
+    if not FCanOff then
     begin
-      WindowsShutDownReasonCreate(Application.Handle, PWideChar('PGofer: Desligamento bloqueado!'));
+      WindowsShutDownReasonCreate(Application.Handle, PWideChar('PGofer: Shutdown Block!'));
     end else begin
       WindowsShutDownReasonDestroy(Application.Handle);
     end;
@@ -159,8 +153,10 @@ end;
 
 initialization
 
-TPGWindows.Create(GlobalItemCommand);
+PGWindows := TPGWindows.Create(GlobalItemCommand);
 
 finalization
+
+PGWindows := nil;
 
 end.

@@ -7,7 +7,7 @@ uses
 
 type
   {$M+}
-  TPGProcess = class( TPGItemCMD )
+  TPGProcess = class( TPGItemClass )
   private
   public
   published
@@ -20,6 +20,9 @@ type
     function SetPriority( PID: string; Priority: Byte ): Boolean;
   end;
   {$TYPEINFO ON}
+
+var
+  PGProcess: TPGProcess;
 
 implementation
 
@@ -81,8 +84,10 @@ end;
 
 initialization
 
-TPGProcess.Create( GlobalItemCommand );
+  PGProcess := TPGProcess.Create( GlobalItemCommand );
 
 finalization
+
+  PGProcess := nil;
 
 end.

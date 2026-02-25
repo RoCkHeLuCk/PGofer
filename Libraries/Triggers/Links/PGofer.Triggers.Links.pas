@@ -4,12 +4,11 @@ interface
 
 uses
   System.Classes,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type
   {$M+}
-  [TPGAttribIcon(pgiLink)]
   TPGLink = class( TPGItemTrigger )
   private
     FFileName: string;
@@ -41,12 +40,13 @@ type
       );
     function GetIsRunning: Boolean;
   protected
-    procedure ExecutarNivel1( Gramatica: TGramatica ); override;
+    procedure ExecuteWithArgs( Gramatica: TGramatica ); override;
     function GetIsValid( ): Boolean; override;
   public
-    constructor Create( AName: string; AMirror: TPGItemMirror );
-    destructor Destroy( ); override;
     class var GlobList: TPGItem;
+    class function IconIndex(): Integer; override;
+    constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
+    destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
     procedure Triggering( ); override;
   published
@@ -70,28 +70,31 @@ type
   end;
   {$TYPEINFO ON}
 
-  [TPGAttribIcon(pgiLink)]
-  TPGLinkDeclare = class( TPGItemCMD )
+  TPGLinkDeclare = class( TPGItemClass )
+  protected
   public
+    class function IconIndex(): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
   published
     procedure Auto( ADir: string; AMask: string );
   end;
 
-  [TPGAttribIcon(pgiLink)]
   TPGLinkMirror = class( TPGItemMirror )
   private
   protected
   public
-    constructor Create( AItemDad: TPGItem; AName: string );
+    constructor Create( AItemDad: TPGItem; AName: string = ''); override;
     procedure Frame( AParent: TObject ); override;
+    class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
+    class function ClassNameEx(): String; override;
+    class function IconIndex(): Integer; override;
   end;
 
 implementation
 
 uses
-  System.SysUtils,
-  PGofer.Language,
+  System.SysUtils, System.StrUtils,
+  PGofer.Core,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
 
@@ -143,6 +146,11 @@ end;
 function TPGLink.GetDirExist: Boolean;
 begin
   Result := DirectoryExistsEx( FDirectory );
+end;
+
+class function TPGLink.IconIndex: Integer;
+begin
+  Result := Ord(pgiLink);
 end;
 
 function TPGLink.GetIsRunning( ): Boolean;
@@ -260,7 +268,7 @@ begin
   );
 end;
 
-procedure TPGLink.ExecutarNivel1( Gramatica: TGramatica );
+procedure TPGLink.ExecuteWithArgs( Gramatica: TGramatica );
 var
   LQuantidade: Byte;
   LParameter: string;
@@ -277,40 +285,35 @@ begin
   LCaptureMsg:= FCaptureMsg;
   LSingleInstance:= FSingleInstance;
 
-  if Gramatica.TokenList.Token.Classe = cmdLPar then
-  begin
-    LQuantidade := LerParamentros( Gramatica, 0, 6 , True);
+  LQuantidade := LerParamentros( Gramatica, 0, 6, True );
 
-    // Gramatica.TokenList.GetNextToken;
-    //Expressao( Gramatica );
-    //if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
-    //begin
+  // Gramatica.TokenList.GetNextToken;
+  //Expressao( Gramatica );
+  //if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
+  //begin
 
-      if not Gramatica.Erro then
-      begin
-        if LQuantidade >= 6 then LCaptureMsg := Gramatica.Pilha.Desempilhar( LCaptureMsg );
-        if LQuantidade >= 5 then LState := Gramatica.Pilha.Desempilhar( LState );
-        if LQuantidade >= 4 then LPriority := Gramatica.Pilha.Desempilhar( LPriority );
-        if LQuantidade >= 3 then LSingleInstance := Gramatica.Pilha.Desempilhar( LSingleInstance );
-        if LQuantidade >= 2 then LRunAdmin := Gramatica.Pilha.Desempilhar( LRunAdmin );
-        if LQuantidade >= 1 then LParameter := Gramatica.Pilha.Desempilhar( LParameter );
-
-        Self.ThreadExecute(
-          False,
-          LParameter,
-          LRunAdmin,
-          LSingleInstance,
-          LPriority,
-          LState,
-          LCaptureMsg
-        );
-      end;
-    //end
-    //else
-    //  Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
-  end else
     if not Gramatica.Erro then
-      Self.Triggering();
+    begin
+      if LQuantidade >= 6 then LCaptureMsg := Gramatica.Pilha.Desempilhar( LCaptureMsg );
+      if LQuantidade >= 5 then LState := Gramatica.Pilha.Desempilhar( LState );
+      if LQuantidade >= 4 then LPriority := Gramatica.Pilha.Desempilhar( LPriority );
+      if LQuantidade >= 3 then LSingleInstance := Gramatica.Pilha.Desempilhar( LSingleInstance );
+      if LQuantidade >= 2 then LRunAdmin := Gramatica.Pilha.Desempilhar( LRunAdmin );
+      if LQuantidade >= 1 then LParameter := Gramatica.Pilha.Desempilhar( LParameter );
+
+      Self.ThreadExecute(
+        False,
+        LParameter,
+        LRunAdmin,
+        LSingleInstance,
+        LPriority,
+        LState,
+        LCaptureMsg
+      );
+    end;
+  //end
+  //else
+  //  Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
 end;
 
 { TPGLinkDec }
@@ -321,58 +324,59 @@ var
   Id: TPGItem;
   Link: TPGLink;
 begin
-  Gramatica.TokenList.GetNextToken;
-  if Gramatica.TokenList.Token.Classe = cmdDot then
+  if Self.TryExecuteChild(Gramatica) then
+    Exit;
+
+  Id := IdentificadorLocalizar( Gramatica );
+  if ( not Assigned( Id ) ) or ( Id is TPGLink ) then
   begin
-    Gramatica.TokenList.GetNextToken;
-    Self.RttiExecute( Gramatica, Self );
-  end else begin
-    Id := IdentificadorLocalizar( Gramatica );
-    if ( not Assigned( Id ) ) or ( Id is TPGLink ) then
+    Titulo := Gramatica.TokenList.Token.Lexema;
+    Quantidade := LerParamentros( Gramatica, 1, 7 );
+    if not Gramatica.Erro then
     begin
-      Titulo := Gramatica.TokenList.Token.Lexema;
-      Quantidade := LerParamentros( Gramatica, 1, 7 );
-      if not Gramatica.Erro then
-      begin
-        if ( not Assigned( Id ) ) then
-          Link := TPGLink.Create( Titulo, nil )
-        else
-          Link := TPGLink( Id );
+      if ( not Assigned( Id ) ) then
+        Link := TPGLink.Create( Titulo, nil )
+      else
+        Link := TPGLink( Id );
 
-        if Quantidade >= 10 then
-          Link.ScriptAfter := Gramatica.Pilha.Desempilhar( '' );
+      if Quantidade >= 10 then
+        Link.ScriptAfter := Gramatica.Pilha.Desempilhar( '' );
 
-        if Quantidade >= 9 then
-          Link.ScriptBefor := Gramatica.Pilha.Desempilhar( '' );
+      if Quantidade >= 9 then
+        Link.ScriptBefor := Gramatica.Pilha.Desempilhar( '' );
 
-        if Quantidade >= 8 then
-          Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
+      if Quantidade >= 8 then
+        Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
 
-        if Quantidade >= 7 then
-          Link.CaptureMsg := Gramatica.Pilha.Desempilhar( False );
+      if Quantidade >= 7 then
+        Link.CaptureMsg := Gramatica.Pilha.Desempilhar( False );
 
-        if Quantidade >= 6 then
-          Link.RunAdmin := Gramatica.Pilha.Desempilhar( False );
+      if Quantidade >= 6 then
+        Link.RunAdmin := Gramatica.Pilha.Desempilhar( False );
 
-        if Quantidade >= 5 then
-          Link.SingleInstance := Gramatica.Pilha.Desempilhar( False );
+      if Quantidade >= 5 then
+        Link.SingleInstance := Gramatica.Pilha.Desempilhar( False );
 
-        if Quantidade >= 4 then
-          Link.State := Gramatica.Pilha.Desempilhar( 1 );
+      if Quantidade >= 4 then
+        Link.State := Gramatica.Pilha.Desempilhar( 1 );
 
-        if Quantidade >= 3 then
-          Link.Directory := Gramatica.Pilha.Desempilhar( '' );
+      if Quantidade >= 3 then
+        Link.Directory := Gramatica.Pilha.Desempilhar( '' );
 
-        if Quantidade >= 2 then
-          Link.Parameter := Gramatica.Pilha.Desempilhar( '' );
+      if Quantidade >= 2 then
+        Link.Parameter := Gramatica.Pilha.Desempilhar( '' );
 
-        if Quantidade >= 1 then
-          Link.FileName := Gramatica.Pilha.Desempilhar( '' );
-      end;
-    end
-    else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_IdExist') );
-  end;
+      if Quantidade >= 1 then
+        Link.FileName := Gramatica.Pilha.Desempilhar( '' );
+    end;
+  end
+  else
+    Gramatica.ErroAdd( 'Error_Interpreter_IdExist' );
+end;
+
+class function TPGLinkDeclare.IconIndex: Integer;
+begin
+  Result := Ord(pgiLink);
 end;
 
 procedure TPGLinkDeclare.Auto( ADir: string; AMask: string );
@@ -430,9 +434,9 @@ end;
 { TPGLinkMirror }
 constructor TPGLinkMirror.Create( AItemDad: TPGItem; AName: string );
 begin
+  if AName = '' then AName := 'NewLink';
   AName := TPGItemMirror.TranscendName( AName );
   inherited Create( AItemDad, TPGLink.Create( AName, Self ) );
-  Self.ReadOnly := False;
 end;
 
 procedure TPGLinkMirror.Frame( AParent: TObject );
@@ -440,11 +444,37 @@ begin
   TPGLinkFrame.Create( Self.ItemOriginal, AParent );
 end;
 
+class function TPGLinkMirror.ClassNameEx: String;
+begin
+   Result := TPGLink.ClassNameEx();
+end;
+
+class function TPGLinkMirror.IconIndex: Integer;
+begin
+  Result := Ord(pgiLink);
+end;
+
+class function TPGLinkMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;
+var
+  LLink : TPGLink;
+begin
+  Result := False;
+  if MatchText(ExtractFileExt(AFileName),
+   ['.exe', '.lnk', '.bat', '.cmd', '.ps1', '.url', '.msc']) then
+  begin
+    LLink := TPGLink( TPGLinkMirror.Create( AItemDad,
+         FileExtractOnlyFileName( AFileName ) ).ItemOriginal );
+    LLink.FileName := FileUnExpandPath( AFileName );
+    LLink.Directory := FileUnExpandPath( ExtractFilePath( AFileName ) );
+    Result := True;
+  end;
+end;
+
 initialization
 
 TPGLinkDeclare.Create( GlobalItemCommand, 'Link' );
 TPGLink.GlobList := TPGFolder.Create( GlobalCollection, 'Links' );
-TriggersCollect.RegisterClass( 'Link', pgiLink, TPGLinkMirror );
+TriggersCollect.RegisterClass( TPGLinkMirror );
 
 finalization
 

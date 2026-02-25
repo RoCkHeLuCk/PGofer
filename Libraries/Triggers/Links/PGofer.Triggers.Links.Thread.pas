@@ -46,8 +46,7 @@ uses
   WinApi.ShellApi,
   Vcl.Forms,
   PGofer.Core,
-  PGofer.Language,
-  PGofer.Sintatico,
+  PGofer.Runtime,
   PGofer.Files.Controls,
   PGofer.Triggers.Links.ProcessUI;
 
@@ -69,7 +68,7 @@ begin
   Self.Priority := tpIdle;
 
   FLink := ALink;
-  FConsoleMessage := TPGKernel.GetVar('ConsoleMessage',True);
+  FConsoleMessage := TPGKernel.GetVar<Boolean>('ConsoleMessage');
 
   FParameter:= AParameter;
   FState:= AState;
@@ -99,7 +98,7 @@ begin
 
   if FSingleInstance and FLink.isRunning then
   begin
-    TrC('Error_Link_SingleInstance',[FLink.Name], True, FConsoleMessage);
+    TPGKernel.ConsoleTr('Error_Link_SingleInstance',[FLink.Name], True, FConsoleMessage);
     FLink.CanExecute := False;
   end;
 
@@ -167,7 +166,7 @@ begin
       ProcessInfo) then
     begin
       pBuffer := AllocMem(CReadBuffer + 1);
-      TrC('Link ' + FLink.Name + ' : ', True, FConsoleMessage);
+      TPGKernel.ConsoleTr('Link ' + FLink.Name + ' : ', True, FConsoleMessage);
 
       repeat
         dRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
@@ -177,7 +176,7 @@ begin
           pBuffer[dRead] := #0;
 
           OemToAnsi(pBuffer, pBuffer);
-          TrC(string(pBuffer), False, FConsoleMessage);
+          TPGKernel.ConsoleTr(string(pBuffer), False, FConsoleMessage);
         until (dRead < CReadBuffer);
       until (dRunning <> WAIT_TIMEOUT);
 
@@ -229,13 +228,13 @@ begin
   end else begin
     if ReturnCode <> 0 then
     begin
-      TrC(
+      TPGKernel.ConsoleTr(
         'Link ' + FLink.Name + ' : ' + SysErrorMessage(ReturnCode),
         True,
         FConsoleMessage
       );
     end else begin
-      TrC(
+      TPGKernel.ConsoleTr(
         'Link ' + FLink.Name + ' : Ok: File Executed.',
         True,
         FConsoleMessage
@@ -276,7 +275,7 @@ begin
 
   sText := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);
   if sText <> '' then
-    TrC('Link ' + FLink.Name + ' : ' + sText, True,
+    TPGKernel.ConsoleTr('Link ' + FLink.Name + ' : ' + sText, True,
       FConsoleMessage);
 
   if (FLink.ScriptAfter <> '') or (not Self.FreeOnTerminate) then

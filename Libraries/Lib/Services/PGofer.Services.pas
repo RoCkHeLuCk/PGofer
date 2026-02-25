@@ -9,11 +9,11 @@ type
   {$M+}
   [TPGAttribText('Advanced Windows Service Management')]
   [TPGAttribText('Allows control of local or remote services.')]
-  TPGService = class( TPGItemCMD )
+  TPGService = class( TPGItemClass )
   private
     FMachineName: string;
   public
-    constructor Create( AItemDad: TPGItem; AName: string = '' ); overload;
+    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
   published
 
     [TPGAttribText('Target Computer Name or IP Address.')]
@@ -53,6 +53,9 @@ type
   end;
   {$TYPEINFO ON}
 
+var
+  PGService: TPGService;
+
 implementation
 
 uses
@@ -61,7 +64,7 @@ uses
 
 { TPGService }
 
-constructor TPGService.Create( AItemDad: TPGItem; AName: string );
+constructor TPGService.Create( AItemDad: TPGItem; AName: string = '' );
 begin
   inherited Create( AItemDad, AName );
   FMachineName := '';
@@ -127,9 +130,10 @@ end;
 
 initialization
 
-  // Register the global instance 'Service'
-  TPGService.Create( GlobalItemCommand, 'Service' );
+  PGService := TPGService.Create( GlobalItemCommand );
 
 finalization
+
+  PGService := nil;
 
 end.

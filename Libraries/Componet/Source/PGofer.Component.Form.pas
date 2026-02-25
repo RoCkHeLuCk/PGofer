@@ -65,8 +65,11 @@ end;
 
 procedure TFormEx.FormDestroy( Sender: TObject );
 begin
-  Self.IniConfigSave( );
-  FIniFile.Free;
+  try
+    Self.IniConfigSave( );
+  finally
+    FIniFile.Free;
+  end;
 end;
 
 procedure TFormEx.IniConfigLoad( );

@@ -8,6 +8,17 @@ uses
   PGofer.Triggers.HotKeys.MMRawInput,
   PGofer.Triggers.HotKeys.Controls;
 
+
+const
+  // Mapeamento exato dos 10 primeiros bits do usButtonFlags
+  RAW_TO_WM: array[0..9] of Word = (
+    WM_LBUTTONDOWN, WM_LBUTTONUP,     // Bits 0, 1 (Left)
+    WM_RBUTTONDOWN, WM_RBUTTONUP,     // Bits 2, 3 (Right)
+    WM_MBUTTONDOWN, WM_MBUTTONUP,     // Bits 4, 5 (Middle)
+    WM_XBUTTONDOWN, WM_XBUTTONUP,     // Bits 6, 7 (XBUTTON 1)
+    WM_XBUTTONDOWN, WM_XBUTTONUP      // Bits 8, 9 (XBUTTON 2)
+  );
+
 type
   TRawInput = class(TThread)
   private
@@ -29,7 +40,7 @@ type
 implementation
 
 uses
-  PGofer.Language,
+  PGofer.Core,
   PGofer.Triggers.HotKeys;
 
 { TRawInput }
@@ -84,7 +95,7 @@ begin
 
     if not RegisterRawInputDevices(@FRAWInputDevice, 2, SizeOf(TRAWInputDevice)) then
     begin
-      TrC('Error: RawInput not installed', False);
+      TPGKernel.ConsoleTr('Error_RawInput_NInstal');
       Exit;
     end;
 
@@ -137,7 +148,7 @@ begin
   dwSize := 0;
   if GetRawInputBuffer(nil, dwSize, RAWINPUTHEADERSIZE) <> 0 then Exit;
   if dwSize = 0 then Exit;
-  if Length(FBuffer) < (dwSize * 16) then
+  if Length(FBuffer) < SmallInt(dwSize * 16) then
      SetLength(FBuffer, dwSize * 16);
 
   dwSize := Length(FBuffer);
@@ -158,27 +169,58 @@ end;
 procedure TRawInput.ProcessSingleInput(Raw: PRawInput);
 var
   ParamInput: TParamInput;
+  Flags, I : Word;
 begin
   case Raw.header.dwType of
     RIM_TYPEMOUSE:
       begin
-        if (Raw.mouse.union.usButtonFlags and
-           (RI_MOUSE_LEFT_BUTTON_DOWN or RI_MOUSE_LEFT_BUTTON_UP or
-            RI_MOUSE_RIGHT_BUTTON_DOWN or RI_MOUSE_RIGHT_BUTTON_UP or
-            RI_MOUSE_MIDDLE_BUTTON_DOWN or RI_MOUSE_MIDDLE_BUTTON_UP or
-            RI_MOUSE_BUTTON_4_DOWN or RI_MOUSE_BUTTON_4_UP or
-            RI_MOUSE_BUTTON_5_DOWN or RI_MOUSE_BUTTON_5_UP or
-            RI_MOUSE_WHEEL)) <> 0 then
+        Flags := Raw.mouse.union.usButtonFlags;
+        // Processa os botões (Bits 0 a 9)
+        if (Flags and $3FF) <> 0 then
         begin
-          ParamInput.wParam := Raw.mouse.union.usButtonFlags;
+          for i := 0 to 9 do
+          begin
+            if (Flags and (1 shl i)) <> 0 then
+            begin
+              ParamInput.wParam := RAW_TO_WM[i];
 
-          if (Raw.mouse.union.usButtonFlags and RI_MOUSE_WHEEL) <> 0 then
-            ParamInput.dwVkData := DWORD(Raw.mouse.union.usButtonData) shl 16
-          else
-            ParamInput.dwVkData := Raw.mouse.union.usButtonData;
+              // Ajuste do XButton:
+              // Se for bits 6,7 (X1) ou 8,9 (X2)
+              if i >= 6 then
+              begin
+                // Se i=6 ou 7 -> (6 div 2) = 3; 3-2 = 1 (XBUTTON1)
+                // Se i=8 ou 9 -> (8 div 2) = 4; 4-2 = 2 (XBUTTON2)
+                //ParamInput.dwVkData := ((i div 2) - 2) shl 16;
+                ParamInput.dwVkData := 0;
+                if (i = 6) or (i = 8) then // X1 Down/Up
+                   ParamInput.wParam := $20B
+                else // X2 Down/Up
+                   ParamInput.wParam := $20C;
 
+              end else
+                ParamInput.dwVkData := 0;
+
+              TPGHotKey.OnProcessKeys(ParamInput);
+            end;
+          end;
+        end;
+
+        // Scroll Vertical
+        if (Flags and RI_MOUSE_WHEEL) <> 0 then
+        begin
+          ParamInput.wParam := WM_MOUSEWHEEL;
+          ParamInput.dwVkData := DWORD(Raw.mouse.union.usButtonData) shl 16;
           TPGHotKey.OnProcessKeys(ParamInput);
         end;
+
+        // Scroll Horizontal
+        if (Flags and RI_MOUSE_HORIZONTAL_WHEEL) <> 0 then
+        begin
+          ParamInput.wParam := WM_MOUSEHWHEEL;
+          ParamInput.dwVkData := DWORD(Raw.mouse.union.usButtonData) shl 16;
+          TPGHotKey.OnProcessKeys(ParamInput);
+        end;
+
       end;
 
     RIM_TYPEKEYBOARD:

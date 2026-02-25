@@ -1,15 +1,14 @@
-unit PGofer.VaultFolder;
+unit PGofer.Triggers.VaultFolder;
 
 interface
 
 uses
-  PGofer.Core, PGofer.Classes, PGofer.Runtime;
+  PGofer.Classes, PGofer.Triggers.Collections, PGofer.Triggers;
 
 type
 
   {$M+}
-  [TPGAttribIcon(pgiVaultFolder)]
-  TPGVaultFolder = class(TPGFolder)
+  TPGVaultFolder = class(TPGFolderMirror)
   private
     FFileName: string;
     FFileID: TGUID;
@@ -19,15 +18,18 @@ type
     function GetIsFileReal(): Boolean;
     function GetIsPassword(): Boolean;
   protected
-    function BeforeXMLLoad(ItemCollect: TPGItemCollect): Boolean; override;
-    function BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean; override;
     procedure SetLocked(AValue:Boolean); override;
     function GetIsValid( ): Boolean; override;
   public
-    constructor Create(AItemDad: TPGItem; AName: string = ''); overload;
+    constructor Create(AItemDad: TPGItem; AName: string = ''); override;
     destructor Destroy(); override;
     procedure Frame(AParent: TObject); override;
     property PasswordFrame: string read FPassword write FPassword;
+    function BeforeXMLLoad(ItemCollect: TPGItemCollectTrigger): Boolean; override;
+    function BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean; override;
+    class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
+    class function IconIndex(): Integer; override;
+    class function ClassNameEx(): String; override;
   published
     property FileName: string read FFileName write FFileName;
     property Password: string write FPassword;
@@ -40,15 +42,22 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils,
-  PGofer.Language,
-  PGofer.Files.Controls, PGofer.VaultFolder.Frame,
-  PGofer.VaultFolder.KeyStore;
+  System.Classes, System.SysUtils, System.StrUtils,
+  PGofer.Core, PGofer.Runtime,
+  PGofer.Files.Controls, PGofer.Triggers.VaultFolder.Frame,
+  PGofer.Triggers.VaultFolder.KeyStore;
 
 { TPGVaultFolder }
 
+class function TPGVaultFolder.ClassNameEx: String;
+begin
+  Result := 'VaultFolder';
+end;
+
 constructor TPGVaultFolder.Create(AItemDad: TPGItem; AName: string);
 begin
+  if AName = '' then
+    AName := 'NewVaultFolder';
   inherited Create(AItemDad, AName);
   FFileName := '';
   FPassword := '';
@@ -65,7 +74,7 @@ begin
   inherited Destroy();
 end;
 
-function TPGVaultFolder.BeforeXMLLoad(ItemCollect: TPGItemCollect): Boolean;
+function TPGVaultFolder.BeforeXMLLoad(ItemCollect: TPGItemCollectTrigger): Boolean;
 var
   XMLStream : TStream;
 begin
@@ -86,7 +95,7 @@ begin
       begin
         ItemCollect.XMLLoadFromStream(Self, XMLStream);
       end else begin
-        TrC('Error_VaultLoad',[FFileName]);
+        TPGKernel.ConsoleTr('Error_VaultLoad',[FFileName]);
       end;
       FLocked := False;
     finally
@@ -95,7 +104,7 @@ begin
   end;
 end;
 
-function TPGVaultFolder.BeforeXMLSave(ItemCollect: TPGItemCollect): Boolean;
+function TPGVaultFolder.BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean;
 var
   XMLStream: TStream;
 begin
@@ -109,7 +118,7 @@ begin
       begin
         FFileID := KeyStoreSavePassword(FFileID, FPassword );
         if not KeyStoreXMLToAES(XMLStream, FFileName, FPassword, FFileID) then
-           TrC('Error_VaultSave',[FFileName]);
+           TPGKernel.ConsoleTr('Error_VaultSave',[FFileName]);
       end;
     finally
       XMLStream.Free;
@@ -121,6 +130,11 @@ procedure TPGVaultFolder.Frame(AParent: TObject);
 begin
   inherited Frame(AParent);
   TPGVaultFolderFrame.Create(Self, AParent);
+end;
+
+class function TPGVaultFolder.IconIndex: Integer;
+begin
+  Result := Ord(pgiVaultFolder);
 end;
 
 function TPGVaultFolder.GetIsFileCan: Boolean;
@@ -143,6 +157,19 @@ begin
   Result := ( GetIsFileCan() and GetIsPassword() );
 end;
 
+class function TPGVaultFolder.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;
+var
+  LVaultFoder : TPGVaultFolder;
+begin
+  Result := False;
+  if MatchText(ExtractFileExt(AFileName), ['.pgv']) then
+  begin
+    LVaultFoder := TPGVaultFolder.Create( AItemDad, FileExtractOnlyFileName( AFileName ) );
+    LVaultFoder.FileName := FileUnExpandPath( AFileName );
+    Result := True;
+  end;
+end;
+
 procedure TPGVaultFolder.SetLocked(AValue: Boolean);
 begin
    if (AValue <> FLocked) then
@@ -163,7 +190,7 @@ end;
 
 initialization
 
-TriggersCollect.RegisterClass('VaultFolder', pgiVaultFolder, TPGVaultFolder);
+TriggersCollect.RegisterClass( TPGVaultFolder );
 
 finalization
 

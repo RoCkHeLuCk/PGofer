@@ -46,7 +46,7 @@ uses
 {$WARN UNIT_PLATFORM OFF}
   Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
   WinApi.ShellApi, WinApi.ShlwApi,
-  System.SysUtils, System.Classes;
+  System.Classes, System.SysUtils;
 {$WARN UNIT_PLATFORM ON}
 
 function DateTimeToFileTime(DateTime: TDateTime): PFileTime;

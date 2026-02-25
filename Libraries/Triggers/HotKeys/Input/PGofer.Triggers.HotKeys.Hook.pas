@@ -27,7 +27,7 @@ type
 implementation
 
 uses
-  PGofer.Language,
+  PGofer.Core,
   PGofer.Triggers.HotKeys;
 
 { THookProc }
@@ -57,7 +57,7 @@ begin
 
   if (FKBHook = 0) or (FMBHook = 0) then
   begin
-    TrC( 'ERROR: Set windows hook HotKey.', False );
+    TPGKernel.ConsoleTr( 'ERROR: Set windows hook HotKey.', False );
     Self.Terminate();
   end;
 

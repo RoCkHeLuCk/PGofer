@@ -7,7 +7,7 @@ uses
 
 type
   {$M+}
-  TPGNetServer = class( TPGItemCMD )
+  TPGNetServer = class( TPGItemClass )
   private
     FServer: TServerSocket;
     FMaxConnect: Word;
@@ -25,7 +25,7 @@ type
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
   public
-    constructor Create( AItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -39,7 +39,7 @@ type
   {$TYPEINFO ON}
   {$M+}
 
-  TPGNetClient = class( TPGItemCMD )
+  TPGNetClient = class( TPGItemClass )
   private
     FClient: TClientSocket;
     FPassWord: string;
@@ -57,9 +57,8 @@ type
       ErrorEvent: TErrorEvent; var ErrorCode: Integer );
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
-
   public
-    constructor Create( AItemDad: TPGItem );
+    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -75,16 +74,16 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Language, PGofer.Sintatico, PGofer.Net.Controls;
+  PGofer.core, PGofer.Sintatico, PGofer.Net.Controls;
 
 { TPGNetServer }
 
 procedure TPGNetServer.ConsoleSendMSG( Value: string );
 begin
-    TrC( Value, True, ConsoleMessage );
+    TPGKernel.Console( Value, True, ConsoleMessage );
 end;
 
-constructor TPGNetServer.Create( AItemDad: TPGItem );
+constructor TPGNetServer.Create( AItemDad: TPGItem; AName: string = '' );
 begin
   inherited Create( AItemDad, 'Server' );
 
@@ -221,10 +220,10 @@ end;
 
 procedure TPGNetClient.ConsoleSendMSG( Value: string );
 begin
-    TrC( Value, True, ConsoleMessage );
+    TPGKernel.Console( Value, True, ConsoleMessage );
 end;
 
-constructor TPGNetClient.Create( AItemDad: TPGItem );
+constructor TPGNetClient.Create( AItemDad: TPGItem; AName: string );
 begin
   inherited Create( AItemDad, 'Client' );
 

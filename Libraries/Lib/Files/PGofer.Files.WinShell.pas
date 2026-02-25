@@ -3,11 +3,10 @@ unit PGofer.Files.WinShell;
 interface
 
 uses
-  SysUtils, Windows, ActiveX, ShlObj;
+  System.SysUtils,
+  WinApi.Windows, WinApi.ActiveX, WinApi.ShlObj;
 
 type
-  EShellOleError = class( Exception );
-
   TShellLinkInfo = record
     PathName: string;
     Arguments: string;
@@ -23,6 +22,16 @@ type
     Name: string;
     ID: integer;
   end;
+
+  function CreateShellLink( const AppName, Desc: string; Dest: integer ): string;
+  function GetSpecialFolderPath( Folder: integer; CanCreate: Boolean ): string;
+  function GetShellLinkInfo( const LinkFile: WideString ): TShellLinkInfo;
+  procedure SetShellLinkInfo( const LinkFile: WideString; const SLI: TShellLinkInfo );
+
+implementation
+
+uses
+  System.Win.ComObj;
 
 const
   SpecialFolders: array [ 0 .. 29 ] of TSpecialFolderInfo =
@@ -49,16 +58,6 @@ const
     ( name: 'Start Menu'; ID: CSIDL_STARTMENU ), ( name: 'Startup';
     ID: CSIDL_STARTUP ), ( name: 'Templates'; ID: CSIDL_TEMPLATES ) );
 
-function CreateShellLink( const AppName, Desc: string; Dest: integer ): string;
-function GetSpecialFolderPath( Folder: integer; CanCreate: Boolean ): string;
-function GetShellLinkInfo( const LinkFile: WideString ): TShellLinkInfo;
-procedure SetShellLinkInfo( const LinkFile: WideString;
-  const SLI: TShellLinkInfo );
-
-implementation
-
-uses
-  ComObj;
 
 function GetSpecialFolderPath( Folder: integer; CanCreate: Boolean ): string;
 var

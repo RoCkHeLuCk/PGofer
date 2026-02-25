@@ -7,14 +7,11 @@ uses
 
 type
   {$M+}
-  [TPGAttribIcon(pgiEnvironment)]
-  TPGEnvironment = class( TPGItemCMD )
+  TPGEnvironment = class( TPGItemClass )
   private
-    function GetCanClose( ): Boolean;
-    procedure SetCanClose( Value: Boolean );
     function GetPathCurrent( ): string;
-    function GetLoopLimite( ): Int64;
-    procedure SetLoopLimite( Value: Int64 );
+    function GetLoopLimite( ): UInt64;
+    procedure SetLoopLimite( Value: UInt64 );
     function GetReplyFormat( ): string;
     procedure SetReplyFormat( Value: string );
     function GetReplyPrefix( ): Boolean;
@@ -24,15 +21,14 @@ type
     function GetLanguage():string;
     function GetReportMemoryLeaks: Boolean;
     procedure SetReportMemoryLeaks(const Value: Boolean);
+  protected
   public
-    constructor Create( AItemDad: TPGItem );
-    destructor Destroy( ); override;
+    class function IconIndex(): Integer; override;
   published
     function DateTimeNow( Format: string ): string;
-    property CanClose: Boolean read GetCanClose write SetCanClose;
     property PathCurrent: string read GetPathCurrent;
     property FileListMax: Cardinal read GetFileListMax write SetFileListMax;
-    property LoopLimite: Int64 read GetLoopLimite write SetLoopLimite;
+    property LoopLimite: UInt64 read GetLoopLimite write SetLoopLimite;
     property ReplyFormat: string read GetReplyFormat write SetReplyFormat;
     property ReplyPrefix: Boolean read GetReplyPrefix write SetReplyPrefix;
     property Language:string read GetLanguage;
@@ -41,79 +37,66 @@ type
   end;
   {$TYPEINFO ON}
 
+var
+  PGEnvironment: TPGEnvironment;
+
 implementation
 
 uses
   WinApi.Windows,
   System.SysUtils, System.Classes,
-  Vcl.Forms, Vcl.Dialogs,
-  PGofer.Language, PGofer.IconList;
+  Vcl.Forms, Vcl.Dialogs;
 
 { TPGEnvironment }
-
-constructor TPGEnvironment.Create( AItemDad: TPGItem );
-begin
-  inherited Create( AItemDad );
-end;
-
-destructor TPGEnvironment.Destroy;
-begin
-  inherited Destroy( );
-end;
 
 function TPGEnvironment.DateTimeNow( Format: string ): string;
 begin
   Result := FormatDateTime( Format, Now );
 end;
 
-function TPGEnvironment.GetCanClose: Boolean;
+function TPGEnvironment.GetPathCurrent( ): string;
 begin
-  Result := TPGKernel.GetVar('CanClose',True);
+  Result := TPGKernel.GetVar<String>('_PathCurrent');
 end;
 
-function TPGEnvironment.GetPathCurrent: string;
+function TPGEnvironment.GetFileListMax( ): Cardinal;
 begin
-  Result := TPGKernel.GetVar('_PathCurrent','');
+  Result := TPGKernel.GetVar<Cardinal>('FileListMax');
 end;
 
-function TPGEnvironment.GetFileListMax: Cardinal;
+class function TPGEnvironment.IconIndex( ): Integer;
 begin
-  Result := TPGKernel.GetVar('FileListMax',0);
+  Result := Ord(pgiEnvironment);
 end;
 
-function TPGEnvironment.GetLanguage: string;
+function TPGEnvironment.GetLanguage( ): string;
 begin
-  Result := TPGLanguage.Language;
+  Result := TPGKernel.Translate('Language');
 end;
 
-function TPGEnvironment.GetLoopLimite: Int64;
+function TPGEnvironment.GetLoopLimite( ): UInt64;
 begin
-  Result := TPGKernel.GetVar('LoopLimite',0);
+  Result := TPGKernel.GetVar<UInt64>('LoopLimite');
 end;
 
-function TPGEnvironment.GetReplyFormat: string;
+function TPGEnvironment.GetReplyFormat( ): String;
 begin
-  Result := TPGKernel.GetVar('ReplyFormat','');
+  Result := TPGKernel.GetVar<String>('ReplyFormat');
 end;
 
-function TPGEnvironment.GetReplyPrefix: Boolean;
+function TPGEnvironment.GetReplyPrefix( ): Boolean;
 begin
-  Result := TPGKernel.GetVar('ReplyPrefix',False);
+  Result := TPGKernel.GetVar<Boolean>('ReplyPrefix');
 end;
 
 function TPGEnvironment.GetReportMemoryLeaks: Boolean;
 begin
-  Result := TPGKernel.GetVar('ReportMemoryLeaks',False);
+  Result := TPGKernel.GetVar<Boolean>('ReportMemoryLeaks');
 end;
 
 procedure TPGEnvironment.IconLoadFromPath(const ACurrentPath: string);
 begin
-  TPGIconList.LoadIconFromPath(ACurrentPath);
-end;
-
-procedure TPGEnvironment.SetCanClose( Value: Boolean );
-begin
-  TPGKernel.SetVar('CanClose', Value);
+  TPGKernel.LoadIconFromPath(ACurrentPath);
 end;
 
 procedure TPGEnvironment.SetFileListMax( Value: Cardinal );
@@ -121,7 +104,7 @@ begin
   TPGKernel.SetVar('FileListMax', Value);
 end;
 
-procedure TPGEnvironment.SetLoopLimite( Value: Int64 );
+procedure TPGEnvironment.SetLoopLimite( Value: UInt64 );
 begin
   TPGKernel.SetVar('LoopLimite', Value);
 end;
@@ -143,8 +126,10 @@ end;
 
 initialization
 
-TPGEnvironment.Create( GlobalItemCommand );
+  PGEnvironment := TPGEnvironment.Create( GlobalItemCommand );
 
 finalization
+
+  PGEnvironment := nil;
 
 end.

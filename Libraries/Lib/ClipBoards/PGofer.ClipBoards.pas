@@ -7,7 +7,7 @@ uses
 
 type
   {$M+}
-  TPGClipBoard = class( TPGItemCMD )
+  TPGClipBoard = class( TPGItemClass )
   private
   public
   published
@@ -19,6 +19,9 @@ type
     function SaveToFile( FileName: string ): Boolean;
   end;
   {$TYPEINFO ON}
+
+var
+  PGClipBoard : TPGClipBoard;
 
 implementation
 
@@ -59,8 +62,10 @@ end;
 
 initialization
 
-TPGClipBoard.Create( GlobalItemCommand );
+  PGClipBoard := TPGClipBoard.Create( GlobalItemCommand );
 
 finalization
+
+  PGClipBoard := nil;
 
 end.

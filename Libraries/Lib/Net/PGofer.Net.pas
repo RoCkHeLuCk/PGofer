@@ -3,23 +3,25 @@ unit PGofer.Net;
 interface
 
 uses
-  PGofer.Classes, PGofer.Runtime;
+  PGofer.Runtime, PGofer.Net.Socket;
 
 type
 
   {$M+}
-  TPGNet = class( TPGItemCMD )
+  TPGNet = class( TPGItemClass )
   private
-    FClient: TPGItemCMD;
-    FServer: TPGItemCMD;
+    FServer: TPGNetServer;
+    FClient: TPGNetClient;
+    FLogFileName: String;
+    FLogMaxSize: UInt64;
+  protected
   public
-    constructor Create( AItemDad: TPGItem );
-    destructor Destroy( ); override;
-    property Client: TPGItemCMD read FClient;
-    property Server: TPGItemCMD read FServer;
   published
-    function SetTCPIP( ANetworkCard, AIPAddress, AMask,
-      AGateWay: string ): Integer;
+    property Server: TPGNetServer read FServer;
+    property Client: TPGNetClient read FClient;
+    property LogFileName: String read FLogFileName write FLogFileName;
+    property LogMaxSize: UInt64 read FLogMaxSize write FLogMaxSize;
+    function SetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
     function GetTCPIP( ANetworkCard: string ): string;
   end;
   {$TYPEINFO ON}
@@ -30,28 +32,11 @@ var
 implementation
 
 uses
-  PGofer.Net.Controls, PGofer.Net.Socket;
+  PGofer.Net.Controls;
 
 { TPGNet }
 
-constructor TPGNet.Create( AItemDad: TPGItem );
-begin
-  inherited Create( AItemDad );
-  FClient := TPGNetClient.Create( Self );
-  FServer := TPGNetServer.Create( Self );
-end;
-
-destructor TPGNet.Destroy;
-begin
-  if Assigned(FClient) then
-    FClient.Free;
-  if Assigned(FServer) then
-    FServer.Free;
-  inherited Destroy( );
-end;
-
-function TPGNet.SetTCPIP( ANetworkCard, AIPAddress, AMask,
-  AGateWay: string ): Integer;
+function TPGNet.SetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
 begin
   Result := NetSetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay );
 end;
@@ -64,8 +49,10 @@ end;
 
 initialization
 
-TPGNet.Create( GlobalItemCommand );
+  PGNet := TPGNet.Create( GlobalItemCommand );
 
 finalization
+
+  PGNet := nil;
 
 end.

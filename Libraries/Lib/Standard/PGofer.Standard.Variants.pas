@@ -3,21 +3,21 @@
 interface
 
 uses
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
+  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
 
   {$M+}
-  [TPGAttribIcon(pgiVariant)]
-  TPGVariant = class( TPGItemCMD )
+  TPGVariant = class( TPGItemClass )
   private
     FValue: Variant;
     FConstant: Boolean;
   protected
   public
     class var GlobList: TPGItem;
+    class function IconIndex(): Integer; override;
     constructor Create( AItemDad: TPGItem; AName: string; AValue: Variant;
-      AConstant: Boolean ); overload;
+      AConstant: Boolean ); reintroduce; overload;
     destructor Destroy( ); override;
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
@@ -27,11 +27,13 @@ type
   end;
   {$TYPEINFO ON}
 
-  TPGVariantDeclare = class( TPGItemCMD )
+  TPGVariantDeclare = class( TPGItemClass )
   private
     class procedure DeclaraNivel1( Gramatica: TGramatica; Nivel: TPGItem;
       Constant: Boolean );
+  protected
   public
+    class function IconIndex(): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
     class procedure ExecuteEx( Gramatica: TGramatica; Nivel: TPGItem );
   end;
@@ -40,7 +42,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Language, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Standard.Variants.Frame;
+  PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Standard.Variants.Frame;
 
 { TPGVariant }
 
@@ -49,6 +51,7 @@ constructor TPGVariant.Create( AItemDad: TPGItem; AName: string;
 begin
   inherited Create( AItemDad, AName );
   FConstant := AConstant;
+  Self.ReadOnly := AConstant;
   FValue := AValue;
 end;
 
@@ -68,7 +71,7 @@ begin
     if ( Gramatica.TokenList.Token.Classe <> cmdAttrib ) then
       Gramatica.Pilha.Empilhar( Self.FValue )
     else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_Const') );
+      Gramatica.ErroAdd( 'Error_Interpreter_Const' );
   end else begin
     if AtribuicaoNivel1( Gramatica ) then
       Self.FValue := Gramatica.Pilha.Desempilhar( Self.FValue )
@@ -80,6 +83,11 @@ end;
 procedure TPGVariant.Frame( AParent: TObject );
 begin
   TPGVariantsFrame.Create( Self, AParent );
+end;
+
+class function TPGVariant.IconIndex: Integer;
+begin
+  Result := Ord(pgiVariant);
 end;
 
 { TPGVariantDeclare }
@@ -116,7 +124,7 @@ begin
       with TPGVariant( ID ) do
       begin
         Value := vValue;
-        Gramatica.MSGsAdd( Tr('Warning_Interpreter_Redeclare',[name]) );
+        Gramatica.MSGsAdd( 'Warning_Interpreter_Redeclare', [name] );
       end;
     end;
 
@@ -128,7 +136,7 @@ begin
 
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Id') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Id' );
 end;
 
 procedure TPGVariantDeclare.Execute( Gramatica: TGramatica );
@@ -151,6 +159,11 @@ class procedure TPGVariantDeclare.ExecuteEx( Gramatica: TGramatica;
   Nivel: TPGItem );
 begin
   DeclaraNivel1( Gramatica, Nivel, False );
+end;
+
+class function TPGVariantDeclare.IconIndex: Integer;
+begin
+  Result := Ord(pgiVariant);
 end;
 
 initialization

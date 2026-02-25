@@ -32,8 +32,6 @@ uses
 { TKey }
 
 class function TKey.CalcVirtualKey( AParam: TParamInput ): TKey;
-//var
-//  ScanCode: Cardinal;
 begin
   Result.wKey := 0;
   Result.bDetect := kd_Down;
@@ -41,73 +39,51 @@ begin
   case AParam.wParam of
 
     WM_KEYDOWN, WM_SYSKEYDOWN:
-      begin
-        Result.wKey := AParam.dwVkData;
-
-//        if (Result.wKey = 0) or (Result.wKey = 255) then
-//        begin
-//          ScanCode := AParam.dwScan;
-//          if (ScanCode and $E000) <> 0 then
-//             ScanCode := ScanCode and $FF;
-//          Result.wKey := MapVirtualKey(ScanCode, 1);
-//          if (Result.wKey = 0) and ((AParam.dwScan and $E000) <> 0) then
-//             Result.wKey := MapVirtualKey(AParam.dwScan and $FF, 3);
-//        end;
-
-      end;
+    begin
+      Result.wKey := AParam.dwVkData;
+    end;
 
     WM_KEYUP, WM_SYSKEYUP:
-      begin
-        Result.bDetect := kd_Up;
-        Result.wKey := AParam.dwVkData;
-
-//        if (Result.wKey = 0) or (Result.wKey = 255) then
-//        begin
-//          ScanCode := AParam.dwScan;
-//          if (ScanCode and $E000) <> 0 then
-//             ScanCode := ScanCode and $FF;
-//          Result.wKey := MapVirtualKey(ScanCode, 1);
-//          if (Result.wKey = 0) and ((AParam.dwScan and $E000) <> 0) then
-//             Result.wKey := MapVirtualKey(AParam.dwScan and $FF, 3);
-//        end;
-
-      end;
+    begin
+      Result.bDetect := kd_Up;
+      Result.wKey := AParam.dwVkData;
+    end;
 
     WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN, WM_XBUTTONDOWN:
-      begin
-        Result.wKey := AParam.wParam;
-      end;
+    begin
+      Result.wKey := AParam.wParam;
+    end;
 
     WM_LBUTTONUP, WM_RBUTTONUP, WM_MBUTTONUP, WM_XBUTTONUP:
-      begin
-        Result.bDetect := kd_Up;
-        Result.wKey := AParam.wParam - 1;
-      end;
+    begin
+      Result.bDetect := kd_Up;
+      Result.wKey := AParam.wParam - 1;
+    end;
 
     WM_MOUSEWHEEL, WM_MOUSEHWHEEL:
-      begin
-        Result.bDetect := kd_Wheel;
-        if SmallInt( Word( AParam.dwVkData shr 16 ) ) < 0 then
-          Result.wKey := AParam.wParam
-        else
-          Result.wKey := AParam.wParam - 1;
-      end;
+    begin
+      Result.bDetect := kd_Wheel;
+      if SmallInt( Word( AParam.dwVkData shr 16 ) ) < 0 then
+        Result.wKey := AParam.wParam
+      else
+        Result.wKey := AParam.wParam - 1;
+    end;
   end;
 
   case Result.wKey of
 
     255:
-      begin
-        inc( Result.wKey, AParam.dwScan );
-      end;
+    begin
+      inc( Result.wKey, AParam.dwScan );
+    end;
 
     WM_XBUTTONDOWN:
-      begin
-        if SmallInt( Word( AParam.dwVkData shr 16 ) ) > 1 then
-          Result.wKey := AParam.wParam + 1
-        else
-          Result.wKey := AParam.wParam;
-      end;
+    begin
+      if SmallInt( Word( AParam.dwVkData shr 16 ) ) > 1 then
+        Result.wKey := AParam.wParam + 1
+      else
+        Result.wKey := AParam.wParam;
+    end;
   end;
 end;
 

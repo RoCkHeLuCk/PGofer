@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Triggers Version="1.0">
+  <Link Name="NewLink" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <Parameter Type="string"></Parameter>
+    <Directory Type="string"></Directory>
+    <State Type="Byte">1</State>
+    <SingleInstance Type="Boolean">False</SingleInstance>
+    <Priority Type="Byte">2</Priority>
+    <RunAdmin Type="Boolean">False</RunAdmin>
+    <CaptureMsg Type="Boolean">False</CaptureMsg>
+    <ScriptBefor Type="string"></ScriptBefor>
+    <ScriptAfter Type="string"></ScriptAfter>
+    <CanExecute Type="Boolean">True</CanExecute>
+  </Link>
+  <HotKey Name="NewHotKey" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string">0A20A4201</HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string"></Script>
+  </HotKey>
+  <AutoFill Name="NewAutoFill" Enabled="true" ReadOnly="false">
+    <Mode Type="Byte">0</Mode>
+    <Delay Type="Cardinal">0</Delay>
+    <Speed Type="Cardinal">10</Speed>
+    <Text Type="string"></Text>
+  </AutoFill>
+  <VaultFolder Name="NewVaultFolder" Enabled="true" ReadOnly="false">
+    <FileName Type="string"></FileName>
+    <SavePassword Type="Boolean">False</SavePassword>
+    <Expanded Type="Boolean">False</Expanded>
+    <Locked Type="Boolean">True</Locked>
+    <Persist Type="Boolean">False</Persist>
+  </VaultFolder>
+  <Task Name="NewTask" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">15</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string"></Script>
+    <Trigger Type="Byte">0</Trigger>
+  </Task>
+  <Folder Name="NewFolder" Enabled="true" ReadOnly="false">
+    <Expanded Type="Boolean">False</Expanded>
+    <Locked Type="Boolean">False</Locked>
+    <Persist Type="Boolean">False</Persist>
+  </Folder>
+</Triggers>

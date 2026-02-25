@@ -3,7 +3,7 @@ unit PGofer.Language;
 interface
 
 uses
-  PGofer.Core, System.Generics.Collections;
+  System.Generics.Collections;
 
 type
   TPGConsoleNotify = procedure(const AValue: string; const ANewLine, AShow: Boolean) of object;
@@ -48,7 +48,7 @@ implementation
 
 uses
   System.SysUtils, System.IOUtils, System.JSON, Winapi.Windows,
-  PGofer.Files.Controls;
+  PGofer.Core, PGofer.Files.Controls;
 
 { TPGLanguage }
 
@@ -58,7 +58,7 @@ begin
   FLogBuffer := TList<TLogBufferItem>.Create;
   FActive := False;
   FConsoleNotify := nil;
-  LoadLangFromFile(TPGKernel.GetVar('_FileLanguage',''));
+  LoadLangFromFile(TPGKernel.GetVar<String>('_FileLanguage'));
 end;
 
 class destructor TPGLanguage.Destroy;

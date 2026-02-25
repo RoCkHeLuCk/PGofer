@@ -6,7 +6,7 @@
         <MainSource>PGofer3.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <Platform Condition="'$(Platform)'==''">Win64</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -129,9 +129,9 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
-        <VerInfo_Build>36</VerInfo_Build>
+        <VerInfo_Build>65</VerInfo_Build>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.36;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.65;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
         <Icon_MainIcon>..\..\Documents\Imagens\PGofer Icon.ico</Icon_MainIcon>
         <VerInfo_Debug>false</VerInfo_Debug>
         <VerInfo_PreRelease>false</VerInfo_PreRelease>
@@ -156,16 +156,16 @@
         <VerInfo_Debug>false</VerInfo_Debug>
         <VerInfo_PreRelease>false</VerInfo_PreRelease>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Tool to assist and control the computer;FileVersion=3.0.0.8;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer;OriginalFilename=PGofer.exe;ProgramID=PGofer V3.0;ProductName=HeLuCk&apos;s PGofer 3;ProductVersion=3.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Tool to assist and control the computer;FileVersion=3.0.0.9;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer;OriginalFilename=PGofer.exe;ProgramID=PGofer V3.0;ProductName=HeLuCk&apos;s PGofer 3;ProductVersion=3.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
         <Icon_MainIcon>..\..\Documents\Imagens\PGofer Icon.ico</Icon_MainIcon>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <AppExecutionLevelUIAccess>true</AppExecutionLevelUIAccess>
-        <VerInfo_Build>8</VerInfo_Build>
+        <VerInfo_Build>9</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>156</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.156;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>157</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=$(MSBuildProjectName);FileVersion=3.0.0.157;InternalName=PGofer;LegalCopyright=FreeWare;LegalTrademarks=PGofer Heluck&apos;s;OriginalFilename=PGofer.exe;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta</VerInfo_Keys>
         <VerInfo_Debug>false</VerInfo_Debug>
         <VerInfo_PreRelease>false</VerInfo_PreRelease>
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -180,9 +180,15 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
+        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Form.pas">
+            <Form>FormEx</Form>
+        </DCCReference>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\PGofer.Core.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\Utils\PGofer.Language.pas"/>
-        <DCCReference Include="..\..\Libraries\Lib\Kernel\Utils\PGofer.IconList.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\Model\PGofer.Classes.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Lexico.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Kernel\Interpreter\PGofer.Sintatico.pas"/>
@@ -197,6 +203,7 @@
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.WinShell.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.Encrypt.pas"/>
+        <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.ZLib.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Files\PGofer.Files.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Controls.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Key\PGofer.Key.Post.pas"/>
@@ -234,32 +241,36 @@
         <DCCReference Include="..\..\Libraries\Lib\Windows\PGofer.Windows.Input.pas"/>
         <DCCReference Include="..\..\Libraries\Lib\Windows\PGofer.Windows.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Controls.pas"/>
-        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Frame.pas">
             <Form>PGFormsFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.pas"/>
         <DCCReference Include="..\..\Libraries\Forms\AutoComplete\PGofer.Forms.AutoComplete.pas">
             <Form>FrmAutoComplete</Form>
-        </DCCReference>
-        <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas">
-            <Form>FrmConsole</Form>
         </DCCReference>
         <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.Frame.pas">
             <Form>PGConsoleFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
+        <DCCReference Include="..\..\Libraries\Forms\Console\PGofer.Forms.Console.pas">
+            <Form>FrmConsole</Form>
+        </DCCReference>
         <DCCReference Include="..\..\Libraries\Forms\Controller\PGofer.Forms.Controller.pas">
             <Form>FrmController</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.Collections.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.Form.pas">
+            <Form>FrmTriggerController</Form>
+        </DCCReference>
         <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.Frame.pas">
             <Form>PGTriggerFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.KeyStore.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.pas"/>
-        <DCCReference Include="..\..\Libraries\Triggers\VaultFolder\PGofer.VaultFolder.Frame.pas">
+        <DCCReference Include="..\..\Libraries\Triggers\PGofer.Triggers.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.KeyStore.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.pas"/>
+        <DCCReference Include="..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.Frame.pas">
             <Form>PGVaultFolderFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
@@ -291,18 +302,9 @@
             <Form>PGTaskFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas"/>
-        <DCCReference Include="..\..\Libraries\Componet\Source\PGofer.Component.Form.pas">
-            <Form>FormEx</Form>
-        </DCCReference>
         <DCCReference Include="PGofer3.Client.pas">
             <Form>FrmPGofer</Form>
         </DCCReference>
-        <DCCReference Include="..\..\Libraries\Forms\PGofer.Forms.Style.pas"/>
         <None Include="PGofer3.dpr"/>
         <None Include="..\..\Documents\languages\Language.json"/>
         <BuildConfiguration Include="Release">
@@ -338,15 +340,15 @@
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win32">
+                    <Platform Name="Win64">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="Win64\Debug\PGofer3.rsm" Configuration="Debug" Class="DebugSymbols">
-                    <Platform Name="Win64">
-                        <RemoteName>PGofer3.rsm</RemoteName>
+                <DeployFile LocalName="..\..\Documents\languages\Language.json" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -387,6 +389,13 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
+                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Win64\Release\PGofer3.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
                         <RemoteName>PGofer3.exe</RemoteName>
@@ -397,13 +406,6 @@
                     <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo44x44.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\Documents\Imagens\Logo 150px.png" Configuration="Debug" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win64">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

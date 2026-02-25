@@ -1,16 +1,23 @@
 inherited PGFormsFrame: TPGFormsFrame
-  Height = 325
-  ExplicitHeight = 325
+  Height = 310
+  ExplicitHeight = 310
   inherited grbAbout: TGroupBox
-    Top = 255
+    Top = 236
+    Height = 64
     ExplicitTop = 255
+    ExplicitHeight = 64
+    inherited rceAbout: TRichEdit
+      Height = 47
+      ExplicitHeight = 47
+    end
   end
   inherited pnlItem: TPanel
-    Height = 252
-    ExplicitHeight = 252
+    Height = 233
+    Constraints.MinHeight = 230
+    ExplicitHeight = 233
     DesignSize = (
       400
-      252)
+      233)
     object LblAlphaBlendValue: TLabel [0]
       Left = 144
       Top = 40
@@ -22,40 +29,34 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object LblHeigth: TLabel [1]
       Left = 5
-      Top = 134
+      Top = 121
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Heigth:'
-      ParentBiDiMode = False
     end
     object LblLeft: TLabel [2]
       Left = 173
-      Top = 162
+      Top = 149
       Width = 74
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Left:'
-      ParentBiDiMode = False
     end
     object LblTop: TLabel [3]
       Left = 5
-      Top = 162
+      Top = 149
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Top:'
-      ParentBiDiMode = False
     end
     object LblTransparentColor: TLabel [4]
       Left = 144
-      Top = 73
+      Top = 68
       Width = 148
       Height = 13
       Alignment = taRightJustify
@@ -64,25 +65,21 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object LblWidth: TLabel [5]
       Left = 173
-      Top = 134
+      Top = 121
       Width = 74
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'Width:'
-      ParentBiDiMode = False
     end
     object LblWindowState: TLabel [6]
       Left = 5
-      Top = 191
+      Top = 178
       Width = 93
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
-      BiDiMode = bdLeftToRight
       Caption = 'WindowState:'
-      ParentBiDiMode = False
     end
     object CkbAlphaBlend: TCheckBox [8]
       Left = 49
@@ -105,7 +102,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object CkbEnabled: TCheckBox [10]
       Left = 244
-      Top = 103
+      Top = 92
       Width = 76
       Height = 17
       Caption = 'Enabled'
@@ -114,7 +111,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object CkbTransparent: TCheckBox [11]
       Left = 49
-      Top = 69
+      Top = 64
       Width = 89
       Height = 17
       Caption = 'Transparent'
@@ -123,7 +120,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object PnlTransparentColor: TPanel [12]
       Left = 298
-      Top = 69
+      Top = 64
       Width = 22
       Height = 22
       Color = clBlack
@@ -133,7 +130,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object CkbVisible: TCheckBox [13]
       Left = 49
-      Top = 103
+      Top = 92
       Width = 97
       Height = 17
       Caption = 'Visible'
@@ -142,7 +139,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object CmbWindowState: TComboBox [14]
       Left = 104
-      Top = 188
+      Top = 175
       Width = 117
       Height = 21
       BevelInner = bvNone
@@ -159,8 +156,8 @@ inherited PGFormsFrame: TPGFormsFrame
         'wsMaximized')
     end
     object BtnClose: TButton [15]
-      Left = 245
-      Top = 219
+      Left = 199
+      Top = 202
       Width = 75
       Height = 25
       Caption = 'Close'
@@ -168,8 +165,8 @@ inherited PGFormsFrame: TPGFormsFrame
       OnClick = BtnCloseClick
     end
     object BtnShow: TButton [16]
-      Left = 70
-      Top = 224
+      Left = 118
+      Top = 202
       Width = 75
       Height = 25
       Caption = 'Show'
@@ -188,7 +185,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object EdtHeigth: TEditEx [18]
       Left = 70
-      Top = 131
+      Top = 118
       Width = 76
       Height = 21
       Color = clSilver
@@ -197,7 +194,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object EdtTop: TEditEx [19]
       Left = 70
-      Top = 158
+      Top = 145
       Width = 76
       Height = 21
       Color = clSilver
@@ -206,7 +203,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object EdtWidth: TEditEx [20]
       Left = 253
-      Top = 131
+      Top = 118
       Width = 76
       Height = 21
       Color = clSilver
@@ -215,7 +212,7 @@ inherited PGFormsFrame: TPGFormsFrame
     end
     object EdtLeft: TEditEx [21]
       Left = 253
-      Top = 158
+      Top = 145
       Width = 76
       Height = 21
       Color = clSilver
@@ -227,12 +224,12 @@ inherited PGFormsFrame: TPGFormsFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 318
+    Top = 303
     ExplicitTop = 318
   end
   object cldTrasparentColor: TColorDialog
     Options = [cdFullOpen, cdPreventFullOpen, cdShowHelp, cdSolidColor, cdAnyColor]
-    Left = 156
-    Top = 64
+    Left = 356
+    Top = 56
   end
 end

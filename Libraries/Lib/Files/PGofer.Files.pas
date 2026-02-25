@@ -8,7 +8,7 @@ uses
 type
   {$WARN SYMBOL_PLATFORM OFF}
   {$M+}
-  TPGFile = class( TPGItemCMD )
+  TPGFile = class( TPGItemClass )
   private
   public
   published
@@ -51,6 +51,9 @@ type
       CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
   end;
   {$TYPEINFO ON}
+
+var
+  PGFile: TPGFile;
 
 implementation
 
@@ -118,8 +121,7 @@ end;
 function TPGFile.Exec( FileName, Parametro, Diretorio: string;
   ShowControl: Integer; Operation: Byte; Prioridade: Byte ): string;
 begin
-  Result := FileExec( FileName, Parametro, Diretorio, ShowControl, Operation,
-    Prioridade );
+  Result := FileExec( FileName, Parametro, Diretorio, ShowControl, Operation, Prioridade );
 end;
 
 function TPGFile.ExtractDir( FileName: string ): string;
@@ -183,8 +185,7 @@ end;
 
 function TPGFile.MkLink( Origin, Destine: string; Flag: Word ): Boolean;
 begin
-  Result := CreateSymbolicLinkW( PWideChar( Destine ), PWideChar( Origin ),
-    Cardinal( Flag ) );
+  Result := CreateSymbolicLinkW( PWideChar( Destine ), PWideChar( Origin ), Cardinal( Flag ) );
 end;
 
 function TPGFile.Move( FileFrom, FileTo: string; Flags: Word ): Integer;
@@ -237,16 +238,17 @@ begin
   Result := ( FileSetAttr( FileName + #0 + #0, Flags, True ) = 0 );
 end;
 
-function TPGFile.SetDateTime( FileName: string;
-  CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
+function TPGFile.SetDateTime( FileName: string; CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 begin
   Result := FileSetDateTime( FileName, CreateTime, ModifyTime, AcessTime );
 end;
 
 initialization
 
-TPGFile.Create( GlobalItemCommand );
+  PGFile := TPGFile.Create( GlobalItemCommand );
 
 finalization
+
+  PGFile := nil;
 
 end.

@@ -5,14 +5,14 @@ interface
 uses
   Winapi.Windows,
   System.Classes, System.SysUtils, System.IniFiles, System.Generics.Collections,
-  Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Component.ListView,
-  PGofer.Component.RichEdit, PGofer.Component.Form, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls, Vcl.StdCtrls,
+  PGofer.Component.ListView, PGofer.Component.RichEdit, PGofer.Component.Form,
+  PGofer.Classes;
 
 type
   TSelectCMD = ( selClick, selUp, selDown, selEnter );
 
-  TEditOnCtrl = class
+  TEditOnCtrl = record
     OnKeyDown: TOnKeyDownUP;
     OnKeyPress: TOnKeyPress;
     OnKeyUp: TOnKeyDownUP;
@@ -113,7 +113,7 @@ procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
   // carrega arquivos ini
-  FMemoryIniFile := TIniFile.Create( TPGKernel.GetVar('_FileAutoComplete','') );
+  FMemoryIniFile := TIniFile.Create( TPGKernel.GetVar<String>('_FileAutoComplete') );
   // controle de memoriza��o de comandos
   FMemoryNoCtrl := False;
   FMemoryPosition := 0;
@@ -134,6 +134,7 @@ end;
 procedure TFrmAutoComplete.FormDestroy( Sender: TObject );
 begin
   FEditCtrl := nil;
+  FEditList.Clear( );
   FEditList.Free( );
   FEditList := nil;
   FMemoryIniFile.Free( );
@@ -524,7 +525,7 @@ begin
   if Assigned(FEditList) and Assigned(AValue)
   and not FEditList.ContainsKey(AValue) then
   begin
-    OnCntrl := TEditOnCtrl.Create( );
+    //OnCntrl := TEditOnCtrl.Create( );
     OnCntrl.OnKeyDown := AValue.OnKeyDown;
     OnCntrl.OnKeyPress := AValue.OnKeyPress;
     OnCntrl.OnKeyUp := AValue.OnKeyUp;
@@ -550,7 +551,7 @@ begin
     AValue.OnKeyPress := OnCntrl.OnKeyPress;
     AValue.OnKeyUp := OnCntrl.OnKeyUp;
     AValue.OnDropFiles := OnCntrl.OnDropFile;
-    OnCntrl.Free( );
+    //OnCntrl.Free( );
     FEditList.Remove( AValue );
   end;
 end;
@@ -562,8 +563,8 @@ var
   c: Integer;
   d, FileListMax: Cardinal;
 begin
-  Path := TPGKernel.GetVar('_PathCurrent', '');
-  FileListMax := TPGKernel.GetVar('FileListMax', 0);
+  Path := TPGKernel.GetVar<String>('_PathCurrent');
+  FileListMax := TPGKernel.GetVar<Cardinal>('FileListMax');
 
   ChDir( Path );
   c := FindFirst( AFileName + '*', faAnyFile, SearchRec );

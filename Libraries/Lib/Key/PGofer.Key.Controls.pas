@@ -14,7 +14,8 @@ function StrInSet( const S: string; const StringSet: array of string): Boolean;
 implementation
 
 uses
-  Winapi.Windows, System.SysUtils;
+  Winapi.Windows,
+  System.SysUtils;
 
 procedure KeyPressAllUp( );
 var
@@ -323,15 +324,16 @@ begin
 
     // $20B : Result:='XBUTTONDOWN';
     // $20C : Result:='XBUTTONUP';
-    $20B:
-      Result := 'XBUTTON1';
-    $20C:
-      Result := 'XBUTTON2';
+    $20B,$20D:
+      Result := 'XBUTTON';
+
+    $20C,$20E:
+       Result := 'XBUTTON';
     // $20D : Result:='XBUTTONDBLCLK';
 
-    $20D:
+    $300:
       Result := 'HWHEELRIGHT';
-    $20E:
+    $301:
       Result := 'HWHEELLEFT';
   else
     Result := 'CODE_0h' + IntToHex( KeyCode, 2 );

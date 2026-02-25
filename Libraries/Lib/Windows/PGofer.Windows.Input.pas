@@ -3,11 +3,11 @@ unit PGofer.Windows.Input;
 interface
 
 uses
-  PGofer.Classes, PGofer.Runtime;
+  PGofer.Runtime;
 
 type
   {$M+}
-  TPGMouse = class( TPGItemCMD )
+  TPGMouse = class( TPGItemClass )
   private
     function GetCursorPosX: Integer;
     function GetCursorPosY: Integer;

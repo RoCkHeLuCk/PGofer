@@ -21,14 +21,14 @@ implementation
 uses
   System.TypInfo,
   Vcl.Graphics,
-  PGofer.Core, PGofer.Language, PGofer.Files.Controls;
+  PGofer.Core, PGofer.Files.Controls;
 
 { TPGGlobIconList }
 
 class constructor TPGIconList.Create( );
 begin
   FImageList := TImageList.Create(nil);
-  LoadIconFromPath(TPGKernel.GetVar('_PathIcons',''));
+  LoadIconFromPath(TPGKernel.GetVar<String>('_PathIcons'));
 end;
 
 class destructor TPGIconList.Destroy( );
@@ -57,7 +57,7 @@ begin
         begin
           Icon.LoadFromFile( FileName );
         end else begin
-          TrC('Error_IconNoFound',[FileName]);
+          TPGKernel.Console('Error: Icon No Found "%s"',[FileName]);
         end;
         FImageList.AddIcon( Icon );
       finally

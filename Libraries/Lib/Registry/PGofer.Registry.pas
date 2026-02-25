@@ -3,42 +3,31 @@ unit PGofer.Registry;
 interface
 
 uses
-  PGofer.Classes, PGofer.Runtime;
+  PGofer.Runtime, PGofer.Registry.Environment;
 
 type
   {$M+}
-  TPGRegistry = class( TPGItemCMD )
+  TPGRegistry = class( TPGItemClass )
   private
-    FEnvironment: TPGItemCMD;
+    FEnvironment: TPGRegistryEnvironment;
   public
-    constructor Create( AItemDad: TPGItem );
-    destructor Destroy( ); override;
-    property Environment: TPGItemCMD read FEnvironment;
   published
+    property Environment: TPGRegistryEnvironment read FEnvironment;
     function Delete( RootKey: NativeUInt; OpenKey, Key: string ): Boolean;
     function Read( RootKey: NativeUInt; OpenKey, Key: string ): string;
     function Write( RootKey: NativeUInt; OpenKey, Key, Value: string ): Boolean;
   end;
   {$TYPEINFO ON}
 
+var
+  PGRegistry: TPGRegistry;
+
 implementation
 
 uses
-  PGofer.Registry.Controls, PGofer.Registry.Environment;
+  PGofer.Registry.Controls;
 
 { TPGRegistry }
-
-constructor TPGRegistry.Create( AItemDad: TPGItem );
-begin
-  inherited Create( AItemDad );
-  FEnvironment := TPGRegistryEnvironment.Create( Self, 'Environment' );
-end;
-
-destructor TPGRegistry.Destroy( );
-begin
-  FEnvironment.Free( );
-  inherited Destroy( );
-end;
 
 function TPGRegistry.Delete( RootKey: NativeUInt;
   OpenKey, Key: string ): Boolean;
@@ -59,8 +48,10 @@ end;
 
 initialization
 
-TPGRegistry.Create( GlobalItemCommand );
+  PGRegistry := TPGRegistry.Create( GlobalItemCommand );
 
 finalization
+
+  PGRegistry := nil;
 
 end.

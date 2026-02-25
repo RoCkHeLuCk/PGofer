@@ -7,67 +7,67 @@ uses
   PGofer.Runtime;
 
 type
-  TPGCopy = class( TPGItemCMD )
+  TPGCopy = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGDelete = class( TPGItemCMD )
+  TPGDelete = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGDelay = class( TPGItemCMD )
+  TPGDelay = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGFor = class( TPGItemCMD )
+  TPGFor = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGIf = class( TPGItemCMD )
+  TPGIf = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGIsDef = class( TPGItemCMD )
+  TPGIsDef = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGInsert = class( TPGItemCMD )
+  TPGInsert = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGRead = class( TPGItemCMD )
+  TPGRead = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGRepeat = class( TPGItemCMD )
+  TPGRepeat = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGUnDef = class( TPGItemCMD )
+  TPGUnDef = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGWaitFor = class( TPGItemCMD )
+  TPGWaitFor = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGWhile = class( TPGItemCMD )
+  TPGWhile = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
-  TPGWrite = class( TPGItemCMD )
+  TPGWrite = class( TPGItemClass )
   public
     procedure Execute( Gramatica: TGramatica ); override;
   end;
@@ -77,10 +77,8 @@ implementation
 uses
   System.SysUtils,
   Vcl.Dialogs,
-  PGofer.Core, PGofer.Language,
-  PGofer.Classes, PGofer.Lexico,
-  PGofer.Sintatico.Controls,
-  PGofer.Standard.Variants;
+  PGofer.Core, PGofer.Classes, PGofer.Lexico,
+  PGofer.Sintatico.Controls, PGofer.Standard.Variants;
 
 { TPGCopy }
 
@@ -138,11 +136,11 @@ var
   ID: TPGItem;
   Variavel: TPGVariant;
   VarInicio, VarLimite: Int64;
-  LoopContador, LoopLimite: Int64;
+  LoopContador, LoopLimite: UInt64;
   Decrecente: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
+  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
   Gramatica.TokenList.GetNextToken;
   ID := IdentificadorLocalizar( Gramatica );
 
@@ -184,7 +182,7 @@ begin
 
           if ( LoopContador >= LoopLimite ) then
           begin
-            Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
+            Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
           end;
 
         end
@@ -193,13 +191,13 @@ begin
             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end
       else
-        Gramatica.ErroAdd( Tr('Error_Interpreter_Do') );
+        Gramatica.ErroAdd( 'Error_Interpreter_Do' );
     end
     else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_ToDownTo') );
+      Gramatica.ErroAdd( 'Error_Interpreter_ToDownTo' );
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Variable') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Variable' );
 end;
 
 { TPGIf }
@@ -239,10 +237,10 @@ begin
 
     end
     else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_Thend') );
+      Gramatica.ErroAdd( 'Error_Interpreter_Thend' );
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Boolean') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Boolean' );
 end;
 
 { TPGisDef }
@@ -257,7 +255,7 @@ begin
     Gramatica.TokenList.GetNextToken;
     Expressao( Gramatica );
     if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-      Gramatica.ErroAdd( Tr('Error_Interpreter_)') )
+      Gramatica.ErroAdd( 'Error_Interpreter_)' )
     else
     begin
       Nome := Gramatica.Pilha.Desempilhar( '' );
@@ -266,7 +264,7 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
+    Gramatica.ErroAdd( 'Error_Interpreter_(' );
 end;
 
 { TPGInsert }
@@ -305,11 +303,11 @@ end;
 
 procedure TPGRepeat.Execute( Gramatica: TGramatica );
 var
-  LoopContador, LoopLimite: Int64;
+  LoopContador, LoopLimite: UInt64;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
+  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
   LoopContador := 0;
   Continuar := false;
   Gramatica.TokenList.GetNextToken;
@@ -327,13 +325,13 @@ begin
       Continuar := Gramatica.Pilha.Desempilhar( false );
     end
     else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_Until') );
+      Gramatica.ErroAdd( 'Error_Interpreter_Until' );
     Inc( LoopContador );
     // verifica e executa novamente
   until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
 
   if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
 end;
 
 { TPGUnDef }
@@ -349,7 +347,7 @@ begin
     Gramatica.TokenList.GetNextToken;
     Expressao( Gramatica );
     if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-      Gramatica.ErroAdd( Tr('Error_Interpreter_)') )
+      Gramatica.ErroAdd( 'Error_Interpreter_)' )
     else
     begin
       Nome := Gramatica.Pilha.Desempilhar( '' );
@@ -365,18 +363,18 @@ begin
     end;
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
+    Gramatica.ErroAdd( 'Error_Interpreter_(' );
 end;
 
 { TPGWaitFor }
 
 procedure TPGWaitFor.Execute( Gramatica: TGramatica );
 var
-  LoopContador, LoopLimite: Int64;
+  LoopContador, LoopLimite: UInt64;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
+  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
   LoopContador := 0;
   PositionIni := Gramatica.TokenList.Position;
   repeat
@@ -389,18 +387,18 @@ begin
   until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
 
   if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
 end;
 
 { TPGWhile }
 
 procedure TPGWhile.Execute( Gramatica: TGramatica );
 var
-  LoopContador, LoopLimite: Int64;
+  LoopContador, LoopLimite: UInt64;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar('LoopLimite', 0);
+  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
   Gramatica.TokenList.GetNextToken;
   PositionIni := Gramatica.TokenList.Position;
   LoopContador := 0;
@@ -425,13 +423,13 @@ begin
             ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
       end
       else
-        Gramatica.ErroAdd( Tr('Error_Interpreter_Do') );
+        Gramatica.ErroAdd( 'Error_Interpreter_Do' );
     end;
     Inc( LoopContador );
   end;
 
   if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Loop') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
 end;
 
 { TPGWrite }
@@ -448,19 +446,19 @@ end;
 
 initialization
 
-TPGCopy.Create( GlobalItemCommand );
-TPGDelete.Create( GlobalItemCommand );
-TPGDelay.Create( GlobalItemCommand );
-TPGFor.Create( GlobalItemCommand );
-TPGIf.Create( GlobalItemCommand );
-TPGIsDef.Create( GlobalItemCommand );
-TPGInsert.Create( GlobalItemCommand );
-TPGRead.Create( GlobalItemCommand );
-TPGRepeat.Create( GlobalItemCommand );
-TPGUnDef.Create( GlobalItemCommand );
-TPGWaitFor.Create( GlobalItemCommand );
-TPGWhile.Create( GlobalItemCommand );
-TPGWrite.Create( GlobalItemCommand );
+  TPGCopy.Create( GlobalItemCommand );
+  TPGDelete.Create( GlobalItemCommand );
+  TPGDelay.Create( GlobalItemCommand );
+  TPGFor.Create( GlobalItemCommand );
+  TPGIf.Create( GlobalItemCommand );
+  TPGIsDef.Create( GlobalItemCommand );
+  TPGInsert.Create( GlobalItemCommand );
+  TPGRead.Create( GlobalItemCommand );
+  TPGRepeat.Create( GlobalItemCommand );
+  TPGUnDef.Create( GlobalItemCommand );
+  TPGWaitFor.Create( GlobalItemCommand );
+  TPGWhile.Create( GlobalItemCommand );
+  TPGWrite.Create( GlobalItemCommand );
 
 finalization
 

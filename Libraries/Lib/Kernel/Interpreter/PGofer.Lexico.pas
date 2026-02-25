@@ -6,6 +6,7 @@ uses
   System.SysUtils, System.Generics.Collections;
 
 const
+  LOW_STRING = low( string );
   cIgnore = [ #9, #10, #11, #13, ' ' ];
   cNumeric = [ '0' .. '9' ];
   cBinary = [ '0', '1' ];
@@ -130,7 +131,7 @@ implementation
 
 uses
   System.TypInfo,
-  PGofer.Core, PGofer.Math.Controls;
+  PGofer.Math.Controls;
 
 { TCordenada }
 

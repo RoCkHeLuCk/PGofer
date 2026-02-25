@@ -3,11 +3,11 @@ unit PGofer.Sound;
 interface
 
 uses
-  PGofer.Classes, PGofer.Runtime;
+  PGofer.Runtime;
 
 type
   {$M+}
-  TPGSound = class( TPGItemCMD )
+  TPGSound = class( TPGItemClass )
   private
   public
   published
@@ -21,6 +21,9 @@ type
     function VolumeStepDown( SoundDriver: Cardinal ): Integer;
   end;
   {$TYPEINFO ON}
+
+var
+  PGSound: TPGSound;
 
 implementation
 
@@ -71,8 +74,10 @@ end;
 
 initialization
 
-TPGSound.Create( GlobalItemCommand );
+  PGSound := TPGSound.Create( GlobalItemCommand );
 
 finalization
+
+  PGSound := nil;
 
 end.

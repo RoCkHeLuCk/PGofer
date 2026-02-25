@@ -4,24 +4,25 @@ interface
 
 uses
   System.Classes,
-  PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
+  PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
   PGofer.Runtime, PGofer.Standard.Variants;
 
 type
 
   {$M+}
-  [TPGAttribIcon(pgiFunction)]
-  TPGFunction = class( TPGItemCMD )
+  TPGFunction = class( TPGItemClass )
   private
     FTokenList: TTokenList;
     FVariantList: TPGItem;
     FScript: TStrings;
     procedure SetScript( AValue: string );
     function GetScript: string;
+  protected
   public
-    constructor Create( AItemDad: TPGItem; AName: string ); overload;
-    destructor Destroy( ); override;
     class var GlobList: TPGItem;
+    class function IconIndex(): Integer; override;
+    constructor Create( AItemDad: TPGItem; AName: string ); override;
+    destructor Destroy( ); override;
     procedure Execute( Gramatica: TGramatica ); override;
     procedure Frame( AParent: TObject ); override;
     property Script: string read GetScript write SetScript;
@@ -30,18 +31,20 @@ type
   end;
   {$TYPEINFO ON}
 
-  TPGFunctionDeclare = class( TPGItemCMD )
+  TPGFunctionDeclare = class( TPGItemClass )
   private
     FCordIni: Integer;
     procedure DeclaraNivel1( Gramatica: TGramatica; Nivel: TPGItem );
+  protected
   public
+    class function IconIndex(): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
 implementation
 
 uses
-  PGofer.Language, PGofer.Sintatico.Controls, PGofer.Standard.Functions.Frame;
+  PGofer.Core, PGofer.Sintatico.Controls, PGofer.Standard.Functions.Frame;
 
 { TPGFunction }
 
@@ -116,6 +119,11 @@ begin
   TPGFunctionFrame.Create( Self, AParent );
 end;
 
+class function TPGFunction.IconIndex(): Integer;
+begin
+  Result := Ord(pgiFunction);
+end;
+
 function TPGFunction.GetScript: string;
 begin
   Result := FScript.Text;
@@ -170,17 +178,17 @@ begin
             end;
           end
           else
-            Gramatica.ErroAdd( Tr('Error_Interpreter_;') );
+            Gramatica.ErroAdd( 'Error_Interpreter_;' );
         end
         else
-          Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
+          Gramatica.ErroAdd( 'Error_Interpreter_)' );
       end;
     end
     else
-      Gramatica.ErroAdd( Tr('Error_Interpreter_(') );
+      Gramatica.ErroAdd( 'Error_Interpreter_(' );
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_Id') );
+    Gramatica.ErroAdd( 'Error_Interpreter_Id' );
 end;
 
 procedure TPGFunctionDeclare.Execute( Gramatica: TGramatica );
@@ -194,6 +202,11 @@ begin
   end
   else
     DeclaraNivel1( Gramatica, Gramatica.Local );
+end;
+
+class function TPGFunctionDeclare.IconIndex: Integer;
+begin
+  Result := Ord(pgiFunction);
 end;
 
 initialization

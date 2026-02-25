@@ -21,7 +21,7 @@ type
     procedure DoDropFiles( var msg: TWMDropFiles ); message WM_DROPFILES;
     procedure SetDropFileAccept( AValue: Boolean );
   protected
-    procedure Delete( Node: TTreeNode ); override;
+    procedure Delete( ANode: TTreeNode ); override;
     procedure DoEndDrag( Target: TObject; X, Y: Integer ); override;
     procedure MouseDown( Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer ); override;
@@ -59,15 +59,15 @@ end;
 
 { TTreeViewEx }
 
-procedure TTreeViewEx.Delete( Node: TTreeNode );
+procedure TTreeViewEx.Delete( ANode: TTreeNode );
 begin
-  if FOwnsObjectsData and Assigned( Node ) and Assigned( Node.Data ) and Node.Deleting
+  if FOwnsObjectsData and Assigned( ANode ) and Assigned( ANode.Data ) and ANode.Deleting
   then
   begin
-    TObject( Node.Data ).Free;
-    Node.Data := nil;
+    TObject( ANode.Data ).Free;
+    ANode.Data := nil;
   end;
-  inherited Delete( Node );
+  inherited Delete( ANode );
 end;
 
 procedure TTreeViewEx.DragDrop( Source: TObject; X, Y: Integer );

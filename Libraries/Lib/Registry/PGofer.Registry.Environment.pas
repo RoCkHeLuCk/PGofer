@@ -7,7 +7,7 @@ uses
 
 type
   {$M+}
-  TPGRegistryEnvironment = class( TPGItemCMD )
+  TPGRegistryEnvironment = class( TPGItemClass )
   private
   public
   published

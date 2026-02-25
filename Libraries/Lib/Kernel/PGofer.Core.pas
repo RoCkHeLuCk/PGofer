@@ -3,54 +3,74 @@ unit PGofer.Core;
 interface
 
 uses
-  System.Classes, System.Generics.Collections, System.Rtti;
+  System.Classes, System.Generics.Collections, System.Rtti,
+  Vcl.Controls;
 
 const
   LOW_STRING = low( string );
-  GUID_SIZE = SizeOf(TGUID);
 
 type
+  TPGIcon = ( pgiItem, pgiFolder, pgiVariant, pgiMethod, pgiFunction,
+              pgiEnvironment, pgiWindows, pgiForm,
+              pgiAutoFill, pgiHotKey, pgiLink, pgiTask, pgiVaultFolder );
+
+  TPGConsoleNotify = procedure(const AValue: string; const ANewLine, AShow: Boolean) of object;
+
   TPGKernel = class
   private
-    class var FVars: TDictionary<string, TValue>;
+    //RTTI
+    class var FRttiContext: TRttiContext;
+    //vars
+    class var FVarList: TDictionary<string, TValue>;
+    //console
+    type TConsoleBuffer = record
+      Msg: string;
+      IsNewLine: Boolean;
+      IsShow: Boolean;
+    end;
+    class var FConsoleNotify: TPGConsoleNotify;
+    class var FConsoleBuffer: TList<TConsoleBuffer>;
+    class procedure SetConsoleNotify(AValue: TPGConsoleNotify); static;
+    //icon
+    class var FImageList: TImageList;
+    //translate
+    class var FTranslate: TDictionary<string, string>;
   public
     class constructor Create();
     class destructor Destroy();
+    //vars
+    class property RttiContext: TRttiContext read FRttiContext;
+    class function HasVar(const AName: string): Boolean;
     class procedure SetVar(const AName: string; const AValue: TValue);
-
-    class function GetVar(const AName: string; const ADefault: TValue): TValue; overload;
-    class function GetVar(const AName: string; ADefault: Boolean): Boolean; overload;
-    class function GetVar(const AName: string; ADefault: Integer): Integer; overload;
-    class function GetVar(const AName: string; ADefault: Cardinal): Cardinal; overload;
-    class function GetVar(const AName: string; ADefault: Int64): Int64; overload;
-    class function GetVar(const AName: string; ADefault: Double): Double; overload;
-    class function GetVar(const AName: string; ADefault: Currency): Currency; overload;
-    class function GetVar(const AName: string; const ADefault: string): string; overload;
-
-    class function Exists(const AName: string): Boolean;
+    class function GetVar<T>(const AName: string): T;
+    //console
+    class property ConsoleNotify: TPGConsoleNotify read FConsoleNotify write SetConsoleNotify;
+    class procedure Console(const AValue: string; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
+    class procedure Console(const AKey: string; const AArgs: array of const; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
+    //icon
+    class procedure LoadIconFromPath(const ACurrentPath: string );
+    class property ImageList: TImageList read FImageList;
+    //translate
+    class procedure LoadTranslateFile(const AFileName: string);
+    class function Translate(const AValue: string): string; overload; static;
+    class function Translate(const AKey: string; const AArgs: array of const): string; overload; static;
+    //console translate
+    class procedure ConsoleTr(const AValue: string; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
+    class procedure ConsoleTr(const AKey: string; const AArgs: array of const; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
   end;
 
   TPGAttribText = class(TCustomAttribute)
   private
     FText: string;
-    FTranslate: Boolean;
   public
-    constructor Create(const AText: string; const ATranslate: Boolean = True); overload;
+    constructor Create(const AText: string); overload;
     destructor Destroy( ); override;
     property Text: string read FText;
-  end;
-
-  TPGIcon = ( pgiItem, pgiFolder, pgiVariant, pgiMethod, pgiFunction,
-              pgiEnvironment, pgiWindows, pgiForm,
-              pgiAutoFill, pgiHotKey, pgiLink, pgiTask, pgiVaultFolder );
-
-  TPGAttribIcon = class(TCustomAttribute)
-  private
-    FIconIndex: TPGIcon;
-  public
-    constructor Create(const AIconIndex: TPGIcon); overload;
-    destructor Destroy( ); override;
-    property IconIndex: TPGIcon read FIconIndex;
+    class function GetFromRtti(ARttiObject: TRttiObject): string; static;
+    class function GetFromClass(AClass: TClass): string; static;
+    class function GetFromProperty(AProp: TRttiProperty): string; static;
+    class function GetFromMethod(AMethod: TRttiMethod): string; static;
+    class function GetFromParameter(AParameter: TRttiParameter): string; static;
   end;
 
   function ConvertVariantToValue(const AValor: Variant;const ATypeKind: TTypeKind ): TValue;
@@ -62,7 +82,10 @@ type
 implementation
 
 uses
-  System.SysUtils, System.UITypes, Winapi.Windows;
+  System.SysUtils, System.IOUtils, System.JSON, System.TypInfo,
+  Winapi.Windows,
+  Vcl.Graphics,
+  PGofer.Files.Controls;
 
 { TPGKernel }
 
@@ -70,135 +93,290 @@ class constructor TPGKernel.Create();
 var
   LPath: string;
 begin
-  FVars := TDictionary<string, TValue>.Create;
-
+  //var
+  FRttiContext := TRttiContext.Create;
+  FVarList := TDictionary<string, TValue>.Create;
   LPath := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  SetVar('_PathCurrent', LPath);
-  SetVar('_FileKeyStore', LPath + 'KeyStore.pgk');
-  SetVar('_FileIniConfig', LPath + 'Config.ini');
-  SetVar('_FileAutoComplete', LPath + 'AutoComplete.ini');
-  SetVar('_FileLog', LPath + 'System.log');
+  TPGKernel.SetVar('_PathCurrent', LPath);
+  TPGKernel.SetVar('_FileKeyStore', LPath + 'KeyStore.pgk');
+  TPGKernel.SetVar('_FileIniConfig', LPath + 'Config.ini');
+  TPGKernel.SetVar('_FileAutoComplete', LPath + 'AutoComplete.ini');
+  TPGKernel.SetVar('_FileLog', LPath + 'System.log');
 
   {$IFDEF DEBUG}
-    SetVar('_FileLanguage', LPath + '..\..\..\..\Documents\Languages\Language.json');
-    SetVar('_PathIcons', LPath + '..\..\..\..\Documents\Imagens\Icons\');
+    TPGKernel.SetVar('_FileLanguage', LPath + '..\..\..\..\Documents\Languages\Language.json');
+    TPGKernel.SetVar('_PathIcons', LPath + '..\..\..\..\Documents\Imagens\Icons\');
   {$ELSE}
-    SetVar('_FileLanguage', LPath + 'Language.json');
-    SetVar('_PathIcons', LPath + 'Icons\');
+    TPGKernel.SetVar('_FileLanguage', LPath + 'Language.json');
+    TPGKernel.SetVar('_PathIcons', LPath + 'Icons\');
   {$ENDIF}
 
-  SetVar('ReportMemoryLeaks', False);
-  SetVar('LoopLimit', Int64(1000000));
-  SetVar('FileListMax', Cardinal(100));
-  SetVar('ReplyFormat', '');
-  SetVar('ReplyPrefix', False);
-  SetVar('ConsoleMessage', True);
-  SetVar('LogMaxSize', Int64(10000));
-  SetVar('CanOff', True);
-  SetVar('CanClose', True);
+  TPGKernel.SetVar('ReportMemoryLeaks', False);
+  TPGKernel.SetVar('LoopLimit', Int64(1000000));
+  TPGKernel.SetVar('FileListMax', Cardinal(100));
+  TPGKernel.SetVar('ReplyFormat', '');
+  TPGKernel.SetVar('ReplyPrefix', False);
+  TPGKernel.SetVar('ConsoleMessage', True);
+  TPGKernel.SetVar('LogMaxSize', Int64(10000));
+
+  //console
+  FConsoleBuffer := TList<TConsoleBuffer>.Create;
+  FConsoleNotify := nil;
+
+  //icon
+  FImageList := TImageList.Create(nil);
+  TPGKernel.LoadIconFromPath(TPGKernel.GetVar<String>('_PathIcons'));
+
+  //translate
+  FTranslate := TDictionary<string, string>.Create;
+  TPGKernel.LoadTranslateFile( TPGKernel.GetVar<String>('_FileLanguage') );
 end;
 
 class destructor TPGKernel.Destroy();
 begin
-  FVars.Free;
+  FConsoleNotify := nil;
+  FTranslate.Free;
+  FImageList.Free;
+  FConsoleBuffer.Free;
+  FVarList.Free;
+  FRttiContext.Free;
 end;
 
 class procedure TPGKernel.SetVar(const AName: string; const AValue: TValue);
 begin
   if (not AName.StartsWith('_')) then
   begin
-    FVars.AddOrSetValue(AName, AValue);
+    FVarList.AddOrSetValue(AName, AValue);
   end else begin
-    if (not FVars.ContainsKey(AName)) then
+    if (not FVarList.ContainsKey(AName)) then
     begin
-      FVars.Add(AName, AValue);
+      FVarList.Add(AName, AValue);
     end else begin
       {$IFDEF DEBUG}
-        raise Exception.Create('Error Kernel: Variable "'+AName+'" mind read only!');
+        TPGKernel.Console('Error Kernel: Variable "%s" mind read only!',[AName]);
       {$ENDIF}
     end;
   end;
 end;
 
-class function TPGKernel.GetVar(const AName: string; const ADefault: TValue): TValue;
+class function TPGKernel.GetVar<T>(const AName: string): T;
+var
+  LValue: TValue;
 begin
-  if not FVars.TryGetValue(AName, Result) then
+  Result := Default(T);
+  if (not FVarList.TryGetValue(AName, LValue)) then
   begin
-    Result := ADefault;
-    {$IFDEF DEBUG}
-      raise Exception.Create('Error Kernel: Variable "'+AName+'" not found!');
-    {$ENDIF}
+     TPGKernel.Console('Error Kernel: Variable "%s" does not exist!',[AName]);
+  end else if (not LValue.TryAsType<T>(Result)) then
+  begin
+     TPGKernel.Console('Error Kernel: Variable "%s" wrong type!',[AName]);
+     Result := Default(T);
   end;
 end;
 
-class function TPGKernel.GetVar(const AName: string; ADefault: Boolean): Boolean;
+class function TPGKernel.HasVar(const AName: string): Boolean;
 begin
-  Result := GetVar(AName, TValue.From<Boolean>(ADefault)).AsBoolean;
+  Result := FVarList.ContainsKey(AName);
 end;
 
-class function TPGKernel.GetVar(const AName: string; ADefault: Integer): Integer;
+class procedure TPGKernel.SetConsoleNotify(AValue: TPGConsoleNotify);
+var
+  LLogBuffer: TConsoleBuffer;
 begin
-  Result := GetVar(AName, TValue.From<Integer>(ADefault)).AsInteger;
+  FConsoleNotify := AValue;
+  if Assigned(FConsoleNotify) and (FConsoleBuffer.Count > 0) then
+  begin
+    for LLogBuffer in FConsoleBuffer do
+    begin
+      FConsoleNotify(LLogBuffer.Msg, LLogBuffer.IsNewLine, LLogBuffer.IsShow);
+    end;
+    FConsoleBuffer.Clear;
+  end;
 end;
 
-class function TPGKernel.GetVar(const AName: string; ADefault: Int64): Int64;
+class procedure TPGKernel.Console(const AValue: string; ANewLine, AShow: Boolean);
+var
+  LLogBuffer: TConsoleBuffer;
 begin
-  Result := GetVar(AName, TValue.From<Int64>(ADefault)).AsInt64;
+  if Assigned(FConsoleNotify) then
+  begin
+    RunInMainThread(
+      procedure
+      begin
+        FConsoleNotify(AValue, ANewLine, AShow);
+      end
+    );
+  end else begin
+    {$IFDEF DEBUG}
+    OutputDebugString(PChar('PGofer: ' + AValue));
+    {$ENDIF}
+
+    LLogBuffer.Msg := AValue;
+    LLogBuffer.IsNewLine := ANewLine;
+    LLogBuffer.IsShow := AShow;
+    FConsoleBuffer.Add(LLogBuffer);
+  end;
 end;
 
-class function TPGKernel.GetVar(const AName: string; ADefault: Cardinal): Cardinal;
+class procedure TPGKernel.Console(const AKey: string; const AArgs: array of const; ANewLine, AShow: Boolean);
+var
+  LValue: string;
 begin
-  Result := GetVar(AName, TValue.From<Cardinal>(ADefault)).AsOrdinal;
+  try
+    LValue := Format(AKey, AArgs);
+  except
+    TPGKernel.Console('Error Kernel: Format Key "%s"!',[AKey]);
+  end;
+  TPGKernel.Console(LValue, ANewLine, AShow);
 end;
 
-class function TPGKernel.GetVar(const AName: string; ADefault: Double): Double;
+class procedure TPGKernel.ConsoleTr(const AValue: string; ANewLine, AShow: Boolean);
 begin
-  Result := GetVar(AName, TValue.From<Double>(ADefault)).AsExtended;
+   TPGKernel.Console( TPGKernel.Translate(AValue), ANewLine, AShow);
 end;
 
-class function TPGKernel.GetVar(const AName: string; ADefault: Currency): Currency;
+class procedure TPGKernel.ConsoleTr(const AKey: string; const AArgs: array of const; ANewLine,
+  AShow: Boolean);
 begin
-  Result := GetVar(AName, TValue.From<Currency>(ADefault)).AsCurrency;
+   TPGKernel.Console( TPGKernel.Translate(AKey, AArgs), ANewLine, AShow);
 end;
 
-class function TPGKernel.GetVar(const AName: string; const ADefault: string): string;
+class procedure TPGKernel.LoadIconFromPath(const ACurrentPath: string);
+var
+  IconEnum: TPGIcon;
+  FileName: string;
+  Icon: TIcon;
 begin
-  Result := GetVar(AName, TValue.From<string>(ADefault)).AsString;
+  if DirectoryExistsEx( ACurrentPath ) then
+  begin
+    FImageList.Clear;
+    for IconEnum := Low(TPGIcon) to High(TPGIcon) do
+    begin
+      FileName := GetEnumName(TypeInfo(TPGIcon), Ord(IconEnum)).SubString(3);
+      FileName := ACurrentPath + FileName + '.ico';
+
+      Icon := TIcon.Create( );
+      try
+        if FileExistsEx( FileName ) then
+        begin
+          Icon.LoadFromFile( FileName );
+        end else begin
+          TPGKernel.Console('Error Icon: No Found "%s".',[FileName]);
+        end;
+        FImageList.AddIcon( Icon );
+      finally
+        Icon.Free( );
+      end;
+    end;
+  end;
 end;
 
-class function TPGKernel.Exists(const AName: string): Boolean;
+class procedure TPGKernel.LoadTranslateFile(const AFileName: string);
+var
+  JSONObject: TJSONObject;
+  JSONValue: TJSONValue;
+  JSONPair: TJSONPair;
+  Content: string;
 begin
-  Result := FVars.ContainsKey(AName);
+  FTranslate.Clear;
+  if FileExistsEx(AFileName) then
+  begin
+    Content := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+    JSONValue := TJSONObject.ParseJSONValue(Content);
+    if Assigned(JSONValue) then
+    begin
+      try
+        if (JSONValue is TJSONObject) then
+        begin
+          JSONObject := TJSONObject(JSONValue);
+          for JSONPair in JSONObject do
+          begin
+            FTranslate.AddOrSetValue(
+              JSONPair.JsonString.Value,
+              JSONPair.JsonValue.Value
+            );
+          end;
+        end;
+      finally
+        JSONValue.Free;
+      end;
+    end else
+      TPGKernel.Console('Error Translate: JSON invalid "%s".',[AFileName]);
+  end else begin
+    TPGKernel.Console('Error Translate: File missing "%s".',[AFileName]);
+  end;
+end;
+
+class function TPGKernel.Translate(const AValue: string): string;
+begin
+  if not FTranslate.TryGetValue(AValue, Result) then
+    Result := AValue;
+end;
+
+class function TPGKernel.Translate(const AKey: string; const AArgs: array of const): string;
+var
+  FormatStr: string;
+begin
+  FormatStr := Translate(AKey);
+  try
+    Result := Format(FormatStr, AArgs);
+  except
+    Result := FormatStr;
+    TPGKernel.Console('Error Translate: Format Key[%s]', [AKey]);
+  end;
 end;
 
 { TPGAttribText }
 
-constructor TPGAttribText.Create(const AText: string; const ATranslate: Boolean = True);
+constructor TPGAttribText.Create(const AText: string);
 begin
   inherited Create( );
   FText := AText;
-  FTranslate := ATranslate;
 end;
 
 destructor TPGAttribText.Destroy( );
 begin
   FText := '';
-  FTranslate := False;
   inherited Destroy( );
 end;
 
-{ PGAttribIcon }
-
-constructor TPGAttribIcon.Create(const AIconIndex: TPGIcon);
+class function TPGAttribText.GetFromRtti(ARttiObject: TRttiObject): string;
+var
+  LAttrib: TArray<TCustomAttribute>;
+  LIndex: Integer;
 begin
-  inherited Create( );
-  FIconIndex := AIconIndex;
+  Result := '';
+  if Assigned(ARttiObject) then
+  begin
+    LAttrib := ARttiObject.GetAttributes;
+    for LIndex := Low(LAttrib) to High(LAttrib) do
+    begin
+      if LAttrib[LIndex] is TPGAttribText then
+        Result := Result + TPGAttribText(LAttrib[LIndex]).Text;
+      if LIndex < High(LAttrib) then
+        Result := Result + #13;
+    end;
+  end;
 end;
 
-destructor TPGAttribIcon.Destroy( );
+class function TPGAttribText.GetFromClass(AClass: TClass): string;
 begin
-  FIconIndex := pgiItem;
-  inherited Destroy( );
+  Result := GetFromRtti( TPGKernel.RttiContext.GetType(AClass) );
+end;
+
+class function TPGAttribText.GetFromProperty(AProp: TRttiProperty): string;
+begin
+  Result := GetFromRtti(AProp);
+end;
+
+class function TPGAttribText.GetFromMethod(AMethod: TRttiMethod): string;
+begin
+  Result := GetFromRtti(AMethod);
+end;
+
+class function TPGAttribText.GetFromParameter(AParameter: TRttiParameter): string;
+begin
+  Result := GetFromRtti(AParameter);
 end;
 
 { ConvertV }

@@ -3,9 +3,8 @@ unit PGofer.Sintatico;
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Generics.Collections,
-
-  PGofer.Core, PGofer.Classes, PGofer.Lexico;
+  System.Classes, System.Generics.Collections,
+  PGofer.Classes, PGofer.Lexico;
 
 type
   TPGPilha = class( TPGItem )
@@ -30,28 +29,26 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create( AName: string; AItemDad: TPGItem;
-      ATerminate: Boolean ); overload;
+    constructor Create( const AName: string; AItemDad: TPGItem; ATerminate: Boolean ); overload;
     destructor Destroy( ); override;
     property Pilha: TPGPilha read FPilha;
     property local: TPGItem read FLocal;
     property TokenList: TTokenList read FTokenList;
     property Erro: Boolean read FErro write FErro;
     property Script: string read FScript;
-    procedure ErroAdd( AText: string );
-    procedure MSGsAdd( AText: string );
-    procedure SetScript( AScript: string );
+    procedure ErroAdd( const AValue: string ); overload;
+    procedure ErroAdd( const AKey: string; const AArgs: array of const ); overload;
+    procedure MSGsAdd( const AValue: string ); overload;
+    procedure MSGsAdd( const AKey: string; const AArgs: array of const ); overload;
+    procedure SetScript( const AScript: string );
     procedure SetTokens( TokenList: TTokenList );
   end;
-
-procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
-  AWaitFor: Boolean = False );
-function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
 
 implementation
 
 uses
-  PGofer.Language, PGofer.Sintatico.Controls, PGofer.Runtime;
+  System.SysUtils,
+  PGofer.Core, PGofer.Sintatico.Controls, PGofer.Runtime;
 
 { TPilha }
 
@@ -85,13 +82,13 @@ end;
 
 { Gramatica }
 
-constructor TGramatica.Create( AName: string; AItemDad: TPGItem;
+constructor TGramatica.Create( const AName: string; AItemDad: TPGItem;
   ATerminate: Boolean );
 begin
   inherited Create( True );
   Self.FreeOnTerminate := ATerminate;
   Self.Priority := tpNormal;
-  FConsoleShowMessage := TPGKernel.GetVar('ConsoleMessage',True);
+  FConsoleShowMessage := TPGKernel.GetVar<Boolean>('ConsoleMessage');
   FPai := AItemDad;
   if Assigned( FPai ) then
     FLocal := TPGFolder.Create( AItemDad, AName )
@@ -105,12 +102,12 @@ end;
 
 destructor TGramatica.Destroy( );
 begin
-  if TPGKernel.GetVar('ReportMemoryLeaks',False) then
+  if TPGKernel.GetVar<Boolean>('ReportMemoryLeaks') then
   begin
     if FPilha.Count > 1 then
-       MSGsAdd( Tr('Warning_Interpreter_Stack', [FPilha.name, FPilha.Count-1]) );
+       MSGsAdd('Warning_Interpreter_Stack', [FPilha.name, FPilha.Count-1] );
     if FLocal.Count > 1 then
-       MSGsAdd( Tr('Warning_Interpreter_StackChild', [FLocal.name, FLocal.Count-1]) );
+       MSGsAdd('Warning_Interpreter_StackChild', [FLocal.name, FLocal.Count-1] );
   end;
 
   FPilha.Free;
@@ -126,28 +123,69 @@ begin
   inherited Destroy( );
 end;
 
-procedure TGramatica.ErroAdd( AText: string );
+procedure TGramatica.ErroAdd( const AValue: string );
 var
-  LexicoName: string;
+  LText, LLexicoName: string;
 begin
   FErro := True;
-  LexicoName := string( Self.TokenList.Token.Lexema );
-  if LexicoName = #0 then
-    LexicoName := ''
+  LLexicoName := string( Self.TokenList.Token.Lexema );
+  if LLexicoName = #0 then
+    LLexicoName := ''
   else
-    LexicoName := '"' + LexicoName + '" ';
+    LLexicoName := '"' + LLexicoName + '" ';
 
-    TrC( FLocal.name + ' [' +
-      Self.TokenList.Token.Cordenada.ToString + '] ' + LexicoName + ': ' +
-      AText, True, FConsoleShowMessage );
+  LText := TPGKernel.Translate(AValue);
+
+  TPGKernel.Console(
+    FLocal.name +
+    ' [' + Self.TokenList.Token.Cordenada.ToString + '] ' +
+    LLexicoName + ': ' +
+    LText,
+    True,
+    FConsoleShowMessage
+  );
 end;
 
-procedure TGramatica.MSGsAdd( AText: string );
+procedure TGramatica.ErroAdd( const AKey: string; const AArgs: array of const );
+var
+  LText, LLexicoName: string;
 begin
-    TrC( AText, True, FConsoleShowMessage );
+  FErro := True;
+  LLexicoName := string( Self.TokenList.Token.Lexema );
+  if LLexicoName = #0 then
+    LLexicoName := ''
+  else
+    LLexicoName := '"' + LLexicoName + '" ';
+
+  LText := TPGKernel.Translate(AKey, AArgs);
+
+  TPGKernel.Console(
+    FLocal.name +
+    ' [' + Self.TokenList.Token.Cordenada.ToString + '] ' +
+    LLexicoName + ': ' +
+    LText,
+    True,
+    FConsoleShowMessage
+  );
 end;
 
-procedure TGramatica.SetScript( AScript: string );
+procedure TGramatica.MSGsAdd( const AValue: string );
+var
+  AText : String;
+begin
+  AText := TPGKernel.Translate(AValue);
+  TPGKernel.Console( AText, True, FConsoleShowMessage );
+end;
+
+procedure TGramatica.MSGsAdd( const AKey: string; const AArgs: array of const );
+var
+  AText : String;
+begin
+  AText := TPGKernel.Translate(AKey, AArgs);
+  TPGKernel.Console( AText, True, FConsoleShowMessage );
+end;
+
+procedure TGramatica.SetScript( const AScript: string );
 var
   Automato: TAutomato;
 begin
@@ -167,45 +205,10 @@ procedure TGramatica.Execute( );
 var
   Dir: String;
 begin
-  Dir := TPGKernel.GetVar('_PathCurrent','');
+  Dir := TPGKernel.GetVar<String>('_PathCurrent');
   SetCurrentDir( Dir );
   ChDir( Dir );
   Sentencas( Self );
-end;
-
-procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil;
-  AWaitFor: Boolean = False );
-var
-  Gramatica: TGramatica;
-begin
-  if not Assigned( ANivel ) then
-    ANivel := GlobalCollection;
-
-  Gramatica := TGramatica.Create( AName, ANivel, not AWaitFor );
-  Gramatica.SetScript( AScript );
-  Gramatica.Start;
-  if AWaitFor then
-  begin
-    Gramatica.WaitFor( );
-    Gramatica.Free( );
-  end;
-end;
-
-function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
-var
-  Texto: TStringList;
-begin
-  if FileExists( FileName ) then
-  begin
-    Texto := TStringList.Create;
-    Texto.LoadFromFile( FileName );
-    ScriptExec( 'FileScript: ' + ExtractFileName( FileName ), Texto.Text, nil,
-      Esperar );
-    Texto.Free;
-    Result := True;
-  end
-  else
-    Result := False;
 end;
 
 initialization

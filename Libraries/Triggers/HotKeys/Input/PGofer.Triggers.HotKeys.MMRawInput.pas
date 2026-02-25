@@ -186,6 +186,9 @@ const
   RI_MOUSE_WHEEL = $0400;
   {$EXTERNALSYM RI_MOUSE_WHEEL}
 
+  RI_MOUSE_HORIZONTAL_WHEEL = $0800;
+  {$EXTERNALSYM RI_MOUSE_WHEEL}
+
   //
   // Define the mouse indicator flags.
   //

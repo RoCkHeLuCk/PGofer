@@ -9,9 +9,6 @@ object PGItemFrame: TPGItemFrame
   Margins.Bottom = 0
   Anchors = [akLeft, akTop, akRight]
   Constraints.MinWidth = 400
-  Color = clGray
-  ParentBackground = False
-  ParentColor = False
   TabOrder = 0
   object grbAbout: TGroupBox
     AlignWithMargins = True

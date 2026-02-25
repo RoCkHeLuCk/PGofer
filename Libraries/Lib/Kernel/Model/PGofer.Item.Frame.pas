@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Component.Edit;
+  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit;
 
 type
   TPGItemFrame = class( TFrame )
@@ -53,7 +53,7 @@ begin
   EdtName.Text := FItem.Name;
   EdtName.ReadOnly := FItem.ReadOnly;
   rceAbout.Lines.Text := FItem.About;
-  FIniFile := TIniFile.Create( TPGKernel.GetVar('_FileIniConfig','') );
+  FIniFile := TIniFile.Create( TPGKernel.GetVar<string>('_FileIniConfig') );
   Self.IniConfigLoad( );
 end;
 

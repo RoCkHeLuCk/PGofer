@@ -5,17 +5,15 @@ interface
 uses
   System.Classes,
   Vcl.Forms,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
-  PGofer.Component.Form, PGofer.Forms.Style;
+  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Component.Form;
 
 type
 
   {$M+}
-  [TPGAttribIcon(pgiForm)]
-  TPGForm = class( TPGItemCMD )
+  TPGForm = class( TPGItemClass )
   private
     FForm: TFormEx;
-    FStyle: TPGItemCMD;
     function GetAlphaBlend( ): Boolean;
     procedure SetAlphaBlend( AAlphaBlend: Boolean );
     function GetAlphaBlendValue( ): Byte;
@@ -44,9 +42,9 @@ type
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute( AGramatica: TGramatica ); override;
     class var GlobList: TPGItem;
-    property Style: TPGItemCMD read FStyle;
+    class function IconIndex():Integer; override;
   published
     property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue
@@ -70,8 +68,7 @@ type
 implementation
 
 uses
-  PGofer.Lexico,
-  PGofer.Forms.Frame;
+  PGofer.Core, PGofer.Lexico, PGofer.Forms.Frame;
 
 { TPGForm }
 
@@ -79,13 +76,11 @@ constructor TPGForm.Create( AForm: TForm );
 begin
   inherited Create( TPGForm.GlobList, AForm.Name );
   FForm := TFormEx( AForm );
-  FStyle := TPGStyle.Create( Self, FForm );
 end;
 
 destructor TPGForm.Destroy( );
 begin
   FForm := nil;
-  FStyle.Free;
   inherited Destroy( );
 end;
 
@@ -132,6 +127,11 @@ end;
 function TPGForm.GetHeigth( ): Integer;
 begin
   Result := FForm.Height;
+end;
+
+class function TPGForm.IconIndex: Integer;
+begin
+  Result := Ord(pgiForm);
 end;
 
 procedure TPGForm.SetLeft( ALeft: Integer );
@@ -214,20 +214,22 @@ begin
   FForm.Hide;
 end;
 
-procedure TPGForm.Execute( Gramatica: TGramatica );
+procedure TPGForm.Execute( AGramatica: TGramatica );
+var
+  LPGItem : TPGItem;
 begin
-  TThread.Synchronize( Gramatica, procedure
+  TThread.Synchronize(
+    AGramatica,
+    procedure
     begin
-      Gramatica.TokenList.GetNextToken;
-      if Gramatica.TokenList.Token.Classe = cmdDot then
-      begin
-        Gramatica.TokenList.GetNextToken;
-        Self.RttiExecute( Gramatica, Self );
-      end
+      LPGItem := Self.GetNextChild( AGramatica );
+      if Assigned(LPGItem) then
+        TPGItemMember(LPGItem).Execute(AGramatica)
       else
-        Self.Show( true );
-      Application.ProcessMessages( );
-    end );
+        Self.Form.ForceShow(True);
+      Application.ProcessMessages;
+    end
+  );
 end;
 
 procedure TPGForm.Frame( AParent: TObject );

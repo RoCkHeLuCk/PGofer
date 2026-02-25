@@ -1,0 +1,369 @@
+unit PGofer.Triggers.Collections;
+
+interface
+
+uses
+ System.Classes, System.Generics.Collections,
+ PGofer.Classes;
+
+type
+  TClassItem = record
+    Name: string;
+    ClassType: TClass;
+    IconIndex: Integer;
+  end;
+
+  TClassList = class (TList<TClassItem>)
+  private
+    //function TryGetClassFromArray<TKey, TValue: class> (const AArray: TArray<TKey>; out AValue: TValue): Boolean;
+  protected
+  public
+    destructor Destroy(); override;
+    procedure AddClass( AValue: TClass );
+    function TryGetClass(const AName: string; out OValue: TClass): Boolean;
+    function TryGetName(AValue: TClass; out OName: string): Boolean;
+  end;
+
+  TPGItemCollectTrigger = class(TPGItemCollect)
+    constructor Create(AName: string); overload;
+    destructor Destroy(); override;
+  private
+    FClassList: TClassList;
+    FFileName: string;
+  protected
+  public
+    procedure XMLLoadFromStream(AItemDad: TPGItem; AXMLStream: TStream);
+    procedure XMLLoadFromFile();
+    procedure XMLSaveToStream(AItemDad: TPGItem; AXMLStream: TStream);
+    procedure XMLSaveToFile();
+    property ClassList: TClassList read FClassList;
+    procedure RegisterClass(AClass: TClass);
+    procedure FormCreate(); override;
+  end;
+
+implementation
+
+uses
+   System.SysUtils, System.RTTI, System.TypInfo,
+   XML.XMLIntf, XML.XMLDoc,
+   PGofer.Core, PGofer.Triggers, PGofer.Triggers.Form;
+
+{ TClassList }
+
+destructor TClassList.Destroy();
+begin
+  Self.Clear;
+  inherited Destroy();
+end;
+
+//function TClassList.TryGetClassFromArray<TKey, TValue>(const AArray: TArray<TKey>; out AValue: TValue): Boolean;
+//var
+//  LItem: TKey;
+//begin
+//  Result := False;
+//  AValue := nil;
+//
+//  if Length(AArray) = 0 then Exit;
+//  for LItem in AArray do
+//  begin
+//    if LItem is TValue then
+//    begin
+//      AValue := TValue(TObject(LItem));
+//      Exit(True);
+//    end;
+//  end;
+//end;
+
+procedure TClassList.AddClass(AValue: TClass);
+type
+  TPGItemMirrorType = class of TPGItemMirror;
+var
+  LItem: TClassItem;
+begin
+  LItem.ClassType := AValue;
+  LItem.Name      := TPGItemMirrorType(AValue).ClassNameEx;
+  LItem.IconIndex := TPGItemMirrorType(AValue).IconIndex;
+  Self.Add(LItem);
+end;
+
+function TClassList.TryGetClass(const AName: string; out OValue: TClass): Boolean;
+var
+  LItem: TClassItem;
+begin
+  Result := False;
+  OValue := nil;
+  for LItem in Self do
+  begin
+    if SameText(LItem.Name, AName) or SameText(LItem.ClassType.ClassName, AName) then
+    begin
+      OValue := LItem.ClassType;
+      Exit(True);
+    end;
+  end;
+end;
+
+function TClassList.TryGetName(AValue: TClass; out OName: string): Boolean;
+var
+  LItem: TClassItem;
+begin
+  Result := False;
+  OName := '';
+  for LItem in Self do
+  begin
+    if LItem.ClassType = AValue then
+    begin
+      OName := LItem.Name;
+      Exit(True);
+    end;
+  end;
+end;
+
+{ TPGItemCollectTrigger }
+
+constructor TPGItemCollectTrigger.Create(AName: string);
+begin
+  inherited Create(AName);
+  FClassList := TClassList.Create();
+  FFileName := TPGKernel.GetVar<String>('_PathCurrent') + AName + '.xml';
+end;
+
+destructor TPGItemCollectTrigger.Destroy();
+begin
+  FClassList.Free();
+  FFileName := '';
+  inherited Destroy();
+end;
+
+procedure TPGItemCollectTrigger.FormCreate();
+begin
+  if not Assigned(FForm) then
+  begin
+    FForm := TFrmTriggerController.Create(Self);
+  end;
+  Self.XMLLoadFromFile();
+end;
+
+procedure TPGItemCollectTrigger.RegisterClass(AClass: TClass);
+begin
+  FClassList.AddClass( AClass );
+end;
+
+procedure TPGItemCollectTrigger.XMLSaveToStream(AItemDad: TPGItem; AXMLStream: TStream);
+  procedure CreateNode(Item: TPGItem; XMLNodeDad: IXMLNode);
+  var
+    RttiType: TRttiType;
+    RttiProperty: TRttiProperty;
+    XMLNodeProperty: IXMLNode;
+    XMLNode: IXMLNode;
+    ItemChild: TPGItem;
+    ItemOriginal: TPGItem;
+    ClassName: string;
+  begin
+    if not FClassList.TryGetName(Item.ClassType, ClassName) then
+      Exit;
+
+    if (Item is TPGItemMirror) and (Assigned(TPGItemMirror(Item).ItemOriginal)) then
+      ItemOriginal := TPGItemMirror(Item).ItemOriginal
+    else
+      ItemOriginal := Item;
+
+    XMLNode := XMLNodeDad.AddChild(ClassName);
+    XMLNode.Attributes['Name'] := ItemOriginal.Name;
+    XMLNode.Attributes['Enabled'] := ItemOriginal.Enabled;
+    XMLNode.Attributes['ReadOnly'] := ItemOriginal.ReadOnly;
+
+    RttiType := TPGKernel.RttiContext.GetType(ItemOriginal.ClassType);
+
+    for RttiProperty in RttiType.GetProperties do
+    begin
+      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and
+        (RttiProperty.IsWritable) then
+      begin
+        XMLNodeProperty := XMLNode.AddChild(RttiProperty.Name);
+        XMLNodeProperty.Attributes['Type'] := RttiProperty.PropertyType.ToString;
+        XMLNodeProperty.Text := RttiProperty.GetValue(ItemOriginal).ToString;
+      end;
+    end;
+
+    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item).BeforeXMLSave(Self)) then
+      for ItemChild in Item do
+        CreateNode(ItemChild, XMLNode);
+  end;
+
+var
+  XMLDocument: IXMLDocument;
+  XMLRoot: IXMLNode;
+  Item: TPGItem;
+begin
+  if Assigned(AXMLStream) then
+  begin
+    XMLDocument := NewXMLDocument;
+    XMLDocument.Encoding := 'utf-8';
+    XMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
+    XMLDocument.Active := True;
+    XMLRoot := XMLDocument.AddChild(AItemDad.Name);
+    XMLRoot.Attributes['Version'] := '1.0';
+    for Item in AItemDad do
+    begin
+      CreateNode(Item, XMLRoot);
+    end;
+    AXMLStream.Position := 0;
+    XMLDocument.SaveToStream(AXMLStream);
+    XMLDocument.Active := False;
+  end;
+end;
+
+procedure TPGItemCollectTrigger.XMLSaveToFile();
+var
+  FileStream: TFileStream;
+  MemStream: TMemoryStream;
+begin
+  if (FFileName <> '') then
+  begin
+    MemStream := TMemoryStream.Create;
+    try
+      try
+        Self.XMLSaveToStream(Self, MemStream);
+        MemStream.Position := 0;
+        FileStream := TFileStream.Create(FFileName, fmCreate);
+        try
+          FileStream.CopyFrom(MemStream, 0);
+        finally
+          FileStream.Free;
+        end;
+      except
+        on E: Exception do TPGKernel.ConsoleTr(
+          'Error_XML_Save', [FFileName, E.Message]
+        );
+      end;
+    finally
+      MemStream.Free;
+    end;
+  end;
+end;
+
+procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream: TStream);
+
+  procedure CreateItem(ItemDad: TPGItem; XMLNode: IXMLNode);
+  var
+    RttiType: TRttiType;
+    RttiProperty: TRttiProperty;
+    XMLNodeProperty: IXMLNode;
+    XMLNodeChild: IXMLNode;
+    ClassRegister: TClass;
+    Value: TValue;
+    Item: TPGItem;
+    ItemOriginal: TPGItem;
+    NodeName: string;
+  begin
+    if (not FClassList.TryGetClass(XMLNode.NodeName, ClassRegister)) or
+      (not XMLNode.HasAttribute('Name')) then
+      Exit;
+
+    NodeName := XMLNode.Attributes['Name'];
+    RttiType := TPGKernel.RttiContext.GetType(ClassRegister);
+    Value := RttiType.GetMethod('Create').Invoke(ClassRegister, [ItemDad, NodeName]);
+    Item := TPGItem(Value.AsObject);
+
+    if (Item is TPGItemMirror) and (Assigned(TPGItemMirror(Item).ItemOriginal)) then
+    begin
+      ItemOriginal := TPGItemMirror(Item).ItemOriginal;
+      RttiType := TPGKernel.RttiContext.GetType(ItemOriginal.ClassType);
+    end else begin
+      ItemOriginal := Item;
+    end;
+
+    if XMLNode.HasAttribute('Enabled') then
+      ItemOriginal.Enabled := XMLNode.Attributes['Enabled'];
+
+    if XMLNode.HasAttribute('ReadOnly') then
+      ItemOriginal.ReadOnly := XMLNode.Attributes['ReadOnly'];
+
+    for RttiProperty in RttiType.GetProperties do
+    begin
+      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and
+        (RttiProperty.IsWritable) then
+      begin
+        XMLNodeProperty := XMLNode.ChildNodes.FindNode(RttiProperty.Name);
+        if Assigned(XMLNodeProperty) then
+        begin
+          try
+            case RttiProperty.PropertyType.TypeKind of
+              tkInteger:
+                RttiProperty.SetValue(ItemOriginal, StrToIntDef(XMLNodeProperty.Text, 0));
+              tkEnumeration:
+                RttiProperty.SetValue(ItemOriginal, StrToBoolDef(XMLNodeProperty.Text, False));
+              tkFloat:
+                RttiProperty.SetValue(ItemOriginal, StrToFloatDef(XMLNodeProperty.Text, 0));
+              tkString, tkLString, tkWString, tkUString:
+                RttiProperty.SetValue(ItemOriginal, UnicodeString(XMLNodeProperty.Text));
+            end;
+          except
+            TPGKernel.ConsoleTr('Error_XML_LoadValue',
+              [XMLNode.NodeName, RttiProperty.Name, FFileName]
+            );
+          end;
+        end;
+      end;
+    end;
+
+    if (item is TPGFolderMirror) and (TPGFolderMirror(Item).BeforeXMLLoad(Self)) then
+    begin
+      XMLNodeChild := XMLNode.ChildNodes.First();
+      while Assigned(XMLNodeChild) do
+      begin
+        CreateItem(Item, XMLNodeChild);
+        XMLNodeChild := XMLNodeChild.NextSibling();
+      end;
+    end;
+  end;
+
+var
+  XMLDocument: IXMLDocument;
+  XMLRoot, XMLNode: IXMLNode;
+begin
+  if Assigned(AXMLStream) then
+  begin
+    AItemDad.Clear;
+    XMLDocument := NewXMLDocument;
+    try
+      AXMLStream.Position := 0;
+      try
+        XMLDocument.LoadFromStream(AXMLStream);
+        XMLDocument.Active := True;
+        XMLRoot := XMLDocument.DocumentElement;
+      except
+        TPGKernel.ConsoleTr('Error_XML_Load',[FFileName]);
+      end;
+      if Assigned(XMLRoot) then
+      begin
+        XMLNode := XMLRoot.ChildNodes.First;
+        while Assigned(XMLNode) do
+        begin
+          CreateItem(AItemDad, XMLNode);
+          XMLNode := XMLNode.NextSibling;
+        end;
+      end;
+    finally
+      XMLDocument.Active := False;
+    end;
+  end;
+end;
+
+procedure TPGItemCollectTrigger.XMLLoadFromFile();
+var
+  Stream: TStream;
+begin
+  if FileExists(FFileName) then
+  begin
+    Stream := TFileStream.Create(FFileName, fmOpenRead);
+    try
+      Self.XMLLoadFromStream(Self, Stream);
+    finally
+      Stream.Free;
+    end;
+  end;
+end;
+
+
+end.

@@ -6,7 +6,7 @@ uses
   System.Classes,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   Vcl.Dialogs,
-  PGofer.Classes, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame;
+  PGofer.Classes, PGofer.Runtime, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame;
 
 type
   TPGFormsFrame = class( TPGItemFrame )

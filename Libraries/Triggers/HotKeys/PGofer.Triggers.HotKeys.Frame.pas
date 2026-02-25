@@ -50,7 +50,7 @@ implementation
 
 uses
   Winapi.Windows,
-  PGofer.Language,
+  PGofer.Core,
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
@@ -65,7 +65,7 @@ begin
   MmoHotKeys.Lines.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
   Self.InhibitToogle();
-  CkbInhibit.Hint := Tr('Hint_HotKey_InhibitSupport');
+  CkbInhibit.Hint := TPGKernel.Translate('Hint_HotKey_InhibitSupport');
 end;
 
 destructor TPGHotKeyFrame.Destroy( );

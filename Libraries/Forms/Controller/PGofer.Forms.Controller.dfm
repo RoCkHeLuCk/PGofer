@@ -137,25 +137,6 @@ object FrmController: TFrmController
         WordWrap = True
         OnClick = MniAZClick
       end
-      object BtnCreate: TButton
-        AlignWithMargins = True
-        Left = 109
-        Top = 1
-        Width = 69
-        Height = 34
-        Margins.Left = 1
-        Margins.Top = 1
-        Margins.Right = 0
-        Margins.Bottom = 1
-        Align = alLeft
-        Caption = 'Create'
-        DropDownMenu = PpmCreate
-        Style = bsSplitButton
-        TabOrder = 1
-        Visible = False
-        WordWrap = True
-        OnClick = onCreateItemPopUpClick
-      end
       object BtnEdit: TButton
         AlignWithMargins = True
         Left = 46
@@ -170,9 +151,8 @@ object FrmController: TFrmController
         Caption = 'Edit'
         DropDownMenu = PpmEdit
         Style = bsSplitButton
-        TabOrder = 2
+        TabOrder = 1
         WordWrap = True
-        OnClick = MniDeleteClick
       end
     end
     object TrvController: TTreeViewEx
@@ -201,14 +181,11 @@ object FrmController: TFrmController
       TabOrder = 2
       OnCompare = TrvControllerCompare
       OnCustomDrawItem = TrvControllerCustomDrawItem
-      OnDragDrop = TrvControllerDragDrop
-      OnDragOver = TrvControllerDragOver
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
       OnKeyUp = TrvControllerKeyUp
       OnMouseDown = TrvControllerMouseDown
       OwnsObjectsData = True
       AttachMode = naAdd
-      OnDropFiles = TrvControllerDropFiles
     end
   end
   object PnlFrame: TScrollBox
@@ -256,10 +233,6 @@ object FrmController: TFrmController
       OnClick = MniAlphaSortFolderClick
     end
   end
-  object PpmCreate: TPopupMenu
-    Left = 68
-    Top = 36
-  end
   object PpmEdit: TPopupMenu
     Left = 40
     Top = 36
@@ -273,17 +246,9 @@ object FrmController: TFrmController
       ShortCut = 16469
       OnClick = MniUnExpandClick
     end
-    object MniN2: TMenuItem
-      Caption = '-'
-    end
-    object MniDelete: TMenuItem
-      Caption = 'Delete Selected'
-      ShortCut = 16430
-      OnClick = MniDeleteClick
-    end
   end
   object PpmConttroler: TPopupMenu
-    Left = 96
+    Left = 68
     Top = 36
   end
 end

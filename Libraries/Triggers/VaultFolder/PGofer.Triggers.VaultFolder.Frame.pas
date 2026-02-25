@@ -1,12 +1,12 @@
-unit PGofer.VaultFolder.Frame;
+unit PGofer.Triggers.VaultFolder.Frame;
 
 interface
 
 uses
   System.Classes,
-  Vcl.StdCtrls, Vcl.Controls,
+  Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit,
-  Pgofer.Component.Checkbox, PGofer.VaultFolder, Vcl.ExtCtrls, Vcl.ComCtrls;
+  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder;
 
 type
   TPGVaultFolderFrame = class( TPGItemFrame )
@@ -44,7 +44,7 @@ begin
   EdtFile.Text := Item.FileName;
   EdtPassword.Text := Item.PasswordFrame;
   ckbSavePassword.Checked := Item.SavePassword;
-  ckbLocked.SetCheckedSilent( Item._Locked );
+  ckbLocked.SetCheckedSilent( Item.Locked );
 end;
 
 function TPGVaultFolderFrame.GetItem: TPGVaultFolder;
@@ -65,9 +65,9 @@ end;
 procedure TPGVaultFolderFrame.ckbLockedClick(Sender: TObject);
 begin
   try
-    Item._Locked := ckbLocked.Checked;
+    Item.Locked := ckbLocked.Checked;
   finally
-    ckbLocked.SetCheckedSilent( Item._Locked );
+    ckbLocked.SetCheckedSilent( Item.Locked );
   end;
 end;
 

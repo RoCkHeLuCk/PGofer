@@ -4,13 +4,12 @@ interface
 
 uses
   System.Classes,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type
 
   {$M+}
-  [TPGAttribIcon(pgiTask)]
   TPGTask = class( TPGItemTrigger )
   private
     FOccurrence: Cardinal;
@@ -20,13 +19,14 @@ type
     function GetScript: string;
     procedure SetScript( AValue: string );
   protected
-    procedure ExecutarNivel1( Gramatica: TGramatica ); override;
+    procedure ExecuteWithArgs( Gramatica: TGramatica ); override;
   public
-    constructor Create( AName: string; AMirror: TPGItemMirror );
+    constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
     class var GlobList: TPGItem;
     class procedure Working( AType: Byte; AWaitFor: Boolean = False );
+    class function IconIndex(): Integer; override;
     procedure Triggering( ); override;
   published
     property Occurrence: Cardinal read FOccurrence write FOccurrence;
@@ -36,17 +36,19 @@ type
   end;
   {$TYPEINFO ON}
 
-  [TPGAttribIcon(pgiTask)]
-  TPGTaskDeclare = class( TPGItemCMD )
+  TPGTaskDeclare = class( TPGItemClass )
+  protected
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    class function IconIndex(): Integer; override;
+    procedure Execute( AGramatica: TGramatica ); override;
   end;
 
-  [TPGAttribIcon(pgiTask)]
   TPGTaskMirror = class( TPGItemMirror )
   protected
   public
-    constructor Create( AItemDad: TPGItem; AName: string );
+    class function ClassNameEx(): String; override;
+    class function IconIndex(): Integer; override;
+    constructor Create( AItemDad: TPGItem; AName: string = ''); override;
     procedure Frame( AParent: TObject ); override;
   end;
 
@@ -54,7 +56,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Language,
+  PGofer.Core,
   PGofer.Sintatico.Controls,
   PGofer.Triggers.Tasks.Frame;
 
@@ -77,7 +79,7 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGTask.ExecutarNivel1( Gramatica: TGramatica );
+procedure TPGTask.ExecuteWithArgs( Gramatica: TGramatica );
 begin
   ScriptExec( 'Task: ' + Self.Name, Self.Script, Gramatica.Local );
 end;
@@ -86,6 +88,11 @@ procedure TPGTask.Frame( AParent: TObject );
 begin
   inherited Frame( AParent );
   TPGTaskFrame.Create( Self, AParent );
+end;
+
+class function TPGTask.IconIndex: Integer;
+begin
+  Result := Ord(pgiTask);
 end;
 
 function TPGTask.GetScript( ): string;
@@ -100,7 +107,7 @@ end;
 
 procedure TPGTask.Triggering( );
 begin
-  Self.ExecutarNivel1( nil );
+  Self.ExecuteWithArgs( nil );
 end;
 
 class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );
@@ -124,27 +131,29 @@ begin
       end;
     end;
 
-    if NeedSave and Assigned(TPGTask.GlobList.CollectDad) then
-       TPGTask.GlobList.CollectDad.XMLSaveToFile( );
+    if NeedSave and Assigned(TriggersCollect) then
+       TriggersCollect.XMLSaveToFile( );
   end;
 end;
 
 { TPGTaskDeclare }
 
-procedure TPGTaskDeclare.Execute( Gramatica: TGramatica );
+procedure TPGTaskDeclare.Execute( AGramatica: TGramatica );
 var
   Titulo: string;
   Quantidade: Byte;
   Task: TPGTask;
   id: TPGItem;
 begin
-  Gramatica.TokenList.GetNextToken;
-  id := IdentificadorLocalizar( Gramatica );
+  if Self.TryExecuteChild(AGramatica) then
+  Exit;
+
+  id := IdentificadorLocalizar( AGramatica );
   if ( not Assigned( id ) ) or ( id is TPGTask ) then
   begin
-    Titulo := Gramatica.TokenList.Token.Lexema;
-    Quantidade := LerParamentros( Gramatica, 1, 3 );
-    if not Gramatica.Erro then
+    Titulo := AGramatica.TokenList.Token.Lexema;
+    Quantidade := LerParamentros( AGramatica, 1, 3 );
+    if not AGramatica.Erro then
     begin
       if ( not Assigned( id ) ) then
         Task := TPGTask.Create( Titulo, nil )
@@ -152,26 +161,31 @@ begin
         Task := TPGTask( id );
 
       if Quantidade = 3 then
-        Task.Repeats := Gramatica.Pilha.Desempilhar( 0 );
+        Task.Repeats := AGramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 2 then
-        Task.Trigger := Gramatica.Pilha.Desempilhar( 0 );
+        Task.Trigger := AGramatica.Pilha.Desempilhar( 0 );
 
       if Quantidade >= 1 then
-        Task.Script := Gramatica.Pilha.Desempilhar( '' );
+        Task.Script := AGramatica.Pilha.Desempilhar( '' );
     end;
   end
   else
-    Gramatica.ErroAdd( Tr('Error_Interpreter_IdExist') );
+    AGramatica.ErroAdd( 'Error_Interpreter_IdExist' );
+end;
+
+class function TPGTaskDeclare.IconIndex: Integer;
+begin
+  Result := Ord(pgiTask);
 end;
 
 { TPGTaskMirror }
 
 constructor TPGTaskMirror.Create( AItemDad: TPGItem; AName: string );
 begin
+  if AName = '' then AName := 'NewTask';
   AName := TPGItemMirror.TranscendName( AName, TPGTask.GlobList );
   inherited Create( AItemDad, TPGTask.Create( AName, Self ) );
-  Self.ReadOnly := False;
 end;
 
 procedure TPGTaskMirror.Frame( AParent: TObject );
@@ -179,11 +193,21 @@ begin
   TPGTaskFrame.Create( Self.ItemOriginal, AParent );
 end;
 
+class function TPGTaskMirror.ClassNameEx: String;
+begin
+  Result := TPGTask.ClassNameEx();
+end;
+
+class function TPGTaskMirror.IconIndex: Integer;
+begin
+  Result := Ord(pgiTask);
+end;
+
 initialization
 
 TPGTaskDeclare.Create( GlobalItemCommand, 'Task' );
 TPGTask.GlobList := TPGFolder.Create( GlobalItemTrigger, 'Tasks' );
-TriggersCollect.RegisterClass( 'Task', pgiTask, TPGTaskMirror );
+TriggersCollect.RegisterClass( TPGTaskMirror );
 
 finalization
 

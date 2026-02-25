@@ -17,6 +17,7 @@
   "Error_Interpreter_)": "')' Esperado.",
   "Error_Interpreter_,": "',' Esperado.",
   "Error_Interpreter_;": "';' Esperado.",
+  "Error_Interpreter_.": "'.' Esperado.",
   "Error_Interpreter_Begin": "'Begin' Esperado.",
   "Error_Interpreter_Boolean": "Expressão Booleana esperada.",
   "Error_Interpreter_Const": "Constante é somente leitura.",
@@ -59,6 +60,8 @@
   "Error_ShellExecute_UnknownError": "Erro: Executar o arquivo Código Desconhecido '%d'.",
 
   "Error_Link_SingleInstance": "Erro: Link '%s' já esta em execução.",
+
+  "Error_RawInput_NInstal": "Erro RawInput: Não instalado",
 
   "Ok_HotKey_SetNone": "OK: HotHey definido para Desligado.",
   "Ok_HotKey_SetAsyncInput": "OK: HotHey definido para AsyncInput.",

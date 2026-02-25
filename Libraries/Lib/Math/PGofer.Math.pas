@@ -9,7 +9,7 @@ type
   // ????????? Arrumar o Deg, RAD, GRA do Math
 
   {$M+}
-  TPGMath = class( TPGItemCMD )
+  TPGMath = class( TPGItemClass )
   private
   public
   published
@@ -168,8 +168,10 @@ end;
 
 initialization
 
-TPGMath.Create( GlobalItemCommand );
+  PGMath := TPGMath.Create( GlobalItemCommand );
 
 finalization
+
+  PGMath := nil;
 
 end.

@@ -36,8 +36,8 @@ type
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    function GetItem( ): TPGAutoFills; reintroduce;
-    property Item: TPGAutoFills read GetItem;
+    function GetItem( ): TPGAutoFill; reintroduce;
+    property Item: TPGAutoFill read GetItem;
   public
     constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -57,6 +57,7 @@ begin
   EdtText.Lines.Text := Item.Text;
   CmbMode.ItemIndex := Item.Mode;
   EdtSpeed.Text := Item.Speed.ToString();
+  EdtDelay.Text := Item.Delay.ToString();
 end;
 
 destructor TPGAutoFillsFrame.Destroy( );
@@ -65,9 +66,9 @@ begin
   inherited Destroy( );
 end;
 
-function TPGAutoFillsFrame.GetItem: TPGAutoFills;
+function TPGAutoFillsFrame.GetItem: TPGAutoFill;
 begin
-  Result := TPGAutoFills(FItem);
+  Result := TPGAutoFill(FItem);
 end;
 
 procedure TPGAutoFillsFrame.EdtDelayAfterValidate(Sender: TObject);

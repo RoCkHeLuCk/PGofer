@@ -1,8 +1,11 @@
-unit PGofer.VaultFolder.KeyStore;
+unit PGofer.Triggers.VaultFolder.KeyStore;
 
 interface
 uses
   System.Classes;
+
+const
+  GUID_SIZE = SizeOf(TGUID);
 
   function KeyStoreIDFromFile(AFileName: string):TGUID;
   function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string; AFileID: TGUID):Boolean;
@@ -25,7 +28,7 @@ var
   Content: string;
   JSONValue: TJSONValue;
 begin
-  Content := TPGKernel.GetVar('_FileKeyStore', '');
+  Content := TPGKernel.GetVar<String>('_FileKeyStore');
   if FileExists(Content) then
     Content := DPAPIDecryptFileToString(Content, ENTROPY_SECRET)
   else
@@ -113,7 +116,7 @@ begin
     if APassword <> '' then
       JSONObject.AddPair(Content, APassword);
     Content := JSONObject.ToString;
-    if not DPAPIEncryptStringToFile(Content, TPGKernel.GetVar('_FileKeyStore',''), ENTROPY_SECRET) then
+    if not DPAPIEncryptStringToFile(Content, TPGKernel.GetVar<String>('_FileKeyStore'), ENTROPY_SECRET) then
     begin
       Result := TGUID.Empty;
     end;

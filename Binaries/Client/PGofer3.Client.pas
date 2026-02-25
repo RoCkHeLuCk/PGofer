@@ -9,7 +9,7 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.ExtCtrls, Vcl.Menus,
   Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Core, PGofer.Forms,
+  PGofer.Forms,
   PGofer.Component.RichEdit,
   PGofer.Component.Form;
 
@@ -58,14 +58,15 @@ type
   end;
 
   {$M+}
-  [TPGAttribIcon(pgiForm)]
   TPGFrmPGofer = class( TPGForm )
   private
+    FCanClose: Boolean;
   public
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
   published
+    property CanClose: Boolean read FCanClose write FCanClose;
   end;
   {$TYPEINFO ON}
 
@@ -75,13 +76,9 @@ var
 implementation
 
 uses
-  PGofer.Classes,
-  PGofer.Sintatico,
-  PGofer.Runtime,
-
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime, PGofer.Windows,
   PGofer.Forms.Controls, PGofer.Forms.Console, PGofer.Forms.Frame,
   PGofer.Triggers.Tasks,
-
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
@@ -131,8 +128,12 @@ begin
   Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
 
   {$IFNDEF DEBUG}
-    //FHotKey_FrmPGofer := GlobalAddAtom( 'PGofer3' );
-   //RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
+    FHotKey_FrmPGofer := GlobalAddAtom( 'PGofer3' );
+    //RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
+    if not RegisterHotKey(Self.Handle,FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71) then
+    begin
+      TPGKernel.Console('Error: Falhou ao registrar Win+G. ' + SysErrorMessage(GetLastError()));
+    end;
   {$ENDIF}
 end;
 
@@ -143,7 +144,7 @@ end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
 begin
-  if not TPGKernel.GetVar('CanOff',True) then
+  if not PGWindows.CanOff then
   begin
     Msg.Result := 0;
     PostMessage(Handle, WM_USER + 100, 0, 0);
@@ -168,7 +169,7 @@ end;
 procedure TFrmPGofer.FormCloseQuery( Sender: TObject; var CanClose: Boolean );
 begin
   TPGTask.Working( 1, True );
-  CanClose := TPGKernel.GetVar('CanClose', True);
+  CanClose := FItem.CanClose;
 end;
 
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
@@ -180,7 +181,8 @@ end;
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
   {$IFNDEF DEBUG}
-    //UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
+     UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
+     GlobalDeleteAtom(FHotKey_FrmPGofer);
   {$ENDIF}
   FItem := nil;
   inherited FormDestroy( Sender );
@@ -296,10 +298,12 @@ end;
 constructor TPGFrmPGofer.Create( AForm: TForm );
 begin
   inherited Create( AForm );
+  FCanClose := True;
 end;
 
 destructor TPGFrmPGofer.Destroy( );
 begin
+  FCanClose := True;
   inherited Destroy( );
 end;
 

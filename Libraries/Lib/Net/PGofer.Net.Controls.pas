@@ -15,7 +15,7 @@ implementation
 uses
   System.Variants, System.Win.ComObj, System.Classes, System.SysUtils,
   Winapi.ActiveX,
-  PGofer.Core;
+  PGofer.Net;
 
 function NetErrorToStr( Error: TErrorEvent ): string;
 begin
@@ -109,12 +109,12 @@ var
   LFileName: String;
   Arquivo: TStringList;
 begin
-  LFileName:= TPGKernel.GetVar('_FileLog','');
+  LFileName:= PGNet.LogFileName;
   Arquivo := TStringList.Create;
   if FileExists( LFileName ) then
     Arquivo.LoadFromFile( LFileName );
   Arquivo.Add( Text );
-  while ( Arquivo.Count > TPGKernel.GetVar('LogMaxSize',0) ) do
+  while ( Arquivo.Count > PGNet.LogMaxSize ) do
     Arquivo.Delete( 0 );
   Arquivo.SaveToFile( LFileName );
   Arquivo.Free;

@@ -3,7 +3,7 @@ unit PGofer.Files.Encrypt;
 interface
 
 uses
-  System.SysUtils, System.Classes, Winapi.Windows;
+   System.Classes;
 
 { AES }
 function AESEncryptStream(StreamFrom, StreamTo: TStream; const Password: string): Boolean; overload;
@@ -30,6 +30,9 @@ function DPAPIEncryptStringToFile(const StringFrom, FileTo, Entropy: string): Bo
 function DPAPIDecryptFileToString(const FileFrom, Entropy: string): string;
 
 implementation
+
+uses
+  System.SysUtils, Winapi.Windows;
 
 const
   CRYPT_VERIFYCONTEXT = $F0000000;
