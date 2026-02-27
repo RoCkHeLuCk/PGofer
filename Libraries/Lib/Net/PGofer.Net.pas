@@ -3,7 +3,7 @@ unit PGofer.Net;
 interface
 
 uses
-  PGofer.Runtime, PGofer.Net.Socket;
+  PGofer.Classes, PGofer.Runtime, PGofer.Net.Socket;
 
 type
 
@@ -13,14 +13,15 @@ type
     FServer: TPGNetServer;
     FClient: TPGNetClient;
     FLogFileName: String;
-    FLogMaxSize: UInt64;
+    FLogMaxSize: Cardinal;
   protected
   public
+    constructor Create( AItemDad: TPGItem; AName: string = ''); override;
   published
+    property LogMaxSize: Cardinal read FLogMaxSize write FLogMaxSize;
     property Server: TPGNetServer read FServer;
     property Client: TPGNetClient read FClient;
     property LogFileName: String read FLogFileName write FLogFileName;
-    property LogMaxSize: UInt64 read FLogMaxSize write FLogMaxSize;
     function SetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
     function GetTCPIP( ANetworkCard: string ): string;
   end;
@@ -32,9 +33,15 @@ var
 implementation
 
 uses
-  PGofer.Net.Controls;
+  PGofer.Net.Controls, PGofer.Core;
 
 { TPGNet }
+
+constructor TPGNet.Create(AItemDad: TPGItem; AName: string = '');
+begin
+   inherited Create(AItemDad, 'Net');
+   FLogMaxSize := 1000000;
+end;
 
 function TPGNet.SetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
 begin

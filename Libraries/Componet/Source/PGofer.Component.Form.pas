@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Classes, System.IniFiles,
-  Vcl.Controls, Vcl.Forms;
+  Vcl.Controls, Vcl.Forms,
+  PGofer.Component.IniFile;
 
 type
   TFormEx = class( TForm )
@@ -14,7 +15,7 @@ type
     procedure FormDestroy( Sender: TObject );
   private
   protected
-    FIniFile: TIniFile;
+    FIniFile: TMemIniFileEx;
     FIniFileName: string;
     FForceResizable: boolean;
     procedure IniConfigSave( ); virtual;
@@ -53,7 +54,7 @@ end;
 
 procedure TFormEx.FormCreate( Sender: TObject );
 begin
-  FIniFile := TIniFile.Create( ExtractFilePath( ParamStr( 0 ) ) +
+  FIniFile := TMemIniFileEx.Create( ExtractFilePath( ParamStr( 0 ) ) +
     'Config.ini' );
   Self.IniConfigLoad( );
 end;

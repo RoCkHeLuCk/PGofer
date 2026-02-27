@@ -186,6 +186,7 @@ object FrmController: TFrmController
       OnMouseDown = TrvControllerMouseDown
       OwnsObjectsData = True
       AttachMode = naAdd
+      ExplicitTop = 32
     end
   end
   object PnlFrame: TScrollBox

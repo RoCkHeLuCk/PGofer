@@ -20,7 +20,6 @@ type
   protected
   public
     class var GlobList: TPGItem;
-    class function IconIndex(): Integer; override;
     constructor Create( AItemDad: TPGItem; AName: string ); override;
     destructor Destroy( ); override;
     procedure Execute( Gramatica: TGramatica ); override;
@@ -37,7 +36,6 @@ type
     procedure DeclaraNivel1( Gramatica: TGramatica; Nivel: TPGItem );
   protected
   public
-    class function IconIndex(): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
   end;
 
@@ -119,11 +117,6 @@ begin
   TPGFunctionFrame.Create( Self, AParent );
 end;
 
-class function TPGFunction.IconIndex(): Integer;
-begin
-  Result := Ord(pgiFunction);
-end;
-
 function TPGFunction.GetScript: string;
 begin
   Result := FScript.Text;
@@ -202,11 +195,6 @@ begin
   end
   else
     DeclaraNivel1( Gramatica, Gramatica.Local );
-end;
-
-class function TPGFunctionDeclare.IconIndex: Integer;
-begin
-  Result := Ord(pgiFunction);
 end;
 
 initialization

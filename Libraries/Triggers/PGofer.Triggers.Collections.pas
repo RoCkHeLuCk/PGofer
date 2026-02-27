@@ -10,7 +10,6 @@ type
   TClassItem = record
     Name: string;
     ClassType: TClass;
-    IconIndex: Integer;
   end;
 
   TClassList = class (TList<TClassItem>)
@@ -82,7 +81,6 @@ var
 begin
   LItem.ClassType := AValue;
   LItem.Name      := TPGItemMirrorType(AValue).ClassNameEx;
-  LItem.IconIndex := TPGItemMirrorType(AValue).IconIndex;
   Self.Add(LItem);
 end;
 
@@ -124,7 +122,7 @@ constructor TPGItemCollectTrigger.Create(AName: string);
 begin
   inherited Create(AName);
   FClassList := TClassList.Create();
-  FFileName := TPGKernel.GetVar<String>('_PathCurrent') + AName + '.xml';
+  FFileName := TPGKernel.PathCurrent + AName + '.xml';
 end;
 
 destructor TPGItemCollectTrigger.Destroy();
@@ -181,7 +179,7 @@ procedure TPGItemCollectTrigger.XMLSaveToStream(AItemDad: TPGItem; AXMLStream: T
       begin
         XMLNodeProperty := XMLNode.AddChild(RttiProperty.Name);
         XMLNodeProperty.Attributes['Type'] := RttiProperty.PropertyType.ToString;
-        XMLNodeProperty.Text := RttiProperty.GetValue(ItemOriginal).ToString;
+        XMLNodeProperty.NodeValue := TValue(RttiProperty.GetValue(ItemOriginal)).ToString;
       end;
     end;
 

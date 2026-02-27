@@ -44,7 +44,6 @@ type
     procedure Frame( AParent: TObject ); override;
     procedure Execute( AGramatica: TGramatica ); override;
     class var GlobList: TPGItem;
-    class function IconIndex():Integer; override;
   published
     property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue
@@ -127,11 +126,6 @@ end;
 function TPGForm.GetHeigth( ): Integer;
 begin
   Result := FForm.Height;
-end;
-
-class function TPGForm.IconIndex: Integer;
-begin
-  Result := Ord(pgiForm);
 end;
 
 procedure TPGForm.SetLeft( ALeft: Integer );

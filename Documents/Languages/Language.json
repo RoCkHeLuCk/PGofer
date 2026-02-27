@@ -2,11 +2,11 @@
   "Lg": "pt_BR",
   "Language": "Portugues Brasil",
 
-  "Error_IconNoFound": "Erro: Icone '%s' não encontrado",
+  "Error_IconNoFound": "Erro Icone: '%s' não encontrado",
 
-  "Error_XML_Save": "Erro: Ao salvar XML '%s', mensagem: '%s'.",
-  "Error_XML_Load": "Erro: XML corrompido do arquivo: '%s'.",
-  "Error_XML_LoadValue": "Erro: XML Item '%s', propriedade '%s' do arquivo: '%s'.",
+  "Error_XML_Save": "Erro XML: Ao salvar '%s', mensagem '%s'.",
+  "Error_XML_Load": "Erro XML: Arquivo corrompido '%s'.",
+  "Error_XML_LoadValue": "Erro XML: Item '%s', propriedade '%s' do arquivo: '%s'.",
 
   "About_Vault": "Pasta Criptografada 'AES'",
 

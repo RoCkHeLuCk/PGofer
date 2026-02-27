@@ -42,6 +42,7 @@ type
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
     procedure EdtScriptKeyPress(Sender: TObject; var Key: Char);
+    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     FMouse: TPoint;
     FHotKey_FrmPGofer: ATOM;
@@ -129,8 +130,7 @@ begin
 
   {$IFNDEF DEBUG}
     FHotKey_FrmPGofer := GlobalAddAtom( 'PGofer3' );
-    //RegisterHotKey( Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71 );
-    if not RegisterHotKey(Self.Handle,FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71) then
+    if not RegisterHotKey(Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71) then
     begin
       TPGKernel.Console('Error: Falhou ao registrar Win+G. ' + SysErrorMessage(GetLastError()));
     end;
@@ -186,6 +186,14 @@ begin
   {$ENDIF}
   FItem := nil;
   inherited FormDestroy( Sender );
+end;
+
+procedure TFrmPGofer.FormKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #27 then
+  begin
+     Self.Hide;
+  end;
 end;
 
 procedure TFrmPGofer.FormAutoSize( );

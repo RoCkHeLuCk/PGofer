@@ -68,7 +68,7 @@ begin
   Self.Priority := tpIdle;
 
   FLink := ALink;
-  FConsoleMessage := TPGKernel.GetVar<Boolean>('ConsoleMessage');
+  FConsoleMessage := TPGKernel.ConsoleMessage;
 
   FParameter:= AParameter;
   FState:= AState;

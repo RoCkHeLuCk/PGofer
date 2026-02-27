@@ -2,6 +2,7 @@ program Services;
 uses
   PGofer.ClipBoards.Controls in '..\..\..\Libraries\Lib\ClipBoards\PGofer.ClipBoards.Controls.pas',
   PGofer.Files.Controls in '..\..\..\Libraries\Lib\Files\PGofer.Files.Controls.pas',
+  PGofer.Component.IniFile in '..\..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas',
   PGofer.Component.ListView in '..\..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Services.Controls in '..\..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas',
   PGofer.Services.Thread in '..\..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas',

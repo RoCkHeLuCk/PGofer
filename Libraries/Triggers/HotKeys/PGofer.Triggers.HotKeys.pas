@@ -37,7 +37,6 @@ type
     procedure Triggering(); override;
     class procedure OnProcessKeys(AParamInput: TParamInput);
     class procedure SetProcessKeys(ProcessKeys: TProcessKeys = nil);
-    class function IconIndex(): Integer; override;
   published
     property HotKeysHex: string read GetKeysHex write SetKeysHex;
     property Detect: Byte read FDetect write FDetect;
@@ -57,7 +56,6 @@ type
     procedure Execute(Gramatica: TGramatica); override;
     class procedure SetInput(AType: Byte);
     class function GetInput(): Byte;
-    class function IconIndex(): Integer; override;
   published
     [TPGAttribText('0:None; 1:AsyncInput; 2:THookInput; 3:RawInput;')]
     property InputType: Byte read GetInput write SetInput;
@@ -69,7 +67,6 @@ type
   protected
   public
     class function ClassNameEx(): String; override;
-    class function IconIndex(): Integer; override;
     constructor Create(AItemDad: TPGItem; AName: string = ''); override;
     procedure Frame(AParent: TObject); override;
   end;
@@ -120,11 +117,6 @@ end;
 procedure TPGHotKey.Frame(AParent: TObject);
 begin
   TPGHotKeyFrame.Create(Self, AParent);
-end;
-
-class function TPGHotKey.IconIndex: Integer;
-begin
-  Result := Ord(pgiHotKey);
 end;
 
 function TPGHotKey.GetKeysHex(): string;
@@ -381,11 +373,6 @@ begin
     Gramatica.ErroAdd( 'Error_Interpreter_IdExist' );
 end;
 
-class function TPGHotKeyDeclare.IconIndex: Integer;
-begin
-  Result := Ord(pgiHotKey);
-end;
-
 class function TPGHotKeyDeclare.GetInput(): Byte;
 begin
    Result := FTypeIndex;
@@ -413,11 +400,6 @@ end;
 class function TPGHotKeyMirror.ClassNameEx: String;
 begin
   Result := TPGHotKey.ClassNameEx();
-end;
-
-class function TPGHotKeyMirror.IconIndex: Integer;
-begin
-  Result := Ord(pgiHotKey);
 end;
 
 initialization

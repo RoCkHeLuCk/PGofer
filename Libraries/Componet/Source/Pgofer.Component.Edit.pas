@@ -60,6 +60,9 @@ type
     procedure UpdateActionButton;
     procedure UpdateRegExEngine;
     procedure ActionButtonClick(ASender: TObject);
+
+    procedure SetText(const AValue: String);
+    function GetText: String;
   protected
     { Overrides da VCL }
     procedure Loaded; override;
@@ -107,6 +110,9 @@ type
     property OnEnter;
     property OnExit;
 
+
+    property Text: String read GetText write SetText;
+
   end;
 
 procedure Register;
@@ -114,7 +120,7 @@ procedure Register;
 implementation
 
 uses
-  PGofer.Files.Controls;
+  PGofer.Files.Controls, PGofer.Key.Controls;
 
 procedure Register;
 begin
@@ -166,6 +172,16 @@ begin
   inherited DoEnter;
   if FSelectAllOnFocus then
     Self.SelectAll;
+end;
+
+function TEditEx.GetText(): String;
+begin
+   Result := SanitizeText( inherited Text );
+end;
+
+procedure TEditEx.SetText(const AValue: String);
+begin
+  inherited Text := AValue;
 end;
 
 procedure TEditEx.SetBounds(ALeft, ATop, AWidth, AHeight: Integer);

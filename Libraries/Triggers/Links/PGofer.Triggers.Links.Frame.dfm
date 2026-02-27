@@ -54,7 +54,6 @@ inherited PGLinkFrame: TPGLinkFrame
       WantTabs = True
       Zoom = 100
       OnKeyUp = EdtScriptAfterKeyUp
-      ExplicitTop = 14
     end
   end
   object GrbScriptBefore: TGroupBox [3]

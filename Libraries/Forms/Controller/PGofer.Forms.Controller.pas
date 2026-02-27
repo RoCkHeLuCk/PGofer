@@ -77,6 +77,7 @@ type
   public
     constructor Create( ACollectItem: TPGItemCollect ); reintroduce;
     destructor Destroy( ); override;
+
   end;
 
 implementation
@@ -111,9 +112,8 @@ begin
   Self.Name := 'Frm' + FCollectItem.Name;
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
-  TrvController.Images := TPGKernel.ImageList;
-  PpmConttroler.Images := TPGKernel.ImageList;
-  CreatePopups( );
+  TrvController.Images := ACollectItem.ImageList;
+  PpmConttroler.Images := ACollectItem.ImageList;
 end;
 
 destructor TFrmController.Destroy( );
@@ -133,6 +133,9 @@ begin
   TrvController.AlphaSort( True );
   if not TrvController.isSelectWork then
     Self.FrameHide( );
+
+  if PpmConttroler.Items.Count = 0 then
+     Self.CreatePopups;
 end;
 
 procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
@@ -140,6 +143,7 @@ begin
   inherited FormClose( Sender, Action );
   Self.FrameHide( );
   FCollectItem.TreeViewDetach( );
+  TrvController.OnGetImageIndex := nil;
 end;
 
 procedure TFrmController.FormCreate( Sender: TObject );
@@ -357,9 +361,7 @@ begin
 
 end;
 
-
-procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;
-  Node: TTreeNode );
+procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;  Node: TTreeNode );
 var
   Item : TPGItem;
 begin

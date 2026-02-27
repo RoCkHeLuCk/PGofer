@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit;
+  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit, PGofer.Component.IniFile;
 
 type
   TPGItemFrame = class( TFrame )
@@ -24,14 +24,17 @@ type
     procedure EdtNameAfterValidate(Sender: TObject);
   private
     FAboutSplitter: Boolean;
+    class var FIniFile: TMemIniFileEx;
   protected
     FItem: TPGItem;
-    FIniFile: TIniFile;
+    class property IniFile: TMemIniFileEx read FiniFile;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
     function GetItem( ): TPGItem;
     property Item: TPGItem read GetItem;
   public
+    class constructor Create();
+    class destructor Destroy();
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
   end;
@@ -43,6 +46,18 @@ implementation
 uses
   PGofer.Core;
 
+
+class constructor TPGItemFrame.Create();
+begin
+  FIniFile := TMemIniFileEx.Create( TPGKernel.PathCurrent + 'Config.ini' );
+end;
+
+class destructor TPGItemFrame.Destroy();
+begin
+  FIniFile.Free;
+  FIniFile := nil;
+end;
+
 constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( nil );
@@ -53,29 +68,25 @@ begin
   EdtName.Text := FItem.Name;
   EdtName.ReadOnly := FItem.ReadOnly;
   rceAbout.Lines.Text := FItem.About;
-  FIniFile := TIniFile.Create( TPGKernel.GetVar<string>('_FileIniConfig') );
   Self.IniConfigLoad( );
 end;
 
 destructor TPGItemFrame.Destroy( );
 begin
   Self.IniConfigSave( );
-  FIniFile.Free;
-  FIniFile := nil;
   FItem := nil;
   inherited Destroy( );
 end;
 
 procedure TPGItemFrame.IniConfigLoad( );
 begin
-  inherited;
   Self.Height := FIniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
 procedure TPGItemFrame.IniConfigSave( );
 begin
   FIniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
-  inherited;
+  FIniFile.UpdateFile();
 end;
 
 procedure TPGItemFrame.sptAboutMouseDown( Sender: TObject; Button: TMouseButton;

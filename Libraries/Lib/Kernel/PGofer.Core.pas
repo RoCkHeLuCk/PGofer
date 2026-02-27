@@ -10,18 +10,20 @@ const
   LOW_STRING = low( string );
 
 type
-  TPGIcon = ( pgiItem, pgiFolder, pgiVariant, pgiMethod, pgiFunction,
-              pgiEnvironment, pgiWindows, pgiForm,
-              pgiAutoFill, pgiHotKey, pgiLink, pgiTask, pgiVaultFolder );
-
   TPGConsoleNotify = procedure(const AValue: string; const ANewLine, AShow: Boolean) of object;
 
   TPGKernel = class
   private
-    //RTTI
-    class var FRttiContext: TRttiContext;
     //vars
-    class var FVarList: TDictionary<string, TValue>;
+    class var FRttiContext: TRttiContext;
+    class var FPathCurrent: String;
+    class var FLanguageFile: String;
+    class var FConsoleMessage: Boolean;
+    class var FReplyFormat: String;
+    class var FReplyPrefix: Boolean;
+    class var FLoopLimit: Cardinal;
+    class var FReportMemoryLeaks: Boolean;
+    class procedure SetLanguageFile(const AValue: String); static;
     //console
     type TConsoleBuffer = record
       Msg: string;
@@ -31,8 +33,6 @@ type
     class var FConsoleNotify: TPGConsoleNotify;
     class var FConsoleBuffer: TList<TConsoleBuffer>;
     class procedure SetConsoleNotify(AValue: TPGConsoleNotify); static;
-    //icon
-    class var FImageList: TImageList;
     //translate
     class var FTranslate: TDictionary<string, string>;
   public
@@ -40,16 +40,17 @@ type
     class destructor Destroy();
     //vars
     class property RttiContext: TRttiContext read FRttiContext;
-    class function HasVar(const AName: string): Boolean;
-    class procedure SetVar(const AName: string; const AValue: TValue);
-    class function GetVar<T>(const AName: string): T;
+    class property PathCurrent: String read FPathCurrent;
+    class property LanguageFile: String read FLanguageFile write SetLanguageFile;
+    class property ReportMemoryLeaks: Boolean read FReportMemoryLeaks write FReportMemoryLeaks;
+    class property LoopLimit: Cardinal read FLoopLimit write FLoopLimit;
+    class property ReplyFormat: String read FReplyFormat write FReplyFormat;
+    class property ReplyPrefix: Boolean read FReplyPrefix write FReplyPrefix;
+    class property ConsoleMessage: Boolean read FConsoleMessage write FConsoleMessage;
     //console
     class property ConsoleNotify: TPGConsoleNotify read FConsoleNotify write SetConsoleNotify;
     class procedure Console(const AValue: string; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
     class procedure Console(const AKey: string; const AArgs: array of const; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
-    //icon
-    class procedure LoadIconFromPath(const ACurrentPath: string );
-    class property ImageList: TImageList read FImageList;
     //translate
     class procedure LoadTranslateFile(const AFileName: string);
     class function Translate(const AValue: string): string; overload; static;
@@ -90,93 +91,37 @@ uses
 { TPGKernel }
 
 class constructor TPGKernel.Create();
-var
-  LPath: string;
 begin
   //var
   FRttiContext := TRttiContext.Create;
-  FVarList := TDictionary<string, TValue>.Create;
-  LPath := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  TPGKernel.SetVar('_PathCurrent', LPath);
-  TPGKernel.SetVar('_FileKeyStore', LPath + 'KeyStore.pgk');
-  TPGKernel.SetVar('_FileIniConfig', LPath + 'Config.ini');
-  TPGKernel.SetVar('_FileAutoComplete', LPath + 'AutoComplete.ini');
-  TPGKernel.SetVar('_FileLog', LPath + 'System.log');
-
-  {$IFDEF DEBUG}
-    TPGKernel.SetVar('_FileLanguage', LPath + '..\..\..\..\Documents\Languages\Language.json');
-    TPGKernel.SetVar('_PathIcons', LPath + '..\..\..\..\Documents\Imagens\Icons\');
-  {$ELSE}
-    TPGKernel.SetVar('_FileLanguage', LPath + 'Language.json');
-    TPGKernel.SetVar('_PathIcons', LPath + 'Icons\');
-  {$ENDIF}
-
-  TPGKernel.SetVar('ReportMemoryLeaks', False);
-  TPGKernel.SetVar('LoopLimit', Int64(1000000));
-  TPGKernel.SetVar('FileListMax', Cardinal(100));
-  TPGKernel.SetVar('ReplyFormat', '');
-  TPGKernel.SetVar('ReplyPrefix', False);
-  TPGKernel.SetVar('ConsoleMessage', True);
-  TPGKernel.SetVar('LogMaxSize', Int64(10000));
+  TPGKernel.FPathCurrent:= IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));;
+  TPGKernel.FReportMemoryLeaks := False;
+  TPGKernel.FLoopLimit := 1000000;
+  TPGKernel.FReplyFormat := '';
+  TPGKernel.FReplyPrefix := False;
+  TPGKernel.FConsoleMessage := True;
 
   //console
   FConsoleBuffer := TList<TConsoleBuffer>.Create;
   FConsoleNotify := nil;
 
-  //icon
-  FImageList := TImageList.Create(nil);
-  TPGKernel.LoadIconFromPath(TPGKernel.GetVar<String>('_PathIcons'));
-
   //translate
   FTranslate := TDictionary<string, string>.Create;
-  TPGKernel.LoadTranslateFile( TPGKernel.GetVar<String>('_FileLanguage') );
+
+  {$IFDEF DEBUG}
+    TPGKernel.SetLanguageFile(FPathCurrent + '..\..\..\..\Documents\Languages\Language.json');
+  {$ELSE}
+    TPGKernel.SetLanguageFile(FPathCurrent + 'Language.json');
+  {$ENDIF}
+
 end;
 
 class destructor TPGKernel.Destroy();
 begin
   FConsoleNotify := nil;
-  FTranslate.Free;
-  FImageList.Free;
   FConsoleBuffer.Free;
-  FVarList.Free;
+  FTranslate.Free;
   FRttiContext.Free;
-end;
-
-class procedure TPGKernel.SetVar(const AName: string; const AValue: TValue);
-begin
-  if (not AName.StartsWith('_')) then
-  begin
-    FVarList.AddOrSetValue(AName, AValue);
-  end else begin
-    if (not FVarList.ContainsKey(AName)) then
-    begin
-      FVarList.Add(AName, AValue);
-    end else begin
-      {$IFDEF DEBUG}
-        TPGKernel.Console('Error Kernel: Variable "%s" mind read only!',[AName]);
-      {$ENDIF}
-    end;
-  end;
-end;
-
-class function TPGKernel.GetVar<T>(const AName: string): T;
-var
-  LValue: TValue;
-begin
-  Result := Default(T);
-  if (not FVarList.TryGetValue(AName, LValue)) then
-  begin
-     TPGKernel.Console('Error Kernel: Variable "%s" does not exist!',[AName]);
-  end else if (not LValue.TryAsType<T>(Result)) then
-  begin
-     TPGKernel.Console('Error Kernel: Variable "%s" wrong type!',[AName]);
-     Result := Default(T);
-  end;
-end;
-
-class function TPGKernel.HasVar(const AName: string): Boolean;
-begin
-  Result := FVarList.ContainsKey(AName);
 end;
 
 class procedure TPGKernel.SetConsoleNotify(AValue: TPGConsoleNotify);
@@ -192,6 +137,12 @@ begin
     end;
     FConsoleBuffer.Clear;
   end;
+end;
+
+class procedure TPGKernel.SetLanguageFile(const AValue: String);
+begin
+  FLanguageFile := AValue;
+  TPGKernel.LoadTranslateFile( FLanguageFile );
 end;
 
 class procedure TPGKernel.Console(const AValue: string; ANewLine, AShow: Boolean);
@@ -239,36 +190,6 @@ class procedure TPGKernel.ConsoleTr(const AKey: string; const AArgs: array of co
   AShow: Boolean);
 begin
    TPGKernel.Console( TPGKernel.Translate(AKey, AArgs), ANewLine, AShow);
-end;
-
-class procedure TPGKernel.LoadIconFromPath(const ACurrentPath: string);
-var
-  IconEnum: TPGIcon;
-  FileName: string;
-  Icon: TIcon;
-begin
-  if DirectoryExistsEx( ACurrentPath ) then
-  begin
-    FImageList.Clear;
-    for IconEnum := Low(TPGIcon) to High(TPGIcon) do
-    begin
-      FileName := GetEnumName(TypeInfo(TPGIcon), Ord(IconEnum)).SubString(3);
-      FileName := ACurrentPath + FileName + '.ico';
-
-      Icon := TIcon.Create( );
-      try
-        if FileExistsEx( FileName ) then
-        begin
-          Icon.LoadFromFile( FileName );
-        end else begin
-          TPGKernel.Console('Error Icon: No Found "%s".',[FileName]);
-        end;
-        FImageList.AddIcon( Icon );
-      finally
-        Icon.Free( );
-      end;
-    end;
-  end;
 end;
 
 class procedure TPGKernel.LoadTranslateFile(const AFileName: string);

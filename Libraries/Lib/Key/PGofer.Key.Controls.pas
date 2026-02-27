@@ -10,6 +10,7 @@ function KeyVirtualToStr( KeyCode: Word ): string;
 function RemoveCharSpecial( Nome: string; Todos: Boolean ): string;
 function PassWordGenerator( Up, Number, CharEsp: Boolean; Size: Word ): string;
 function StrInSet( const S: string; const StringSet: array of string): Boolean;
+function SanitizeText(const AText: string): string;
 
 implementation
 
@@ -17,16 +18,39 @@ uses
   Winapi.Windows,
   System.SysUtils;
 
-procedure KeyPressAllUp( );
+//procedure KeyPressAllUp( );
+//var
+//  Key: Byte;
+//begin
+//  for Key := 0 to 255 do
+//  begin
+//    sleep( 5 );
+//    keybd_event( Key, $45, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 );
+//  end;
+//end;
+
+procedure KeyPressAllUp();
 var
-  Key: Byte;
+  Inputs: array[0..255] of TInput;
+  I: Integer;
 begin
-  for Key := 0 to 255 do
+  ZeroMemory(@Inputs, SizeOf(Inputs));
+
+  for I := 0 to 255 do
   begin
-    sleep( 5 );
-    keybd_event( Key, $45, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 );
+    Inputs[I].Itype := INPUT_KEYBOARD;
+    Inputs[I].ki.wVk := I;
+    Inputs[I].ki.dwFlags := KEYEVENTF_KEYUP;
+    // Se for uma tecla estendida (como o Alt da direita ou setas),
+    // o Windows gosta do flag EXTENDEDKEY
+    if I in [VK_PRIOR, VK_NEXT, VK_END, VK_HOME, VK_LEFT, VK_UP, VK_RIGHT, VK_DOWN, VK_INSERT, VK_DELETE, VK_RMENU, VK_RCONTROL] then
+      Inputs[I].ki.dwFlags := Inputs[I].ki.dwFlags or KEYEVENTF_EXTENDEDKEY;
   end;
+
+  // Envia todas as 256 ordens de "soltar" de uma só vez para o Windows
+  SendInput(256, Inputs[0], SizeOf(TInput));
 end;
+
 
 procedure KeySetPress( Key: Word; Push: Boolean );
 begin
@@ -400,6 +424,35 @@ begin
     begin
       Result := True;
       Break;
+    end;
+  end;
+end;
+
+function SanitizeText(const AText: string): string;
+var
+  I: Integer;
+  C: Char;
+  W: Word;
+begin
+  Result := '';
+  if AText = '' then Exit;
+
+  for I := 1 to Length(AText) do
+  begin
+    C := AText[I];
+    W := Ord(C);
+    // 1. Mantém caracteres básicos de formatação (Tab, LF, CR)
+    // 2. Mantém o intervalo imprimível padrão (Space até o fim do ANSI/Unicode padrão)
+    if ( CharInSet(C,[#9, #10, #13])) or (C >= #32) then
+    begin
+      // 3. Bloqueio específico de caracteres invisíveis/fantasmas (Unicode Zero-Width e Markings)
+      // $200B: Zero Width Space | $200C..$200F: Formatters | $FEFF: BOM
+      if not (
+         ((W >= $200B) and (W <= $200F)) or // Zero Width e Formatters
+         (W = $FEFF) or                     // Byte Order Mark
+         ((W >= $202A) and (W <= $202E))    // Direcionais de texto
+      ) then
+        Result := Result + C;
     end;
   end;
 end;

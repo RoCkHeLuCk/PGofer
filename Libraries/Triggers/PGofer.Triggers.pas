@@ -57,7 +57,6 @@ type
     function BeforeXMLLoad(ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
     class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
     class function ClassNameEx(): String; override;
-    class function IconIndex(): Integer; override;
   published
     property Expanded: Boolean read FExpanded write SetExpanded;
     property Locked: Boolean read FLocked write SetLocked;
@@ -231,11 +230,6 @@ end;
 class function TPGFolderMirror.ClassNameEx: String;
 begin
   Result := 'Folder';
-end;
-
-class function TPGFolderMirror.IconIndex: Integer;
-begin
-  Result := Ord(pgiFolder);
 end;
 
 procedure TPGFolderMirror.SetExpanded( AValue: Boolean );

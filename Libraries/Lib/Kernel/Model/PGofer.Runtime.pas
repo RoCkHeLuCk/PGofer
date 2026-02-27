@@ -36,7 +36,6 @@ type
     function GetAbout(): String; override;
   public
     constructor Create( AItemDad: TPGItem; AMember: TRttiMember ); override;
-    class function IconIndex(): Integer; override;
     procedure Execute( AGramatica: TGramatica ); override;
   end;
 
@@ -45,7 +44,6 @@ type
   protected
     function GetAbout(): String; override;
   public
-    class function IconIndex(): Integer; override;
     procedure Execute( AGramatica: TGramatica ); override;
   end;
 
@@ -54,7 +52,6 @@ type
   private
   protected
   public
-    class function IconIndex(): Integer; override;
   published
   end;
   {$TYPEINFO ON}
@@ -227,10 +224,6 @@ end;
 
 { TPGFolder }
 
-class function TPGFolder.IconIndex( ): Integer;
-begin
-  Result := Ord(pgiFolder);
-end;
 
 { TPGItemProperty }
 
@@ -296,11 +289,6 @@ begin
       Result := Result + #13 + LAux;
     LClassAbout.Add(Self.Name, Result);
   end;
-end;
-
-class function TPGItemProperty.IconIndex: Integer;
-begin
-  Result := Ord(pgiVariant);
 end;
 
 { TPGItemMethod }
@@ -393,11 +381,6 @@ begin
 
     LClassAbout.Add(Self.Name, Result);
   end;
-end;
-
-class function TPGItemMethod.IconIndex: Integer;
-begin
-  Result := Ord(pgiMethod);
 end;
 
 procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil; AWaitFor: Boolean = False );

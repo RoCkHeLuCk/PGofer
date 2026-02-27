@@ -88,7 +88,7 @@ begin
   inherited Create( True );
   Self.FreeOnTerminate := ATerminate;
   Self.Priority := tpNormal;
-  FConsoleShowMessage := TPGKernel.GetVar<Boolean>('ConsoleMessage');
+  FConsoleShowMessage := TPGKernel.ConsoleMessage;
   FPai := AItemDad;
   if Assigned( FPai ) then
     FLocal := TPGFolder.Create( AItemDad, AName )
@@ -102,7 +102,7 @@ end;
 
 destructor TGramatica.Destroy( );
 begin
-  if TPGKernel.GetVar<Boolean>('ReportMemoryLeaks') then
+  if TPGKernel.ReportMemoryLeaks then
   begin
     if FPilha.Count > 1 then
        MSGsAdd('Warning_Interpreter_Stack', [FPilha.name, FPilha.Count-1] );
@@ -205,7 +205,7 @@ procedure TGramatica.Execute( );
 var
   Dir: String;
 begin
-  Dir := TPGKernel.GetVar<String>('_PathCurrent');
+  Dir := TPGKernel.PathCurrent;
   SetCurrentDir( Dir );
   ChDir( Dir );
   Sentencas( Self );

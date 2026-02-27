@@ -61,13 +61,12 @@ end;
 procedure TPGFunctionFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
-  GrbScript.Height := FIniFile.ReadInteger( Self.ClassName, 'Scritp',
-    GrbScript.Height );
+  GrbScript.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Scritp', GrbScript.Height );
 end;
 
 procedure TPGFunctionFrame.IniConfigSave;
 begin
-  FIniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
+  Self.IniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
   inherited IniConfigSave( );
 end;
 

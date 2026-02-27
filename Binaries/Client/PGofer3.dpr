@@ -4,6 +4,7 @@ program PGofer3;
 uses
   Winapi.Windows,
   Vcl.Forms,
+  PGofer.Component.IniFile in '..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas',
   Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
@@ -104,10 +105,10 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    Application.CreateForm(TFrmTriggerController, FrmTriggerController);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  Application.CreateForm(TFrmTriggerController, FrmTriggerController);
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.FormCreate();
     TriggersCollect.FormCreate();
     TPGTask.Working( 0, False );

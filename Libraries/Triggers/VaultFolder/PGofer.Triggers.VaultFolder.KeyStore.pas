@@ -18,7 +18,8 @@ implementation
 uses
   System.SysUtils, System.JSON,
   PGofer.Core,
-  PGofer.Files.Encrypt;
+  PGofer.Files.Encrypt,
+  PGofer.Triggers.VaultFolder;
 
 const
   ENTROPY_SECRET = 'PGofer MasterKey';
@@ -28,7 +29,7 @@ var
   Content: string;
   JSONValue: TJSONValue;
 begin
-  Content := TPGKernel.GetVar<String>('_FileKeyStore');
+  Content := TPGVaultFolder.KeyStoreFile;
   if FileExists(Content) then
     Content := DPAPIDecryptFileToString(Content, ENTROPY_SECRET)
   else
@@ -116,7 +117,7 @@ begin
     if APassword <> '' then
       JSONObject.AddPair(Content, APassword);
     Content := JSONObject.ToString;
-    if not DPAPIEncryptStringToFile(Content, TPGKernel.GetVar<String>('_FileKeyStore'), ENTROPY_SECRET) then
+    if not DPAPIEncryptStringToFile(Content, TPGVaultFolder.KeyStoreFile, ENTROPY_SECRET) then
     begin
       Result := TGUID.Empty;
     end;

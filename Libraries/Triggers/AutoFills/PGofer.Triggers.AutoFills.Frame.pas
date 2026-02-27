@@ -113,13 +113,13 @@ end;
 procedure TPGAutoFillsFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
-  GrbText.Height := FIniFile.ReadInteger( Self.ClassName, 'Text',
+  GrbText.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Text',
     GrbText.Height );
 end;
 
 procedure TPGAutoFillsFrame.IniConfigSave;
 begin
-  FIniFile.WriteInteger( Self.ClassName, 'Text', GrbText.Height );
+  Self.IniFile.WriteInteger( Self.ClassName, 'Text', GrbText.Height );
   inherited IniConfigSave( );
 end;
 

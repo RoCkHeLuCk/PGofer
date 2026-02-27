@@ -26,7 +26,7 @@ var
 implementation
 
 uses
-  PGofer.ClipBoards.Controls;
+  PGofer.ClipBoards.Controls, PGofer.Core;
 
 { TPGClipBoard }
 

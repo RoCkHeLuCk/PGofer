@@ -242,8 +242,8 @@ begin
     Valor := Gramatica.Pilha.Desempilhar( '' );
     if TryStrToFloat( Valor, Numero ) then
       Gramatica.MSGsAdd( FormatConvert(
-        TPGKernel.GetVar<Boolean>('ReplyPrefix'),
-        TPGKernel.GetVar<String>('ReplyFormat'), Numero ))
+        TPGKernel.ReplyPrefix,
+        TPGKernel.ReplyFormat, Numero ))
     else
       Gramatica.MSGsAdd( Valor );
   end;

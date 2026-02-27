@@ -4,11 +4,12 @@ interface
 
 uses
   System.Generics.Collections,
-  Vcl.Comctrls,
+  Vcl.ImgList, Vcl.Comctrls,
   PGofer.Component.Form, PGofer.Component.TreeView;
 
 type
   TPGItemCollect = class;
+  TPGItemType = class of TPGItem;
 
   TPGItem = class(TObjectList<TPGItem>)
   private
@@ -20,16 +21,22 @@ type
     procedure SetParent(AParent: TPGItem);
     function GetCollectDad(): TPGItemCollect;
     procedure SetNode(AValue: TTreeNode);
+    class var FIconCache: TDictionary<TClass, Integer>;
+    class var FImageList: TCustomImageList;
+    class var FIconPath: String;
+    class function LoadForClass(AClass: TClass): Integer;
+    class procedure SetIconPath(const Value: String); static;
   protected
+    class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
+    function GetAbout(): String; virtual;
     procedure SetName(AName: string); virtual;
     procedure SetEnabled(AValue: Boolean); virtual;
-    function GetAbout(): String; virtual;
-    class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
   public
     class constructor Create();
     class destructor Destroy();
     class function ClassNameEx(): String; virtual;
     class function IconIndex(): Integer; virtual;
+    class property IconPath: String read FIconPath write SetIconPath;
     constructor Create(AParent: TPGItem; AName: string); overload; virtual;
     destructor Destroy(); override;
     property About: string read GetAbout;
@@ -47,11 +54,13 @@ type
   TPGItemCollect = class(TPGItem)
   private
     FTreeView: TTreeViewEx;
+    class function GetImageList(): TCustomImageList;
   protected
     FForm: TFormEx;
   public
     constructor Create(AName: string); overload;
     destructor Destroy(); override;
+    property ImageList: TCustomImageList read GetImageList;
     property TreeView: TTreeViewEx read FTreeView;
     property Form: TFormEx read FForm;
     procedure FormCreate(); virtual;
@@ -64,18 +73,81 @@ implementation
 
 uses
   System.SysUtils,
+  Vcl.Graphics,
   PGofer.Core, PGofer.Item.Frame, PGofer.Forms.Controller;
 
 { TPGItem }
 
 class constructor TPGItem.Create();
 begin
-  TPGItem.FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
+  FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
+  FIconCache := TDictionary<TClass, Integer>.Create;
+  {$IFDEF DEBUG}
+    FIconPath := TPGKernel.PathCurrent + '..\..\..\..\Documents\Imagens\Icons\';
+  {$ELSE}
+    FIconPath := TPGKernel.PathCurrent + 'Icons\';
+  {$ENDIF}
+
+  TPGItem.FImageList := TCustomImageList.Create(nil);
+  TPGItem.FImageList.Width := 16;
+  TPGItem.FImageList.Height := 16;
 end;
 
 class destructor TPGItem.Destroy();
 begin
-  TPGItem.FAbout.Free;
+  FImageList.Free;
+  FIconCache.Free;
+  FAbout.Free;
+end;
+
+class function TPGItem.LoadForClass(AClass: TClass): Integer;
+var
+  LCurrentClass: TClass;
+  LIcon: TIcon;
+  LIconFileName: string;
+begin
+  Result := 0;
+
+  LCurrentClass := AClass;
+  while (LCurrentClass <> nil) and (LCurrentClass.InheritsFrom(TPGItem)) do
+  begin
+    LIconFileName := FIconPath + TPGItemType(LCurrentClass).ClassNameEx + '.ico';
+    if FileExists(LIconFileName) then
+    begin
+      LIcon := TIcon.Create( );
+      try
+        LIcon.LoadFromFile( LIconFileName );
+        Result := FImageList.AddIcon( LIcon );
+      finally
+        LIcon.Free( );
+      end;
+      Exit;
+    end;
+    //Next
+    LCurrentClass := LCurrentClass.ClassParent;
+  end;
+end;
+
+class function TPGItem.IconIndex(): Integer;
+var
+  LClass: TClass;
+begin
+  LClass := Self;
+  if not FIconCache.TryGetValue( LClass, Result ) then
+  begin
+    Result := TPGItem.LoadForClass( LClass );
+    FIconCache.Add( LClass , Result);
+  end;
+end;
+
+class function TPGItem.ClassNameEx(): String;
+begin
+  if Self.ClassName.StartsWith('TPG',True) then
+  begin
+    Result := Self.ClassName.Substring(3);
+  end else begin
+    Result := Self.ClassName.Substring(1);
+  end;
 end;
 
 constructor TPGItem.Create(AParent: TPGItem; AName: string);
@@ -124,21 +196,6 @@ begin
   Result := '';
 end;
 
-class function TPGItem.IconIndex(): Integer;
-begin
-   Result := Ord(pgiItem);
-end;
-
-class function TPGItem.ClassNameEx(): String;
-begin
-  if ClassName.StartsWith('TPG',True) then
-  begin
-    Result := ClassName.Substring(3);
-  end else begin
-    Result := ClassName.Substring(1);
-  end;
-end;
-
 procedure TPGItem.SetEnabled(AValue: Boolean);
 begin
   FEnabled := AValue;
@@ -148,18 +205,25 @@ begin
   end;
 end;
 
+class procedure TPGItem.SetIconPath(const Value: String);
+begin
+  FIconPath := Value;
+  FIconCache.Clear;
+  FImageList.Clear;
+end;
+
 procedure TPGItem.SetNode(AValue: TTreeNode);
 var
-  LIconIndex : Integer;
+  LIndex : Integer;
 begin
   FNode := AValue;
   if Assigned(FNode) then
   begin
     FNode.Data := Self;
-    LIconIndex := Ord(Self.IconIndex());
-    FNode.ImageIndex := LIconIndex;
-    FNode.SelectedIndex := LIconIndex;
-    FNode.ExpandedImageIndex := LIconIndex;
+    LIndex := Self.IconIndex;
+    FNode.ImageIndex := LIndex;
+    FNode.SelectedIndex := LIndex;
+    FNode.ExpandedImageIndex := LIndex;
   end;
 end;
 
@@ -268,6 +332,11 @@ end;
 procedure TPGItemCollect.FormShow();
 begin
   FForm.ForceShow(True);
+end;
+
+class function TPGItemCollect.GetImageList(): TCustomImageList;
+begin
+   Result := TPGItem.FImageList;
 end;
 
 procedure TPGItemCollect.TreeViewAttach();

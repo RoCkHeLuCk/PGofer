@@ -26,7 +26,6 @@ type
     procedure Frame( AParent: TObject ); override;
     class var GlobList: TPGItem;
     class procedure Working( AType: Byte; AWaitFor: Boolean = False );
-    class function IconIndex(): Integer; override;
     procedure Triggering( ); override;
   published
     property Occurrence: Cardinal read FOccurrence write FOccurrence;
@@ -39,7 +38,6 @@ type
   TPGTaskDeclare = class( TPGItemClass )
   protected
   public
-    class function IconIndex(): Integer; override;
     procedure Execute( AGramatica: TGramatica ); override;
   end;
 
@@ -47,7 +45,6 @@ type
   protected
   public
     class function ClassNameEx(): String; override;
-    class function IconIndex(): Integer; override;
     constructor Create( AItemDad: TPGItem; AName: string = ''); override;
     procedure Frame( AParent: TObject ); override;
   end;
@@ -88,11 +85,6 @@ procedure TPGTask.Frame( AParent: TObject );
 begin
   inherited Frame( AParent );
   TPGTaskFrame.Create( Self, AParent );
-end;
-
-class function TPGTask.IconIndex: Integer;
-begin
-  Result := Ord(pgiTask);
 end;
 
 function TPGTask.GetScript( ): string;
@@ -174,11 +166,6 @@ begin
     AGramatica.ErroAdd( 'Error_Interpreter_IdExist' );
 end;
 
-class function TPGTaskDeclare.IconIndex: Integer;
-begin
-  Result := Ord(pgiTask);
-end;
-
 { TPGTaskMirror }
 
 constructor TPGTaskMirror.Create( AItemDad: TPGItem; AName: string );
@@ -196,11 +183,6 @@ end;
 class function TPGTaskMirror.ClassNameEx: String;
 begin
   Result := TPGTask.ClassNameEx();
-end;
-
-class function TPGTaskMirror.IconIndex: Integer;
-begin
-  Result := Ord(pgiTask);
 end;
 
 initialization

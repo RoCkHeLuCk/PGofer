@@ -147,6 +147,7 @@ object FrmConsole: TFrmConsole
       ScrollBars = ssBoth
       TabOrder = 1
       Zoom = 100
+      OnKeyPress = FormKeyPress
     end
   end
   object TmrConsole: TTimer

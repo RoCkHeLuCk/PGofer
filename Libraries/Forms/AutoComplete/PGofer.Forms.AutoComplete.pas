@@ -7,7 +7,8 @@ uses
   System.Classes, System.SysUtils, System.IniFiles, System.Generics.Collections,
   Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus, Vcl.ExtCtrls, Vcl.StdCtrls,
   PGofer.Component.ListView, PGofer.Component.RichEdit, PGofer.Component.Form,
-  PGofer.Classes;
+  PGofer.Component.IniFile,
+  PGofer.Classes, PGofer.Forms;
 
 type
   TSelectCMD = ( selClick, selUp, selDown, selEnter );
@@ -18,7 +19,7 @@ type
     OnKeyUp: TOnKeyDownUP;
     OnDropFile: TOnDropFile;
   end;
-
+  TPGFrmAutoComplete = class;
   TFrmAutoComplete = class( TFormEx )
     ltvAutoComplete: TListViewEx;
     ppmAutoComplete: TPopupMenu;
@@ -45,12 +46,13 @@ type
   private
     FEditList: TDictionary<TRichEditEx, TEditOnCtrl>;
     FEditCtrl: TRichEditEx;
-    FMemoryIniFile: TIniFile;
+    FMemoryIniFile: TMemIniFileEx;
     FMemoryNoCtrl: Boolean;
     FMemoryList: TStringList;
     FMemoryPosition: Integer;
     FCommandCompare: string;
     FCommandCompareLength: Integer;
+    FItem: TPGFrmAutoComplete;
     procedure ListViewAdd( ACaption, AOrigin: string ); overload;
     procedure ListViewAdd( AItem: TPGItem ); overload;
     procedure PriorityStep( );
@@ -74,6 +76,20 @@ type
     procedure EditCtrlRemove( AValue: TRichEditEx );
   end;
 
+  {$M+}
+  TPGFrmAutoComplete = class( TPGForm )
+  private
+    FFileListMax: Cardinal;
+  public
+    constructor Create( AForm: TForm ); reintroduce;
+    destructor Destroy( ); override;
+    procedure Frame( AParent: TObject ); override;
+  published
+    property FileListMax: Cardinal read FFileListMax write FFileListMax;
+  end;
+  {$TYPEINFO ON}
+
+
 var
   FrmAutoComplete: TFrmAutoComplete;
 
@@ -83,7 +99,7 @@ uses
 
   Vcl.Dialogs,
   PGofer.Core, PGofer.Lexico, PGofer.Runtime, PGofer.Sintatico, PGofer.Sintatico.Controls,
-  PGofer.Files.Controls;
+  PGofer.Files.Controls, PGofer.Forms.Frame;
 
 {$R *.dfm}
 
@@ -112,8 +128,9 @@ end;
 procedure TFrmAutoComplete.FormCreate( Sender: TObject );
 begin
   inherited FormCreate( Sender );
+  FItem := TPGFrmAutoComplete.Create( Self );
   // carrega arquivos ini
-  FMemoryIniFile := TIniFile.Create( TPGKernel.GetVar<String>('_FileAutoComplete') );
+  FMemoryIniFile := TMemIniFileEx.Create( TPGKernel.PathCurrent + 'AutoComplete.ini' );
   // controle de memoriza��o de comandos
   FMemoryNoCtrl := False;
   FMemoryPosition := 0;
@@ -172,10 +189,6 @@ var
   c: Word;
   OnKeyDown: TOnKeyDownUP;
 begin
-  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
-    exit;
-
-  FEditCtrl := TRichEditEx( Sender );
   if Self.Visible then
   begin
     case Key of
@@ -209,6 +222,10 @@ begin
         end;
     end;
   end else begin
+    if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+      exit;
+
+    FEditCtrl := TRichEditEx( Sender );
     // not visible
     case Key of
 
@@ -263,11 +280,10 @@ begin
           end;
         end;
     end;
+    OnKeyDown := FEditList.Items[ FEditCtrl ].OnKeyDown;
+    if Assigned( OnKeyDown ) then
+      OnKeyDown( Sender, Key, Shift );
   end;
-
-  OnKeyDown := FEditList.Items[ FEditCtrl ].OnKeyDown;
-  if Assigned( OnKeyDown ) then
-    OnKeyDown( Sender, Key, Shift );
 end;
 
 procedure TFrmAutoComplete.FormKeyPress( Sender: TObject; var Key: Char );
@@ -563,8 +579,8 @@ var
   c: Integer;
   d, FileListMax: Cardinal;
 begin
-  Path := TPGKernel.GetVar<String>('_PathCurrent');
-  FileListMax := TPGKernel.GetVar<Cardinal>('FileListMax');
+  Path := TPGKernel.PathCurrent;
+  FileListMax := FItem.FileListMax;
 
   ChDir( Path );
   c := FindFirst( AFileName + '*', faAnyFile, SearchRec );
@@ -709,5 +725,24 @@ begin
     Self.About();
   end; // if count > 0
 end;
+
+{ TPGFrmAutoComplete }
+constructor TPGFrmAutoComplete.Create( AForm: TForm );
+begin
+  inherited Create( AForm );
+  FFileListMax := 100;
+end;
+
+destructor TPGFrmAutoComplete.Destroy( );
+begin
+  FFileListMax := 0;
+  inherited Destroy( );
+end;
+
+procedure TPGFrmAutoComplete.Frame( AParent: TObject );
+begin
+  TPGFormsFrame.Create( Self, AParent );
+end;
+
 
 end.

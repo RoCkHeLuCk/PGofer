@@ -14,6 +14,7 @@ type
     FFileID: TGUID;
     FPassword: string;
     FSavePassword: Boolean;
+    class var FKeyStoreFile: String;
     function GetIsFileCan(): Boolean;
     function GetIsFileReal(): Boolean;
     function GetIsPassword(): Boolean;
@@ -21,6 +22,7 @@ type
     procedure SetLocked(AValue:Boolean); override;
     function GetIsValid( ): Boolean; override;
   public
+    class constructor Create();
     constructor Create(AItemDad: TPGItem; AName: string = ''); override;
     destructor Destroy(); override;
     procedure Frame(AParent: TObject); override;
@@ -28,8 +30,8 @@ type
     function BeforeXMLLoad(ItemCollect: TPGItemCollectTrigger): Boolean; override;
     function BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean; override;
     class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
-    class function IconIndex(): Integer; override;
     class function ClassNameEx(): String; override;
+    class property KeyStoreFile: String read FKeyStoreFile write FKeyStoreFile;
   published
     property FileName: string read FFileName write FFileName;
     property Password: string write FPassword;
@@ -52,6 +54,11 @@ uses
 class function TPGVaultFolder.ClassNameEx: String;
 begin
   Result := 'VaultFolder';
+end;
+
+class constructor TPGVaultFolder.Create;
+begin
+  FKeyStoreFile := TPGKernel.PathCurrent + 'KeyStore.pgk';
 end;
 
 constructor TPGVaultFolder.Create(AItemDad: TPGItem; AName: string);
@@ -130,11 +137,6 @@ procedure TPGVaultFolder.Frame(AParent: TObject);
 begin
   inherited Frame(AParent);
   TPGVaultFolderFrame.Create(Self, AParent);
-end;
-
-class function TPGVaultFolder.IconIndex: Integer;
-begin
-  Result := Ord(pgiVaultFolder);
 end;
 
 function TPGVaultFolder.GetIsFileCan: Boolean;

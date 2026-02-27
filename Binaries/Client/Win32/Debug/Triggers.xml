@@ -33,7 +33,7 @@
     <Persist Type="Boolean">False</Persist>
   </VaultFolder>
   <Task Name="NewTask" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">15</Occurrence>
+    <Occurrence Type="Cardinal">1</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string"></Script>
     <Trigger Type="Byte">0</Trigger>

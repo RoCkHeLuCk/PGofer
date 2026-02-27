@@ -15,7 +15,6 @@ type
   protected
   public
     class var GlobList: TPGItem;
-    class function IconIndex(): Integer; override;
     constructor Create( AItemDad: TPGItem; AName: string; AValue: Variant;
       AConstant: Boolean ); reintroduce; overload;
     destructor Destroy( ); override;
@@ -33,7 +32,6 @@ type
       Constant: Boolean );
   protected
   public
-    class function IconIndex(): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
     class procedure ExecuteEx( Gramatica: TGramatica; Nivel: TPGItem );
   end;
@@ -83,11 +81,6 @@ end;
 procedure TPGVariant.Frame( AParent: TObject );
 begin
   TPGVariantsFrame.Create( Self, AParent );
-end;
-
-class function TPGVariant.IconIndex: Integer;
-begin
-  Result := Ord(pgiVariant);
 end;
 
 { TPGVariantDeclare }
@@ -159,11 +152,6 @@ class procedure TPGVariantDeclare.ExecuteEx( Gramatica: TGramatica;
   Nivel: TPGItem );
 begin
   DeclaraNivel1( Gramatica, Nivel, False );
-end;
-
-class function TPGVariantDeclare.IconIndex: Integer;
-begin
-  Result := Ord(pgiVariant);
 end;
 
 initialization

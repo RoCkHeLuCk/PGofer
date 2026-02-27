@@ -44,7 +44,6 @@ type
     function GetIsValid( ): Boolean; override;
   public
     class var GlobList: TPGItem;
-    class function IconIndex(): Integer; override;
     constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
@@ -73,7 +72,6 @@ type
   TPGLinkDeclare = class( TPGItemClass )
   protected
   public
-    class function IconIndex(): Integer; override;
     procedure Execute( Gramatica: TGramatica ); override;
   published
     procedure Auto( ADir: string; AMask: string );
@@ -87,7 +85,6 @@ type
     procedure Frame( AParent: TObject ); override;
     class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
     class function ClassNameEx(): String; override;
-    class function IconIndex(): Integer; override;
   end;
 
 implementation
@@ -146,11 +143,6 @@ end;
 function TPGLink.GetDirExist: Boolean;
 begin
   Result := DirectoryExistsEx( FDirectory );
-end;
-
-class function TPGLink.IconIndex: Integer;
-begin
-  Result := Ord(pgiLink);
 end;
 
 function TPGLink.GetIsRunning( ): Boolean;
@@ -374,11 +366,6 @@ begin
     Gramatica.ErroAdd( 'Error_Interpreter_IdExist' );
 end;
 
-class function TPGLinkDeclare.IconIndex: Integer;
-begin
-  Result := Ord(pgiLink);
-end;
-
 procedure TPGLinkDeclare.Auto( ADir: string; AMask: string );
   procedure SearchFile( ASubDir: string );
   var
@@ -447,11 +434,6 @@ end;
 class function TPGLinkMirror.ClassNameEx: String;
 begin
    Result := TPGLink.ClassNameEx();
-end;
-
-class function TPGLinkMirror.IconIndex: Integer;
-begin
-  Result := Ord(pgiLink);
 end;
 
 class function TPGLinkMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;

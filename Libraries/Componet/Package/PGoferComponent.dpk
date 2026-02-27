@@ -36,6 +36,8 @@ requires
 
 contains
   PGofer.Files.Controls in '..\..\Lib\Files\PGofer.Files.Controls.pas',
+  PGofer.Key.Controls in '..\..\Lib\Key\PGofer.Key.Controls.pas',
+  Pgofer.Component.IniFile in '..\Source\Pgofer.Component.IniFile.pas',
   Pgofer.Component.Checkbox in '..\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.Edit in '..\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.ListView in '..\Source\PGofer.Component.ListView.pas',

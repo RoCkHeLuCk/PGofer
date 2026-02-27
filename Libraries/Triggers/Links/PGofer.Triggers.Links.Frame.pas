@@ -99,17 +99,17 @@ end;
 procedure TPGLinkFrame.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  Self.GrbScriptBefore.Height := FIniFile.ReadInteger( Self.ClassName,
+  Self.GrbScriptBefore.Height := Self.IniFile.ReadInteger( Self.ClassName,
     'ScriptsBefore', Self.GrbScriptBefore.Height );
-  Self.GrbScriptAfter.Height := FIniFile.ReadInteger( Self.ClassName,
+  Self.GrbScriptAfter.Height := Self.IniFile.ReadInteger( Self.ClassName,
     'ScriptsAfter', Self.GrbScriptAfter.Height );
 end;
 
 procedure TPGLinkFrame.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.ClassName, 'ScriptsBefore',
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsBefore',
     Self.GrbScriptBefore.Height );
-  FIniFile.WriteInteger( Self.ClassName, 'ScriptsAfter',
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsAfter',
     Self.GrbScriptAfter.Height );
   inherited IniConfigSave( );
 end;

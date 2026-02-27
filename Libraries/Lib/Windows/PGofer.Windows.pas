@@ -16,7 +16,6 @@ type
     function GetCanOff: Boolean;
   protected
   public
-    class function IconIndex(): Integer; override;
   published
     property CanOff: Boolean read GetCanOff write SetCanOff;
     property Mouse: TPGMouse read FMouse;
@@ -56,11 +55,6 @@ end;
 function TPGWindows.GetCanOff: Boolean;
 begin
   Result := FCanOff;
-end;
-
-class function TPGWindows.IconIndex: Integer;
-begin
-  Result := Ord(pgiWindows);
 end;
 
 function TPGWindows.GetTextFromPoint: string;

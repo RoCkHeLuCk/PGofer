@@ -52,7 +52,7 @@ constructor TFrmTriggerController.Create( ACollectItem: TPGItemCollectTrigger );
 begin
   FCollectItem := ACollectItem;
   inherited Create( ACollectItem );
-  PpmCreate.Images := TPGKernel.ImageList;
+  PpmCreate.Images := ACollectItem.ImageList;
 end;
 
 destructor TFrmTriggerController.Destroy( );
@@ -245,7 +245,7 @@ begin
       LPopUpItem := TMenuItem.Create( PpmCreate );
       PpmCreate.Items.Add( LPopUpItem );
       LPopUpItem.Caption := FCollectItem.ClassList[ LIndex ].Name;
-      LPopUpItem.ImageIndex := FCollectItem.ClassList[ LIndex ].IconIndex;
+      LPopUpItem.ImageIndex := TPGItemType(FCollectItem.ClassList[ LIndex ].ClassType).IconIndex;
       LPopUpItem.ShortCut := TextToShortCut( 'ALT+' + IntToStr( LIndex + 1 ) );
       LPopUpItem.Tag := LIndex;
       LPopUpItem.OnClick := onCreateItemPopUpClick;
@@ -300,5 +300,4 @@ begin
   LRttiContext.Free;
 end;
 
-
-end.
+end.

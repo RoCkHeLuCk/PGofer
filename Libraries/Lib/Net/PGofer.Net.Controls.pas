@@ -107,17 +107,19 @@ end;
 procedure NetLogSrvSocket( Text: string );
 var
   LFileName: String;
-  Arquivo: TStringList;
+  LArquivo: TStringList;
+  LLimit: Integer;
 begin
   LFileName:= PGNet.LogFileName;
-  Arquivo := TStringList.Create;
+  LLimit := PGNet.LogMaxSize;
+  LArquivo := TStringList.Create;
   if FileExists( LFileName ) then
-    Arquivo.LoadFromFile( LFileName );
-  Arquivo.Add( Text );
-  while ( Arquivo.Count > PGNet.LogMaxSize ) do
-    Arquivo.Delete( 0 );
-  Arquivo.SaveToFile( LFileName );
-  Arquivo.Free;
+    LArquivo.LoadFromFile( LFileName );
+  LArquivo.Add( Text );
+  while ( LArquivo.Count > LLimit ) do
+    LArquivo.Delete( 0 );
+  LArquivo.SaveToFile( LFileName );
+  LArquivo.Free;
 end;
 
 initialization

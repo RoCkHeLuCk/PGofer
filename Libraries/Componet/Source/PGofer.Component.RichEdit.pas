@@ -37,6 +37,8 @@ type
     procedure SetVerticalScrollPos( const AValue: Integer );
     function GetVerticalScrollPos( ): Integer;
     function GetVerticalScrollMax( ): Integer;
+    procedure SetText(const AValue: String);
+    function GetText: String;
   protected
   public
     property CaretY: Integer read GetCaretY write SetCaretY;
@@ -52,6 +54,7 @@ type
     property VerticalScrollMax: Integer read GetVerticalScrollMax;
   published
     property OnDropFiles: TOnDropFile read FOnDropFiles write SetOnDropFiles;
+    property Text: String read GetText write SetText;
   end;
 
 procedure Register;
@@ -59,7 +62,7 @@ procedure Register;
 implementation
 
 uses
-  WinApi.ShellApi;
+  WinApi.ShellApi, PGofer.Key.Controls;
 
 procedure Register;
 begin
@@ -212,5 +215,16 @@ begin
     FileList.Free;
   end;
 end;
+
+function TRichEditEx.GetText(): String;
+begin
+   Result := SanitizeText( inherited Text );
+end;
+
+procedure TRichEditEx.SetText(const AValue: String);
+begin
+  inherited Text := AValue;
+end;
+
 
 end.

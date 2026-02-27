@@ -20,7 +20,6 @@ type
     procedure ExecuteWithArgs( Gramatica: TGramatica ); override;
   public
     class var GlobList: TPGItem;
-    class function IconIndex(): Integer; override;
     constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
@@ -39,7 +38,6 @@ type
   TPGAutoFillDeclare = class( TPGItemClass )
   protected
   public
-    class function IconIndex(): Integer; override;
     procedure Execute( AGramatica: TGramatica ); override;
   end;
 
@@ -50,7 +48,6 @@ type
     procedure Frame( AParent: TObject ); override;
     class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
     class function ClassNameEx(): String; override;
-    class function IconIndex(): Integer; override;
   end;
 
 
@@ -115,11 +112,6 @@ begin
   TPGAutoFillsFrame.Create( Self, AParent );
 end;
 
-class function TPGAutoFill.IconIndex: Integer;
-begin
-  Result := Ord(pgiAutoFill);
-end;
-
 procedure TPGAutoFill.Triggering( );
 var
   KeyPost: TKeyPost;
@@ -166,11 +158,6 @@ begin
 end;
 
 { TPGAutoFillsDeclare }
-
-class function TPGAutoFillDeclare.IconIndex: Integer;
-begin
-  Result := Ord(pgiAutoFill);
-end;
 
 procedure TPGAutoFillDeclare.Execute( AGramatica: TGramatica );
 var
@@ -228,11 +215,6 @@ end;
 class function TPGAutoFillMirror.ClassNameEx(): String;
 begin
   Result := TPGAutoFill.ClassNameEx;
-end;
-
-class function TPGAutoFillMirror.IconIndex: Integer;
-begin
-  Result := Ord(pgiAutoFill);
 end;
 
 class function TPGAutoFillMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;

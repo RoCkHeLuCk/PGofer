@@ -136,11 +136,11 @@ var
   ID: TPGItem;
   Variavel: TPGVariant;
   VarInicio, VarLimite: Int64;
-  LoopContador, LoopLimite: UInt64;
+  LoopContador, LoopLimite: Cardinal;
   Decrecente: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
+  LoopLimite := TPGKernel.LoopLimit;
   Gramatica.TokenList.GetNextToken;
   ID := IdentificadorLocalizar( Gramatica );
 
@@ -303,11 +303,11 @@ end;
 
 procedure TPGRepeat.Execute( Gramatica: TGramatica );
 var
-  LoopContador, LoopLimite: UInt64;
+  LoopContador, LoopLimite: Cardinal;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
+  LoopLimite := TPGKernel.LoopLimit;
   LoopContador := 0;
   Continuar := false;
   Gramatica.TokenList.GetNextToken;
@@ -370,11 +370,11 @@ end;
 
 procedure TPGWaitFor.Execute( Gramatica: TGramatica );
 var
-  LoopContador, LoopLimite: UInt64;
+  LoopContador, LoopLimite: Cardinal;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
+  LoopLimite := TPGKernel.LoopLimit;
   LoopContador := 0;
   PositionIni := Gramatica.TokenList.Position;
   repeat
@@ -394,11 +394,11 @@ end;
 
 procedure TPGWhile.Execute( Gramatica: TGramatica );
 var
-  LoopContador, LoopLimite: UInt64;
+  LoopContador, LoopLimite: Cardinal;
   Continuar: Boolean;
   PositionIni: FixedInt;
 begin
-  LoopLimite := TPGKernel.GetVar<UInt64>('LoopLimite');
+  LoopLimite := TPGKernel.LoopLimit;
   Gramatica.TokenList.GetNextToken;
   PositionIni := Gramatica.TokenList.Position;
   LoopContador := 0;

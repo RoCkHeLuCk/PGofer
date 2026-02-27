@@ -42,8 +42,6 @@ inherited PGFunctionFrame: TPGFunctionFrame
       WantTabs = True
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
-      ExplicitLeft = 3
-      ExplicitTop = 14
     end
   end
   inherited grbAbout: TGroupBox

@@ -5,7 +5,8 @@ interface
 uses
   System.Classes, System.SysUtils, System.IniFiles,
   Vcl.Controls, Vcl.ComCtrls,
-  WinApi.Windows;
+  WinApi.Windows,
+  PGofer.Component.IniFile;
 
 type
   TListViewEx = class( TListView )
@@ -27,9 +28,9 @@ type
       OffSet: Integer = -1 );
     procedure SuperSelected( Item: TListItem ); overload;
     procedure SuperSelected( ); overload;
-    procedure IniConfigSave( AIniFile: TIniFile; ASection: string;
+    procedure IniConfigSave( AIniFile: TMemIniFileEx; ASection: string;
       APrefix: string );
-    procedure IniConfigLoad( AIniFile: TIniFile; ASection: string;
+    procedure IniConfigLoad( AIniFile: TMemIniFileEx; ASection: string;
       APrefix: string );
   published
     property OwnsObjectsData: Boolean read FOwnsObjectsData
@@ -248,7 +249,7 @@ begin
   end;
 end;
 
-procedure TListViewEx.IniConfigLoad( AIniFile: TIniFile; ASection: string;
+procedure TListViewEx.IniConfigLoad( AIniFile: TMemIniFileEx; ASection: string;
   APrefix: string );
 var
   c: Integer;
@@ -260,7 +261,7 @@ begin
   end;
 end;
 
-procedure TListViewEx.IniConfigSave( AIniFile: TIniFile; ASection: string;
+procedure TListViewEx.IniConfigSave( AIniFile: TMemIniFileEx; ASection: string;
   APrefix: string );
 var
   c: Integer;
