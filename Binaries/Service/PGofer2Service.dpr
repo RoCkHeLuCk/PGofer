@@ -1,4 +1,4 @@
-program PGofer2Service;
+﻿program PGofer2Service;
 
 uses
   Vcl.SvcMgr,

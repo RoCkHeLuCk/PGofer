@@ -1,4 +1,4 @@
-inherited PGVariantsFrame: TPGVariantsFrame
+﻿inherited PGVariantsFrame: TPGVariantsFrame
   Height = 133
   ExplicitHeight = 133
   inherited grbAbout: TGroupBox

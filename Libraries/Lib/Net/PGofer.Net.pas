@@ -1,4 +1,4 @@
-unit PGofer.Net;
+﻿unit PGofer.Net;
 
 interface
 

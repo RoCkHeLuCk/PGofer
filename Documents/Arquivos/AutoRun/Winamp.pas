@@ -1,4 +1,4 @@
-//winamp Preview
+﻿//winamp Preview
 function global WinampPreview ( ) 
 begin 
     System.ConsoleMsg := False;

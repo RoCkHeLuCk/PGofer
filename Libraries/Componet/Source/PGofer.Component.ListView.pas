@@ -1,4 +1,4 @@
-unit PGofer.Component.ListView;
+﻿unit PGofer.Component.ListView;
 
 interface
 

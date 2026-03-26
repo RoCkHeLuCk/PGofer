@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.Controls;
+ï»¿unit PGofer.Triggers.HotKeys.Controls;
 
 interface
 
@@ -39,7 +39,7 @@ begin
   case AParam.wParam of
     // -------------------------------------------------------------
     // 1. TECLADO E CLIQUE DE MOUSE VIA ASYNCINPUT
-    // Ambos os motores mandam o código VK limpinho no dwVkData
+    // Ambos os motores mandam o cï¿½digo VK limpinho no dwVkData
     // -------------------------------------------------------------
     WM_KEYDOWN, WM_SYSKEYDOWN:
     begin
@@ -54,7 +54,7 @@ begin
 
     // -------------------------------------------------------------
     // 2. MOUSE VIA HOOKINPUT
-    // O Hook separa botões em mensagens WM dedicadas. Traduzimos!
+    // O Hook separa botï¿½es em mensagens WM dedicadas. Traduzimos!
     // -------------------------------------------------------------
     WM_LBUTTONDOWN: Result.wKey := VK_LBUTTON;
     WM_LBUTTONUP:   begin Result.bDetect := kd_Up; Result.wKey := VK_LBUTTON; end;
@@ -67,7 +67,7 @@ begin
 
     WM_XBUTTONDOWN:
     begin
-      // No Hook, o High-Word do dwMData contém 1 ou 2 para o XButton
+      // No Hook, o High-Word do dwMData contï¿½m 1 ou 2 para o XButton
       if (AParam.dwVkData shr 16) = 1 then
         Result.wKey := VK_XBUTTON1
       else
@@ -89,7 +89,7 @@ begin
     WM_MOUSEWHEEL, WM_MOUSEHWHEEL:
     begin
       Result.bDetect := kd_Wheel;
-      // Scroll Up/Down. Mantemos a sua lógica de desvio do wParam
+      // Scroll Up/Down. Mantemos a sua lï¿½gica de desvio do wParam
       if SmallInt( Word( AParam.dwVkData shr 16 ) ) < 0 then
         Result.wKey := AParam.wParam
       else

@@ -1,4 +1,4 @@
-inherited PGAutoFillsFrame: TPGAutoFillsFrame
+﻿inherited PGAutoFillsFrame: TPGAutoFillsFrame
   Height = 283
   ExplicitHeight = 283
   object sptScript: TSplitter [0]

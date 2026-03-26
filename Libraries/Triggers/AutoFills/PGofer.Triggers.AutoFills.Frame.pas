@@ -1,4 +1,4 @@
-unit PGofer.Triggers.AutoFills.Frame;
+﻿unit PGofer.Triggers.AutoFills.Frame;
 
 interface
 

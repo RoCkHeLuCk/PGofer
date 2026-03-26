@@ -1,4 +1,4 @@
-unit PGofer.Triggers.Frame;
+ï»¿unit PGofer.Triggers.Frame;
 
 interface
 
@@ -34,7 +34,7 @@ procedure TPGTriggerFrame.EdtNameBeforeValidate(ASender: TObject; var AIsValid: 
 var
   LFoundItem: TPGItem;
 begin
-  // 1. Regra herdada do FolderMirror: Se for pasta e NÃO for namespace, não precisa validar colisão
+  // 1. Regra herdada do FolderMirror: Se for pasta e Nï¿½O for namespace, nï¿½o precisa validar colisï¿½o
   if (Item is TPGFolderMirror) and (not TPGFolderMirror(Item).Namespace) then
   begin
     AIsValid := True;
@@ -51,7 +51,7 @@ begin
   end else
     LFoundItem := nil;
 
-  // 3. É válido se NÃO achar ninguém com esse nome, ou se o que achar for ele mesmo
+  // 3. ï¿½ vï¿½lido se Nï¿½O achar ninguï¿½m com esse nome, ou se o que achar for ele mesmo
   AIsValid := not (Assigned(LFoundItem) and (LFoundItem <> Item));
 end;
 

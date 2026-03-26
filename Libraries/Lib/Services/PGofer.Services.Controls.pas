@@ -1,4 +1,4 @@
-unit PGofer.Services.Controls;
+ï»¿unit PGofer.Services.Controls;
 
 interface
 
@@ -45,22 +45,22 @@ begin
     Result := Result + '"Configurar" ';
   if ( AStatus and SERVICE_ACCEPT_NETBINDCHANGE = SERVICE_ACCEPT_NETBINDCHANGE )
   then
-    Result := Result + '"Configuração pela Rede" ';
+    Result := Result + '"Configuraï¿½ï¿½o pela Rede" ';
   if ( AStatus and SERVICE_ACCEPT_HARDWAREPROFILECHANGE =
     SERVICE_ACCEPT_HARDWAREPROFILECHANGE ) then
-    Result := Result + '"Configuração pelo Hardware" ';
+    Result := Result + '"Configuraï¿½ï¿½o pelo Hardware" ';
   if ( AStatus and SERVICE_ACCEPT_POWEREVENT = SERVICE_ACCEPT_POWEREVENT ) then
     Result := Result + '"Acordar o PC" ';
   if ( AStatus and SERVICE_ACCEPT_SESSIONCHANGE = SERVICE_ACCEPT_SESSIONCHANGE )
   then
-    Result := Result + '"Configuração por Sessões" ';
+    Result := Result + '"Configuraï¿½ï¿½o por Sessï¿½es" ';
   if ( AStatus and SERVICE_ACCEPT_PRESHUTDOWN = SERVICE_ACCEPT_PRESHUTDOWN ) then
-    Result := Result + '"Pré Fechamento" ';
+    Result := Result + '"Prï¿½ Fechamento" ';
   if ( AStatus and SERVICE_ACCEPT_TIMECHANGE = SERVICE_ACCEPT_TIMECHANGE ) then
-    Result := Result + '"Configuração por Tempo" ';
+    Result := Result + '"Configuraï¿½ï¿½o por Tempo" ';
   if ( AStatus and SERVICE_ACCEPT_TRIGGEREVENT = SERVICE_ACCEPT_TRIGGEREVENT )
   then
-    Result := Result + '"Configuração por Tentativa" ';
+    Result := Result + '"Configuraï¿½ï¿½o por Tentativa" ';
 end;
 
 function ServiceStatusToDrive( AStatus: Cardinal ): Integer;
@@ -121,13 +121,13 @@ begin
     SERVICE_DRIVER:
       Result := 'Driver Geral';
     SERVICE_WIN32_OWN_PROCESS, 272, 288:
-      Result := 'Serviço Comum';
+      Result := 'Serviï¿½o Comum';
     SERVICE_WIN32_SHARE_PROCESS:
-      Result := 'Serviço Compartilhado';
+      Result := 'Serviï¿½o Compartilhado';
     SERVICE_WIN32:
-      Result := 'Serviço Geral';
+      Result := 'Serviï¿½o Geral';
     SERVICE_INTERACTIVE_PROCESS:
-      Result := 'Interação de Processos';
+      Result := 'Interaï¿½ï¿½o de Processos';
     SERVICE_TYPE_ALL:
       Result := 'Todos';
   else
@@ -165,7 +165,7 @@ begin
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ), SERVICE_START or
       SERVICE_STOP or SERVICE_PAUSE_CONTINUE or SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
@@ -207,7 +207,7 @@ begin
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
@@ -231,7 +231,7 @@ begin
     SC_MANAGER_MODIFY_BOOT_CONFIG );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_CHANGE_CONFIG or SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
@@ -244,7 +244,7 @@ begin
     CloseServiceHandle( sc_Machie );
   end; // if servidor
 
-  //força no registro
+  //forï¿½a no registro
   if not Result then
   begin
     Reg := TRegistry.Create;
@@ -276,13 +276,13 @@ begin
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
     begin
       sConfig := nil;
-      // pega informações
+      // pega informaï¿½ï¿½es
       if not QueryServiceConfig( sc_Service, sConfig, 0, nBytesNeeded ) then
       begin
         if ( GetLastError = ERROR_INSUFFICIENT_BUFFER ) then
@@ -312,7 +312,7 @@ begin
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_ALL_ACCESS );
     if ( sc_Service > 0 ) then
@@ -359,7 +359,7 @@ begin
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_ALL_ACCESS );
     if ( sc_Service > 0 ) then
@@ -393,7 +393,7 @@ begin
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o serviço
+    // abre o serviï¿½o
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_ALL_ACCESS );
     if ( sc_Service > 0 ) then

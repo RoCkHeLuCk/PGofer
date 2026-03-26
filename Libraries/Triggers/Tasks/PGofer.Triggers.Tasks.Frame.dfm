@@ -1,4 +1,4 @@
-inherited PGTaskFrame: TPGTaskFrame
+﻿inherited PGTaskFrame: TPGTaskFrame
   Height = 255
   ExplicitHeight = 255
   object sptScript: TSplitter [0]

@@ -1,4 +1,4 @@
-object FrmController: TFrmController
+﻿object FrmController: TFrmController
   Left = 480
   Top = 386
   Margins.Left = 0

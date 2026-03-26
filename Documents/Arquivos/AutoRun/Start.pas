@@ -1,4 +1,4 @@
-
+ï»¿
 //configurando sistema
 System.AutoClose := False ;
 System.FormatReply( True , '' );
@@ -31,7 +31,7 @@ begin
     QuickSet;
 end;
 
-//parando serviços
+//parando serviï¿½os
 Service.SetState('LocalHost','PnkBstrA', 1 );
 
 //limpar lixo

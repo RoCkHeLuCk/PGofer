@@ -1,4 +1,4 @@
-unit UnitServices;
+ï»¿unit UnitServices;
 
 interface
 
@@ -270,7 +270,7 @@ begin
     if nServices <> 0 then
       for c := 0 to nServices - 1 do
       begin
-        // carrega o serviço
+        // carrega o serviï¿½o
         Service := OpenService( FHostHandle, ssa^[ c ].lpServiceName,
            SERVICE_QUERY_CONFIG );
         if ( Service > 0 ) then
@@ -279,7 +279,7 @@ begin
           pConfig := nil;
 
           try
-            // pega informações
+            // pega informaï¿½ï¿½es
             if not QueryServiceConfig( Service, sConfig, 0, nBytesNeeded ) then
             begin
               if ( GetLastError = ERROR_INSUFFICIENT_BUFFER ) then
@@ -549,7 +549,7 @@ begin
     begin
       if LtvServices.Items[ c ].Selected then
       begin
-        Script.Add( '//Serviço: ' + LtvServices.Items[ c ].Caption );
+        Script.Add( '//Serviï¿½o: ' + LtvServices.Items[ c ].Caption );
 
         e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 2 ] );
         Script.Add( 'Service.SetConfig( ''' +

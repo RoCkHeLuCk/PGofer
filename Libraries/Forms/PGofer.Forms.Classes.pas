@@ -1,4 +1,4 @@
-unit PGofer.Forms.Classes;
+﻿unit PGofer.Forms.Classes;
 
 interface
 

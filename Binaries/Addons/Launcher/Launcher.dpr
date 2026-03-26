@@ -1,4 +1,4 @@
-program Launcher;
+﻿program Launcher;
 
 uses
   Winapi.ShellAPI,

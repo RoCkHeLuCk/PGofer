@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.Async;
+﻿unit PGofer.Triggers.HotKeys.Async;
 
 interface
 

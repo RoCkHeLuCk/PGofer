@@ -1,4 +1,4 @@
-inherited PGTriggerFrame: TPGTriggerFrame
+﻿inherited PGTriggerFrame: TPGTriggerFrame
   inherited pnlItem: TPanel
     inherited EdtName: TEditEx
       OnBeforeValidate = EdtNameBeforeValidate

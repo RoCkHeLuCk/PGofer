@@ -1,4 +1,4 @@
-unit UnitConsole;
+﻿unit UnitConsole;
 
 interface
 

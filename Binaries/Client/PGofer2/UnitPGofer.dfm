@@ -1,4 +1,4 @@
-object FrmPGofer: TFrmPGofer
+﻿object FrmPGofer: TFrmPGofer
   Left = 80
   Top = 104
   BorderIcons = []

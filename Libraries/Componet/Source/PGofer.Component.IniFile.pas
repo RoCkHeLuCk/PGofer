@@ -1,4 +1,4 @@
-unit PGofer.Component.IniFile;
+﻿unit PGofer.Component.IniFile;
 
 interface
 

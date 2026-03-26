@@ -1,4 +1,4 @@
-unit PGofer.Sound.DevApi;
+﻿unit PGofer.Sound.DevApi;
 
 interface
 

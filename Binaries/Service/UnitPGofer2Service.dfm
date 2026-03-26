@@ -1,4 +1,4 @@
-object SvcPGofer: TSvcPGofer
+﻿object SvcPGofer: TSvcPGofer
   OldCreateOrder = False
   OnCreate = ServiceCreate
   DisplayName = 'PGofer V2.0 Service'

@@ -1,4 +1,4 @@
-program AutoKeys;
+﻿program AutoKeys;
 
 uses
   Vcl.Forms,

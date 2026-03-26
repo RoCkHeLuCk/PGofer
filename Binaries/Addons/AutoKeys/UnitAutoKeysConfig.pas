@@ -1,4 +1,4 @@
-unit UnitAutoKeysConfig;
+ï»¿unit UnitAutoKeysConfig;
 
 interface
 
@@ -13,7 +13,7 @@ type
     PnlItens: TPanel;
     BtOk: TBitBtn;
     BtCancel: TBitBtn;
-    RgOpções: TRadioGroup;
+    RgOpï¿½ï¿½es: TRadioGroup;
     EdtAutoKey: TSynEdit;
     LbVelocidade: TLabel;
     EdtVelocidade: TEdit;
@@ -31,7 +31,7 @@ type
     EdtDigitos: TEdit;
     UpdDigitos: TUpDown;
     BtnGerar: TButton;
-    procedure RgOpçõesClick(Sender: TObject);
+    procedure RgOpï¿½ï¿½esClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnGerarClick(Sender: TObject);
@@ -67,7 +67,7 @@ begin
     IniLoadFromFile(Self, DirCurrent+'Config.ini');
 end;
 //----------------------------------------------------------------------------//
-procedure TFrmAutoKeysConfig.RgOpçõesClick(Sender: TObject);
+procedure TFrmAutoKeysConfig.RgOpï¿½ï¿½esClick(Sender: TObject);
 begin
     LbVelocidade.Visible := False;
     EdtVelocidade.Visible := False;
@@ -78,7 +78,7 @@ begin
     BtnGravar.Visible := False;
     BtnParar.Visible := False;
 
-    case (RgOpções.ItemIndex) of
+    case (RgOpï¿½ï¿½es.ItemIndex) of
       0 : begin
               LbVelocidade.Visible := True;
               EdtVelocidade.Visible := True;

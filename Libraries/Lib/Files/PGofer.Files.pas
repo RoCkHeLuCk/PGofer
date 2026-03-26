@@ -1,4 +1,4 @@
-unit PGofer.Files;
+﻿unit PGofer.Files;
 
 interface
 

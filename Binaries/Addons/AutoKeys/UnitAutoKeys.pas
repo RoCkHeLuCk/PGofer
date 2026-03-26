@@ -1,4 +1,4 @@
-unit UnitAutoKeys;
+ï»¿unit UnitAutoKeys;
 
 interface
 
@@ -47,7 +47,7 @@ type
     MniSalvarArquivo: TMenuItem;
     MniCarregarArquivo: TMenuItem;
     MniSalvarAutomatico: TMenuItem;
-    MniOpções: TMenuItem;
+    MniOpï¿½ï¿½es: TMenuItem;
     MniMaximo: TMenuItem;
     MniPassWord: TMenuItem;
     MniNovo: TMenuItem;
@@ -200,7 +200,7 @@ procedure TFrmAutoKeysA.FormActivate(Sender: TObject);
 var
     CursorPoint : TPoint;
 begin
-    //pega a posição do cursor e posiciona a janela
+    //pega a posiï¿½ï¿½o do cursor e posiciona a janela
     GetCursorPos(CursorPoint);
     Left := CursorPoint.X;
     Top := CursorPoint.Y;
@@ -216,7 +216,7 @@ begin
     Action := caNone;
     Hide;
 
-    //salva configurações no ini
+    //salva configuraï¿½ï¿½es no ini
     IniSaveToFile(Self, DirCurrent+'Config.ini');
     Ini := TIniFile.Create(DirCurrent+'Config.ini');
     Ini.WriteBool(Self.Name,'AutoSave',MniSalvarAutomatico.Checked);
@@ -243,7 +243,7 @@ end;
 procedure TFrmAutoKeysA.CreateWindowHandle(const Params: TCreateParams);
 begin
     inherited;
-    //configura a janela para não aparecer na barra e não ativado.
+    //configura a janela para nï¿½o aparecer na barra e nï¿½o ativado.
     SetWindowLong(Handle, gwl_exstyle, WS_EX_NOACTIVATE
                   or ws_ex_toolwindow and not Ws_ex_appwindow);
 end;
@@ -258,7 +258,7 @@ begin
     TrvAutoKeys.SetOnProcedHelpers;
     TrvClipBoard.SetOnProcedHelpers;
 
-    //carrega configurações do ini
+    //carrega configuraï¿½ï¿½es do ini
     IniLoadFromFile(Self, nil, DirCurrent+'Config.ini');
     Ini := TIniFile.Create(DirCurrent+'Config.ini');
     MniSalvarAutomatico.Checked := Ini.ReadBool(Self.Name,'AutoSave',False);
@@ -289,7 +289,7 @@ begin
         MniPassWord.Click;
         inc(MaxError);
     end;
-    //fecha se não acertar a senha
+    //fecha se nï¿½o acertar a senha
     if MaxError >= 3 then
     begin
         Halt;
@@ -369,7 +369,7 @@ begin
         begin
             Item :=  TItemMacro(TrvAutoKeys.Selected.Data);
             FrmConfig.EdtAutoKey.Lines.Text := Item.Texto;
-            FrmConfig.RgOpções.ItemIndex := Item.Opção;
+            FrmConfig.RgOpï¿½ï¿½es.ItemIndex := Item.Opï¿½ï¿½o;
             FrmConfig.UdVelocidade.Position := Item.Velocidade;
             FrmConfig.CbxApagarTrasf.Checked := Item.Apagar;
         end else begin
@@ -386,7 +386,7 @@ begin
                 TrvAutoKeys.Selected.Data := Pointer(Item);
             end;
             Item.Texto := FrmConfig.EdtAutoKey.Lines.Text;
-            Item.Opção := FrmConfig.RgOpções.ItemIndex;
+            Item.Opï¿½ï¿½o := FrmConfig.RgOpï¿½ï¿½es.ItemIndex;
             Item.Velocidade := FrmConfig.UdVelocidade.Position;
             Item.Apagar := FrmConfig.CbxApagarTrasf.Checked;
         end;
@@ -482,7 +482,7 @@ begin
     begin
         Hide;
 
-        case (TItemMacro(TrvAutoKeys.Selected.Data).Opção) of
+        case (TItemMacro(TrvAutoKeys.Selected.Data).Opï¿½ï¿½o) of
                //digita o texto
            0 : begin
                    KeyMacroPress( TItemMacro(TrvAutoKeys.Selected.Data).Texto ,

@@ -1,4 +1,4 @@
-//Windows.LockWorkStation;
+﻿//Windows.LockWorkStation;
 
 Const Global False:=0;
 Const Global True:=1;

@@ -1,4 +1,4 @@
-unit PGofer.Triggers.Tasks.Frame;
+﻿unit PGofer.Triggers.Tasks.Frame;
 
 interface
 

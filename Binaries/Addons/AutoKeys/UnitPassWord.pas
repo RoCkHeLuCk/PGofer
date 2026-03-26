@@ -1,4 +1,4 @@
-unit UnitPassWord;
+ï»¿unit UnitPassWord;
 
 interface
 
@@ -35,7 +35,7 @@ implementation
 procedure TFrmPassword.BitBtn1Click(Sender: TObject);
 begin
     if (CbxPassWord.Checked) and (Length(EdtPassWord.Text) < 6) then
-       ShowMessage('A senha deve ter no mínimo 6 dígitos.')
+       ShowMessage('A senha deve ter no mï¿½nimo 6 dï¿½gitos.')
     else
        ModalResult := mrOk;
 end;

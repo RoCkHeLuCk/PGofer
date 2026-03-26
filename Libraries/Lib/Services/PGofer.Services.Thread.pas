@@ -1,4 +1,4 @@
-unit PGofer.Services.Thread;
+﻿unit PGofer.Services.Thread;
 
 interface
 

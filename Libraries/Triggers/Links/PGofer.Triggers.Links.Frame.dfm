@@ -1,4 +1,4 @@
-inherited PGLinkFrame: TPGLinkFrame
+﻿inherited PGLinkFrame: TPGLinkFrame
   Height = 387
   ExplicitHeight = 387
   object sptScriptBefore: TSplitter [0]

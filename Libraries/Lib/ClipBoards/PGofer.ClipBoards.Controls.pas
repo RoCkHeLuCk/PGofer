@@ -1,4 +1,4 @@
-unit PGofer.ClipBoards.Controls;
+﻿unit PGofer.ClipBoards.Controls;
 
 interface
 

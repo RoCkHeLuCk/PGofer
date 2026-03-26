@@ -1,4 +1,4 @@
-unit PGofer.Triggers.VaultFolder.Frame;
+﻿unit PGofer.Triggers.VaultFolder.Frame;
 
 interface
 

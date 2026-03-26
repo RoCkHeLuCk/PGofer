@@ -1,4 +1,4 @@
-unit UnitPGofer;
+ï»¿unit UnitPGofer;
 
 interface
 
@@ -67,7 +67,7 @@ begin
     if (NoOff) then
        begin
            Msg.Result:= 0;
-           if (MessageDlg('Algum programa está tentando desligar o computador'
+           if (MessageDlg('Algum programa estï¿½ tentando desligar o computador'
                           +#13+'Deseja bloquear o desligamento?', mtConfirmation, [mbYes, mbNo], mrYes) = mrYes) then
                Msg.Result:= 0
            else

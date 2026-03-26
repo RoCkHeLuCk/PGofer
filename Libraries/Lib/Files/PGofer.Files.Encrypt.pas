@@ -1,4 +1,4 @@
-unit PGofer.Files.Encrypt;
+﻿unit PGofer.Files.Encrypt;
 
 interface
 

@@ -1,4 +1,4 @@
-unit PGofer.IconList;
+﻿unit PGofer.IconList;
 
 interface
 

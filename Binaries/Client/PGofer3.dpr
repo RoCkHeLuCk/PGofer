@@ -1,4 +1,4 @@
-program PGofer3;
+﻿program PGofer3;
 {$DEFINE MSWINDOWS}
 
 uses

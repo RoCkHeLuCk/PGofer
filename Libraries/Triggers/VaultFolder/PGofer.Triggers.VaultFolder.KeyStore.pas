@@ -1,4 +1,4 @@
-unit PGofer.Triggers.VaultFolder.KeyStore;
+﻿unit PGofer.Triggers.VaultFolder.KeyStore;
 
 interface
 uses

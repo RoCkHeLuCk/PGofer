@@ -1,4 +1,4 @@
-unit PGofer.Core;
+﻿unit PGofer.Core;
 
 interface
 

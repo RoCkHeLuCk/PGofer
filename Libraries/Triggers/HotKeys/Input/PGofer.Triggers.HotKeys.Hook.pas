@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.Hook;
+﻿unit PGofer.Triggers.HotKeys.Hook;
 
 interface
 

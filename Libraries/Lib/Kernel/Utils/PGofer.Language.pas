@@ -1,4 +1,4 @@
-unit PGofer.Language;
+﻿unit PGofer.Language;
 
 interface
 

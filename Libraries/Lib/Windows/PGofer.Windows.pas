@@ -1,4 +1,4 @@
-unit PGofer.Windows;
+﻿unit PGofer.Windows;
 
 interface
 

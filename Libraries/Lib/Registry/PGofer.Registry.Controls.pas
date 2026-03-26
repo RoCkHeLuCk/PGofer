@@ -1,4 +1,4 @@
-unit PGofer.Registry.Controls;
+﻿unit PGofer.Registry.Controls;
 
 interface
 

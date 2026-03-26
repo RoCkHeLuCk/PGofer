@@ -1,4 +1,4 @@
-unit Pgofer.Component.Checkbox;
+﻿unit Pgofer.Component.Checkbox;
 
 interface
 

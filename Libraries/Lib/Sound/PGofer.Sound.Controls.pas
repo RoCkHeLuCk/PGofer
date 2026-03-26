@@ -1,4 +1,4 @@
-unit PGofer.Sound.Controls;
+﻿unit PGofer.Sound.Controls;
 
 interface
 

@@ -1,4 +1,4 @@
-unit PGofer.Windows.VirtualDesktop;
+ï»¿unit PGofer.Windows.VirtualDesktop;
 
 interface
 
@@ -48,7 +48,7 @@ var
 begin
   Result := False;
 
-  // 1. Descobrir qual é a janela que o usuário está olhando
+  // 1. Descobrir qual ï¿½ a janela que o usuï¿½rio estï¿½ olhando
   ForeWnd := GetForegroundWindow;
   if ForeWnd = 0 then
     ForeWnd := GetDesktopWindow;
@@ -56,11 +56,11 @@ begin
   // 2. Descobrir o ID do Desktop dessa janela
   CurrentDesktopID := GetDesktopIdFromWindow(ForeWnd);
 
-  // Se não conseguimos identificar o desktop atual, aborta
+  // Se nï¿½o conseguimos identificar o desktop atual, aborta
   if IsEqualGUID(CurrentDesktopID, TGUID.Empty) then
     Exit;
 
-  // 3. Mover a janela alvo para lá
+  // 3. Mover a janela alvo para lï¿½
   CoInitialize(nil);
   try
     if Succeeded(CoCreateInstance(CLSID_VDM, nil, CLSCTX_INPROC_SERVER, IVirtualDesktopManager, vdm)) then

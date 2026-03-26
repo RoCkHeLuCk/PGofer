@@ -1,4 +1,4 @@
-unit PGofer.Component.RichEdit;
+﻿unit PGofer.Component.RichEdit;
 
 interface
 

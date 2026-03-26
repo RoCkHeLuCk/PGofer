@@ -1,4 +1,4 @@
-object FrmServices: TFrmServices
+﻿object FrmServices: TFrmServices
   Left = 493
   Top = 105
   Caption = 'Services'

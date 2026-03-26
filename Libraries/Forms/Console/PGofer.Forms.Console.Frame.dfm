@@ -1,4 +1,4 @@
-inherited PGConsoleFrame: TPGConsoleFrame
+﻿inherited PGConsoleFrame: TPGConsoleFrame
   Height = 337
   ExplicitHeight = 337
   inherited grbAbout: TGroupBox

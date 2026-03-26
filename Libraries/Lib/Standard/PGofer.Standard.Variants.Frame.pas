@@ -1,4 +1,4 @@
-unit PGofer.Standard.Variants.Frame;
+﻿unit PGofer.Standard.Variants.Frame;
 
 interface
 

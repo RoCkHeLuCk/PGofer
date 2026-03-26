@@ -1,4 +1,4 @@
-unit Pgofer.Component.ComboBox;
+﻿unit Pgofer.Component.ComboBox;
 
 interface
 

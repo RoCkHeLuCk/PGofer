@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.Frame;
+﻿unit PGofer.Triggers.HotKeys.Frame;
 
 interface
 

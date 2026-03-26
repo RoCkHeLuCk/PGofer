@@ -1,4 +1,4 @@
-unit PGofer.Forms.Frame;
+﻿unit PGofer.Forms.Frame;
 
 interface
 

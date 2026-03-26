@@ -1,4 +1,4 @@
-//variaveis
+ï»¿//variaveis
 var global Serial := 'ABCabc123!@#[]\';
 
 //fecha o pgofer
@@ -62,7 +62,7 @@ function global CorelDraw ( )
 begin 
     var c := 0;
 
-    //iniciar serviço
+    //iniciar serviï¿½o
     Service.SetState( 'LocalHost', 'PSI_SVC_2', svsRun );
     while ( Service.GetState( 'LocalHost' , 'PSI_SVC_2' ) <> svsRun ) and ( c < 100 ) do
     begin 
@@ -82,7 +82,7 @@ begin
         inc( c );
     end;
     
-    //parar o serviço
+    //parar o serviï¿½o
     Service.SetState( 'LocalHost', 'PSI_SVC_2', svsStop );
     
     //deleta a pasta corel

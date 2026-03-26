@@ -1,4 +1,4 @@
-unit PGofer.Key;
+﻿unit PGofer.Key;
 
 interface
 

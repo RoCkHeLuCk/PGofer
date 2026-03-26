@@ -1,4 +1,4 @@
-unit PGofer.Sound.MMDevApi;
+﻿unit PGofer.Sound.MMDevApi;
 
 interface
 

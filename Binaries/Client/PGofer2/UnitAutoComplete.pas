@@ -1,4 +1,4 @@
-unit UnitAutoComplete;
+ï»¿unit UnitAutoComplete;
 
 interface
 
@@ -50,7 +50,7 @@ type
 
     procedure CriarItem(ListView:TListView;const Caption,Icone:String);
     procedure CarregarPalavras();
-    procedure CarregarFunção();
+    procedure CarregarFunï¿½ï¿½o();
     procedure CarregarAtalho();
     procedure CarregarDiretorios(FileName:String);
     procedure ProcuraComandos(ListView:TListView;const Comando:String);
@@ -90,41 +90,41 @@ end;
 //----------------------------------------------------------------------------//
 procedure TFrmAutoCompletes.LinksUpdate();
 var
-    Lista, Seção : TStringList;
+    Lista, Seï¿½ï¿½o : TStringList;
     Ini : TIniFile;
     c,d,e : Integer;
 begin
     //cria variaveis
     SetLength(AtalhoGlobal, 0);
     Lista := TStringList.Create;
-    Seção := TStringList.Create;
+    Seï¿½ï¿½o := TStringList.Create;
     //carrega listas
     Lista.Text := FileListDir(DirCurrent+'Links\*.ini');
     for d := 0 to Lista.Count-1 do
     begin
         //abre arquivo
         Ini := TIniFile.Create( DirCurrent+'Links\'+ Lista[d] );
-        Ini.ReadSections(Seção);
-        //Varre lista de Seçoes
-        for c:=0 to Seção.Count-1 do
+        Ini.ReadSections(Seï¿½ï¿½o);
+        //Varre lista de Seï¿½oes
+        for c:=0 to Seï¿½ï¿½o.Count-1 do
         begin
-            if CompareText(Seção[c],'Config') <> 0 then
+            if CompareText(Seï¿½ï¿½o[c],'Config') <> 0 then
             begin
                 //adiciona link
                 e := Length( AtalhoGlobal );
                 SetLength(AtalhoGlobal, e+1);
-                AtalhoGlobal[e].Nome := Seção[c];
-                AtalhoGlobal[e].Arquivo := Ini.ReadString(Seção[c],'Arquivo','');
-                AtalhoGlobal[e].Parametro := Ini.ReadString(Seção[c],'Parametro','');
-                AtalhoGlobal[e].Diretorio := Ini.ReadString(Seção[c],'Diretorio','');
-                AtalhoGlobal[e].Icone := Ini.ReadString(Seção[c],'Icone','');
-                AtalhoGlobal[e].ShowControl := Ini.ReadInteger(Seção[c],'Abrir',1);
+                AtalhoGlobal[e].Nome := Seï¿½ï¿½o[c];
+                AtalhoGlobal[e].Arquivo := Ini.ReadString(Seï¿½ï¿½o[c],'Arquivo','');
+                AtalhoGlobal[e].Parametro := Ini.ReadString(Seï¿½ï¿½o[c],'Parametro','');
+                AtalhoGlobal[e].Diretorio := Ini.ReadString(Seï¿½ï¿½o[c],'Diretorio','');
+                AtalhoGlobal[e].Icone := Ini.ReadString(Seï¿½ï¿½o[c],'Icone','');
+                AtalhoGlobal[e].ShowControl := Ini.ReadInteger(Seï¿½ï¿½o[c],'Abrir',1);
             end;//if config
         end;// for
     //limpar
         Ini.Free;
     end;
-    Seção.Free;
+    Seï¿½ï¿½o.Free;
     Lista.Free;
     FrmAutoCompletes.CarregarAtalho();
 end;
@@ -191,7 +191,7 @@ begin
     end;
 end;
 //----------------------------------------------------------------------------//
-procedure TFrmAutoCompletes.CarregarFunção();
+procedure TFrmAutoCompletes.CarregarFunï¿½ï¿½o();
 var
     texto : string;
     c, d, e, f : integer;
@@ -322,7 +322,7 @@ begin
     end;
     Token.Free;
 
-    //verificar se é arquivo
+    //verificar se ï¿½ arquivo
     if (Classe = cmdString) and (Length(Comando)>2) then
        Diretorio := ExtractFilePath(FileExpandPath(Comando));
 
@@ -474,7 +474,7 @@ end;
 //----------------------------------------------------------------------------//
 procedure TFrmAutoCompletes.FormActivate(Sender: TObject);
 begin
-    //arruma a bagaça para não dar um bug sinistro.
+    //arruma a bagaï¿½a para nï¿½o dar um bug sinistro.
     Width := Width -1;
     Update;
     Width := Width +1;
@@ -494,7 +494,7 @@ procedure TFrmAutoCompletes.LtvAutoCompleteCompare(Sender: TObject; Item1,
 var
     v1,v2 : integer;
 begin
-    //ajusta a ordem dos comando por valor de execução.
+    //ajusta a ordem dos comando por valor de execuï¿½ï¿½o.
     TryStrToInt(Item1.SubItems[0],v1);
     TryStrToInt(Item2.SubItems[0],v2);
     Compare := v2-v1;
@@ -579,7 +579,7 @@ begin
                          end;
                      end;//VK_ESCAPE
 
-        //ESPAÇO
+        //ESPAï¿½O
         VK_SPACE : begin
                          if Shift = [ssCtrl] then
                          begin

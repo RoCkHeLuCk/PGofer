@@ -1,4 +1,4 @@
-unit PGofer3.Client;
+ï»¿unit PGofer3.Client;
 
 interface
 
@@ -110,9 +110,9 @@ end;
 procedure TFrmPGofer.WMPowerBroadcast(var Msg: TMessage);
 const
   PBT_APMRESUMEAUTOMATIC = $0012; // Acordou sozinho (Task, Update)
-  PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuário (Mouse/Teclado/Botão)
+  PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuï¿½rio (Mouse/Teclado/Botï¿½o)
 begin
-  inherited; // Deixa o Windows processar o padrão
+  inherited; // Deixa o Windows processar o padrï¿½o
   if (Msg.WParam in [PBT_APMRESUMEAUTOMATIC,PBT_APMRESUMESUSPEND]) then
   begin
     ScriptExec( 'MainMessage', 'HotKeyDef.InputRestart;' );
@@ -346,7 +346,7 @@ var
   FileName : String;
 begin
   Result := '0.0.0.0';
-  // Pega o nome do executável atual
+  // Pega o nome do executï¿½vel atual
   FileName := ParamStr(0);
   Size := GetFileVersionInfoSize(PChar(FileName), Dummy);
   if Size > 0 then

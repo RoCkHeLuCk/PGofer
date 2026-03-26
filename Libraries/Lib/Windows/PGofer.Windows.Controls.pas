@@ -1,4 +1,4 @@
-unit PGofer.Windows.Controls;
+﻿unit PGofer.Windows.Controls;
 
 interface
 

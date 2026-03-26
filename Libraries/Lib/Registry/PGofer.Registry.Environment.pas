@@ -1,4 +1,4 @@
-unit PGofer.Registry.Environment;
+﻿unit PGofer.Registry.Environment;
 
 interface
 

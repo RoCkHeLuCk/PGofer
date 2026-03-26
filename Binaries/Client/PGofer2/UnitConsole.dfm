@@ -1,4 +1,4 @@
-object FrmConsoles: TFrmConsoles
+﻿object FrmConsoles: TFrmConsoles
   Left = 0
   Top = 0
   BorderStyle = bsNone

@@ -1,4 +1,4 @@
-unit PGofer.Net.Controls;
+﻿unit PGofer.Net.Controls;
 
 interface
 

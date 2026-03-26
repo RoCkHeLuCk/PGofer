@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.MMHook;
+﻿unit PGofer.Triggers.HotKeys.MMHook;
 
 interface
 

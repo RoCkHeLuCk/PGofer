@@ -1,4 +1,4 @@
-unit PGofer.Math;
+﻿unit PGofer.Math;
 
 interface
 

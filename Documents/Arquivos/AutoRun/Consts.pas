@@ -1,4 +1,4 @@
-    //Booleano
+ï»¿    //Booleano
     var const global True := 1; //Verdadeiro
     var const global False := 0; //Falso
     
@@ -19,39 +19,39 @@
 
     //File.Copy;File.Delete;File.Move;File.Rename;
     var const global flcNull := 1; //Nulo
-    var const global flcMultiDestFiles := 1; //Para Especificar múltiplos diretórios para cada arquivo de origem
-    var const global flcConfirmMouse := 2; //Não Utilizado
-    var const global flcSilent := 4; //Não mostrar um progresso caixa de diálogo
-    var const global flcRenameOnCollision := 8; //Cria um novo nome para o arquivo de destino se já existir um igual no destino
-    var const global flcNoConfirmation := 16; //Responder Sim para todos para qualquer caixa de diálogo que é exibida
+    var const global flcMultiDestFiles := 1; //Para Especificar mï¿½ltiplos diretï¿½rios para cada arquivo de origem
+    var const global flcConfirmMouse := 2; //Nï¿½o Utilizado
+    var const global flcSilent := 4; //Nï¿½o mostrar um progresso caixa de diï¿½logo
+    var const global flcRenameOnCollision := 8; //Cria um novo nome para o arquivo de destino se jï¿½ existir um igual no destino
+    var const global flcNoConfirmation := 16; //Responder Sim para todos para qualquer caixa de diï¿½logo que ï¿½ exibida
     var const global flcWantMappingHandle := 32; //Para fofRenameOnCollision, cria uma lista dos arquivos
-    var const global flcAllOwUndo := 64; //Para que a operação possa ser desfeita
-    var const global flcFilesOnly := 128; //Executa a operação apenas em arquivos, ignora os diretorios
-    var const global flcSimpleProgress := 256; //Exibe uma caixa de diálogo de progresso simples
-    var const global flcNoConfirmMKDir := 512; //Não pergunta a criação de um novo diretório se a operação requer um a ser criado
-    var const global flcNoErrorUi := 1024; //Não exibir uma caixa de diálogo se um erro ocorre.
+    var const global flcAllOwUndo := 64; //Para que a operaï¿½ï¿½o possa ser desfeita
+    var const global flcFilesOnly := 128; //Executa a operaï¿½ï¿½o apenas em arquivos, ignora os diretorios
+    var const global flcSimpleProgress := 256; //Exibe uma caixa de diï¿½logo de progresso simples
+    var const global flcNoConfirmMKDir := 512; //Nï¿½o pergunta a criaï¿½ï¿½o de um novo diretï¿½rio se a operaï¿½ï¿½o requer um a ser criado
+    var const global flcNoErrorUi := 1024; //Nï¿½o exibir uma caixa de diï¿½logo se um erro ocorre.
     
 	//File.GetAttrib;File.SetAttrib;
     var const global flaReadOnly := 1; //Somente leitura
     var const global flaHidden := 2; //Oculto
     var const global flaSysFile := 4; //Sistema
     var const global flaVolumeID := 8; //Volume ID
-    var const global flaDirectory := 16; //Diretório
+    var const global flaDirectory := 16; //Diretï¿½rio
     var const global flaArchive := 32; //Ficheiro
-    var const global flaSymLink := 64; //Link Simbólico
+    var const global flaSymLink := 64; //Link Simbï¿½lico
 	
     //Sound.*
-    var const global sndrvDefault := 0; //Placa de som padrão
-    var const global sndrvMultimi := 1; //Placa de som multimidia padrão
-    var const global sndrvComunic := 2; //Placa de som comunicação padrão
+    var const global sndrvDefault := 0; //Placa de som padrï¿½o
+    var const global sndrvMultimi := 1; //Placa de som multimidia padrï¿½o
+    var const global sndrvComunic := 2; //Placa de som comunicaï¿½ï¿½o padrï¿½o
     
     //Sound.PlaySound
     var const global sndcSync := 0; //Espera terminar
-    var const global sndcAsync := 1; //Não espera terminar
-    var const global sndcNoDefault := 2; //Não usa a placa de som padrão
-    var const global sndcMemory := 4; //Toca som da memoria (Não usado)
-    var const global sndcLoop := 8; //Repete o som até tocar um proximo
-    var const global sndcNoStop := 16; //Não para de tocar o som  se vier tocar um proximo
+    var const global sndcAsync := 1; //Nï¿½o espera terminar
+    var const global sndcNoDefault := 2; //Nï¿½o usa a placa de som padrï¿½o
+    var const global sndcMemory := 4; //Toca som da memoria (Nï¿½o usado)
+    var const global sndcLoop := 8; //Repete o som atï¿½ tocar um proximo
+    var const global sndcNoStop := 16; //Nï¿½o para de tocar o som  se vier tocar um proximo
     
     //Service.GetConfig;Service.SetConfig;
     var const global svcBootStart := 0; //Inicia com o Boot
@@ -61,13 +61,13 @@
     var const global svcDisabled := 4; //Desabilitado
     
     //Service.GetState;Service.SetState;
-    var const global svsStop := 1; //serviço parado
-    var const global svsRunning := 2; //iniciando o serviço
-    var const global svsStoping := 3; //parando o serviço
-    var const global svsRun := 4; //serviço iniciado 
-    var const global svsPending := 5; //serviço Pendente 
-    var const global svsPausing := 6; //pausando o serviço 
-    var const global svsPause := 7; //serviço pausado 
+    var const global svsStop := 1; //serviï¿½o parado
+    var const global svsRunning := 2; //iniciando o serviï¿½o
+    var const global svsStoping := 3; //parando o serviï¿½o
+    var const global svsRun := 4; //serviï¿½o iniciado 
+    var const global svsPending := 5; //serviï¿½o Pendente 
+    var const global svsPausing := 6; //pausando o serviï¿½o 
+    var const global svsPause := 7; //serviï¿½o pausado 
     
     //Registry.*
     var const global hkeyClassesRoot := 0h80000000; //HKEY_CLASSES_ROOT
@@ -80,11 +80,11 @@
 
     //System.ShutDown
     var const global stmsdLogOff := 0; //LogOff
-    var const global stmsdShutDown := 1; //Desliga apenas o Windows, não o computador
+    var const global stmsdShutDown := 1; //Desliga apenas o Windows, nï¿½o o computador
     var const global stmsdReBoot := 2; //Reinicia o computador
-    var const global stmsdForce := 4; //Desliga o computador forçadamente
+    var const global stmsdForce := 4; //Desliga o computador forï¿½adamente
     var const global stmsdPowerOff := 8; //Desliga o computador completamente
-    var const global stmsdForceIfHung := 16; //Desliga o computador forçadamente de leve
+    var const global stmsdForceIfHung := 16; //Desliga o computador forï¿½adamente de leve
     
     //System.SendMessage
     var const global stmsmNull := 0;

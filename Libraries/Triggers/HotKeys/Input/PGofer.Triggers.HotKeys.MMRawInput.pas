@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.MMRawInput;
+﻿unit PGofer.Triggers.HotKeys.MMRawInput;
 
 interface
 

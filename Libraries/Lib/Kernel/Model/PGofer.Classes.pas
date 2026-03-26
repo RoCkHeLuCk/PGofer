@@ -1,4 +1,4 @@
-unit PGofer.Classes;
+ï»¿unit PGofer.Classes;
 
 interface
 
@@ -257,7 +257,7 @@ begin
   LNewCollectDad := nil;
   if Assigned(AParent) then LNewCollectDad := AParent.CollectDad;
 
-//  // 1. Trava as listas em memória
+//  // 1. Trava as listas em memï¿½ria
 //  if Assigned(LCollectDad) then
 //   LCollectDad.LockSection;
 //  if Assigned(LNewCollectDad) and (LNewCollectDad <> LCollectDad) then
@@ -274,7 +274,7 @@ begin
 //      LCollectDad.UnlockSection;
   end;
 
-  // 2. Atualização VCL encapsulada na Main Thread
+  // 2. Atualizaï¿½ï¿½o VCL encapsulada na Main Thread
   RunInMainThread(
     procedure
     var

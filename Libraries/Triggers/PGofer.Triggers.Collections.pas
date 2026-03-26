@@ -1,4 +1,4 @@
-unit PGofer.Triggers.Collections;
+﻿unit PGofer.Triggers.Collections;
 
 interface
 

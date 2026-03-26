@@ -1,4 +1,4 @@
-object PGItemFrame: TPGItemFrame
+﻿object PGItemFrame: TPGItemFrame
   Left = 0
   Top = 0
   Width = 400

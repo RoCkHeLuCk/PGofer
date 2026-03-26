@@ -1,4 +1,4 @@
-unit PGofer.Files.WinShell;
+﻿unit PGofer.Files.WinShell;
 
 interface
 

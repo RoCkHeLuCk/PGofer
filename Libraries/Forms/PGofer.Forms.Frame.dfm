@@ -1,4 +1,4 @@
-inherited PGFormsFrame: TPGFormsFrame
+﻿inherited PGFormsFrame: TPGFormsFrame
   Height = 310
   ExplicitHeight = 310
   inherited grbAbout: TGroupBox

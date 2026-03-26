@@ -1,4 +1,4 @@
-unit PGofer.Component.Edit;
+ï»¿unit PGofer.Component.Edit;
 
 interface
 
@@ -10,10 +10,10 @@ type
   { Evento }
   TValidateCustomEvent = procedure(ASender: TObject; var AIsValid: Boolean) of object;
 
-  { Modos de Validação de infraestrutura }
+  { Modos de Validaï¿½ï¿½o de infraestrutura }
   TValidationMode = (vmNone, vmPassword, vmOpenFile, vmSaveFile, vmPathExists);
 
-  { Exemplos de Expressões Regulares, agora incluindo File e Path }
+  { Exemplos de Expressï¿½es Regulares, agora incluindo File e Path }
   TRegExample = (reNone, reAll, reWord, reUnsignedInt, reSignedInt, reUnsignedFloat,
                  reSignedFloat, reLetter, reID, rePassword, reEmail, reURL, reFileName, rePathName);
 
@@ -56,7 +56,7 @@ type
     procedure SetRegExExpression(AValue: string);
     procedure SetRegExExamples(AValue: TRegExample);
 
-    { Métodos de Apoio Interno }
+    { Mï¿½todos de Apoio Interno }
     procedure UpdateActionButton;
     procedure UpdateRegExEngine;
     procedure ActionButtonClick(ASender: TObject);
@@ -64,7 +64,7 @@ type
     { Overrides da VCL }
     procedure Loaded; override;
 
-   { Lógica de Validação }
+   { Lï¿½gica de Validaï¿½ï¿½o }
     procedure Validate;
 
     procedure KeyPress(var AKey: Char); override;
@@ -75,11 +75,11 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure SetBounds(ALeft, ATop, AWidth, AHeight: Integer); override;
 
-    { Propriedade pública para consulta via código }
+    { Propriedade pï¿½blica para consulta via cï¿½digo }
     property IsValid: Boolean read FValidationIsValid write SetValidationIsValid;
     procedure SetTextSilent(const AValue: String);
   published
-    { Ordem de persistência RTTI: ValidationMode é o cérebro }
+    { Ordem de persistï¿½ncia RTTI: ValidationMode ï¿½ o cï¿½rebro }
     property ValidationMode: TValidationMode read FValidationMode write SetValidationMode default vmNone;
     property ActionButtonShow: Boolean read FActionButtonShow write SetActionButtonShow default False;
 
@@ -145,7 +145,7 @@ begin
   FRegExExamples := reNone;
   FRegExExpression := '';
 
-  { Configuração de Estilo Visual }
+  { Configuraï¿½ï¿½o de Estilo Visual }
   Self.StyleElements := [seFont, seClient, seBorder];
   Self.Color := FValidationColorNormal;
 end;
@@ -328,7 +328,7 @@ procedure TEditEx.KeyPress(var AKey: Char);
 var
   LNewText: string;
 begin
-  { O RegEx agora bloqueia teclas em qualquer modo, desde que a expressão exista }
+  { O RegEx agora bloqueia teclas em qualquer modo, desde que a expressï¿½o exista }
   if (AKey >= #32) and FRegExBlockInvalidKeys and FRegExCompiled then
   begin
     LNewText := Self.Text;

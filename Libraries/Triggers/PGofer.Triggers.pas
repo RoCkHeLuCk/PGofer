@@ -1,4 +1,4 @@
-unit PGofer.Triggers;
+ï»¿unit PGofer.Triggers;
 
 interface
 
@@ -345,7 +345,7 @@ procedure TPGFolderMirror.SetNamespace(AValue: Boolean);
 var
   LItem : TPGFolder;
 
-  // Função interna para mover recursivamente os originais pela árvore de execução
+  // Funï¿½ï¿½o interna para mover recursivamente os originais pela ï¿½rvore de execuï¿½ï¿½o
   procedure MoveOriginalsTo(AMirrorFolder: TPGItem; ANewParentNamespace: TPGFolder);
   var
     LChild: TPGItem;
@@ -360,7 +360,7 @@ var
       end
       else if LChild is TPGFolderMirror then
       begin
-        // Se a subpasta TAMBÉM for um namespace, movemos a pasta Original dela inteira
+        // Se a subpasta TAMBï¿½M for um namespace, movemos a pasta Original dela inteira
         if TPGFolderMirror(LChild).Namespace then
         begin
           if Assigned(TPGFolderMirror(LChild).FolderOriginal) and
@@ -369,8 +369,8 @@ var
         end
         else
         begin
-          // Se for uma pasta comum (sem namespace), ela é "transparente" na execução.
-          // Então, entramos nela recursivamente para mover os filhos lógicos.
+          // Se for uma pasta comum (sem namespace), ela ï¿½ "transparente" na execuï¿½ï¿½o.
+          // Entï¿½o, entramos nela recursivamente para mover os filhos lï¿½gicos.
           MoveOriginalsTo(LChild, ANewParentNamespace);
         end;
       end;
@@ -385,32 +385,32 @@ begin
 
   if not FNamespace then
   begin
-    // DESMARCOU: O usuário não quer mais que seja namespace.
-    // Pega quem é o namespace pai e devolve todo mundo para ele.
+    // DESMARCOU: O usuï¿½rio nï¿½o quer mais que seja namespace.
+    // Pega quem ï¿½ o namespace pai e devolve todo mundo para ele.
     if Assigned(FFolderOriginal) and (FFolderOriginal <> GlobalTriggerFolder) then
     begin
       LItem := Self.GetParentNamespace();
       MoveOriginalsTo(Self, LItem);
 
       FFolderOriginal.Free;
-      FFolderOriginal := GlobalTriggerFolder; // Volta para o padrão
+      FFolderOriginal := GlobalTriggerFolder; // Volta para o padrï¿½o
 
-      // Atualiza o nome do mirror para garantir que não colida com nada visualmente
+      // Atualiza o nome do mirror para garantir que nï¿½o colida com nada visualmente
       Self.Name :=  Self.TranscendName(Self.Name, Self.Parent);
     end;
     Exit;
   end;
 
-  // MARCOU: O usuário quer que esta pasta seja um namespace de execução.
+  // MARCOU: O usuï¿½rio quer que esta pasta seja um namespace de execuï¿½ï¿½o.
   LItem := Self.GetParentNamespace();
 
-  // Garante um nome único no namespace pai antes de criar a pasta lógica
+  // Garante um nome ï¿½nico no namespace pai antes de criar a pasta lï¿½gica
   Self.Name := Self.TranscendName(Self.Name, LItem);
 
-  // Cria a pasta de execução correspondente
+  // Cria a pasta de execuï¿½ï¿½o correspondente
   FFolderOriginal := TPGFolder.Create(LItem, Self.Name);
 
-  // Varre os filhos do Mirror visual e joga os Originais para dentro da nova pasta lógica
+  // Varre os filhos do Mirror visual e joga os Originais para dentro da nova pasta lï¿½gica
   MoveOriginalsTo(Self, FFolderOriginal);
 end;
 
@@ -438,7 +438,7 @@ end;
 
 function TPGFolderMirror.TranscendName(AName: string; AItemList: TPGItem): string;
 begin
-  // Chega de código duplicado! Usa o motor robusto que criamos acima.
+  // Chega de cï¿½digo duplicado! Usa o motor robusto que criamos acima.
   Result := TPGItemTrigger.TranscendName(AName, AItemList, Self);
 end;
 

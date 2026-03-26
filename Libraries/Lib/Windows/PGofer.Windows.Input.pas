@@ -1,4 +1,4 @@
-unit PGofer.Windows.Input;
+﻿unit PGofer.Windows.Input;
 
 interface
 

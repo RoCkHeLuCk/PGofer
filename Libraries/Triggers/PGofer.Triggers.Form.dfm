@@ -1,4 +1,4 @@
-inherited FrmTriggerController: TFrmTriggerController
+﻿inherited FrmTriggerController: TFrmTriggerController
   Caption = 'FrmTriggerController'
   ClientWidth = 672
   ExplicitWidth = 688

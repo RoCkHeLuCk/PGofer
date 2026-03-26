@@ -1,4 +1,4 @@
-unit PGofer.Component.Form;
+ï»¿unit PGofer.Component.Form;
 
 interface
 
@@ -145,7 +145,7 @@ end;
 procedure TFormEx.ForceShow(AFocus: Boolean);
 var
   ForegroundThreadID, ThisThreadID, timeout: Cardinal;
-  hWinPosInfo: HDWP; // Handle da transação
+  hWinPosInfo: HDWP; // Handle da transaï¿½ï¿½o
 begin
 
   //1. destrava o windows
@@ -170,11 +170,11 @@ begin
     Self.Visible := true;
   end;
 
-  // 4. Tenta iniciar a transação para 1 janela
+  // 4. Tenta iniciar a transaï¿½ï¿½o para 1 janela
   hWinPosInfo := BeginDeferWindowPos(1);
   if hWinPosInfo <> 0 then
   begin
-    // 5. Tenta adicionar a janela à transação
+    // 5. Tenta adicionar a janela ï¿½ transaï¿½ï¿½o
     hWinPosInfo := DeferWindowPos(hWinPosInfo, Self.Handle, HWND_TOPMOST,
                                  Self.Left, Self.Top, Self.Width, Self.Height,
                                  ThisThreadID);
@@ -189,7 +189,7 @@ begin
   SetWindowPos(Self.Handle, HWND_TOPMOST, Self.Left, Self.Top, Self.Width,
     Self.Height, ThisThreadID);
 
-  // 8. Força para o topo com foco
+  // 8. Forï¿½a para o topo com foco
   if AFocus then
   begin
     BringWindowToTop(Self.Handle);
@@ -210,7 +210,7 @@ begin
         try
           BringWindowToTop(Self.Handle);
           SetForegroundWindow(Self.Handle);
-          //// Reforço do foco para o Windows 11
+          //// Reforï¿½o do foco para o Windows 11
           ///SwitchToThisWindow(Self.Handle, True);
         finally
           AttachThreadInput(ThisThreadID, ForegroundThreadID, False);

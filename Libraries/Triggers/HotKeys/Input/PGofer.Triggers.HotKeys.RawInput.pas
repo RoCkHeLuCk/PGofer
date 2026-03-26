@@ -1,4 +1,4 @@
-unit PGofer.Triggers.HotKeys.RawInput;
+ï»¿unit PGofer.Triggers.HotKeys.RawInput;
 
 interface
 
@@ -175,7 +175,7 @@ begin
     RIM_TYPEMOUSE:
       begin
         Flags := Raw.mouse.union.usButtonFlags;
-        // Processa os botões (Bits 0 a 9)
+        // Processa os botï¿½es (Bits 0 a 9)
         if (Flags and $3FF) <> 0 then
         begin
           for i := 0 to 9 do

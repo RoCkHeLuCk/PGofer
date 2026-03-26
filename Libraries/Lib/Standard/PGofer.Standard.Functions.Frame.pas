@@ -1,4 +1,4 @@
-unit PGofer.Standard.Functions.Frame;
+﻿unit PGofer.Standard.Functions.Frame;
 
 interface
 

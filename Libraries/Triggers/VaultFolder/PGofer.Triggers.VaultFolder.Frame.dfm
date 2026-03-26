@@ -1,4 +1,4 @@
-inherited PGVaultFolderFrame: TPGVaultFolderFrame
+﻿inherited PGVaultFolderFrame: TPGVaultFolderFrame
   Height = 216
   ExplicitHeight = 216
   inherited grbAbout: TGroupBox

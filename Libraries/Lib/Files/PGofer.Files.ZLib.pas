@@ -1,4 +1,4 @@
-unit PGofer.Files.ZLib;
+﻿unit PGofer.Files.ZLib;
 
 interface
 

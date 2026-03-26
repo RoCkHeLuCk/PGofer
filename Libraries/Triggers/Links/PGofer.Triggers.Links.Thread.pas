@@ -1,4 +1,4 @@
-unit PGofer.Triggers.Links.Thread;
+﻿unit PGofer.Triggers.Links.Thread;
 
 interface
 

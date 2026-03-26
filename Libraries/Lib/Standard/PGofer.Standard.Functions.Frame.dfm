@@ -1,4 +1,4 @@
-inherited PGFunctionFrame: TPGFunctionFrame
+﻿inherited PGFunctionFrame: TPGFunctionFrame
   Height = 196
   ExplicitHeight = 196
   object sptScript: TSplitter [0]

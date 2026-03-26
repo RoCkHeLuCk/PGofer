@@ -1,4 +1,4 @@
-program PGofer;
+﻿program PGofer;
 
 uses
   Vcl.Forms,

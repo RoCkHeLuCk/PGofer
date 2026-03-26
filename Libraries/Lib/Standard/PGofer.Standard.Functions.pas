@@ -1,4 +1,4 @@
-unit PGofer.Standard.Functions;
+ï»¿unit PGofer.Standard.Functions;
 
 interface
 
@@ -8,12 +8,12 @@ uses
   PGofer.Runtime, PGofer.Standard.Variants;
 
 type
-  { Objeto que representa uma função definida pelo usuário }
+  { Objeto que representa uma funï¿½ï¿½o definida pelo usuï¿½rio }
   {$M+}
   TPGFunction = class(TPGItemClass)
   strict private
     FTokenList: TPGTokenList;
-    FParamsList: TPGItem; // Lista de nomes de parâmetros (TPGVariant)
+    FParamsList: TPGItem; // Lista de nomes de parï¿½metros (TPGVariant)
     FScriptSource: string;
     procedure SetScript(const AValue: string);
   public
@@ -32,7 +32,7 @@ type
   end;
   {$TYPEINFO ON}
 
-  { Comando 'Function' para declarar novas funções no script }
+  { Comando 'Function' para declarar novas funï¿½ï¿½es no script }
   TPGFunctionDeclare = class(TPGItemClass)
   strict private
     procedure DeclareInternal(const AGrammar: TPGGrammar; ANivel: TPGItem; AStartPos: Integer);
@@ -65,7 +65,7 @@ end;
 
 procedure TPGFunction.Compile;
 begin
-  // Apenas para trigger manual de compilação se necessário
+  // Apenas para trigger manual de compilaï¿½ï¿½o se necessï¿½rio
 end;
 
 procedure TPGFunction.Execute(const AGrammar: TPGGrammar);
@@ -77,15 +77,15 @@ var
   LResultVar: TPGVariant;
 begin
   AGrammar.TokenList.Next;
-  // 1. Lê os parâmetros passados na chamada: Min = 0, Max = Qtd definida na função
+  // 1. Lï¿½ os parï¿½metros passados na chamada: Min = 0, Max = Qtd definida na funï¿½ï¿½o
   LParamCount := ReadParameters(AGrammar, 0, FParamsList.Count);
 
   if not AGrammar.HasError then
   begin
-    // 2. Cria uma sub-gramática para execução local (Escopo da Função)
+    // 2. Cria uma sub-gramï¿½tica para execuï¿½ï¿½o local (Escopo da Funï¿½ï¿½o)
     LSubGrammar := TPGGrammar.Create('$Func:' + Self.Name, AGrammar.Local, False);
     try
-      // 3. Alimenta as variáveis locais com os valores da pilha (ordem inversa)
+      // 3. Alimenta as variï¿½veis locais com os valores da pilha (ordem inversa)
       for I := FParamsList.Count - 1 downto 0 do
       begin
         LParamName := FParamsList[I].Name;
@@ -93,22 +93,22 @@ begin
         if I < LParamCount then
           LParamValue := AGrammar.Stack.Pop
         else
-          LParamValue := TPGVariant(FParamsList[I]).Value; // Valor default se não passado
+          LParamValue := TPGVariant(FParamsList[I]).Value; // Valor default se nï¿½o passado
 
         TPGVariant.Create(LSubGrammar.Local, LParamName, LParamValue, False);
       end;
 
-      // 4. Cria a variável mágica 'Result'
+      // 4. Cria a variï¿½vel mï¿½gica 'Result'
       LResultVar := TPGVariant.Create(LSubGrammar.Local, 'Result', TValue.Empty, False);
 
-      // 5. Executa os tokens da função
+      // 5. Executa os tokens da funï¿½ï¿½o
       LSubGrammar.SetTokens(FTokenList);
       LSubGrammar.Start;
       LSubGrammar.WaitFor;
 
       AGrammar.HasError := LSubGrammar.HasError;
 
-      // 6. Devolve o valor de 'Result' para a pilha da gramática pai
+      // 6. Devolve o valor de 'Result' para a pilha da gramï¿½tica pai
       if not AGrammar.HasError then
         AGrammar.Stack.Push(LResultVar.Value);
 
@@ -148,7 +148,7 @@ begin
   else
     LTargetNivel := AGrammar.Local;
 
-  // Passamos o LStartPos para o método interno
+  // Passamos o LStartPos para o mï¿½todo interno
   DeclareInternal(AGrammar, LTargetNivel, LStartPos);
 end;
 
@@ -171,7 +171,7 @@ begin
   if Assigned(LID) then LID.Free;
   LFunc := TPGFunction.Create(ANivel, LName);
 
-  AGrammar.TokenList.Next; // Pula o nome da função
+  AGrammar.TokenList.Next; // Pula o nome da funï¿½ï¿½o
 
   if AGrammar.Consume(tkLPar) then
   begin
@@ -180,17 +180,17 @@ begin
 
     if AGrammar.Consume(tkRPar) and AGrammar.Consume(tkSemiColon) then
     begin
-      // 1. Extrai o corpo. O FindEnd consome até o 'end' inclusive.
+      // 1. Extrai o corpo. O FindEnd consome atï¿½ o 'end' inclusive.
       FindEnd(AGrammar, True, LFunc.Tokens);
 
       if not AGrammar.HasError then
       begin
-        // Agora o AGrammar.TokenList.Current aponta para o que vem DEPOIS da função.
-        // Ex: O início da chamada "teste(1000);"
-        // O Offset desse próximo token é exatamente o fim da nossa declaração.
+        // Agora o AGrammar.TokenList.Current aponta para o que vem DEPOIS da funï¿½ï¿½o.
+        // Ex: O inï¿½cio da chamada "teste(1000);"
+        // O Offset desse prï¿½ximo token ï¿½ exatamente o fim da nossa declaraï¿½ï¿½o.
         LEndPos := AGrammar.TokenList.Current.Coordinate.Offset;
 
-        // Caso especial: Se o usuário colocou um ';' após o 'end',
+        // Caso especial: Se o usuï¿½rio colocou um ';' apï¿½s o 'end',
         // queremos que esse ';' entre no FScriptSource.
         if AGrammar.Match(tkSemiColon) then
         begin
@@ -198,13 +198,13 @@ begin
           LEndPos := LEndPos + AGrammar.TokenList.Current.Coordinate.Length;
         end;
 
-        // 3. A CÓPIA MILIMÉTRICA
-        // AStartPos: Início da palavra 'Function'
+        // 3. A Cï¿½PIA MILIMï¿½TRICA
+        // AStartPos: Inï¿½cio da palavra 'Function'
         // LEndPos: Fim do caractere ';' ou do 'end'
         LFunc.Script := Copy(AGrammar.Script, AStartPos + 1, LEndPos - AStartPos);
 
-        // Se a cópia ainda parecer faltar um caractere,
-        // verifique se o seu Léxico está contando o Length corretamente para o 'end'.
+        // Se a cï¿½pia ainda parecer faltar um caractere,
+        // verifique se o seu Lï¿½xico estï¿½ contando o Length corretamente para o 'end'.
       end;
     end;
   end;

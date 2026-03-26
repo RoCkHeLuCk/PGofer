@@ -1,4 +1,4 @@
-unit PGofer.Net.Socket;
+﻿unit PGofer.Net.Socket;
 
 interface
 

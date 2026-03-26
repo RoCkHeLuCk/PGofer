@@ -1,4 +1,4 @@
-object FrmPassword: TFrmPassword
+﻿object FrmPassword: TFrmPassword
   Left = 0
   Top = 0
   BorderStyle = bsToolWindow

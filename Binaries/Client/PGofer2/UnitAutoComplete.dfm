@@ -1,4 +1,4 @@
-object FrmAutoCompletes: TFrmAutoCompletes
+﻿object FrmAutoCompletes: TFrmAutoCompletes
   AlignWithMargins = True
   Left = 538
   Top = 112

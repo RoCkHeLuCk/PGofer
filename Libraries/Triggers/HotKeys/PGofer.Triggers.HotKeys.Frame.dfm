@@ -1,4 +1,4 @@
-inherited PGHotKeyFrame: TPGHotKeyFrame
+﻿inherited PGHotKeyFrame: TPGHotKeyFrame
   Height = 304
   OnExit = MmoHotKeysExit
   ExplicitHeight = 304
