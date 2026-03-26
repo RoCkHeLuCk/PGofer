@@ -11,13 +11,10 @@ type
   private
     FLink: TPGLink;
     FConsoleMessage: Boolean;
-
     FParameter: string;
-    FState: Byte;
-    FPriority: Byte;
     FRunAdmin: Boolean;
-    FCaptureMsg: Boolean;
     FSingleInstance: Boolean;
+    FState: Byte;
 
     procedure PipeLines();
     procedure ShellExec();
@@ -27,13 +24,11 @@ type
   public
     constructor Create(
       ALink: TPGLink;
-      ATerminate: Boolean;
+      AWaitFor: Boolean;
       AParameter: string;
       ARunAdmin: Boolean;
       ASingleInstance: Boolean;
-      APriority: Byte;
-      AState: Byte;
-      ACaptureMsg: Boolean
+      AState: Byte
     ); overload;
     destructor Destroy(); override;
   end;
@@ -54,37 +49,31 @@ uses
 
 constructor TLinkThread.Create(
     ALink: TPGLink;
-    ATerminate: Boolean;
+    AWaitFor: Boolean;
     AParameter: string;
     ARunAdmin: Boolean;
     ASingleInstance: Boolean;
-    APriority: Byte;
-    AState: Byte;
-    ACaptureMsg: Boolean
+    AState: Byte
   );
 begin
   inherited Create(True);
-  Self.FreeOnTerminate := ATerminate;
+  Self.FreeOnTerminate := not AWaitFor;
   Self.Priority := tpIdle;
 
   FLink := ALink;
   FConsoleMessage := TPGKernel.ConsoleMessage;
 
   FParameter:= AParameter;
-  FState:= AState;
-  FPriority:= APriority;
   FRunAdmin:= ARunAdmin;
-  FCaptureMsg:= ACaptureMsg;
   FSingleInstance:= ASingleInstance;
+  FState:= AState;
 end;
 
 destructor TLinkThread.Destroy();
 begin
   FParameter:= '';
   FState:= 0;
-  FPriority:= 0;
   FRunAdmin:= False;
-  FCaptureMsg:= False;
   FSingleInstance:= False;
   FLink := nil;
   inherited Destroy();
@@ -104,7 +93,7 @@ begin
 
   if FLink.CanExecute then
   begin
-    if FCaptureMsg then
+    if FLink.CaptureMsg then
     begin
       PipeLines()
     end else begin
@@ -159,7 +148,7 @@ begin
       @SecurityAttribute,
       @SecurityAttribute,
       True,
-      GetProcessPri(FPriority),
+      GetProcessPri(FLink.Priority),
       nil,
       PWideChar(Directory),
       StartupInfo,
@@ -215,7 +204,7 @@ begin
   ReturnCode := CreateProcessRunCurrent(
     FileName,                         //application
     '"' + FileName + '" ' + Param,    //command line
-    GetProcessPri(FPriority)     ,    //create flag
+    GetProcessPri(FLink.Priority)     ,    //create flag
     nil,                              //Enviroment
     Directory,                        //Current Diretory
     StartupInfo,                      //StartupInfo
@@ -270,7 +259,7 @@ begin
 
   if ShellExecuteInfoW.hProcess <> INVALID_HANDLE_VALUE then
   begin
-    SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(FPriority));
+    SetPriorityClass(ShellExecuteInfoW.hProcess, GetProcessPri(FLink.Priority));
   end;
 
   sText := GetShellExMSGToStr(ShellExecuteInfoW.hInstApp);

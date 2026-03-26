@@ -6,8 +6,9 @@ uses
   System.Classes,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Triggers, PGofer.Triggers.Links, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame, Pgofer.Component.Checkbox;
+  PGofer.Classes, PGofer.Triggers, PGofer.Triggers.Links, PGofer.Triggers.Frame,
+  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame, Pgofer.Component.Checkbox,
+  Pgofer.Component.ComboBox;
 
 type
   TPGLinkFrame = class( TPGTriggerFrame )
@@ -19,17 +20,17 @@ type
     EdtFile: TEditEx;
     EdtPatameter: TEditEx;
     EdtDiretory: TEditEx;
-    CmbState: TComboBox;
-    CmbPriority: TComboBox;
+    CmbState: TPGComboBox;
+    CmbPriority: TPGComboBox;
     BtnTest: TButton;
     GrbScriptBefore: TGroupBox;
     EdtScriptBefore: TRichEditEx;
     GrbScriptAfter: TGroupBox;
     EdtScriptAfter: TRichEditEx;
     sptScriptBefore: TSplitter;
-    ckbCapture: TCheckBox;
+    ckbCapture: TCheckBoxEx;
     sptScriptAfter: TSplitter;
-    ckbAdministrator: TCheckBox;
+    ckbAdministrator: TCheckBoxEx;
     CkbSingleInstance: TCheckBoxEx;
     procedure CmbStateChange( Sender: TObject );
     procedure CmbPriorityChange( Sender: TObject );
@@ -46,13 +47,13 @@ type
     procedure EdtFileActionButtonClick(Sender: TObject);
     procedure CkbSingleInstanceClick(Sender: TObject);
   private
+    function GetItem( ): TPGLink;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    function GetItem( ): TPGLink; virtual;
     property Item: TPGLink read GetItem;
   public
-    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -66,20 +67,19 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
-constructor TPGLinkFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
+constructor TPGLinkFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FLocalFind := False;
-  EdtFile.Text := Item.FileName;
-  EdtPatameter.Text := Item.Parameter;
-  EdtDiretory.Text := Item.Directory;
-  CmbState.ItemIndex := Item.State;
-  CmbPriority.ItemIndex := Item.Priority;
-  ckbAdministrator.Checked := Item.RunAdmin;
-  CkbSingleInstance.Checked := Item.SingleInstance;
-  ckbCapture.Checked := Item.CaptureMsg;
-  EdtScriptBefore.Lines.Text := Item.ScriptBefor;
-  EdtScriptAfter.Lines.Text := Item.ScriptAfter;
+  EdtFile.SetTextSilent( Item.FileName );
+  EdtPatameter.SetTextSilent( Item.Parameter );
+  EdtDiretory.SetTextSilent( Item.Directory );
+  CmbState.SetIndexSilent( Item.State );
+  CmbPriority.SetIndexSilent( Item.Priority );
+  ckbAdministrator.SetCheckedSilent( Item.RunAdmin );
+  CkbSingleInstance.SetCheckedSilent( Item.SingleInstance );
+  ckbCapture.SetCheckedSilent( Item.CaptureMsg );
+  EdtScriptBefore.SetTextSilent( Item.ScriptBefor );
+  EdtScriptAfter.SetTextSilent( Item.ScriptAfter );
   FrmAutoComplete.EditCtrlAdd( EdtScriptBefore );
   FrmAutoComplete.EditCtrlAdd( EdtScriptAfter );
 end;

@@ -7,7 +7,8 @@ uses
 
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Triggers, PGofer.Triggers.AutoFills, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit;
+  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Classes,
+  Pgofer.Component.ComboBox;
 
 type
   TPGAutoFillsFrame = class( TPGTriggerFrame )
@@ -18,7 +19,7 @@ type
     EdtSpeed: TEditEx;
     UpdSpeed: TUpDown;
     LblMode: TLabel;
-    CmbMode: TComboBox;
+    CmbMode: TPGComboBox;
     LblDelay: TLabel;
     EdtDelay: TEditEx;
     updDelay: TUpDown;
@@ -33,13 +34,13 @@ type
     procedure EdtDelayAfterValidate(Sender: TObject);
     procedure EdtSpeedAfterValidate(Sender: TObject);
   private
+    function GetItem( ): TPGAutoFill;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    function GetItem( ): TPGAutoFill; reintroduce;
     property Item: TPGAutoFill read GetItem;
   public
-    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -51,13 +52,13 @@ uses
 {$R *.dfm}
 
 { TPGAutoFillsFrame }
-constructor TPGAutoFillsFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
+constructor TPGAutoFillsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtText.Lines.Text := Item.Text;
-  CmbMode.ItemIndex := Item.Mode;
-  EdtSpeed.Text := Item.Speed.ToString();
-  EdtDelay.Text := Item.Delay.ToString();
+  EdtText.SetTextSilent( Item.Text );
+  CmbMode.SetIndexSilent( Item.Mode );
+  EdtSpeed.SetTextSilent( Item.Speed.ToString() );
+  EdtDelay.SetTextSilent( Item.Delay.ToString() );
 end;
 
 destructor TPGAutoFillsFrame.Destroy( );
@@ -96,7 +97,7 @@ end;
 procedure TPGAutoFillsFrame.EdtTextKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  Item.Text := EdtText.Lines.Text;
+  Item.Text := EdtText.Text;
 end;
 
 procedure TPGAutoFillsFrame.CmbModeChange(Sender: TObject);

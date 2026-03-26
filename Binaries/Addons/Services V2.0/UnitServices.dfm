@@ -31,7 +31,6 @@ object FrmServices: TFrmServices
     FFFC3FFFFFFC00000000000000000000000000000000C0000000C0000000FFFF
     FFFFFFFFFFFF}
   OldCreateOrder = False
-  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow

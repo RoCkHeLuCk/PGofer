@@ -24,19 +24,17 @@ type
     procedure EdtNameAfterValidate(Sender: TObject);
   private
     FAboutSplitter: Boolean;
-    class var FIniFile: TMemIniFileEx;
+    function GetItem( ): TPGItem;
+    function GetIniFile(): TMemIniFileEx;
   protected
     FItem: TPGItem;
-    class property IniFile: TMemIniFileEx read FiniFile;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
-    function GetItem( ): TPGItem;
     property Item: TPGItem read GetItem;
   public
-    class constructor Create();
-    class destructor Destroy();
-    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce; virtual;
     destructor Destroy( ); override;
+    property IniFile: TMemIniFileEx read GetIniFile;
   end;
 
 implementation
@@ -44,19 +42,7 @@ implementation
 {$R *.dfm}
 
 uses
-  PGofer.Core;
-
-
-class constructor TPGItemFrame.Create();
-begin
-  FIniFile := TMemIniFileEx.Create( TPGKernel.PathCurrent + 'Config.ini' );
-end;
-
-class destructor TPGItemFrame.Destroy();
-begin
-  FIniFile.Free;
-  FIniFile := nil;
-end;
+  PGofer.Component.Form, PGofer.Core;
 
 constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
@@ -65,8 +51,8 @@ begin
   Self.Parent := TWinControl( AParent );
   Self.Width := TControl( AParent ).Width - 16;
   FAboutSplitter := False;
-  EdtName.Text := FItem.Name;
-  EdtName.ReadOnly := FItem.ReadOnly;
+  EdtName.SetTextSilent( FItem.Name );
+  EdtName.ReadOnly := FItem.SystemNode;
   rceAbout.Lines.Text := FItem.About;
   Self.IniConfigLoad( );
 end;
@@ -80,13 +66,13 @@ end;
 
 procedure TPGItemFrame.IniConfigLoad( );
 begin
-  Self.Height := FIniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
+  Self.Height := IniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
 procedure TPGItemFrame.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
-  FIniFile.UpdateFile();
+  IniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
+  IniFile.UpdateFile();
 end;
 
 procedure TPGItemFrame.sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
@@ -119,6 +105,11 @@ end;
 function TPGItemFrame.GetItem( ): TPGItem;
 begin
    Result := FItem;
+end;
+
+function TPGItemFrame.GetIniFile: TMemIniFileEx;
+begin
+  Result := TFormEx.IniFile;
 end;
 
 end.

@@ -52,8 +52,10 @@ inherited PGLinkFrame: TPGLinkFrame
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
+      StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptAfterKeyUp
+      Text = ''
     end
   end
   object GrbScriptBefore: TGroupBox [3]
@@ -83,8 +85,10 @@ inherited PGLinkFrame: TPGLinkFrame
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
+      StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptBeforeKeyUp
+      Text = ''
     end
   end
   inherited grbAbout: TGroupBox
@@ -104,6 +108,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'File:'
+      StyleElements = [seFont, seClient]
     end
     object LblParameter: TLabel [1]
       Left = 5
@@ -113,6 +118,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Parameter:'
+      StyleElements = [seFont, seClient]
     end
     object LblDirectory: TLabel [2]
       Left = 5
@@ -122,6 +128,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Path:'
+      StyleElements = [seFont, seClient]
     end
     object LblState: TLabel [3]
       Left = 5
@@ -131,6 +138,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'State:'
+      StyleElements = [seFont, seClient]
     end
     object LblPriority: TLabel [4]
       Left = 5
@@ -140,6 +148,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Priority:'
+      StyleElements = [seFont, seClient]
     end
     object EdtFile: TEditEx [6]
       Left = 70
@@ -151,6 +160,8 @@ inherited PGLinkFrame: TPGLinkFrame
       Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 1
+      Text = ''
+      StyleElements = [seFont, seClient]
       ValidationMode = vmOpenFile
       ActionButtonShow = True
       PathAutoUnExpand = True
@@ -168,6 +179,8 @@ inherited PGLinkFrame: TPGLinkFrame
       Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 3
+      Text = ''
+      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtPatameterAfterValidate
     end
     object EdtDiretory: TEditEx [8]
@@ -179,12 +192,14 @@ inherited PGLinkFrame: TPGLinkFrame
       Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 4
+      Text = ''
+      StyleElements = [seFont, seClient]
       ValidationMode = vmPathExists
       ActionButtonShow = True
       PathAutoUnExpand = True
       OnAfterValidate = EdtDiretoryAfterValidate
     end
-    object CmbState: TComboBox [9]
+    object CmbState: TPGComboBox [9]
       Left = 70
       Top = 114
       Width = 119
@@ -194,6 +209,7 @@ inherited PGLinkFrame: TPGLinkFrame
       ItemIndex = 1
       TabOrder = 6
       Text = 'Normal'
+      StyleElements = [seFont, seClient]
       OnChange = CmbStateChange
       Items.Strings = (
         'Hiden'
@@ -201,7 +217,7 @@ inherited PGLinkFrame: TPGLinkFrame
         'Minimized'
         'Maxmized')
     end
-    object CmbPriority: TComboBox [10]
+    object CmbPriority: TPGComboBox [10]
       Left = 70
       Top = 141
       Width = 119
@@ -211,6 +227,7 @@ inherited PGLinkFrame: TPGLinkFrame
       ItemIndex = 2
       TabOrder = 7
       Text = 'Normal'
+      StyleElements = [seFont, seClient]
       OnChange = CmbPriorityChange
       Items.Strings = (
         'Low'
@@ -227,24 +244,27 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Caption = 'Test'
       TabOrder = 10
+      StyleElements = [seFont, seClient]
       OnClick = BtnTestClick
     end
-    object ckbCapture: TCheckBox [12]
+    object ckbCapture: TCheckBoxEx [12]
       Left = 311
       Top = 116
       Width = 97
       Height = 17
       Caption = 'CaptureMsg'
       TabOrder = 9
+      StyleElements = [seFont, seClient]
       OnClick = ckbCaptureClick
     end
-    object ckbAdministrator: TCheckBox
+    object ckbAdministrator: TCheckBoxEx
       Left = 199
       Top = 116
       Width = 97
       Height = 17
       Caption = 'Run Admintrator'
       TabOrder = 8
+      StyleElements = [seFont, seClient]
       OnClick = ckbAdministratorClick
     end
     object CkbSingleInstance: TCheckBoxEx
@@ -254,6 +274,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 17
       Caption = 'Single Instance'
       TabOrder = 11
+      StyleElements = [seFont, seClient]
       OnClick = CkbSingleInstanceClick
     end
   end

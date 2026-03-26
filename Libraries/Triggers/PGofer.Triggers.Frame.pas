@@ -4,41 +4,60 @@ interface
 
 uses
   System.Classes,
-  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
-
-  PGofer.Runtime,
-  PGofer.Item.Frame, PGofer.Triggers, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,  Vcl.ExtCtrls, Vcl.ComCtrls,
+  PGofer.Component.Edit, PGofer.Classes, PGofer.Item.Frame;
 
 type
   TPGTriggerFrame = class(TPGItemFrame)
     procedure EdtNameBeforeValidate(ASender: TObject; var AIsValid: Boolean);
   private
+    function GetItem( ): TPGItem; virtual;
   protected
-    FLocalFind : Boolean;
-    function GetItem( ): TPGItemTrigger; reintroduce;
-    property Item: TPGItemTrigger read GetItem;
+    property Item: TPGItem read GetItem;
   public
-    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); override;
   end;
 
 implementation
 
 {$R *.dfm}
 
-constructor TPGTriggerFrame.Create(AItem: TPGItemTrigger; AParent: TObject);
+uses
+  PGofer.Runtime, PGofer.Triggers, PGofer.Sintatico.Controls;
+
+constructor TPGTriggerFrame.Create(AItem: TPGItem; AParent: TObject);
 begin
    inherited Create( AItem, AParent );
-   FLocalFind := True;
 end;
 
 procedure TPGTriggerFrame.EdtNameBeforeValidate(ASender: TObject; var AIsValid: Boolean);
+var
+  LFoundItem: TPGItem;
 begin
-  AIsValid := not Item.isItemExist( EdtName.Text, FLocalFind );
+  // 1. Regra herdada do FolderMirror: Se for pasta e NÃO for namespace, não precisa validar colisão
+  if (Item is TPGFolderMirror) and (not TPGFolderMirror(Item).Namespace) then
+  begin
+    AIsValid := True;
+    Exit;
+  end;
+
+
+  if Assigned(Item.Parent) then
+  begin
+    if Item.Parent = TriggersCollect then
+      LFoundItem := FindID(GlobalCollection, EdtName.Text)
+    else
+      LFoundItem := Item.Parent.FindName(EdtName.Text)
+  end else
+    LFoundItem := nil;
+
+  // 3. É válido se NÃO achar ninguém com esse nome, ou se o que achar for ele mesmo
+  AIsValid := not (Assigned(LFoundItem) and (LFoundItem <> Item));
 end;
 
-function TPGTriggerFrame.GetItem(): TPGItemTrigger;
+function TPGTriggerFrame.GetItem(): TPGItem;
 begin
-  Result := TPGItemTrigger( FItem );
+  Result := TPGItemTrigger(FItem);
 end;
 
 end.

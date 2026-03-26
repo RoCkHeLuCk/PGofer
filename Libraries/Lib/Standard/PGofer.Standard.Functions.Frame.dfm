@@ -22,6 +22,7 @@ inherited PGFunctionFrame: TPGFunctionFrame
     Caption = 'Script (Run = F9)'
     Constraints.MinHeight = 60
     TabOrder = 3
+    StyleElements = [seFont, seClient]
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -40,8 +41,10 @@ inherited PGFunctionFrame: TPGFunctionFrame
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
+      StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
+      Text = ''
     end
   end
   inherited grbAbout: TGroupBox

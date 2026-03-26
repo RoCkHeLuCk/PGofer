@@ -5,167 +5,132 @@ interface
 uses
   System.Classes, System.Generics.Collections,
   PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
-  PGofer.Triggers.Collections;
+  PGofer.Triggers.Collections, PGofer.Triggers.Frame;
 
 type
   TPGItemMirror = class;
+  TPGTriggerFrameType = class of TPGTriggerFrame;
+  TPGItemTriggerType = class of TPGItemTrigger;
 
   TPGItemTrigger = class( TPGItemClass )
   private
     FItemMirror: TPGItemMirror;
+    function GetParentNamespace(): TPGFolder;
   protected
-    procedure ExecuteWithArgs( AGramatica: TGramatica ); virtual; abstract;
     procedure SetName( AName: string ); override;
-    function GetIsValid(): Boolean; virtual;
+    procedure SetParent(AParent: TPGItem); override;
+    procedure ExecuteDefault(const AGrammar: TPGGrammar); override;
+    class function GetFrameType: TPGTriggerFrameType; virtual;
   public
-    constructor Create( AItemDad: TPGItem; AName: string; AItemMirror: TPGItemMirror ); reintroduce; overload; virtual;
-    destructor Destroy( ); override;
+    constructor Create( AItemMirror: TPGItemMirror; AName: string ); reintroduce; virtual;
+    destructor Destroy(); override;
     property ItemMirror: TPGItemMirror read FItemMirror;
-    property isValid: Boolean read GetIsValid;
-    procedure Execute( AGramatica: TGramatica ); override;
-    procedure Triggering( ); virtual; abstract;
-    function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
+    property ParentNamespace: TPGFolder read GetParentNamespace;
+    procedure Frame(AParent: TObject); override;
+    procedure Triggering(); virtual; abstract;
+    class function TranscendName( AName: string; AItemList: TPGItem = nil; AIgnoreItem: TPGItem = nil ): string;
   end;
+
 
   TPGItemMirror = class( TPGItem )
   private
     FItemOriginal: TPGItemTrigger;
   protected
-    function GetIsValid( ): Boolean; virtual;
+    class function GetTriggerType: TPGItemTriggerType; virtual;
+    procedure SetName(AName: string); override;
+    procedure SetParent(AParent: TPGItem); override;
   public
-    constructor Create( AItemDad: TPGItem; AItemOriginal: TPGItemTrigger ); overload; virtual;
-    destructor Destroy( ); override;
-    property isValid: Boolean read GetIsValid;
+    constructor Create( AItemDad: TPGItem; AName: string ); reintroduce; virtual;
+    destructor Destroy(); override;
     property ItemOriginal: TPGItemTrigger read FItemOriginal;
-    class function OnDropFile( AItemDad: TPGItem; AFileName: String ): Boolean; virtual;
-    class function TranscendName( AName: string; AItemList: TPGItem = nil ): string;
+    procedure Frame(AParent: TObject); override;
+    class function ClassNameEx(): string; override;
+    class function OnDropFile( AItemDad: TPGItem; AFileName: string ): Boolean; virtual;
   end;
 
   {$M+}
-  TPGFolderMirror = class( TPGItemMirror )
+  TPGFolderMirror = class( TPGFolder )
   private
-    FExpanded: Boolean;
-    FPersist: Boolean;
-    procedure SetExpanded( AValue: Boolean );
+    FFolderOriginal: TPGFolder;
+    FNamespace: Boolean;
+    procedure SetNamespace( AValue: Boolean );
+    function GetParentNamespace(): TPGFolder;
   protected
-    FLocked: Boolean;
-    procedure SetLocked(AValue:Boolean); virtual;
+    procedure SetParent(AParent: TPGItem); override;
+    procedure SetName(AName: string); override;
   public
-    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
-    destructor Destroy( ); override;
+    class function OnDropFile( AItemDad: TPGItem; AFileName: string ): Boolean; virtual;
+    class function ClassNameEx(): string; override;
+    constructor Create( AItemDad: TPGItem; AName: string); reintroduce; virtual;
+    destructor Destroy(); override;
+    property FolderOriginal: TPGFolder read FFolderOriginal;
+    property ParentNamespace: TPGFolder read GetParentNamespace;
+    procedure Frame( AParent: TObject ); override;
     function BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
     function BeforeXMLLoad(ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
-    class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
-    class function ClassNameEx(): String; override;
+    //function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
+    function TranscendName( AName: string; AItemList: TPGItem = nil ): string;
   published
-    property Expanded: Boolean read FExpanded write SetExpanded;
-    property Locked: Boolean read FLocked write SetLocked;
-    property Persist: Boolean read FPersist write FPersist;
+    property Namespace: Boolean read FNamespace write SetNamespace;
   end;
   {$TYPEINFO ON}
 
 var
   TriggersCollect: TPGItemCollectTrigger;
+  GlobalTriggerFolder: TPGFolder;
 
 implementation
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.RTTI, System.TypInfo,
   PGofer.Lexico, PGofer.Sintatico.Controls,
-  PGofer.Key.Controls;
+  PGofer.Key.Controls, PGofer.Triggers.Folder.Frame;
 
 { TPGItemTrigger }
 
-constructor TPGItemTrigger.Create( AItemDad: TPGItem; AName: string; AItemMirror: TPGItemMirror );
+constructor TPGItemTrigger.Create( AItemMirror: TPGItemMirror; AName: string );
+var
+  LParent: TPGItem;
 begin
-  inherited Create( AItemDad, AName );
   FItemMirror := AItemMirror;
+  if AName = '' then AName := 'New' + Self.ClassNameEx;
+
+  if Assigned(FItemMirror) then
+    LParent := Self.GetParentNamespace()
+  else
+    LParent := GlobalTriggerFolder;
+
+  inherited Create( LParent, AName );
+  Self.SystemNode := False;
+  if Assigned(FItemMirror) then
+     FItemMirror.Name := Self.Name;
 end;
 
-destructor TPGItemTrigger.Destroy( );
+destructor TPGItemTrigger.Destroy();
 begin
-  if Assigned( FItemMirror ) then
+  if Assigned( FItemMirror ) and (not FItemMirror.Destroying) then
   begin
     FItemMirror.FItemOriginal := nil;
-    FItemMirror.Free( );
+    FItemMirror.Free();
   end;
-  inherited Destroy( );
+  FItemMirror := nil;
+  inherited Destroy();
 end;
 
 procedure TPGItemTrigger.SetName( AName: string );
 begin
-  inherited SetName( AName );
+  if Self.Name = AName then Exit;
+  Self.SetNameForced( AName );
   if Assigned( FItemMirror ) then
-    FItemMirror.Name := AName;
+    FItemMirror.SetNameForced( AName );
 end;
 
-function TPGItemTrigger.GetIsValid: Boolean;
-begin
-  Result := True;
-end;
-
-procedure TPGItemTrigger.Execute( AGramatica: TGramatica );
-begin
-  if Self.TryExecuteChild(AGramatica) then
-    Exit;
-
-  if AGramatica.TokenList.Token.Classe = cmdLPar then
-    Self.ExecuteWithArgs( AGramatica )
-  else
-    Self.Triggering;
-end;
-
-function TPGItemTrigger.isItemExist( AName: string; ALocal: Boolean ): Boolean;
-var
-  Item: TPGItem;
-begin
-  if ALocal then
-    Item := Self.Parent.FindName( AName )
-  else
-    Item := FindID( GlobalCollection, AName );
-
-  Result := ( Assigned( Item ) and ( Item <> Self ) );
-end;
-
-{ TPGItemMirror }
-
-constructor TPGItemMirror.Create( AItemDad: TPGItem; AItemOriginal: TPGItemTrigger );
-begin
-  inherited Create( AItemDad, AItemOriginal.Name );
-  Self.ReadOnly := False;
-  FItemOriginal := AItemOriginal;
-end;
-
-destructor TPGItemMirror.Destroy( );
-begin
-  if Assigned( FItemOriginal ) then
-  begin
-    FItemOriginal.FItemMirror := nil;
-    FItemOriginal.Free;
-  end;
-  inherited Destroy( );
-end;
-
-function TPGItemMirror.GetIsValid( ): Boolean;
-begin
-  if Assigned( FItemOriginal ) then
-    Result := FItemOriginal.isValid
-  else
-    Result := True;
-end;
-
-class function TPGItemMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;
-begin
-   Result := False;
-end;
-
-class function TPGItemMirror.TranscendName( AName: string; AItemList: TPGItem = nil ): string;
+class function TPGItemTrigger.TranscendName(AName: string; AItemList: TPGItem; AIgnoreItem: TPGItem): string;
 var
   C: Word;
+  LFound: TPGItem;
 begin
-  C := 0;
   AName := RemoveCharSpecial( AName, True );
-
   if AName <> '' then
   begin
     if not CharInSet( AName[ LOW_STRING ], [ 'A' .. 'Z', '_', 'a' .. 'z'] ) then
@@ -174,39 +139,183 @@ begin
     AName := 'New';
 
   Result := AName;
-  if Assigned( AItemList ) and ( AItemList <> GlobalCollection ) then
+  c := 0;
+  if Assigned( AItemList ) and ( AItemList <> GlobalTriggerFolder ) then
   begin
-    while Assigned( AItemList.FindName( Result ) ) do
+    LFound := AItemList.FindName( Result );
+    while Assigned( LFound ) do
     begin
+      if (LFound = AIgnoreItem) then
+         Break;
       inc( C );
       Result := AName + IntToStr( C );
+      LFound := AItemList.FindName( Result );
     end;
   end else begin
-    while Assigned( FindID( GlobalCollection, Result ) ) do
+    LFound := FindID( GlobalCollection, Result );
+    while Assigned( LFound ) do
     begin
+      if (LFound = AIgnoreItem) then
+         Break;
       inc( C );
       Result := AName + IntToStr( C );
+      LFound := FindID( GlobalCollection, Result );
     end;
   end;
 end;
 
-{ TPGFolder }
+procedure TPGItemTrigger.SetParent(AParent: TPGItem);
+var
+  LOldParent: TPGItem;
+begin
+  LOldParent := Self.Parent;
+  if LOldParent <> AParent then
+  begin
+    Self.SystemNode := False;
+    Self.Name := Self.TranscendName(Self.Name, AParent, Self);
+    inherited SetParent(AParent);
+  end;
+end;
+
+function TPGItemTrigger.GetParentNamespace(): TPGFolder;
+var
+  LItem: TPGItem;
+begin
+   LItem := FItemMirror.Parent;
+   while Assigned(LItem) do
+   begin
+      if (LItem is TPGFolderMirror) and TPGFolderMirror(LItem).Namespace then
+         Exit( TPGFolderMirror(LItem).FFolderOriginal );
+      LItem := LItem.Parent;
+   end;
+   Result := GlobalTriggerFolder;
+end;
+
+procedure TPGItemTrigger.ExecuteDefault(const AGrammar: TPGGrammar);
+begin
+  Self.Triggering();
+end;
+
+class function TPGItemTrigger.GetFrameType(): TPGTriggerFrameType;
+begin
+  Result := TPGTriggerFrame;
+end;
+
+procedure TPGItemTrigger.Frame(AParent: TObject);
+var
+  LFrameType: TPGTriggerFrameType;
+begin
+  LFrameType := Self.GetFrameType;
+  if Assigned(LFrameType) then
+    LFrameType.Create(Self, AParent)
+  else
+    inherited Frame(AParent);
+end;
+
+{ TPGItemMirror }
+
+class function TPGItemMirror.OnDropFile(AItemDad: TPGItem; AFileName: string): boolean;
+begin
+   Result := False;
+end;
+
+class function TPGItemMirror.GetTriggerType: TPGItemTriggerType;
+begin
+  Result := TPGItemTrigger;
+end;
+
+class function TPGItemMirror.ClassNameEx(): string;
+begin
+  Result := Self.GetTriggerType.ClassNameEx();
+end;
+
+constructor TPGItemMirror.Create( AItemDad: TPGItem; AName: string );
+begin
+  inherited Create( AItemDad, AName );
+  Self.SystemNode := False;
+  FItemOriginal := Self.GetTriggerType.Create( Self, AName );
+end;
+
+destructor TPGItemMirror.Destroy();
+begin
+  if Assigned( FItemOriginal ) and (not FItemOriginal.Destroying) then
+  begin
+    FItemOriginal.FItemMirror := nil;
+    FItemOriginal.Free;
+  end;
+  FItemOriginal := nil;
+  inherited Destroy();
+end;
+
+procedure TPGItemMirror.SetName(AName: string);
+begin
+  Self.SetNameForced(AName);
+  if Assigned( FItemOriginal ) then
+    FItemOriginal.SetNameForced(AName);
+end;
+
+procedure TPGItemMirror.SetParent(AParent: TPGItem);
+var
+  LOldParent: TPGItem;
+begin
+  LOldParent := Self.Parent;
+  inherited SetParent(AParent);
+  if (LOldParent <> AParent) and Assigned(FItemOriginal) then
+  begin
+    FItemOriginal.Parent := FItemOriginal.GetParentNamespace();
+  end;
+end;
+
+procedure TPGItemMirror.Frame(AParent: TObject);
+begin
+  if Assigned(FItemOriginal) then
+    FItemOriginal.Frame(AParent);
+end;
+
+{ TPGFolderMirror }
 
 constructor TPGFolderMirror.Create( AItemDad: TPGItem; AName: string );
 begin
-  if AName = '' then AName := 'NewFolder';
+  if AName = '' then AName := 'New' + Self.ClassNameEx;
+  AName := Self.TranscendName(AName, AItemDad);
   inherited Create( AItemDad, AName );
-  FLocked := False;
-  FExpanded := False;
+  Self.SystemNode := False;
+  FFolderOriginal := GlobalTriggerFolder;
+  FNamespace := False;
 end;
 
 destructor TPGFolderMirror.Destroy( );
 begin
-  Self.ReadOnly := False;
-  FLocked := False;
-  FExpanded := False;
+  Self.Clear;
+
+  if Assigned(FFolderOriginal) and (FFolderOriginal <> GlobalTriggerFolder)
+  and (not FFolderOriginal.Destroying) then
+    FFolderOriginal.Free;
+  FFolderOriginal := nil;
+  FNamespace := False;
+  Self._Locked := False;
+  Self._Expanded := False;
   inherited Destroy( );
 end;
+
+procedure TPGFolderMirror.Frame(AParent: TObject);
+begin
+  TPGFolderFrame.Create( Self, AParent );
+end;
+
+//function TPGFolderMirror.isItemExist(AName: string; ALocal: Boolean): Boolean;
+//var
+//  Item: TPGItem;
+//begin
+//  if not FNamespace then Exit(False);
+//
+//  if ALocal then
+//    Item := Self.Parent.FindName( AName )
+//  else
+//    Item := FindID( GlobalCollection, AName );
+//
+//  Result := ( Assigned( Item ) and ( Item <> Self ) );
+//end;
 
 function TPGFolderMirror.BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean;
 begin
@@ -232,29 +341,129 @@ begin
   Result := 'Folder';
 end;
 
-procedure TPGFolderMirror.SetExpanded( AValue: Boolean );
-begin
-  if not FLocked then
+procedure TPGFolderMirror.SetNamespace(AValue: Boolean);
+var
+  LItem : TPGFolder;
+
+  // Função interna para mover recursivamente os originais pela árvore de execução
+  procedure MoveOriginalsTo(AMirrorFolder: TPGItem; ANewParentNamespace: TPGFolder);
+  var
+    LChild: TPGItem;
   begin
-    FExpanded := AValue;
-    if Assigned( Self.Node ) then
-      Self.Node.Expanded := FExpanded;
+    for LChild in AMirrorFolder do
+    begin
+      if LChild is TPGItemMirror then
+      begin
+        // Se for um trigger comum, move o Original dele para o novo Namespace
+        if Assigned(TPGItemMirror(LChild).ItemOriginal) then
+          TPGItemMirror(LChild).ItemOriginal.Parent := ANewParentNamespace;
+      end
+      else if LChild is TPGFolderMirror then
+      begin
+        // Se a subpasta TAMBÉM for um namespace, movemos a pasta Original dela inteira
+        if TPGFolderMirror(LChild).Namespace then
+        begin
+          if Assigned(TPGFolderMirror(LChild).FolderOriginal) and
+             (TPGFolderMirror(LChild).FolderOriginal <> GlobalTriggerFolder) then
+            TPGFolderMirror(LChild).FolderOriginal.Parent := ANewParentNamespace;
+        end
+        else
+        begin
+          // Se for uma pasta comum (sem namespace), ela é "transparente" na execução.
+          // Então, entramos nela recursivamente para mover os filhos lógicos.
+          MoveOriginalsTo(LChild, ANewParentNamespace);
+        end;
+      end;
+    end;
+  end;
+
+begin
+  if (AValue = FNamespace) then
+    Exit;
+
+  FNamespace := AValue;
+
+  if not FNamespace then
+  begin
+    // DESMARCOU: O usuário não quer mais que seja namespace.
+    // Pega quem é o namespace pai e devolve todo mundo para ele.
+    if Assigned(FFolderOriginal) and (FFolderOriginal <> GlobalTriggerFolder) then
+    begin
+      LItem := Self.GetParentNamespace();
+      MoveOriginalsTo(Self, LItem);
+
+      FFolderOriginal.Free;
+      FFolderOriginal := GlobalTriggerFolder; // Volta para o padrão
+
+      // Atualiza o nome do mirror para garantir que não colida com nada visualmente
+      Self.Name :=  Self.TranscendName(Self.Name, Self.Parent);
+    end;
+    Exit;
+  end;
+
+  // MARCOU: O usuário quer que esta pasta seja um namespace de execução.
+  LItem := Self.GetParentNamespace();
+
+  // Garante um nome único no namespace pai antes de criar a pasta lógica
+  Self.Name := Self.TranscendName(Self.Name, LItem);
+
+  // Cria a pasta de execução correspondente
+  FFolderOriginal := TPGFolder.Create(LItem, Self.Name);
+
+  // Varre os filhos do Mirror visual e joga os Originais para dentro da nova pasta lógica
+  MoveOriginalsTo(Self, FFolderOriginal);
+end;
+
+procedure TPGFolderMirror.SetParent(AParent: TPGItem);
+var
+  LOldParent: TPGItem;
+begin
+  LOldParent := Self.Parent;
+  if LOldParent <> AParent then
+  begin
+    Self.Name := Self.TranscendName(Self.Name, AParent);
+    inherited SetParent(AParent);
+    if FNamespace and Assigned(FFolderOriginal) and (FFolderOriginal <> GlobalTriggerFolder) then
+      FFolderOriginal.Parent := Self.GetParentNamespace();
   end;
 end;
 
-procedure TPGFolderMirror.SetLocked(AValue: Boolean);
+procedure TPGFolderMirror.SetName(AName: string);
 begin
-   FLocked := AValue;
-   if FLocked then
-     Self.SetExpanded( False );
+  Self.SetNameForced( AName );
+  if FNamespace and Assigned(FFolderOriginal)
+  and (FFolderOriginal <> GlobalTriggerFolder) then
+    FFolderOriginal.Name :=  AName;
+end;
+
+function TPGFolderMirror.TranscendName(AName: string; AItemList: TPGItem): string;
+begin
+  // Chega de código duplicado! Usa o motor robusto que criamos acima.
+  Result := TPGItemTrigger.TranscendName(AName, AItemList, Self);
+end;
+
+
+function TPGFolderMirror.GetParentNamespace(): TPGFolder;
+var
+  LItem: TPGItem;
+begin
+   LItem := Self.Parent;
+   while Assigned(LItem) do
+   begin
+      if (LItem is TPGFolderMirror) and TPGFolderMirror(LItem).Namespace then
+         Exit( TPGFolderMirror(LItem).FFolderOriginal );
+      LItem := LItem.Parent;
+   end;
+   Result := GlobalTriggerFolder;
 end;
 
 initialization
-  GlobalItemTrigger := TPGFolder.Create( GlobalCollection, 'Triggers' );
   TriggersCollect := TPGItemCollectTrigger.Create( 'Triggers' );
   TriggersCollect.RegisterClass( TPGFolderMirror );
+  GlobalTriggerFolder := TPGFolder.Create( GlobalCollection, 'Triggers' );
 
 finalization
   TriggersCollect.Free;
-
+  TriggersCollect := nil;
+  GlobalTriggerFolder := nil;
 end.

@@ -11,7 +11,6 @@ object FrmConsole: TFrmConsole
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
   ParentFont = True
-  FormStyle = fsStayOnTop
   KeyPreview = True
   Padding.Left = 2
   Padding.Top = 2
@@ -19,6 +18,7 @@ object FrmConsole: TFrmConsole
   Padding.Bottom = 2
   OldCreateOrder = True
   Position = poDefault
+  StyleElements = [seFont, seClient]
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -35,6 +35,7 @@ object FrmConsole: TFrmConsole
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
+    StyleElements = [seFont, seClient]
     OnMouseDown = PnlArrastarMouseDown
     OnMouseMove = PnlArrastarMouseMove
     object PnlArrastar: TPanel
@@ -50,6 +51,7 @@ object FrmConsole: TFrmConsole
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
+      StyleElements = [seFont, seClient]
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
       object BtnFixed: TSpeedButton
@@ -106,6 +108,7 @@ object FrmConsole: TFrmConsole
           07070707070707070000070707070707070707070000}
         Margin = 0
         Spacing = 0
+        StyleElements = [seFont, seClient]
         OnClick = BtnFixedClick
         ExplicitLeft = 179
         ExplicitHeight = 12
@@ -146,6 +149,7 @@ object FrmConsole: TFrmConsole
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 1
+      StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyPress = FormKeyPress
     end

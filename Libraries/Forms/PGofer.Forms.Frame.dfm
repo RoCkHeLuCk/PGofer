@@ -4,16 +4,19 @@ inherited PGFormsFrame: TPGFormsFrame
   inherited grbAbout: TGroupBox
     Top = 236
     Height = 64
-    ExplicitTop = 255
+    StyleElements = [seFont, seClient]
+    ExplicitTop = 236
     ExplicitHeight = 64
     inherited rceAbout: TRichEdit
       Height = 47
+      StyleElements = [seFont, seClient]
       ExplicitHeight = 47
     end
   end
   inherited pnlItem: TPanel
     Height = 233
     Constraints.MinHeight = 230
+    StyleElements = [seFont, seClient]
     ExplicitHeight = 233
     DesignSize = (
       400
@@ -26,6 +29,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Alpha Blend Value:'
+      StyleElements = [seFont, seClient]
     end
     object LblHeigth: TLabel [1]
       Left = 5
@@ -35,6 +39,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Heigth:'
+      StyleElements = [seFont, seClient]
     end
     object LblLeft: TLabel [2]
       Left = 173
@@ -44,6 +49,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Left:'
+      StyleElements = [seFont, seClient]
     end
     object LblTop: TLabel [3]
       Left = 5
@@ -53,6 +59,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Top:'
+      StyleElements = [seFont, seClient]
     end
     object LblTransparentColor: TLabel [4]
       Left = 144
@@ -62,6 +69,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Transparent Color:'
+      StyleElements = [seFont, seClient]
     end
     object LblWidth: TLabel [5]
       Left = 173
@@ -71,6 +79,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Width:'
+      StyleElements = [seFont, seClient]
     end
     object LblWindowState: TLabel [6]
       Left = 5
@@ -80,14 +89,19 @@ inherited PGFormsFrame: TPGFormsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'WindowState:'
+      StyleElements = [seFont, seClient]
     end
-    object CkbAlphaBlend: TCheckBox [8]
+    inherited LblName: TLabel
+      StyleElements = [seFont, seClient]
+    end
+    object CkbAlphaBlend: TCheckBoxEx [8]
       Left = 49
       Top = 39
       Width = 89
       Height = 17
       Caption = 'Alpha Blend'
       TabOrder = 0
+      StyleElements = [seFont, seClient]
       OnClick = CkbAlphaBlendClick
     end
     object UpdAlphaBlendValue: TUpDown [9]
@@ -98,24 +112,27 @@ inherited PGFormsFrame: TPGFormsFrame
       Associate = EdtAlphaBlendValue
       Max = 255
       TabOrder = 1
+      StyleElements = [seFont, seClient]
       OnChangingEx = UpdAlphaBlendValueChangingEx
     end
-    object CkbEnabled: TCheckBox [10]
+    object CkbEnabled: TCheckBoxEx [10]
       Left = 244
       Top = 92
       Width = 76
       Height = 17
       Caption = 'Enabled'
       TabOrder = 2
+      StyleElements = [seFont, seClient]
       OnClick = CkbEnabledClick
     end
-    object CkbTransparent: TCheckBox [11]
+    object CkbTransparent: TCheckBoxEx [11]
       Left = 49
       Top = 64
       Width = 89
       Height = 17
       Caption = 'Transparent'
       TabOrder = 3
+      StyleElements = [seFont, seClient]
       OnClick = CkbTransparentClick
     end
     object PnlTransparentColor: TPanel [12]
@@ -126,18 +143,20 @@ inherited PGFormsFrame: TPGFormsFrame
       Color = clBlack
       ParentBackground = False
       TabOrder = 4
+      StyleElements = [seFont, seClient]
       OnClick = PnlTransparentColorClick
     end
-    object CkbVisible: TCheckBox [13]
+    object CkbVisible: TCheckBoxEx [13]
       Left = 49
       Top = 92
       Width = 97
       Height = 17
       Caption = 'Visible'
       TabOrder = 5
+      StyleElements = [seFont, seClient]
       OnClick = CkbVisibleClick
     end
-    object CmbWindowState: TComboBox [14]
+    object CmbWindowState: TPGComboBox [14]
       Left = 104
       Top = 175
       Width = 117
@@ -149,6 +168,7 @@ inherited PGFormsFrame: TPGFormsFrame
       ItemIndex = 0
       TabOrder = 6
       Text = 'wsNormal'
+      StyleElements = [seFont, seClient]
       OnChange = CmbWindowStateChange
       Items.Strings = (
         'wsNormal'
@@ -162,6 +182,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 25
       Caption = 'Close'
       TabOrder = 7
+      StyleElements = [seFont, seClient]
       OnClick = BtnCloseClick
     end
     object BtnShow: TButton [16]
@@ -171,6 +192,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 25
       Caption = 'Show'
       TabOrder = 8
+      StyleElements = [seFont, seClient]
       OnClick = BtnShowClick
     end
     object EdtAlphaBlendValue: TEditEx [17]
@@ -181,6 +203,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Color = clSilver
       TabOrder = 9
       Text = '0'
+      StyleElements = [seFont, seClient]
       OnKeyUp = EdtAlphaBlendValueKeyUp
     end
     object EdtHeigth: TEditEx [18]
@@ -190,6 +213,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 10
+      Text = ''
+      StyleElements = [seFont, seClient]
       OnKeyUp = EdtHeigthKeyUp
     end
     object EdtTop: TEditEx [19]
@@ -199,6 +224,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 11
+      Text = ''
+      StyleElements = [seFont, seClient]
       OnKeyUp = EdtTopKeyUp
     end
     object EdtWidth: TEditEx [20]
@@ -208,6 +235,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 12
+      Text = ''
+      StyleElements = [seFont, seClient]
       OnKeyUp = EdtWidthKeyUp
     end
     object EdtLeft: TEditEx [21]
@@ -217,15 +246,19 @@ inherited PGFormsFrame: TPGFormsFrame
       Height = 21
       Color = clSilver
       TabOrder = 13
+      Text = ''
+      StyleElements = [seFont, seClient]
       OnKeyUp = EdtLeftKeyUp
     end
     inherited EdtName: TEditEx
       TabOrder = 14
+      StyleElements = [seFont, seClient]
     end
   end
   inherited sptAbout: TPanel
     Top = 303
-    ExplicitTop = 318
+    StyleElements = [seFont, seClient]
+    ExplicitTop = 303
   end
   object cldTrasparentColor: TColorDialog
     Options = [cdFullOpen, cdPreventFullOpen, cdShowHelp, cdSolidColor, cdAnyColor]

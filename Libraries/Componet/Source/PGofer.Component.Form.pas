@@ -10,25 +10,25 @@ uses
 
 type
   TFormEx = class( TForm )
-    procedure FormCreate( Sender: TObject );
-    procedure FormClose( Sender: TObject; var Action: TCloseAction );
-    procedure FormDestroy( Sender: TObject );
   private
-  protected
-    FIniFile: TMemIniFileEx;
-    FIniFileName: string;
     FForceResizable: boolean;
+    class var FIniFile: TMemIniFileEx;
+    procedure SetForceResizable(const Value: boolean);
+  protected
+    procedure DoCreate(); override;
+    procedure DoClose( var Action: TCloseAction ); override;
+    procedure DoDestroy( ); override;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
     procedure WMNCHitTest( var AMessage: TWMNCHitTest ); message WM_NCHITTEST;
     procedure CreateParams( var AParams: TCreateParams ); override;
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
   public
+    class property IniFile:TMemIniFileEx read FIniFile;
     procedure ForceShow( AFocus: boolean ); virtual;
   published
-    property IniFileName: string read FIniFileName write FIniFileName;
-    property ForceResizable: boolean read FForceResizable write FForceResizable
+    property ForceResizable: boolean read FForceResizable write SetForceResizable
       default False;
-    // property ParentsColor: boolean read FParentsColor write FParentsColor default True;
   end;
 
   procedure SwitchToThisWindow(hWnd: HWND; fAltTab: BOOL); stdcall; external user32 name 'SwitchToThisWindow';
@@ -52,37 +52,39 @@ begin
     AParams.WndParent := Application.MainForm.Handle;
 end;
 
-procedure TFormEx.FormCreate( Sender: TObject );
+procedure TFormEx.CreateWindowHandle(const Params: TCreateParams);
 begin
-  FIniFile := TMemIniFileEx.Create( ExtractFilePath( ParamStr( 0 ) ) +
-    'Config.ini' );
+  inherited;
+end;
+
+procedure TFormEx.DoCreate();
+begin
+  inherited DoCreate;
   Self.IniConfigLoad( );
 end;
 
-procedure TFormEx.FormClose( Sender: TObject; var Action: TCloseAction );
+procedure TFormEx.DoClose( var Action: TCloseAction );
 begin
   Self.IniConfigSave( );
+  inherited DoClose(Action);
 end;
 
-procedure TFormEx.FormDestroy( Sender: TObject );
+procedure TFormEx.DoDestroy( );
 begin
-  try
-    Self.IniConfigSave( );
-  finally
-    FIniFile.Free;
-  end;
+  Self.IniConfigSave( );
+  inherited DoDestroy();
 end;
 
 procedure TFormEx.IniConfigLoad( );
 begin
-  Self.Left := FIniFile.ReadInteger( Self.Name, 'Left', Self.Left );
-  Self.Top := FIniFile.ReadInteger( Self.Name, 'Top', Self.Top );
-  Self.ClientWidth := FIniFile.ReadInteger( Self.Name, 'Width',
+  Self.Left := IniFile.ReadInteger( Self.Name, 'Left', Self.Left );
+  Self.Top := IniFile.ReadInteger( Self.Name, 'Top', Self.Top );
+  Self.ClientWidth := IniFile.ReadInteger( Self.Name, 'Width',
     Self.ClientWidth );
-  Self.ClientHeight := FIniFile.ReadInteger( Self.Name, 'Height',
+  Self.ClientHeight := IniFile.ReadInteger( Self.Name, 'Height',
     Self.ClientHeight );
   Self.MakeFullyVisible( Self.Monitor );
-  if FIniFile.ReadBool( Self.Name, 'Maximized', False ) then
+  if IniFile.ReadBool( Self.Name, 'Maximized', False ) then
     Self.WindowState := wsMaximized;
 end;
 
@@ -91,15 +93,20 @@ begin
   Self.MakeFullyVisible( Self.Monitor );
   if Self.WindowState <> wsMaximized then
   begin
-    FIniFile.WriteInteger( Self.Name, 'Left', Self.Left );
-    FIniFile.WriteInteger( Self.Name, 'Top', Self.Top );
-    FIniFile.WriteInteger( Self.Name, 'Width', Self.ClientWidth );
-    FIniFile.WriteInteger( Self.Name, 'Height', Self.ClientHeight );
-    FIniFile.WriteBool( Self.Name, 'Maximized', False );
+    IniFile.WriteInteger( Self.Name, 'Left', Self.Left );
+    IniFile.WriteInteger( Self.Name, 'Top', Self.Top );
+    IniFile.WriteInteger( Self.Name, 'Width', Self.ClientWidth );
+    IniFile.WriteInteger( Self.Name, 'Height', Self.ClientHeight );
+    IniFile.WriteBool( Self.Name, 'Maximized', False );
   end
   else
-    FIniFile.WriteBool( Self.Name, 'Maximized', true );
-  FIniFile.UpdateFile;
+    IniFile.WriteBool( Self.Name, 'Maximized', true );
+  IniFile.UpdateFile;
+end;
+
+procedure TFormEx.SetForceResizable(const Value: boolean);
+begin
+  FForceResizable := Value;
 end;
 
 procedure TFormEx.WMNCHitTest( var AMessage: TWMNCHitTest );
@@ -135,12 +142,12 @@ begin
     end;
 end;
 
-
 procedure TFormEx.ForceShow(AFocus: Boolean);
 var
   ForegroundThreadID, ThisThreadID, timeout: Cardinal;
   hWinPosInfo: HDWP; // Handle da transação
 begin
+
   //1. destrava o windows
   SystemParametersInfo(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, Pointer(0), SPIF_SENDCHANGE);
   AllowSetForegroundWindow(GetCurrentProcessId);
@@ -156,8 +163,11 @@ begin
     ShowWindow(Self.Handle, Integer(Self.WindowState));
     SetForegroundWindow(Self.Handle);
   end else begin
-    Self.Visible := true;
+    SetWindowLong(Self.Handle, GWL_EXSTYLE,
+      GetWindowLong(Self.Handle, GWL_EXSTYLE) or WS_EX_NOACTIVATE);
+
     ShowWindow(Self.Handle, SW_SHOWNOACTIVATE);
+    Self.Visible := true;
   end;
 
   // 4. Tenta iniciar a transação para 1 janela
@@ -220,11 +230,8 @@ begin
 
     Self.SetFocus;
   end;
-
   Self.MakeFullyVisible(Self.Monitor);
 end;
-//}
-
 
 { //OLD
 procedure TFormEx.ForceShow( AFocus: boolean );
@@ -310,6 +317,11 @@ begin
 end;
 //}
 
+initialization
+  TFormEx.FIniFile := TMemIniFileEx.Create( ExtractFilePath( ParamStr( 0 ) ) + 'Config.ini' );
 
+finalization
+  TFormEx.FIniFile.Free;
+  TFormEx.FIniFile:= nil;
 
 end.

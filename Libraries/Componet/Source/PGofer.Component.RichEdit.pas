@@ -37,8 +37,6 @@ type
     procedure SetVerticalScrollPos( const AValue: Integer );
     function GetVerticalScrollPos( ): Integer;
     function GetVerticalScrollMax( ): Integer;
-    procedure SetText(const AValue: String);
-    function GetText: String;
   protected
   public
     property CaretY: Integer read GetCaretY write SetCaretY;
@@ -54,7 +52,8 @@ type
     property VerticalScrollMax: Integer read GetVerticalScrollMax;
   published
     property OnDropFiles: TOnDropFile read FOnDropFiles write SetOnDropFiles;
-    property Text: String read GetText write SetText;
+    procedure SetTextSilent(const AValue: String);
+    property Text;
   end;
 
 procedure Register;
@@ -62,7 +61,7 @@ procedure Register;
 implementation
 
 uses
-  WinApi.ShellApi, PGofer.Key.Controls;
+  WinApi.ShellApi;
 
 procedure Register;
 begin
@@ -73,7 +72,8 @@ end;
 
 function TRichEditEx.GetCaretX( ): Integer;
 begin
-  Result := Self.GetCaretPos.X + 1;
+  //Result := Self.GetCaretPos.X + 1;
+  Result := Self.SelStart - Self.Perform(EM_LINEINDEX, WPARAM(-1), 0) + 1;
 end;
 
 procedure TRichEditEx.SetCaretX( AValue: Integer );
@@ -83,7 +83,13 @@ end;
 
 function TRichEditEx.GetCaretY( ): Integer;
 begin
-  Result := Self.GetCaretPos.Y + 1;
+  //Result := Self.GetCaretPos.Y + 1;
+  Result := Self.Perform(EM_LINEFROMCHAR, Self.SelStart, 0) + 1;
+end;
+
+procedure TRichEditEx.SetCaretY( AValue: Integer );
+begin
+  Self.SetCaretPos( Point( -1, AValue ) );
 end;
 
 function TRichEditEx.GetCharHeight: Integer;
@@ -100,11 +106,6 @@ begin
   Result := FCharWidth;
 end;
 
-procedure TRichEditEx.SetCaretY( AValue: Integer );
-begin
-  Self.SetCaretPos( Point( -1, AValue ) );
-end;
-
 function TRichEditEx.GetDisplayX( ): Integer;
 begin
   Result := GetDisplayXY.X;
@@ -118,6 +119,36 @@ end;
 function TRichEditEx.GetDisplayY: Integer;
 begin
   Result := GetDisplayXY.Y;
+end;
+
+procedure TRichEditEx.SetDisplayY( const Value: Integer );
+begin
+  SetDisplayXY( Point( GetDisplayX, Value ) );
+end;
+
+function TRichEditEx.GetDisplayXY: TPoint;
+var
+  Pt: TPoint;
+begin
+  // Para RichEdit, usamos SendMessage com a estrutura POINTL
+  Winapi.Windows.SendMessage(
+    Self.Handle,
+    EM_POSFROMCHAR,
+    Winapi.Windows.WPARAM(@Pt),
+    Self.SelStart
+  );
+  Result := Pt;
+end;
+
+//function TRichEditEx.GetDisplayXY: TPoint;
+//begin
+//  Self.Perform( EM_POSFROMCHAR, WPARAM( @Result ), Self.SelStart );
+//end;
+
+procedure TRichEditEx.SetDisplayXY( const Value: TPoint );
+begin
+  Self.Perform( EM_CHARFROMPOS, 0, Long( @Value ) );
+  // MakeLong(Value.X, Value.Y)
 end;
 
 procedure TRichEditEx.SetVerticalScrollPos( const AValue: Integer );
@@ -159,22 +190,6 @@ begin
   Result := R.nMax - Integer( R.nPage );
 end;
 
-procedure TRichEditEx.SetDisplayY( const Value: Integer );
-begin
-  SetDisplayXY( Point( GetDisplayX, Value ) );
-end;
-
-function TRichEditEx.GetDisplayXY: TPoint;
-begin
-  Self.Perform( EM_POSFROMCHAR, WPARAM( @Result ), Self.SelStart );
-end;
-
-procedure TRichEditEx.SetDisplayXY( const Value: TPoint );
-begin
-  Self.Perform( EM_CHARFROMPOS, 0, Long( @Value ) );
-  // MakeLong(Value.X, Value.Y)
-end;
-
 function TRichEditEx.GetTextMetric( ): TTextMetric;
 var
   TextMetric: TTextMetric;
@@ -212,19 +227,22 @@ begin
     end;
     DragFinish( msg.Drop );
     FOnDropFiles( Self, FileList );
-    FileList.Free;
+    FileList.Free();
   end;
 end;
 
-function TRichEditEx.GetText(): String;
+procedure TRichEditEx.SetTextSilent(const AValue: String);
+var
+  OldEvent: TNotifyEvent;
 begin
-   Result := SanitizeText( inherited Text );
+  if Self.Text = AValue then Exit;
+
+  OldEvent := Self.OnChange;
+  Self.OnChange := nil;
+  Self.Text := AValue;
+  Self.OnChange := OldEvent;
 end;
 
-procedure TRichEditEx.SetText(const AValue: String);
-begin
-  inherited Text := AValue;
-end;
 
 
 end.

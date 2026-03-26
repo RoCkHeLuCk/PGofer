@@ -26,13 +26,38 @@ var
 implementation
 
 {$R *.dfm}
+
+uses System.Rtti;
+
 { TPGFrameVariants }
 
 constructor TPGVariantsFrame.Create( AItem: TPGItem; AParent: TObject );
+var
+  LVal: TValue;
+  LArray: TArray<TValue>;
+  LStr: string;
+  I: Integer;
 begin
-  inherited Create( AItem, AParent );
-  EdtValue.Text := Item.Value;
-  EdtValue.ReadOnly := Item.Constant;
+  inherited Create(AItem, AParent);
+  LVal := Item.Value;
+
+  // Se for Array, monta a string representativa
+  if LVal.IsType<TArray<TValue>> then
+  begin
+    LArray := LVal.AsType<TArray<TValue>>;
+    LStr := '[';
+    for I := 0 to High(LArray) do
+    begin
+      LStr := LStr + LArray[I].ToString;
+      if I < High(LArray) then LStr := LStr + ', ';
+    end;
+    LStr := LStr + ']';
+    EdtValue.SetTextSilent(LStr);
+  end
+  else
+    EdtValue.SetTextSilent(LVal.ToString);
+
+  EdtValue.ReadOnly := Item.IsConstant;
 end;
 
 function TPGVariantsFrame.GetItem: TPGVariant;

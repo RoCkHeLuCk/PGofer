@@ -5,14 +5,14 @@ interface
 uses
   System.Classes,
   Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Classes, PGofer.Item.Frame, PGofer.Component.Edit,
-  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder;
+  PGofer.Classes, PGofer.Triggers.Folder.Frame, PGofer.Component.Edit,
+  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder, PGofer.Item.Frame;
 
 type
-  TPGVaultFolderFrame = class( TPGItemFrame )
+  TPGVaultFolderFrame = class( TPGFolderFrame )
     LblPassword: TLabel;
     LblFileName: TLabel;
-    ckbSavePassword: TCheckBox;
+    ckbSavePassword: TCheckBoxEx;
     ckbLocked: TCheckBoxEx;
     EdtFile: TEditEx;
     EdtPassword: TEditEx;
@@ -29,7 +29,7 @@ type
   end;
 
 var
-  PGVaultFolderFrame: TPGItemFrame;
+  PGVaultFolderFrame: TPGFolderFrame;
 
 implementation
 
@@ -41,10 +41,10 @@ implementation
 constructor TPGVaultFolderFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtFile.Text := Item.FileName;
-  EdtPassword.Text := Item.PasswordFrame;
-  ckbSavePassword.Checked := Item.SavePassword;
-  ckbLocked.SetCheckedSilent( Item.Locked );
+  EdtFile.SetTextSilent( Item.FileName );
+  EdtPassword.SetTextSilent( Item.PasswordFrame );
+  ckbSavePassword.SetCheckedSilent( Item.SavePassword );
+  ckbLocked.SetCheckedSilent( Item._Locked );
 end;
 
 function TPGVaultFolderFrame.GetItem: TPGVaultFolder;
@@ -59,15 +59,15 @@ end;
 
 procedure TPGVaultFolderFrame.EdtPasswordAfterValidate(Sender: TObject);
 begin
-  Item.PasswordFrame := EdtPassword.Text;
+  Item.Password := EdtPassword.Text;
 end;
 
 procedure TPGVaultFolderFrame.ckbLockedClick(Sender: TObject);
 begin
   try
-    Item.Locked := ckbLocked.Checked;
+    Item._Locked := ckbLocked.Checked;
   finally
-    ckbLocked.SetCheckedSilent( Item.Locked );
+    ckbLocked.SetCheckedSilent( Item._Locked );
   end;
 end;
 

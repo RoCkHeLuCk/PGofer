@@ -45,8 +45,10 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
+      StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtTextKeyUp
+      Text = ''
     end
   end
   inherited grbAbout: TGroupBox
@@ -72,6 +74,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Speed:'
+      StyleElements = [seFont, seClient]
     end
     object LblMode: TLabel [2]
       Left = 5
@@ -82,6 +85,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Mode:'
+      StyleElements = [seFont, seClient]
     end
     object LblDelay: TLabel [3]
       Left = 3
@@ -91,6 +95,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Delay:'
+      StyleElements = [seFont, seClient]
     end
     object Lblmilisec1: TLabel [4]
       Left = 367
@@ -98,6 +103,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Width = 13
       Height = 13
       Caption = 'ms'
+      StyleElements = [seFont, seClient]
     end
     object Lblmilisec2: TLabel [5]
       Left = 169
@@ -105,6 +111,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Width = 13
       Height = 13
       Caption = 'ms'
+      StyleElements = [seFont, seClient]
     end
     object EdtSpeed: TEditEx
       Left = 270
@@ -114,6 +121,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Color = clSilver
       TabOrder = 3
       Text = '10'
+      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtSpeedAfterValidate
     end
     object UpdSpeed: TUpDown
@@ -125,9 +133,10 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Max = 255
       Position = 10
       TabOrder = 4
+      StyleElements = [seFont, seClient]
       OnChangingEx = UpdSpeedChangingEx
     end
-    object CmbMode: TComboBox
+    object CmbMode: TPGComboBox
       Left = 70
       Top = 60
       Width = 147
@@ -137,6 +146,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       ItemIndex = 0
       TabOrder = 5
       Text = 'Write'
+      StyleElements = [seFont, seClient]
       OnChange = CmbModeChange
       Items.Strings = (
         'Write'
@@ -153,6 +163,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Color = clSilver
       TabOrder = 1
       Text = '0'
+      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtDelayAfterValidate
     end
     object updDelay: TUpDown
@@ -163,6 +174,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Associate = EdtDelay
       Max = 255
       TabOrder = 2
+      StyleElements = [seFont, seClient]
       OnChangingEx = updDelayChangingEx
     end
   end

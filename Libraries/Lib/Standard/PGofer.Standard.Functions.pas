@@ -3,40 +3,41 @@ unit PGofer.Standard.Functions;
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.SysUtils, System.Rtti,
   PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
   PGofer.Runtime, PGofer.Standard.Variants;
 
 type
-
+  { Objeto que representa uma função definida pelo usuário }
   {$M+}
-  TPGFunction = class( TPGItemClass )
-  private
-    FTokenList: TTokenList;
-    FVariantList: TPGItem;
-    FScript: TStrings;
-    procedure SetScript( AValue: string );
-    function GetScript: string;
-  protected
+  TPGFunction = class(TPGItemClass)
+  strict private
+    FTokenList: TPGTokenList;
+    FParamsList: TPGItem; // Lista de nomes de parâmetros (TPGVariant)
+    FScriptSource: string;
+    procedure SetScript(const AValue: string);
   public
     class var GlobList: TPGItem;
-    constructor Create( AItemDad: TPGItem; AName: string ); override;
-    destructor Destroy( ); override;
-    procedure Execute( Gramatica: TGramatica ); override;
-    procedure Frame( AParent: TObject ); override;
-    property Script: string read GetScript write SetScript;
-    procedure CompileScript( );
+    constructor Create(AOwner: TPGItem; const AName: string); override;
+    destructor Destroy; override;
+
+    procedure Execute(const AGrammar: TPGGrammar); override;
+    procedure Frame(AParent: TObject); override;
+    procedure Compile;
+
+    property Script: string read FScriptSource write SetScript;
+    property ParamsList: TPGItem read FParamsList;
+    property Tokens: TPGTokenList read FTokenList;
   published
   end;
   {$TYPEINFO ON}
 
-  TPGFunctionDeclare = class( TPGItemClass )
-  private
-    FCordIni: Integer;
-    procedure DeclaraNivel1( Gramatica: TGramatica; Nivel: TPGItem );
-  protected
+  { Comando 'Function' para declarar novas funções no script }
+  TPGFunctionDeclare = class(TPGItemClass)
+  strict private
+    procedure DeclareInternal(const AGrammar: TPGGrammar; ANivel: TPGItem; AStartPos: Integer);
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
 implementation
@@ -46,162 +47,170 @@ uses
 
 { TPGFunction }
 
-procedure TPGFunction.CompileScript( );
+constructor TPGFunction.Create(AOwner: TPGItem; const AName: string);
 begin
-  ScriptExec( 'Function: ' + Self.Name, FScript.Text, nil, False );
+  inherited Create(AOwner, AName);
+  Self.SystemNode := False;
+  FTokenList := TPGTokenList.Create;
+  FParamsList := TPGItem.Create(nil, 'Params');
+  FScriptSource := '';
 end;
 
-constructor TPGFunction.Create( AItemDad: TPGItem; AName: string );
+destructor TPGFunction.Destroy;
 begin
-  inherited Create( AItemDad, AName );
-  FScript := TStringList.Create;
-  FTokenList := TTokenList.Create( );
-  FVariantList := TPGItem.Create( nil, 'VariantList' );
+  FTokenList.Free;
+  FParamsList.Free;
+  inherited;
 end;
 
-destructor TPGFunction.Destroy( );
+procedure TPGFunction.Compile;
 begin
-  FScript.Free;
-  FTokenList.Free( );
-  FVariantList.Free( );
-  inherited Destroy( );
+  // Apenas para trigger manual de compilação se necessário
 end;
 
-procedure TPGFunction.Execute( Gramatica: TGramatica );
+procedure TPGFunction.Execute(const AGrammar: TPGGrammar);
 var
-  C: Integer;
-  CountParam: Integer;
-  Gramatica2: TGramatica;
-  VarTitulo: string;
-  VarValor: Variant;
-  Resultado: TPGVariant;
+  LParamCount, I: Integer;
+  LSubGrammar: TPGGrammar;
+  LParamName: string;
+  LParamValue: TValue;
+  LResultVar: TPGVariant;
 begin
-  CountParam := LerParamentros( Gramatica, 0, Self.FVariantList.Count ) - 1;
-  if not Gramatica.Erro then
+  AGrammar.TokenList.Next;
+  // 1. Lê os parâmetros passados na chamada: Min = 0, Max = Qtd definida na função
+  LParamCount := ReadParameters(AGrammar, 0, FParamsList.Count);
+
+  if not AGrammar.HasError then
   begin
-    Gramatica2 := TGramatica.Create( '$Function: ' + Self.Name,
-      Gramatica.Local, False );
+    // 2. Cria uma sub-gramática para execução local (Escopo da Função)
+    LSubGrammar := TPGGrammar.Create('$Func:' + Self.Name, AGrammar.Local, False);
+    try
+      // 3. Alimenta as variáveis locais com os valores da pilha (ordem inversa)
+      for I := FParamsList.Count - 1 downto 0 do
+      begin
+        LParamName := FParamsList[I].Name;
 
-    for C := Self.FVariantList.Count - 1 downto 0 do
-    begin
-      VarTitulo := Self.FVariantList[ C ].Name;
+        if I < LParamCount then
+          LParamValue := AGrammar.Stack.Pop
+        else
+          LParamValue := TPGVariant(FParamsList[I]).Value; // Valor default se não passado
 
-      if C > CountParam then
-        VarValor := TPGVariant( Self.FVariantList[ C ] ).Value
-      else
-        VarValor := Gramatica.Pilha.Desempilhar
-          ( TPGVariant( Self.FVariantList[ C ] ).Value );
+        TPGVariant.Create(LSubGrammar.Local, LParamName, LParamValue, False);
+      end;
 
-      TPGVariant.Create( Gramatica2.Local, VarTitulo, VarValor, False );
+      // 4. Cria a variável mágica 'Result'
+      LResultVar := TPGVariant.Create(LSubGrammar.Local, 'Result', TValue.Empty, False);
+
+      // 5. Executa os tokens da função
+      LSubGrammar.SetTokens(FTokenList);
+      LSubGrammar.Start;
+      LSubGrammar.WaitFor;
+
+      AGrammar.HasError := LSubGrammar.HasError;
+
+      // 6. Devolve o valor de 'Result' para a pilha da gramática pai
+      if not AGrammar.HasError then
+        AGrammar.Stack.Push(LResultVar.Value);
+
+    finally
+      LSubGrammar.Free;
     end;
-
-    Resultado := TPGVariant.Create( Gramatica2.Local, 'Result', '', False );
-    Gramatica2.SetTokens( Self.FTokenList );
-
-    Gramatica2.Start;
-    Gramatica2.WaitFor;
-    Gramatica.Erro := Gramatica2.Erro;
-
-    if not Gramatica.Erro then
-    begin
-      VarValor := Resultado.Value;
-      Gramatica.Pilha.Empilhar( VarValor );
-    end;
-
-    Gramatica2.Free;
   end;
 end;
 
-procedure TPGFunction.Frame( AParent: TObject );
+procedure TPGFunction.Frame(AParent: TObject);
 begin
-  TPGFunctionFrame.Create( Self, AParent );
+  TPGFunctionFrame.Create(Self, AParent);
 end;
 
-function TPGFunction.GetScript: string;
+procedure TPGFunction.SetScript(const AValue: string);
 begin
-  Result := FScript.Text;
-end;
-
-procedure TPGFunction.SetScript( AValue: string );
-begin
-  FScript.Text := AValue;
+  FScriptSource := AValue;
 end;
 
 { TPGFunctionDeclare }
 
-procedure TPGFunctionDeclare.DeclaraNivel1( Gramatica: TGramatica;
-  Nivel: TPGItem );
+procedure TPGFunctionDeclare.Execute(const AGrammar: TPGGrammar);
 var
-  Titulo: string;
-  ID: TPGItem;
-  Fuck: TPGFunction;
+  LStartPos: Integer;
+  LTargetNivel: TPGItem;
 begin
-  ID := IdentificadorLocalizar( Gramatica );
-  if ( not Assigned( ID ) ) or ( ID is TPGFunction ) then
+  // 1. O PONTO DE PARTIDA: Captura o Offset ANTES de consumir a palavra 'Function'
+  LStartPos := AGrammar.TokenList.Current.Coordinate.Offset;
+
+  AGrammar.TokenList.Next; // Agora sim, pula o 'Function'
+
+  if AGrammar.Match(tkGlobal) then
   begin
-    if Assigned( ID ) then
+    AGrammar.TokenList.Next;
+    LTargetNivel := TPGFunction.GlobList;
+  end
+  else
+    LTargetNivel := AGrammar.Local;
+
+  // Passamos o LStartPos para o método interno
+  DeclareInternal(AGrammar, LTargetNivel, LStartPos);
+end;
+
+procedure TPGFunctionDeclare.DeclareInternal(const AGrammar: TPGGrammar; ANivel: TPGItem; AStartPos: Integer);
+var
+  LName: string;
+  LID: TPGItem;
+  LFunc: TPGFunction;
+  LEndPos: Integer;
+begin
+  LName := AGrammar.TokenList.Current.Value.ToString;
+  LID := FindID(ANivel, LName);
+
+  if (LID <> nil) and (not (LID is TPGFunction)) then
+  begin
+    AGrammar.Error('Error_Interpreter_Id', []);
+    Exit;
+  end;
+
+  if Assigned(LID) then LID.Free;
+  LFunc := TPGFunction.Create(ANivel, LName);
+
+  AGrammar.TokenList.Next; // Pula o nome da função
+
+  if AGrammar.Consume(tkLPar) then
+  begin
+    if AGrammar.Match(tkIdentifier) then
+      TPGVariantDeclare.ExecuteEx(AGrammar, LFunc.ParamsList);
+
+    if AGrammar.Consume(tkRPar) and AGrammar.Consume(tkSemiColon) then
     begin
-      Fuck := TPGFunction( ID );
-      Fuck.Free( );
-    end;
+      // 1. Extrai o corpo. O FindEnd consome até o 'end' inclusive.
+      FindEnd(AGrammar, True, LFunc.Tokens);
 
-    Titulo := Gramatica.TokenList.Token.Lexema;
-    Fuck := TPGFunction.Create( Nivel, Titulo );
-
-    Gramatica.TokenList.GetNextToken;
-    if Gramatica.TokenList.Token.Classe = cmdLPar then
-    begin
-      Gramatica.TokenList.GetNextToken;
-      if Gramatica.TokenList.Token.Classe = cmdID then
-        TPGVariantDeclare.ExecuteEx( Gramatica, Fuck.FVariantList );
-
-      if ( not Gramatica.Erro ) then
+      if not AGrammar.HasError then
       begin
-        if Gramatica.TokenList.Token.Classe = cmdRPar then
+        // Agora o AGrammar.TokenList.Current aponta para o que vem DEPOIS da função.
+        // Ex: O início da chamada "teste(1000);"
+        // O Offset desse próximo token é exatamente o fim da nossa declaração.
+        LEndPos := AGrammar.TokenList.Current.Coordinate.Offset;
+
+        // Caso especial: Se o usuário colocou um ';' após o 'end',
+        // queremos que esse ';' entre no FScriptSource.
+        if AGrammar.Match(tkSemiColon) then
         begin
-          Gramatica.TokenList.GetNextToken;
-          if Gramatica.TokenList.Token.Classe = cmdDotComa then
-          begin
-            Gramatica.TokenList.GetNextToken;
-            EncontrarFim( Gramatica, True, Fuck.FTokenList );
-            if ( not Gramatica.Erro ) then
-            begin
-              Fuck.FScript.Text := copy( Gramatica.Script, FCordIni,
-                Gramatica.TokenList.Token.Cordenada.Single - FCordIni );
-            end;
-          end
-          else
-            Gramatica.ErroAdd( 'Error_Interpreter_;' );
-        end
-        else
-          Gramatica.ErroAdd( 'Error_Interpreter_)' );
+          // Somamos o comprimento do ';' para que o Copy o inclua
+          LEndPos := LEndPos + AGrammar.TokenList.Current.Coordinate.Length;
+        end;
+
+        // 3. A CÓPIA MILIMÉTRICA
+        // AStartPos: Início da palavra 'Function'
+        // LEndPos: Fim do caractere ';' ou do 'end'
+        LFunc.Script := Copy(AGrammar.Script, AStartPos + 1, LEndPos - AStartPos);
+
+        // Se a cópia ainda parecer faltar um caractere,
+        // verifique se o seu Léxico está contando o Length corretamente para o 'end'.
       end;
-    end
-    else
-      Gramatica.ErroAdd( 'Error_Interpreter_(' );
-  end
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_Id' );
+    end;
+  end;
 end;
-
-procedure TPGFunctionDeclare.Execute( Gramatica: TGramatica );
-begin
-  FCordIni := Gramatica.TokenList.Token.Cordenada.Single;
-  Gramatica.TokenList.GetNextToken;
-  if Gramatica.TokenList.Token.Classe = cmdRes_global then
-  begin
-    Gramatica.TokenList.GetNextToken;
-    DeclaraNivel1( Gramatica, TPGFunction.GlobList );
-  end
-  else
-    DeclaraNivel1( Gramatica, Gramatica.Local );
-end;
-
 initialization
-
-TPGFunctionDeclare.Create( GlobalItemCommand, 'Function' );
-TPGFunction.GlobList := TPGFolder.Create( GlobalCollection, 'Functions' );
-
-finalization
+  TPGFunctionDeclare.Create(GlobalItemCommand, 'Function');
+  TPGFunction.GlobList := TPGFolder.Create(GlobalCollection, 'Functions');
 
 end.

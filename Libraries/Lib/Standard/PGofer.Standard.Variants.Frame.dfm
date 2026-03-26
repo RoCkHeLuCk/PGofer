@@ -16,6 +16,7 @@ inherited PGVariantsFrame: TPGVariantsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Value:'
+      StyleElements = [seFont, seClient]
     end
     object EdtValue: TEditEx [2]
       Left = 70
@@ -26,11 +27,9 @@ inherited PGVariantsFrame: TPGVariantsFrame
       Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 1
-      StyleElements = [seFont, seBorder]
+      Text = ''
+      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtValueAfterValidate
-    end
-    inherited EdtName: TEditEx
-      StyleElements = [seFont, seBorder]
     end
   end
   inherited sptAbout: TPanel

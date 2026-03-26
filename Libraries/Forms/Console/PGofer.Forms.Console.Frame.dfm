@@ -24,27 +24,12 @@ inherited PGConsoleFrame: TPGConsoleFrame
       AutoSize = False
       Caption = 'Delay:'
     end
-    inherited CkbEnabled: TCheckBox
+    inherited CkbEnabled: TCheckBoxEx
       Width = 101
       ExplicitWidth = 101
     end
-    inherited CmbWindowState: TComboBox
+    inherited CmbWindowState: TPGComboBox
       ParentColor = True
-    end
-    inherited EdtAlphaBlendValue: TEditEx
-      StyleElements = [seFont, seClient, seBorder]
-    end
-    inherited EdtHeigth: TEditEx
-      StyleElements = [seFont, seClient, seBorder]
-    end
-    inherited EdtTop: TEditEx
-      StyleElements = [seFont, seClient, seBorder]
-    end
-    inherited EdtWidth: TEditEx
-      StyleElements = [seFont, seClient, seBorder]
-    end
-    inherited EdtLeft: TEditEx
-      StyleElements = [seFont, seClient, seBorder]
     end
     object edtDelay: TEditEx [23]
       Left = 70
@@ -66,7 +51,7 @@ inherited PGConsoleFrame: TPGConsoleFrame
       TabOrder = 15
       OnChanging = updDelayChanging
     end
-    object ckbShowMessage: TCheckBox [25]
+    object ckbShowMessage: TCheckBoxEx [25]
       Left = 160
       Top = 256
       Width = 114
@@ -75,7 +60,7 @@ inherited PGConsoleFrame: TPGConsoleFrame
       TabOrder = 16
       OnClick = ckbShowMessageClick
     end
-    object ckbAutoClose: TCheckBox [26]
+    object ckbAutoClose: TCheckBoxEx [26]
       Left = 294
       Top = 256
       Width = 101

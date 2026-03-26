@@ -1,214 +1,296 @@
-unit PGofer.Sintatico;
+﻿unit PGofer.Sintatico;
 
 interface
 
 uses
-  System.Classes, System.Generics.Collections,
+  System.Classes, System.SyncObjs, System.Generics.Collections, System.Rtti,
   PGofer.Classes, PGofer.Lexico;
 
 type
-  TPGPilha = class( TPGItem )
-    constructor Create( AItemDad: TPGItem );
-    destructor Destroy( ); override;
+  { Pilha de Execução Moderna usando TValue }
+  TPGStack = class(TPGItem)
+  strict private
+    FValues: TStack<TValue>;
   private
-    FPilha: TStack<Variant>;
+    function GetCount: Integer;
   public
-    procedure Empilhar( AValue: Variant );
-    function Desempilhar( ADefault: Variant ): Variant;
+    constructor Create(AOwner: TPGItem);
+    destructor Destroy; override;
+    procedure Push(const AValue: TValue);
+    function Pop: TValue;
+    property Count: Integer read GetCount;
   end;
 
-  TGramatica = class( TThread )
-  private
-    FErro: Boolean;
-    FConsoleShowMessage: Boolean;
-    FPai: TPGItem;
+  { Classe Base da Gramática / Interpretador }
+  TPGGrammar = class(TThread)
+  strict private
+    FError: Boolean;
+    FShowMessages: Boolean;
+    FParent: TPGItem;
     FLocal: TPGItem;
-    FPilha: TPGPilha;
+    FStack: TPGStack;
     FScript: string;
-    FTokenList: TTokenList;
+    FTokenList: TPGTokenList;
+
+    // Suporte a Debug
+    FBreakpointEvent: TEvent;
+    FIsDebugging: Boolean;
+
+    class var FGrammarList: TList<TPGGrammar>;
+    class var FGrammarLock: TObject;
   protected
     procedure Execute; override;
   public
-    constructor Create( const AName: string; AItemDad: TPGItem; ATerminate: Boolean ); overload;
-    destructor Destroy( ); override;
-    property Pilha: TPGPilha read FPilha;
-    property local: TPGItem read FLocal;
-    property TokenList: TTokenList read FTokenList;
-    property Erro: Boolean read FErro write FErro;
+    class constructor Create;
+    class destructor Destroy;
+    class procedure WaitForAll(ATimeoutMS: Cardinal);
+
+    constructor Create(const AName: string; AParent: TPGItem; ATerminate: Boolean);
+    destructor Destroy; override;
+
+    { Gerenciamento de Script }
+    procedure SetScript(const AScript: string);
+    procedure SetTokens(ASource: TPGTokenList);
+
+    { Helpers Sintáticos }
+    function Match(const AKind: TPGTokenKind): Boolean;
+    function Consume(const AKind: TPGTokenKind; const AErrorMessageKey: string = ''): Boolean;
+    procedure Error(const AMessageKey: string; const AArgs: array of const);
+    procedure Msg(const AMessageKey: string; const AArgs: array of const);
+
+    { Controle de Debug }
+    procedure CheckBreakpoint;
+    procedure ResumeExecution;
+
+    property Stack: TPGStack read FStack;
+    property Local: TPGItem read FLocal;
+    property TokenList: TPGTokenList read FTokenList;
+    property HasError: Boolean read FError write FError;
     property Script: string read FScript;
-    procedure ErroAdd( const AValue: string ); overload;
-    procedure ErroAdd( const AKey: string; const AArgs: array of const ); overload;
-    procedure MSGsAdd( const AValue: string ); overload;
-    procedure MSGsAdd( const AKey: string; const AArgs: array of const ); overload;
-    procedure SetScript( const AScript: string );
-    procedure SetTokens( TokenList: TTokenList );
+    property IsDebugging: Boolean read FIsDebugging;
   end;
 
 implementation
 
 uses
-  System.SysUtils,
+  System.SysUtils, Vcl.Forms,
   PGofer.Core, PGofer.Sintatico.Controls, PGofer.Runtime;
 
-{ TPilha }
+{ TPGStack }
 
-constructor TPGPilha.Create( AItemDad: TPGItem );
+constructor TPGStack.Create(AOwner: TPGItem);
 begin
-  inherited Create( AItemDad, '$Stack' );
-  FPilha := TStack<Variant>.Create;
+  inherited Create(AOwner, '$Stack');
+  FValues := TStack<TValue>.Create;
 end;
 
-destructor TPGPilha.Destroy( );
+destructor TPGStack.Destroy;
 begin
-  FPilha.Free;
-  FPilha := nil;
-  inherited Destroy( );
+  FValues.Free;
+  inherited;
 end;
 
-procedure TPGPilha.Empilhar( AValue: Variant );
+function TPGStack.GetCount: Integer;
 begin
-  FPilha.Push( AValue );
+  Result := FValues.Count;
 end;
 
-function TPGPilha.Desempilhar( ADefault: Variant ): Variant;
+procedure TPGStack.Push(const AValue: TValue);
 begin
-  if FPilha.Count > 0 then
-  begin
-    Result := FPilha.Pop;
-  end
+  FValues.Push(AValue);
+end;
+
+function TPGStack.Pop: TValue;
+begin
+  if FValues.Count > 0 then
+    Result := FValues.Pop
   else
-    Result := ADefault;
+    Result := TValue.Empty;
 end;
 
-{ Gramatica }
+{ TPGGrammar }
 
-constructor TGramatica.Create( const AName: string; AItemDad: TPGItem;
-  ATerminate: Boolean );
+class constructor TPGGrammar.Create;
 begin
-  inherited Create( True );
+  FGrammarList := TList<TPGGrammar>.Create;
+  FGrammarLock := TObject.Create;
+end;
+
+class destructor TPGGrammar.Destroy;
+begin
+  FGrammarList.Free;
+  FGrammarLock.Free;
+end;
+
+class procedure TPGGrammar.WaitForAll(ATimeoutMS: Cardinal);
+var
+  LStartTime: Cardinal;
+  LRunning: Integer;
+begin
+  LStartTime := GetTickCount;
+  repeat
+    System.TMonitor.Enter(FGrammarLock);
+    try
+      LRunning := FGrammarList.Count;
+    finally
+      System.TMonitor.Exit(FGrammarLock);
+    end;
+
+    if LRunning = 0 then Break;
+
+    if (GetTickCount - LStartTime) > ATimeoutMS then
+      Exit; // Timeout de segurança
+
+    CheckSynchronize(10);
+    Application.ProcessMessages;
+    Sleep(10);
+  until False;
+end;
+
+constructor TPGGrammar.Create(const AName: string; AParent: TPGItem; ATerminate: Boolean);
+begin
+  inherited Create(True);
   Self.FreeOnTerminate := ATerminate;
-  Self.Priority := tpNormal;
-  FConsoleShowMessage := TPGKernel.ConsoleMessage;
-  FPai := AItemDad;
-  if Assigned( FPai ) then
-    FLocal := TPGFolder.Create( AItemDad, AName )
-  else
-    FLocal := TPGFolder.Create( GlobalCollection, AName );
 
-  FPilha := TPGPilha.Create( FLocal );
-  FErro := False;
-  FScript := '';
+  FParent := AParent;
+  if not Assigned(FParent) then
+    FParent := GlobalCollection;
+
+  FLocal := TPGItem.Create(FParent, AName);
+  FStack := TPGStack.Create(FLocal);
+  FTokenList := TPGTokenList.Create;
+  FBreakpointEvent := TEvent.Create(nil, True, False, ''); // Manual Reset
+
+  FError := False;
+  FShowMessages := TPGKernel.ConsoleMessage;
+
+  System.TMonitor.Enter(FGrammarLock);
+  try
+    FGrammarList.Add(Self);
+  finally
+    System.TMonitor.Exit(FGrammarLock);
+  end;
 end;
 
-destructor TGramatica.Destroy( );
+destructor TPGGrammar.Destroy;
 begin
-  if TPGKernel.ReportMemoryLeaks then
-  begin
-    if FPilha.Count > 1 then
-       MSGsAdd('Warning_Interpreter_Stack', [FPilha.name, FPilha.Count-1] );
-    if FLocal.Count > 1 then
-       MSGsAdd('Warning_Interpreter_StackChild', [FLocal.name, FLocal.Count-1] );
+  // Sinaliza para qualquer espera de debug terminar
+  FBreakpointEvent.SetEvent;
+
+  System.TMonitor.Enter(FGrammarLock);
+  try
+    if Assigned(FGrammarList) then
+      FGrammarList.Remove(Self);
+  finally
+    System.TMonitor.Exit(FGrammarLock);
   end;
 
-  FPilha.Free;
-  FPilha := nil;
   FLocal.Free;
-  FLocal := nil;
-  FPai := nil;
-  FConsoleShowMessage := False;
   FTokenList.Free;
-  FTokenList := nil;
-  FErro := False;
-  FScript := '';
-  inherited Destroy( );
+  FBreakpointEvent.Free;
+  inherited;
 end;
 
-procedure TGramatica.ErroAdd( const AValue: string );
+procedure TPGGrammar.SetScript(const AScript: string);
 var
-  LText, LLexicoName: string;
-begin
-  FErro := True;
-  LLexicoName := string( Self.TokenList.Token.Lexema );
-  if LLexicoName = #0 then
-    LLexicoName := ''
-  else
-    LLexicoName := '"' + LLexicoName + '" ';
-
-  LText := TPGKernel.Translate(AValue);
-
-  TPGKernel.Console(
-    FLocal.name +
-    ' [' + Self.TokenList.Token.Cordenada.ToString + '] ' +
-    LLexicoName + ': ' +
-    LText,
-    True,
-    FConsoleShowMessage
-  );
-end;
-
-procedure TGramatica.ErroAdd( const AKey: string; const AArgs: array of const );
-var
-  LText, LLexicoName: string;
-begin
-  FErro := True;
-  LLexicoName := string( Self.TokenList.Token.Lexema );
-  if LLexicoName = #0 then
-    LLexicoName := ''
-  else
-    LLexicoName := '"' + LLexicoName + '" ';
-
-  LText := TPGKernel.Translate(AKey, AArgs);
-
-  TPGKernel.Console(
-    FLocal.name +
-    ' [' + Self.TokenList.Token.Cordenada.ToString + '] ' +
-    LLexicoName + ': ' +
-    LText,
-    True,
-    FConsoleShowMessage
-  );
-end;
-
-procedure TGramatica.MSGsAdd( const AValue: string );
-var
-  AText : String;
-begin
-  AText := TPGKernel.Translate(AValue);
-  TPGKernel.Console( AText, True, FConsoleShowMessage );
-end;
-
-procedure TGramatica.MSGsAdd( const AKey: string; const AArgs: array of const );
-var
-  AText : String;
-begin
-  AText := TPGKernel.Translate(AKey, AArgs);
-  TPGKernel.Console( AText, True, FConsoleShowMessage );
-end;
-
-procedure TGramatica.SetScript( const AScript: string );
-var
-  Automato: TAutomato;
+  LLexer: TPGLexer;
 begin
   FScript := AScript;
-  Automato := TAutomato.Create( );
-  FTokenList := Automato.TokenListCreate( FScript );
-  Automato.Free;
+  LLexer := TPGLexer.Create;
+  try
+    // FTokenList já foi criado no constructor da TPGGrammar
+    LLexer.Tokenize(FScript, FTokenList);
+  finally
+    LLexer.Free;
+  end;
 end;
 
-procedure TGramatica.SetTokens( TokenList: TTokenList );
+procedure TPGGrammar.SetTokens(ASource: TPGTokenList);
 begin
-  FTokenList := TTokenList.Create( );
-  FTokenList.Assign( TokenList );
+  FTokenList.Assign(ASource);
 end;
 
-procedure TGramatica.Execute( );
+{ Métodos de Suporte à Análise }
+
+function TPGGrammar.Match(const AKind: TPGTokenKind): Boolean;
+begin
+  Result := (FTokenList.Current <> nil) and (FTokenList.Current.Kind = AKind);
+end;
+
+function TPGGrammar.Consume(const AKind: TPGTokenKind; const AErrorMessageKey: string): Boolean;
+begin
+  if Match(AKind) then
+  begin
+    FTokenList.Next;
+    Exit(True);
+  end;
+
+  if AErrorMessageKey <> '' then
+    Error(AErrorMessageKey, [TPGLexicalRegistry.GetFriendlyName(AKind)])
+  else
+    Error('Error_Expected', [TPGLexicalRegistry.GetFriendlyName(AKind)]);
+
+  Result := False;
+end;
+
+procedure TPGGrammar.Error(const AMessageKey: string; const AArgs: array of const);
 var
-  Dir: String;
+  LText, LLexema: string;
 begin
-  Dir := TPGKernel.PathCurrent;
-  SetCurrentDir( Dir );
-  ChDir( Dir );
-  Sentencas( Self );
+  FError := True;
+
+  if FTokenList.Current <> nil then
+    LLexema := '"' + FTokenList.Current.Value.ToString + '" '
+  else
+    LLexema := 'EOF';
+
+  LText := TPGKernel.Translate(AMessageKey, AArgs);
+
+  TPGKernel.Console(
+    Format('%s [%s]: %s', [
+      FLocal.Name,
+      LLexema,
+      LText
+    ]),
+    True, FShowMessages
+  );
+end;
+
+procedure TPGGrammar.Msg(const AMessageKey: string; const AArgs: array of const);
+begin
+  TPGKernel.Console(TPGKernel.Translate(AMessageKey, AArgs), True, FShowMessages);
+end;
+
+{ Controle de Debugging }
+
+procedure TPGGrammar.CheckBreakpoint;
+begin
+  // Se houver um comando "Debug" ou se o sistema marcar este token como break
+  FIsDebugging := True;
+  FBreakpointEvent.ResetEvent;
+
+  // Notifica a UI que paramos (pode usar um PostMessage ou Callback aqui)
+  TPGKernel.Console(Format('>> Debug: Breakpoint at %s', [FTokenList.Current.Coordinate.ToString]));
+
+  // A Thread para aqui até que ResumeExecution seja chamado pela UI
+  FBreakpointEvent.WaitFor(INFINITE);
+  FIsDebugging := False;
+end;
+
+procedure TPGGrammar.ResumeExecution;
+begin
+  FBreakpointEvent.SetEvent;
+end;
+
+procedure TPGGrammar.Execute;
+var
+  LDir: string;
+begin
+  LDir := TPGKernel.PathCurrent;
+  SetCurrentDir(LDir);
+
+  // Início da Análise Sintática
+  PGofer.Sintatico.Controls.Statements(Self);
 end;
 
 initialization

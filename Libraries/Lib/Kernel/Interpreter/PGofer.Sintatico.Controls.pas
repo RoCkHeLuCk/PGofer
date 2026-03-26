@@ -1,540 +1,421 @@
 ﻿unit PGofer.Sintatico.Controls;
-
+
 interface
 
 uses
+  System.SysUtils, System.Rtti, System.Math,
   PGofer.Classes, PGofer.Lexico, PGofer.Sintatico;
 
-// -------------------------------ESTRUTURAS-----------------------------------//
-function LerParamentros( Gramatica: TGramatica; const QuantMin, QuantMax: Byte;
-  IgnoreLPar: Boolean = False ): Byte;
-procedure EncontrarFim( Gramatica: TGramatica; BeginEnd: Boolean;
-  TokenList: TTokenList = nil );
-// --------------------------------ATRIBUÍÇÃO----------------------------------//
-function AtribuicaoNivel1( Gramatica: TGramatica ): Boolean;
-function Atribuicao( Gramatica: TGramatica; Valor: Variant ): Variant;
-// --------------------------------SENTENCAS-----------------------------------//
-procedure Sentencas( Gramatica: TGramatica );
-procedure SentencasNivel1( Gramatica: TGramatica );
-procedure Comandos( Gramatica: TGramatica );
-procedure ComecoFinal( Gramatica: TGramatica );
-procedure ValorFinal( Gramatica: TGramatica );
-// --------------------------------EXPRESSAO-----------------------------------//
-procedure Expressao( Gramatica: TGramatica );
-procedure ExpressaoNivel1( Gramatica: TGramatica );
-procedure ExpressaoNivel2( Gramatica: TGramatica );
-procedure ExpressaoAddSub( Gramatica: TGramatica );
-procedure ExpressaoMulDiv( Gramatica: TGramatica );
-procedure ExpressaoPowSqt( Gramatica: TGramatica );
-procedure ExpressaoFator( Gramatica: TGramatica );
-// --------------------------------IDENTIFICADOR-------------------------------//
-function FindID( AItem: TPGItem; AName: string ): TPGItem;
-function IdentificadorLocalizar( Gramatica: TGramatica ): TPGItem;
-procedure Identificador( Gramatica: TGramatica );
+{ Estruturas de Controle }
+function ReadParameters(const AGrammar: TPGGrammar; const AMin, AMax: Byte): Byte;
+procedure FindEnd(const AGrammar: TPGGrammar; const AIsBeginEnd: Boolean; const ATokenList: TPGTokenList = nil);
+
+{ Atribuição e Sentenças }
+function Assignment(const AGrammar: TPGGrammar; const ACurrentValue: TValue): TValue;
+procedure Statements(const AGrammar: TPGGrammar);
+procedure Commands(const AGrammar: TPGGrammar);
+procedure Identifier(const AGrammar: TPGGrammar);
+
+{ Expressões }
+procedure Expression(const AGrammar: TPGGrammar);
+procedure ExpressionLevel1(const AGrammar: TPGGrammar);
+procedure ExpressionLevel2(const AGrammar: TPGGrammar);
+procedure Factor(const AGrammar: TPGGrammar);
+
+{ Busca de Identificadores }
+function FindID(const AItem: TPGItem; const AName: string): TPGItem;
 
 implementation
 
 uses
-  System.SysUtils,
+  System.Variants, System.Character,
   PGofer.Core, PGofer.Runtime, PGofer.Math.Controls;
 
-function LerParamentros( Gramatica: TGramatica;
-  const QuantMin, QuantMax: Byte; IgnoreLPar: Boolean = False ): Byte;
+{ --- Auxiliares de Matemática com TValue --- }
+
+function TValueAdd(const AV1, AV2: TValue): TValue;
+begin
+  if (AV1.IsType<string>) or (AV2.IsType<string>) then
+    Result := AV1.ToString + AV2.ToString
+  else
+    Result := AV1.AsExtended + AV2.AsExtended;
+end;
+
+{ --- Implementação das Estruturas --- }
+
+function ReadParameters(const AGrammar: TPGGrammar; const AMin, AMax: Byte): Byte;
 var
-  c: Byte;
+  LCount: Byte;
 begin
   Result := 0;
-  if not IgnoreLPar then
-    Gramatica.TokenList.GetNextToken;
-  if ( Gramatica.TokenList.Token.Classe = cmdLPar ) then
+  if not AGrammar.Match(tkLPar) then
   begin
-    Gramatica.TokenList.GetNextToken;
-    c := 0;
-    while ( c < QuantMax ) and ( Gramatica.TokenList.Token.Classe <> cmdRPar )
-      and ( not Gramatica.Erro ) do
-    begin
-      Expressao( Gramatica );
-      if ( Gramatica.TokenList.Token.Classe = cmdComa ) then
-        Gramatica.TokenList.GetNextToken;
-      inc( c );
-    end;
+    if AMin > 0 then AGrammar.Error('Error_Expected', ['(']);
+    Exit;
+  end;
 
-    if ( c < QuantMin ) then
-      Gramatica.ErroAdd( 'Error_Interpreter_,' )
+  AGrammar.TokenList.Next;
+  LCount := 0;
+  while (LCount < AMax) and (not AGrammar.Match(tkRPar)) and (not AGrammar.HasError) do
+  begin
+    Expression(AGrammar);
+    Inc(LCount);
+    if AGrammar.Match(tkComma) then AGrammar.TokenList.Next;
+  end;
+
+  if (LCount < AMin) then
+    AGrammar.Error('Error_Interpreter_TooFewParams', [AMin])
+  else if AGrammar.Consume(tkRPar) then
+    Result := LCount;
+end;
+
+procedure FindEnd(const AGrammar: TPGGrammar; const AIsBeginEnd: Boolean; const ATokenList: TPGTokenList);
+var
+  LBeginCount: Integer;
+begin
+  if AIsBeginEnd then
+  begin
+    if not AGrammar.Match(tkBegin) then
+      AGrammar.Error('Error_Expected', ['begin'])
     else
     begin
-      if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-        Gramatica.ErroAdd( 'Error_Interpreter_)' )
-      else
-      begin
-        Gramatica.TokenList.GetNextToken;
-        Result := c;
-      end;
-    end;
-  end else begin
-    if QuantMin <> 0 then
-      Gramatica.ErroAdd( 'Error_Interpreter_(' );
-  end;
-end;
-
-procedure EncontrarFim( Gramatica: TGramatica; BeginEnd: Boolean;
-  TokenList: TTokenList = nil );
-var
-  BeginCount: Word;
-begin
-  if ( BeginEnd ) then
-  begin
-    if ( Gramatica.TokenList.Token.Classe <> cmdRes_begin ) then
-    begin
-      Gramatica.ErroAdd( 'Error_Interpreter_Begin' )
-    end else begin
-      BeginCount := 1;
-      Gramatica.TokenList.GetNextToken;
+      LBeginCount := 1;
+      AGrammar.TokenList.Next;
       repeat
-
-        case ( Gramatica.TokenList.Token.Classe ) of
-          cmdRes_begin:
-            inc( BeginCount );
-          cmdRes_end:
-            Dec( BeginCount );
+        case AGrammar.TokenList.Current.Kind of
+          tkBegin: Inc(LBeginCount);
+          tkEnd: Dec(LBeginCount);
         end;
-
-        if ( BeginCount <> 0 ) then
+        if (LBeginCount <> 0) then
         begin
-          if Assigned( TokenList ) then
-            TokenList.AssignToken( Gramatica.TokenList.Token );
-          Gramatica.TokenList.GetNextToken;
+          if Assigned(ATokenList) then
+            ATokenList.Add(
+              AGrammar.TokenList.Current.Kind,
+              AGrammar.TokenList.Current.Value,
+              AGrammar.TokenList.Current.Coordinate
+            );
+          AGrammar.TokenList.Next;
         end;
-
-      until ( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdRes_end ] ) and
-        ( BeginCount = 0 );
-
-      if ( Gramatica.TokenList.Token.Classe <> cmdRes_end ) then
-        Gramatica.ErroAdd( 'Error_Interpreter_End' )
-      else
-        Gramatica.TokenList.GetNextToken;
+      until (AGrammar.Match(tkEOF)) or (LBeginCount = 0);
+      AGrammar.Consume(tkEnd);
     end;
-  end else begin
-    while not( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdDotComa,
-      cmdRes_else ] ) do
-    begin
-      if Assigned( TokenList ) then
-        TokenList.AssignToken( Gramatica.TokenList.Token );
-      Gramatica.TokenList.GetNextToken;
-    end;
-  end;
-
-  if ( not Gramatica.Erro ) and Assigned( TokenList ) then
-    TokenList.TokenAdd( '', cmdEOF, CreateCordenada( ) );
-end;
-
-// ----------------------------------------------------------------------------//
-// -----------------------------ATRIBUICÃO-------------------------------------//
-// ----------------------------------------------------------------------------//
-function AtribuicaoNivel1( Gramatica: TGramatica ): Boolean;
-begin
-  if ( Gramatica.TokenList.Token.Classe = cmdAttrib ) then
-  begin
-    Gramatica.TokenList.GetNextToken;
-    Expressao( Gramatica );
-    Result := ( not Gramatica.Erro );
   end
   else
-    Result := False;
-end;
-
-function Atribuicao( Gramatica: TGramatica; Valor: Variant ): Variant;
-begin
-  Gramatica.TokenList.GetNextToken;
-  if AtribuicaoNivel1( Gramatica ) then
-    Result := Gramatica.Pilha.Desempilhar( Valor )
-  else begin
-    Gramatica.Pilha.Empilhar( Valor );
-    Result := Valor;
-  end;
-end;
-
-// ----------------------------------------------------------------------------//
-// -------------------------------SENTENCAS------------------------------------//
-// ----------------------------------------------------------------------------//
-procedure Sentencas( Gramatica: TGramatica );
-begin
-  if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe <> cmdEOF )
-  then
   begin
-    Comandos( Gramatica );
-    SentencasNivel1( Gramatica );
-  end;
-
-  // tratamento de erros
-  if ( not Gramatica.Erro ) then
-    case Gramatica.TokenList.Token.Classe of
-      cmdEOF:
-        ;
-      cmdUnDeclar:
-        Gramatica.ErroAdd('Error_Interpreter_Unrecog' );
-    end;
-end;
-
-procedure SentencasNivel1( Gramatica: TGramatica );
-begin
-  if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe = cmdDotComa )
-  then
-  begin
-    Gramatica.TokenList.GetNextToken;
-    if not( Gramatica.TokenList.Token.Classe in [ cmdEOF, cmdRes_end,
-      cmdRes_until ] ) then
-      Sentencas( Gramatica );
-  end else begin
-    if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe <> cmdEOF )
-    then
-      Gramatica.ErroAdd( 'Error_Interpreter_;' );
-  end;
-end;
-
-// -------------------------------COMANDOS-------------------------------------//
-
-procedure Comandos( Gramatica: TGramatica );
-begin
-  case Gramatica.TokenList.Token.Classe of
-
-    cmdEqual, cmdAttrib:
-      ValorFinal( Gramatica );
-
-    cmdRes_begin:
-      ComecoFinal( Gramatica ); // Begin End
-
-    cmdID:
-      Identificador( Gramatica );
-
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_Struct' );
-  end;
-end;
-
-procedure ComecoFinal( Gramatica: TGramatica );
-begin
-  if not Gramatica.Erro then
-  begin
-    // se tiver um begin
-    Gramatica.TokenList.GetNextToken;
-    Sentencas( Gramatica );
-    if not Gramatica.Erro then
+    while not (AGrammar.TokenList.Current.Kind in [tkEOF, tkSemiColon, tkElse]) do
     begin
-      // espera um end.
-      if Gramatica.TokenList.Token.Classe = cmdRes_end then
-        Gramatica.TokenList.GetNextToken
-      else
-        Gramatica.ErroAdd( 'Error_Interpreter_End' );
+      if Assigned(ATokenList) then
+        ATokenList.Add(
+          AGrammar.TokenList.Current.Kind,
+          AGrammar.TokenList.Current.Value,
+          AGrammar.TokenList.Current.Coordinate
+        );
+      AGrammar.TokenList.Next;
     end;
+  end;
+
+  if Assigned(ATokenList) and (not AGrammar.HasError) then
+  begin
+    ATokenList.Add(tkEOF, TValue.Empty, AGrammar.TokenList.Current.Coordinate);
   end;
 end;
 
-procedure ValorFinal( Gramatica: TGramatica );
-var
-  Valor: string;
-  Numero: Extended;
+{ --- Sentenças e Comandos --- }
+
+procedure Statements(const AGrammar: TPGGrammar);
 begin
-  Gramatica.TokenList.GetNextToken;
-  Expressao( Gramatica );
-  if not Gramatica.Erro then
+  // Enquanto não houver erro e não for o fim do script
+  while (not AGrammar.HasError) and (not AGrammar.Match(tkEOF)) do
   begin
-    Valor := Gramatica.Pilha.Desempilhar( '' );
-    if TryStrToFloat( Valor, Numero ) then
-      Gramatica.MSGsAdd( FormatConvert(
-        TPGKernel.ReplyPrefix,
-        TPGKernel.ReplyFormat, Numero ))
+    // Se o próximo token for algo que fecha um bloco, paramos o loop de sentenças
+    // para devolver o controle para quem chamou (ex: Commands ou o próprio script)
+    if AGrammar.Match(tkEnd) or AGrammar.Match(tkUntil) or AGrammar.Match(tkElse) then
+      Break;
+
+    // Se o token for um ";" isolado (comando vazio), apenas pula
+    if AGrammar.Match(tkSemiColon) then
+    begin
+      AGrammar.TokenList.Next;
+      Continue;
+    end;
+
+    // Executa o comando atual
+    Commands(AGrammar);
+
+    if AGrammar.HasError then Exit;
+
+    // Tratamento flexível de Ponto e Vírgula
+    if AGrammar.Match(tkSemiColon) then
+    begin
+      AGrammar.TokenList.Next;
+      // Após o ";", se for fim de bloco ou arquivo, o loop termina naturalmente
+    end
     else
-      Gramatica.MSGsAdd( Valor );
-  end;
-end;
-
-// -------------------------------EXPRESSAO------------------------------------//
-
-procedure Expressao( Gramatica: TGramatica );
-begin
-  if ( not Gramatica.Erro ) then
-  begin
-    ExpressaoNivel1( Gramatica );
-    ExpressaoAddSub( Gramatica );
-  end;
-end;
-
-procedure ExpressaoNivel1( Gramatica: TGramatica );
-begin
-  ExpressaoNivel2( Gramatica );
-  ExpressaoMulDiv( Gramatica );
-end;
-
-procedure ExpressaoNivel2( Gramatica: TGramatica );
-begin
-  ExpressaoFator( Gramatica );
-  ExpressaoPowSqt( Gramatica );
-end;
-
-procedure ExpressaoAddSub( Gramatica: TGramatica );
-var
-  Operador: TLexicoClass;
-  S1, S2: string;
-  N1, N2: Extended;
-  B1, B2: Boolean;
-begin
-  if ( Gramatica.TokenList.Token.Classe in [ cmdAdd, cmdSub, cmdRes_and,
-    cmdRes_or, cmdRes_xor ] ) then
-  begin
-    // carrega e continua analizando
-    Operador := Gramatica.TokenList.Token.Classe;
-    Gramatica.TokenList.GetNextToken;
-    ExpressaoNivel1( Gramatica );
-    // desempilha
-    S2 := Gramatica.Pilha.Desempilhar( '' );
-    S1 := Gramatica.Pilha.Desempilhar( '' );
-
-    // se for operador matematico
-    if ( Operador in [ cmdAdd, cmdSub ] ) then
     begin
-      // converte para numero
-      if TryStrToFloat( S1, N1, FormatSettings ) and
-        TryStrToFloat( S2, N2, FormatSettings ) then
-      begin
-        // executa a opera��o matematica
-        case Operador of
-          cmdAdd:
-            N1 := N1 + N2;
-          cmdSub:
-            N1 := N1 - N2;
-        end;
-        Gramatica.Pilha.Empilhar( N1 );
-      end else begin
-        // concatena o texto
-        if Operador = cmdAdd then
-          S1 := S1 + S2
-        else
-        begin
-          System.Delete( S1, pos( S2, S1 ), Length( S2 ) );
-        end;
-        Gramatica.Pilha.Empilhar( S1 );
-      end;
-    end else begin
-      // se nao compara com rela��o boleana
-      B1 := S1.ToBoolean;
-      B2 := S2.ToBoolean;
-      case Operador of
-        cmdRes_and:
-          B1 := ( B1 and B2 );
-        cmdRes_or:
-          B1 := ( B1 or B2 );
-        cmdRes_xor:
-          B1 := ( B1 xor B2 );
-      end;
-      Gramatica.Pilha.Empilhar( B1 );
+       // Se não tem ";" mas o próximo token fecha o bloco, ignoramos a falta do ";"
+       if AGrammar.Match(tkEOF) or AGrammar.Match(tkEnd) or AGrammar.Match(tkUntil) or AGrammar.Match(tkElse) then
+        Break;
+
+       AGrammar.Error('Error_Expected', [';']);
+       Exit;
     end;
-    ExpressaoAddSub( Gramatica );
   end;
 end;
 
-procedure ExpressaoMulDiv( Gramatica: TGramatica );
+procedure Commands(const AGrammar: TPGGrammar);
 var
-  Operador: TLexicoClass;
-  N1, N2: Extended;
+  LToken: TPGToken;
+  LItem: TPGItem;
 begin
-  if ( Gramatica.TokenList.Token.Classe in [ cmdMult, cmdBar, cmdRes_mod ] )
-  then
-  begin
-    // carrega e continua analizando
-    Operador := Gramatica.TokenList.Token.Classe;
-    Gramatica.TokenList.GetNextToken;
-    ExpressaoNivel2( Gramatica );
-    // desempilha
-    N2 := Gramatica.Pilha.Desempilhar( 0.0 );
-    N1 := Gramatica.Pilha.Desempilhar( 0.0 );
+  if AGrammar.HasError then Exit;
 
-    // calcula a opera��o matematica
-    case Operador of
-      cmdMult:
-        Gramatica.Pilha.Empilhar( N1 * N2 );
-      cmdBar:
-        begin
-          // verifica divis�o por 0
-          if N2 <> 0 then
-          begin
-            N1 := N1 / N2;
-            Gramatica.Pilha.Empilhar( N1 );
-          end
-          else
-            Gramatica.ErroAdd( 'Error_Interpreter_Div0' );
-        end;
-      cmdRes_mod:
-        begin
-          // verifica divis�o por 0
-          if N2 <> 0 then
-          begin
-            N1 := Trunc( N1 ) mod Trunc( N2 );
-            Gramatica.Pilha.Empilhar( N1 )
-          end
-          else
-            Gramatica.ErroAdd( 'Error_Interpreter_Div0' );
-        end;
-    end;
-    ExpressaoMulDiv( Gramatica );
-  end;
-end;
+  // Pega o token atual com segurança
+  LToken := AGrammar.TokenList.Current;
 
-procedure ExpressaoPowSqt( Gramatica: TGramatica );
-var
-  Operador: TLexicoClass;
-  S1, S2: string;
-  N1, N2: Extended;
-begin
-  if ( Gramatica.TokenList.Token.Classe in [ cmdTone, cmdRes_root, cmdEqual,
-    cmdMore, cmdMinor, cmdMoreEqual, cmdMinorEqual, cmdDifferent ] ) then
-  begin
-    // carrega e continua analizando
-    Operador := Gramatica.TokenList.Token.Classe;
-    Gramatica.TokenList.GetNextToken;
-    ExpressaoFator( Gramatica );
-    // desempilha
-    S2 := Gramatica.Pilha.Desempilhar( '' );
-    S1 := Gramatica.Pilha.Desempilhar( '' );
-    // tenta converter para numero
-    if TryStrToFloat( S1, N1, FormatSettings ) and
-      TryStrToFloat( S2, N2, FormatSettings ) then
+  // Se for nil ou Fim de Arquivo, apenas sai silenciosamente
+  if (LToken = nil) or (LToken.Kind = tkEOF) then
+    Exit;
+
+  case LToken.Kind of
+    tkEqual: // Modo calculadora
     begin
-      // calcula a opera��o matematica
-      case Operador of
-        cmdTone:
-          begin
-            if TryPower( N1, N2, N1 ) then
-              Gramatica.Pilha.Empilhar( N1 )
-            else
-              Gramatica.ErroAdd( 'Error_Interpreter_Pow' );
-          end;
-        cmdRes_root:
-          begin
-            if TryPower( N1, 1 / N2, N1 ) then
-              Gramatica.Pilha.Empilhar( N1 )
-            else
-              Gramatica.ErroAdd( 'Error_Interpreter_Root' );
-          end;
-        cmdEqual:
-          Gramatica.Pilha.Empilhar( N1 = N2 );
-        cmdMore:
-          Gramatica.Pilha.Empilhar( N1 > N2 );
-        cmdMinor:
-          Gramatica.Pilha.Empilhar( N1 < N2 );
-        cmdMoreEqual:
-          Gramatica.Pilha.Empilhar( N1 >= N2 );
-        cmdMinorEqual:
-          Gramatica.Pilha.Empilhar( N1 <= N2 );
-        cmdDifferent:
-          Gramatica.Pilha.Empilhar( N1 <> N2 );
-      end;
+      AGrammar.TokenList.Next;
+      Expression(AGrammar);
+      if not AGrammar.HasError then
+        AGrammar.Msg('Result: %s', [AGrammar.Stack.Pop.ToString]);
+    end;
 
-    end else begin
-      // se nao compara com rela��o boleana
-      case Operador of
-        cmdEqual:
-          Gramatica.Pilha.Empilhar( S1 = S2 );
-        cmdDifferent:
-          Gramatica.Pilha.Empilhar( S1 <> S2 );
+    tkBegin:
+    begin
+      AGrammar.TokenList.Next;
+      Statements(AGrammar);
+      AGrammar.Consume(tkEnd);
+    end;
+
+    tkIf, tkFor, tkWhile, tkRepeat, tkConst, tkVar, tkFunction:
+    begin
+      // Busca o objeto de comando (ex: 'for')
+      LItem := GlobalItemCommand.FindName(TPGLexicalRegistry.GetFriendlyName(LToken.Kind));
+      if Assigned(LItem) and (LItem is TPGItemClass) then
+        TPGItemClass(LItem).Execute(AGrammar)
       else
-        Gramatica.ErroAdd( 'Error_Interpreter_Expression' );
-      end;
+        AGrammar.Error('Error_Interpreter_Struct', []);
     end;
-    ExpressaoPowSqt( Gramatica );
-  end;
-end;
 
-procedure ExpressaoFator( Gramatica: TGramatica );
-begin
-  case Gramatica.TokenList.Token.Classe of
-
-    cmdID:
-      Identificador( Gramatica ); // comandos
-
-    cmdNumeric, cmdString:
+    tkIdentifier:
+    begin
+      if SameText(LToken.Value.ToString, 'Debug') then
       begin
-        // empilha texto
-        Gramatica.Pilha.Empilhar( Gramatica.TokenList.Token.Lexema );
-        Gramatica.TokenList.GetNextToken;
-      end;
-
-    cmdSub:
-      begin
-        // atribui valor negativo para numeros
-        Gramatica.TokenList.GetNextToken;
-        ExpressaoFator( Gramatica );
-        Gramatica.Pilha.Empilhar( Gramatica.Pilha.Desempilhar( 0.0 ) * -1 );
-      end;
-
-    cmdLPar:
-      begin
-        // abre parentes.
-        Gramatica.TokenList.GetNextToken;
-        Expressao( Gramatica );
-        // fecha parentes.
-        if Gramatica.TokenList.Token.Classe in [ cmdRPar, cmdEOF, cmdDotComa ]
-        then
-          Gramatica.TokenList.GetNextToken
-        else
-          Gramatica.ErroAdd( 'Error_Interpreter_)' );
-      end;
-
-    cmdRes_not:
-      begin
-        Gramatica.TokenList.GetNextToken;
-        Expressao( Gramatica );
-        Gramatica.Pilha.Empilhar
-          ( not Boolean( Gramatica.Pilha.Desempilhar( False ) ) );
-      end;
+        AGrammar.CheckBreakpoint;
+        AGrammar.TokenList.Next;
+      end
+      else
+        Identifier(AGrammar);
+    end;
   else
-    Gramatica.ErroAdd( 'Error_Interpreter_Expression' );
+    AGrammar.Error('Error_Interpreter_Struct', []);
   end;
 end;
 
-// -----------------------------IDENTIFICADOR----------------------------------//
-function FindID( AItem: TPGItem; AName: string ): TPGItem;
+procedure Identifier(const AGrammar: TPGGrammar);
+var
+  LItem: TPGItem;
+  LName: string;
+begin
+  if AGrammar.HasError then Exit;
+
+  LName := AGrammar.TokenList.Current.Value.ToString;
+  LItem := FindID(AGrammar.Local, LName);
+
+  if Assigned(LItem) then
+  begin
+    if LItem is TPGItemClass then
+    begin
+      if not LItem.Enabled then
+      begin
+        AGrammar.TokenList.Next;
+        if AGrammar.Match(tkLPar) then ReadParameters(AGrammar, 0, 255);
+      end
+      else
+        TPGItemClass(LItem).Execute(AGrammar);
+    end
+    else
+      AGrammar.Error('Error_Interpreter_IdUnRec', [LName]);
+  end
+  else
+    AGrammar.Error('Error_Interpreter_IdUnRec', [LName]);
+end;
+
+{ --- Expressões e Matemática --- }
+
+procedure Expression(const AGrammar: TPGGrammar);
+var
+  LOperator: TPGTokenKind;
+  LV1, LV2: TValue;
+begin
+  ExpressionLevel1(AGrammar);
+
+  while AGrammar.TokenList.Current.Kind in [tkAdd, tkSub, tkOr, tkAnd, tkXor] do
+  begin
+    LOperator := AGrammar.TokenList.Current.Kind;
+    AGrammar.TokenList.Next;
+    ExpressionLevel1(AGrammar);
+
+    LV2 := AGrammar.Stack.Pop;
+    LV1 := AGrammar.Stack.Pop;
+
+    case LOperator of
+      tkAdd: AGrammar.Stack.Push(TValueAdd(LV1, LV2));
+      tkSub: AGrammar.Stack.Push(LV1.AsExtended - LV2.AsExtended);
+      tkOr:  AGrammar.Stack.Push(LV1.AsBoolean or LV2.AsBoolean);
+      tkAnd: AGrammar.Stack.Push(LV1.AsBoolean and LV2.AsBoolean);
+      tkXor: AGrammar.Stack.Push(LV1.AsBoolean xor LV2.AsBoolean);
+    end;
+  end;
+end;
+
+procedure ExpressionLevel1(const AGrammar: TPGGrammar);
+var
+  LOperator: TPGTokenKind;
+  LV1, LV2: TValue;
+begin
+  ExpressionLevel2(AGrammar);
+
+  while AGrammar.TokenList.Current.Kind in [tkMult, tkDiv, tkMod] do
+  begin
+    LOperator := AGrammar.TokenList.Current.Kind;
+    AGrammar.TokenList.Next;
+    ExpressionLevel2(AGrammar);
+
+    LV2 := AGrammar.Stack.Pop;
+    LV1 := AGrammar.Stack.Pop;
+
+    case LOperator of
+      tkMult: AGrammar.Stack.Push(LV1.AsExtended * LV2.AsExtended);
+      tkDiv:
+        if LV2.AsExtended <> 0 then AGrammar.Stack.Push(LV1.AsExtended / LV2.AsExtended)
+        else AGrammar.Error('Error_Interpreter_Div0', []);
+      tkMod:  AGrammar.Stack.Push(Trunc(LV1.AsExtended) mod Trunc(LV2.AsExtended));
+    end;
+  end;
+end;
+
+procedure ExpressionLevel2(const AGrammar: TPGGrammar);
+var
+  LOperator: TPGTokenKind;
+  LV1, LV2: TValue;
+begin
+  Factor(AGrammar);
+
+  // POTENCIAÇÃO (^) E RAIZ (root)
+  while AGrammar.TokenList.Current.Kind in [tkPower, tkRoot, tkTone] do
+  begin
+    LOperator := AGrammar.TokenList.Current.Kind;
+    AGrammar.TokenList.Next;
+    Factor(AGrammar);
+
+    LV2 := AGrammar.Stack.Pop;
+    LV1 := AGrammar.Stack.Pop;
+
+    case LOperator of
+      tkPower, tkTone:
+        AGrammar.Stack.Push(Power(LV1.AsExtended, LV2.AsExtended));
+      tkRoot:
+        if LV2.AsExtended <> 0 then
+          AGrammar.Stack.Push(Power(LV1.AsExtended, 1 / LV2.AsExtended))
+        else
+          AGrammar.Error('Error_Interpreter_Root0', []);
+    end;
+  end;
+end;
+
+procedure Factor(const AGrammar: TPGGrammar);
+var
+  LArrayValues: TArray<TValue>;
+begin
+  case AGrammar.TokenList.Current.Kind of
+    tkNumber, tkString:
+    begin
+      AGrammar.Stack.Push(AGrammar.TokenList.Current.Value);
+      AGrammar.TokenList.Next;
+    end;
+
+    tkIdentifier: Identifier(AGrammar);
+
+    tkLPar:
+    begin
+      AGrammar.TokenList.Next;
+      Expression(AGrammar);
+      AGrammar.Consume(tkRPar);
+    end;
+
+    tkLBrack:
+    begin
+      AGrammar.TokenList.Next;
+      SetLength(LArrayValues, 0);
+      while (not AGrammar.Match(tkRBrack)) and (not AGrammar.HasError) do
+      begin
+        Expression(AGrammar);
+        SetLength(LArrayValues, Length(LArrayValues) + 1);
+        LArrayValues[High(LArrayValues)] := AGrammar.Stack.Pop;
+        if AGrammar.Match(tkComma) then AGrammar.TokenList.Next;
+      end;
+      AGrammar.Consume(tkRBrack);
+      AGrammar.Stack.Push(TValue.From<TArray<TValue>>(LArrayValues));
+    end;
+
+    tkSub:
+    begin
+      AGrammar.TokenList.Next;
+      Factor(AGrammar);
+      AGrammar.Stack.Push(AGrammar.Stack.Pop.AsExtended * -1);
+    end;
+
+    tkNot:
+    begin
+      AGrammar.TokenList.Next;
+      Factor(AGrammar);
+      AGrammar.Stack.Push(not AGrammar.Stack.Pop.AsBoolean);
+    end;
+  else
+    AGrammar.Error('Error_Interpreter_Expression', []);
+  end;
+end;
+
+function FindID(const AItem: TPGItem; const AName: string): TPGItem;
+var
+  LChild: TPGItem;
 begin
   Result := nil;
-  if Assigned( AItem ) then
+  if not Assigned(AItem) then Exit;
+  Result := AItem.FindName(AName);
+  if (Result = nil) and (AItem.Parent <> nil) then
+    Result := FindID(AItem.Parent, AName);
+  if (Result = nil) and (AItem = GlobalCollection) then
   begin
-    if AItem = GlobalCollection then
+    for LChild in GlobalCollection do
     begin
-      for AItem in GlobalCollection do
-      begin
-        Result := AItem.FindName( AName );
-        if Assigned( Result ) then
-          exit;
-      end;
-    end else begin
-      Result := AItem.FindName( AName );
-      if not Assigned( Result ) and Assigned( AItem.Parent ) then
-        Result := FindID( AItem.Parent, AName );
+       Result := LChild.FindName(AName);
+       if Assigned(Result) then Break;
     end;
   end;
 end;
 
-function IdentificadorLocalizar( Gramatica: TGramatica ): TPGItem;
+function Assignment(const AGrammar: TPGGrammar; const ACurrentValue: TValue): TValue;
 begin
-  Result := FindID( Gramatica.Local, Gramatica.TokenList.Token.Lexema );
-end;
-
-procedure Identificador( Gramatica: TGramatica );
-var
-  ID: TPGItemClass;
-begin
-  if ( not Gramatica.Erro ) then
+  AGrammar.TokenList.Next;
+  if AGrammar.Match(tkAssign) then
   begin
-    ID := TPGItemClass( IdentificadorLocalizar( Gramatica ) );
-    if Assigned( ID ) then
-      ID.Execute( Gramatica )
-    else
-      Gramatica.ErroAdd( 'Error_Interpreter_IdUnRec' );
+    AGrammar.TokenList.Next;
+    Expression(AGrammar);
+    Result := AGrammar.Stack.Pop;
+  end
+  else
+  begin
+    AGrammar.Stack.Push(ACurrentValue);
+    Result := ACurrentValue;
   end;
 end;
 
-initialization
-
-finalization
-
 end.
+

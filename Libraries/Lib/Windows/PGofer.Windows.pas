@@ -13,11 +13,10 @@ type
     FCanOff: Boolean;
     FMouse: TPGMouse;
     procedure SetCanOff(Value: Boolean);
-    function GetCanOff: Boolean;
   protected
   public
   published
-    property CanOff: Boolean read GetCanOff write SetCanOff;
+    property CanOff: Boolean read FCanOff write SetCanOff;
     property Mouse: TPGMouse read FMouse;
     function DialogMessage(Text: string): Boolean;
     function FindWindow(Valor: string): NativeUInt;
@@ -50,11 +49,6 @@ uses
 function TPGWindows.FindWindow(Valor: string): NativeUInt;
 begin
   Result := WindowsGetFindWindow(Valor);
-end;
-
-function TPGWindows.GetCanOff: Boolean;
-begin
-  Result := FCanOff;
 end;
 
 function TPGWindows.GetTextFromPoint: string;

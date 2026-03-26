@@ -42,13 +42,13 @@ type
     constructor Create( AForm: TForm ); reintroduce;
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
-    procedure Execute( AGramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar ); override;
     class var GlobList: TPGItem;
   published
     property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue
       write SetAlphaBlendValue;
-    procedure Close( );
+    procedure Close( ); virtual;
     property Enabled: Boolean read GetEnabled write SetFormEnabled;
     property Heigth: Integer read GetHeigth write SetHeigth;
     procedure Hide( );
@@ -208,21 +208,27 @@ begin
   FForm.Hide;
 end;
 
-procedure TPGForm.Execute( AGramatica: TGramatica );
-var
-  LPGItem : TPGItem;
+procedure TPGForm.Execute(const AGrammar: TPGGrammar );
 begin
-  TThread.Synchronize(
-    AGramatica,
+  AGrammar.TokenList.Next;
+  RunInMainThread(
     procedure
     begin
-      LPGItem := Self.GetNextChild( AGramatica );
-      if Assigned(LPGItem) then
-        TPGItemMember(LPGItem).Execute(AGramatica)
+      case AGrammar.TokenList.Current.Kind of
+        tkDot:
+        begin
+          Self.ExecuteMember(AGrammar);
+        end;
+
+        tkSemiColon, tkEOF:
+        begin
+          FForm.ForceShow(True);
+        end
       else
-        Self.Form.ForceShow(True);
-      Application.ProcessMessages;
-    end
+        AGrammar.Error('Error_Interpreter_Unrecog',[AGrammar.TokenList.Current.Value.ToString]);
+      end;
+    end,
+    True
   );
 end;
 

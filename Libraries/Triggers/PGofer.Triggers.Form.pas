@@ -33,7 +33,7 @@ type
     procedure CreatePopups( ); override;
     procedure onCreateItemPopUpClick( Sender: TObject );
   public
-    constructor Create( ACollectItem: TPGItemCollectTrigger ); overload;
+    constructor Create( ACollectItem: TPGItemCollectTrigger ); reintroduce;
     destructor Destroy( ); override;
   end;
 
@@ -76,7 +76,7 @@ begin
     begin
       Result := Result.Parent;
     end else begin
-      if TPGFolderMirror(Result).Locked then
+      if TPGFolderMirror(Result)._Locked then
         Result := nil;
     end;
   end else begin
@@ -153,7 +153,7 @@ begin
     Item := GetTargetWorking(TrvController.TargetDrag);
     if Assigned(Item) then
     begin
-      if ( Item is TPGFolderMirror ) and (not TPGFolderMirror(Item).Locked ) then
+      if ( Item is TPGFolderMirror ) and (not TPGFolderMirror(Item)._Locked ) then
       begin
         Accept := True;
         TrvController.AttachMode := naInsert;
@@ -208,16 +208,17 @@ end;
 procedure TFrmTriggerController.TrvControllerCustomDrawItem(Sender: TCustomTreeView;
   Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
 var
-  Item: TPGItemMirror;
+  Item: TPGItem;
 begin
   inherited;
   if Assigned(Node.Data) then
   begin
-    Item := TPGItemMirror(Node.Data);
-    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item).Locked) then
-      Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsItalic];
+    Item := TPGItem(Node.Data);
 
-    if not Item.isValid then
+    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item)._Locked) then
+        Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsItalic];
+
+    if (not Item.isValid) then
     begin
        if Item.ReadOnly then
          Sender.Canvas.Font.Color := clWebLightSalmon
@@ -267,6 +268,14 @@ begin
     LNewPopUpItem.ImageIndex := LSubPopUpItem.ImageIndex;
   end;
 
+  LPopUpItem := TMenuItem.Create( PpmConttroler );
+  PpmConttroler.Items.Add( LPopUpItem );
+  LPopUpItem.Caption := MniDelete.Caption;
+  LPopUpItem.ShortCut := MniDelete.ShortCut;
+  LPopUpItem.Checked := MniDelete.Checked;
+  LPopUpItem.OnClick := MniDelete.OnClick;
+  LPopUpItem.Tag := MniDelete.Tag;
+  LPopUpItem.ImageIndex := MniDelete.ImageIndex;
 end;
 
 procedure TFrmTriggerController.onCreateItemPopUpClick( Sender: TObject );

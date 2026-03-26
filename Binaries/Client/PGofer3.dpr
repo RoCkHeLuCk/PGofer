@@ -3,9 +3,11 @@ program PGofer3;
 
 uses
   Winapi.Windows,
+  Winapi.MMSystem,
   Vcl.Forms,
   PGofer.Component.IniFile in '..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas',
   Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
+  Pgofer.Component.ComboBox in '..\..\Libraries\Componet\Source\Pgofer.Component.ComboBox.pas',
   Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
   PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
@@ -64,6 +66,7 @@ uses
   PGofer.Triggers.Collections in '..\..\Libraries\Triggers\PGofer.Triggers.Collections.pas',
   PGofer.Triggers.Form in '..\..\Libraries\Triggers\PGofer.Triggers.Form.pas' {FrmTriggerController},
   PGofer.Triggers.Frame in '..\..\Libraries\Triggers\PGofer.Triggers.Frame.pas' {PGTriggerFrame: TFrame},
+  PGofer.Triggers.Folder.Frame in '..\..\Libraries\Triggers\PGofer.Triggers.Folder.Frame.pas' {PGFolderFrame: TFrame},
   PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
   PGofer.Triggers.VaultFolder.KeyStore in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.KeyStore.pas',
   PGofer.Triggers.VaultFolder in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.pas',
@@ -97,22 +100,26 @@ begin
 
     SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
     SetProcessPriorityBoost( GetCurrentProcess, False );
-    SetProcessWorkingSetSize( GetCurrentProcess, 10*1024*1024, 15*1024*1024);
+
+    //SetProcessWorkingSetSize( GetCurrentProcess, 10*1024*1024, 15*1024*1024);
+    SetProcessWorkingSetSize(GetCurrentProcess, 32 * 1024 * 1024, 64 * 1024 * 1024);
+
     SetProcessShutdownParameters($4FF, 0);
+
+    timeBeginPeriod(1);
 
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  Application.CreateForm(TFrmTriggerController, FrmTriggerController);
-  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.FormCreate();
     TriggersCollect.FormCreate();
-    TPGTask.Working( 0, False );
     FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );
+    TPGTask.Working( 0, False );
 
     SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
     SetProcessPriorityBoost( GetCurrentProcess, False );

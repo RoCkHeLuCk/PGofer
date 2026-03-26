@@ -60,9 +60,6 @@ type
     procedure UpdateActionButton;
     procedure UpdateRegExEngine;
     procedure ActionButtonClick(ASender: TObject);
-
-    procedure SetText(const AValue: String);
-    function GetText: String;
   protected
     { Overrides da VCL }
     procedure Loaded; override;
@@ -80,6 +77,7 @@ type
 
     { Propriedade pública para consulta via código }
     property IsValid: Boolean read FValidationIsValid write SetValidationIsValid;
+    procedure SetTextSilent(const AValue: String);
   published
     { Ordem de persistência RTTI: ValidationMode é o cérebro }
     property ValidationMode: TValidationMode read FValidationMode write SetValidationMode default vmNone;
@@ -109,9 +107,7 @@ type
     property OnChange;
     property OnEnter;
     property OnExit;
-
-
-    property Text: String read GetText write SetText;
+    property Text;
 
   end;
 
@@ -120,7 +116,7 @@ procedure Register;
 implementation
 
 uses
-  PGofer.Files.Controls, PGofer.Key.Controls;
+  PGofer.Files.Controls;
 
 procedure Register;
 begin
@@ -172,16 +168,6 @@ begin
   inherited DoEnter;
   if FSelectAllOnFocus then
     Self.SelectAll;
-end;
-
-function TEditEx.GetText(): String;
-begin
-   Result := SanitizeText( inherited Text );
-end;
-
-procedure TEditEx.SetText(const AValue: String);
-begin
-  inherited Text := AValue;
 end;
 
 procedure TEditEx.SetBounds(ALeft, ATop, AWidth, AHeight: Integer);
@@ -407,6 +393,18 @@ begin
     else
       Self.Color := FValidationColorError;
   end;
+end;
+
+procedure TEditEx.SetTextSilent(const AValue: String);
+var
+  OldEvent: TNotifyEvent;
+begin
+  if Self.Text = AValue then Exit;
+
+  OldEvent := Self.OnChange;
+  Self.OnChange := nil;
+  Self.Text := AValue;
+  Self.OnChange := OldEvent;
 end;
 
 

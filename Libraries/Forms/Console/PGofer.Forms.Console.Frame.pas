@@ -7,15 +7,16 @@ uses
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls,
 
   PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
-  PGofer.Component.Edit, PGofer.Item.Frame, Vcl.Dialogs, Vcl.ExtCtrls;
+  PGofer.Component.Edit, PGofer.Item.Frame, Vcl.Dialogs, Vcl.ExtCtrls, Pgofer.Component.ComboBox,
+  Pgofer.Component.Checkbox;
 
 type
   TPGConsoleFrame = class( TPGFormsFrame )
     lblDelay: TLabel;
     edtDelay: TEditEx;
     updDelay: TUpDown;
-    ckbShowMessage: TCheckBox;
-    ckbAutoClose: TCheckBox;
+    ckbShowMessage: TCheckBoxEx;
+    ckbAutoClose: TCheckBoxEx;
     procedure ckbShowMessageClick( Sender: TObject );
     procedure ckbAutoCloseClick( Sender: TObject );
     procedure edtDelayExit( Sender: TObject );
@@ -35,6 +36,21 @@ uses
 {$R *.dfm}
 { TPGFrameConsole }
 
+constructor TPGConsoleFrame.Create( AItem: TPGItem; AParent: TObject );
+begin
+  inherited Create( AItem, AParent );
+  FItem := TPGFrmConsole( AItem );
+  edtDelay.SetTextSilent( FItem.Delay.ToString );
+  ckbShowMessage.SetCheckedSilent( FItem.ShowMessage );
+  ckbAutoClose.SetCheckedSilent( FItem.AutoClose );
+end;
+
+destructor TPGConsoleFrame.Destroy;
+begin
+  FItem := nil;
+  inherited Destroy;
+end;
+
 procedure TPGConsoleFrame.ckbAutoCloseClick( Sender: TObject );
 begin
   FItem.AutoClose := ckbAutoClose.Checked;
@@ -43,21 +59,6 @@ end;
 procedure TPGConsoleFrame.ckbShowMessageClick( Sender: TObject );
 begin
   FItem.ShowMessage := ckbShowMessage.Checked;
-end;
-
-constructor TPGConsoleFrame.Create( AItem: TPGItem; AParent: TObject );
-begin
-  inherited Create( AItem, AParent );
-  FItem := TPGFrmConsole( AItem );
-  edtDelay.Text := FItem.Delay.ToString;
-  ckbShowMessage.Checked := FItem.ShowMessage;
-  ckbAutoClose.Checked := FItem.AutoClose;
-end;
-
-destructor TPGConsoleFrame.Destroy;
-begin
-  FItem := nil;
-  inherited Destroy;
 end;
 
 procedure TPGConsoleFrame.edtDelayExit( Sender: TObject );

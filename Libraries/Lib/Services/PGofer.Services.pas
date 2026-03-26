@@ -7,48 +7,48 @@ uses
 
 type
   {$M+}
-  [TPGAttribText('Advanced Windows Service Management')]
-  [TPGAttribText('Allows control of local or remote services.')]
+  [TPGAboutAttribute('Advanced Windows Service Management')]
+  [TPGAboutAttribute('Allows control of local or remote services.')]
   TPGService = class( TPGItemClass )
   private
     FMachineName: string;
   public
-    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
+    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
   published
 
-    [TPGAttribText('Target Computer Name or IP Address.')]
-    [TPGAttribText('Leave empty for Localhost.')]
+    [TPGAboutAttribute('Target Computer Name or IP Address.')]
+    [TPGAboutAttribute('Leave empty for Localhost.')]
     property MachineName: string read FMachineName write FMachineName;
 
-    [TPGAttribText('Creates a new Service. Returns the Service Handle.')]
-    [TPGAttribText('Params: ServiceName, DisplayName, ExePath')]
+    [TPGAboutAttribute('Creates a new Service. Returns the Service Handle.')]
+    [TPGAboutAttribute('Params: ServiceName, DisplayName, ExePath')]
     function Created( AService, ADisplayName, APathFile: string ): Cardinal;
 
-    [TPGAttribText('Deletes an existing Service. Returns True on success.')]
-    [TPGAttribText('Params: ServiceName')]
+    [TPGAboutAttribute('Deletes an existing Service. Returns True on success.')]
+    [TPGAboutAttribute('Params: ServiceName')]
     function Delete( AService: string ): Boolean;
 
-    [TPGAttribText('Gets Startup Type. Returns: 2=Auto, 3=Manual, 4=Disabled, 0=Boot, 1=System')]
+    [TPGAboutAttribute('Gets Startup Type. Returns: 2=Auto, 3=Manual, 4=Disabled, 0=Boot, 1=System')]
     function GetConfig( AService: string ): Byte;
 
-    [TPGAttribText('Gets the service description text.')]
+    [TPGAboutAttribute('Gets the service description text.')]
     function GetDescription( AService: string ): string;
 
-    [TPGAttribText('Gets Current Status. Returns: 1=Stopped, 4=Running, 7=Paused')]
+    [TPGAboutAttribute('Gets Current Status. Returns: 1=Stopped, 4=Running, 7=Paused')]
     function GetState( AService: string ): Byte;
 
-    [TPGAttribText('Sets Startup Type. Values: 2=Auto, 3=Manual, 4=Disabled')]
+    [TPGAboutAttribute('Sets Startup Type. Values: 2=Auto, 3=Manual, 4=Disabled')]
     function SetConfig( AService: string; AConfig: Byte ): Boolean;
 
-    [TPGAttribText('Sets the service description text.')]
+    [TPGAboutAttribute('Sets the service description text.')]
     function SetDescription( AService, ADescription: string ): Boolean;
 
-    [TPGAttribText('Controls Service State. Action: 1=Stop, 4=Start/Continue, 7=Pause')]
+    [TPGAboutAttribute('Controls Service State. Action: 1=Stop, 4=Start/Continue, 7=Pause')]
     function SetState( AService: string; AControl: Byte ): Boolean;
 
-    [TPGAttribText('Waits for service to reach a specific state.')]
-    [TPGAttribText('Params: ServiceName, TargetState=4 (1=Stop, 4=Run), TimeoutMs=2000')]
-    [TPGAttribText('Returns True if state reached, False if Timeout.')]
+    [TPGAboutAttribute('Waits for service to reach a specific state.')]
+    [TPGAboutAttribute('Params: ServiceName, TargetState=4 (1=Stop, 4=Run), TimeoutMs=2000')]
+    [TPGAboutAttribute('Returns True if state reached, False if Timeout.')]
     function WaitFor( AService: string; AState: Byte = 4; ATimeout: Cardinal = 2000 ): Boolean;
   end;
   {$TYPEINFO ON}
@@ -64,7 +64,7 @@ uses
 
 { TPGService }
 
-constructor TPGService.Create( AItemDad: TPGItem; AName: string = '' );
+constructor TPGService.Create( AItemDad: TPGItem; const AName: string = '' );
 begin
   inherited Create( AItemDad, AName );
   FMachineName := '';

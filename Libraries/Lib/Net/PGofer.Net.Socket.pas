@@ -25,7 +25,7 @@ type
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
   public
-    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
+    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -58,7 +58,7 @@ type
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
     procedure ConsoleSendMSG( Value: string );
   public
-    constructor Create( AItemDad: TPGItem; AName: string = '' ); override;
+    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -83,7 +83,7 @@ begin
     TPGKernel.Console( Value, True, ConsoleMessage );
 end;
 
-constructor TPGNetServer.Create( AItemDad: TPGItem; AName: string = '' );
+constructor TPGNetServer.Create( AItemDad: TPGItem; const AName: string = '' );
 begin
   inherited Create( AItemDad, 'Server' );
 
@@ -223,7 +223,7 @@ begin
     TPGKernel.Console( Value, True, ConsoleMessage );
 end;
 
-constructor TPGNetClient.Create( AItemDad: TPGItem; AName: string );
+constructor TPGNetClient.Create( AItemDad: TPGItem; const AName: string );
 begin
   inherited Create( AItemDad, 'Client' );
 

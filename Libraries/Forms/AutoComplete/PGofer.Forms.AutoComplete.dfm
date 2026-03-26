@@ -24,6 +24,7 @@ object FrmAutoComplete: TFrmAutoComplete
   OldCreateOrder = True
   PopupMenu = ppmAutoComplete
   Position = poDefault
+  StyleElements = [seFont, seClient]
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -43,6 +44,7 @@ object FrmAutoComplete: TFrmAutoComplete
     AutoSnap = False
     Beveled = True
     MinSize = 20
+    StyleElements = [seFont, seClient]
     ExplicitTop = 5
     ExplicitWidth = 267
   end
@@ -68,6 +70,7 @@ object FrmAutoComplete: TFrmAutoComplete
         Caption = 'Priority'
       end>
     HideSelection = False
+    StyleElements = [seFont, seClient]
     ReadOnly = True
     RowSelect = True
     PopupMenu = ppmAutoComplete
@@ -91,7 +94,6 @@ object FrmAutoComplete: TFrmAutoComplete
     Align = alBottom
     BevelInner = bvNone
     BevelOuter = bvNone
-    BorderStyle = bsNone
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -13
@@ -102,8 +104,8 @@ object FrmAutoComplete: TFrmAutoComplete
     ParentFont = False
     ReadOnly = True
     TabOrder = 1
+    StyleElements = [seFont, seClient]
     Zoom = 100
-    OnDblClick = rceAboutDblClick
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

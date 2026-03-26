@@ -1,14 +1,16 @@
-unit PGofer.Triggers.Links;
+﻿unit PGofer.Triggers.Links;
 
 interface
 
 uses
-  System.Classes,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  System.Classes, System.Generics.Collections,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers;
 
 type
   {$M+}
+  [TPGArgs('FileName, Parameter, Directory, State, SingleInstance, '+
+           'RunAdmin, CaptureMsg, Priority, ScriptBefor, ScriptAfter')]
   TPGLink = class( TPGItemTrigger )
   private
     FFileName: string;
@@ -22,33 +24,30 @@ type
     FCaptureMsg: Boolean;
     FCanExecute: Boolean;
     FSingleInstance: Boolean;
-    function GetDirExist( ): Boolean;
-    function GetFileExist( ): Boolean;
-    function GetFileRepeat( ): Boolean;
+    function GetDirExist(): Boolean;
+    function GetFileExist(): Boolean;
+    function GetFileRepeat(): Boolean;
     function GetScriptAfter: string;
     function GetScriptBefor: string;
     procedure SetScriptAfter( AValue: string );
     procedure SetScriptBefor( AValue: string );
-    procedure ThreadExecute(
-        AWaitFor: Boolean;
-        AParameter: string;
-        ARunAdmin: Boolean;
-        ASingleInstance: Boolean;
-        APriority: Byte;
-        AState: Byte;
-        ACaptureMsg: Boolean
-      );
     function GetIsRunning: Boolean;
+    class var FLinkList: TList<TPGLink>;
   protected
-    procedure ExecuteWithArgs( Gramatica: TGramatica ); override;
-    function GetIsValid( ): Boolean; override;
+    function GetIsValid(): Boolean; override;
+    class function GetFrameType: TPGTriggerFrameType; override;
   public
-    class var GlobList: TPGItem;
-    constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
-    destructor Destroy( ); override;
-    procedure Frame( AParent: TObject ); override;
-    procedure Triggering( ); override;
+    class constructor Create();
+    class destructor Destroy();
+    constructor Create(AMirror: TPGItemMirror; AName: string); override;
+    destructor Destroy(); override;
+    procedure Triggering(); override;
+    procedure ExecuteAction(AParameter: string = ''; AWait: Boolean = False;
+      AState: Byte = 1; ARunAdmin: Boolean = False; ASingleInstance: Boolean = False);
   published
+    class procedure Auto(ADir: string; AMask: string);
+    procedure WaitFor(AParameter: string = ''; AState: Byte = 1);
+    function KillMe(): Boolean;
     property FileName: string read FFileName write FFileName;
     property Parameter: string read FParameter write FParameter;
     property Directory: string read FDirectory write FDirectory;
@@ -64,114 +63,111 @@ type
     property isDirExist: Boolean read GetDirExist;
     property CanExecute: Boolean read FCanExecute write FCanExecute;
     property isRunning: Boolean read GetIsRunning;
-    procedure WaitFor( );
-    function KillMe( ): Boolean;
   end;
   {$TYPEINFO ON}
 
-  TPGLinkDeclare = class( TPGItemClass )
-  protected
-  public
-    procedure Execute( Gramatica: TGramatica ); override;
-  published
-    procedure Auto( ADir: string; AMask: string );
-  end;
-
   TPGLinkMirror = class( TPGItemMirror )
-  private
   protected
+    class function GetTriggerType: TPGItemTriggerType; override;
   public
-    constructor Create( AItemDad: TPGItem; AName: string = ''); override;
-    procedure Frame( AParent: TObject ); override;
     class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
-    class function ClassNameEx(): String; override;
   end;
 
 implementation
 
 uses
   System.SysUtils, System.StrUtils,
-  PGofer.Core,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
-
   PGofer.Files.Controls,
   PGofer.Files.WinShell,
   PGofer.Process.Controls,
   PGofer.Triggers.Links.Frame,
   PGofer.Triggers.Links.Thread;
 
-{ TPGLinks }
+{ TPGLink }
 
-constructor TPGLink.Create( AName: string; AMirror: TPGItemMirror );
+class constructor TPGLink.Create;
 begin
-  inherited Create( TPGLink.GlobList, AName, AMirror );
-  Self.ReadOnly := False;
+  FLinkList := TList<TPGLink>.Create;
+end;
+
+class destructor TPGLink.Destroy;
+begin
+  FLinkList.Free();
+  FLinkList := nil;
+end;
+
+constructor TPGLink.Create(AMirror: TPGItemMirror; AName: string);
+begin
   FFileName := '';
   FParameter := '';
   FDirectory := '';
   FState := 1;
   FPriority := 2;
   FRunAdmin := False;
-  FScriptBefor := TStringList.Create( );
-  FScriptAfter := TStringList.Create( );
+  FScriptBefor := TStringList.Create();
+  FScriptAfter := TStringList.Create();
   FCanExecute := true;
   FSingleInstance := False;
+  inherited Create(AMirror, AName);
+  FLinkList.Add(Self);
 end;
 
-destructor TPGLink.Destroy( );
+destructor TPGLink.Destroy();
 begin
+  if Assigned(FLinkList) then
+    FLinkList.Remove(Self);
   FFileName := '';
   FParameter := '';
   FDirectory := '';
   FState := 1;
   FPriority := 2;
   FRunAdmin := False;
-  FScriptBefor.Free( );
-  FScriptAfter.Free( );
+  FScriptBefor.Free();
+  FScriptAfter.Free();
   FCanExecute := False;
   FSingleInstance := False;
-  inherited Destroy( );
+  inherited Destroy();
 end;
 
-procedure TPGLink.Frame( AParent: TObject );
+class function TPGLink.GetFrameType: TPGTriggerFrameType;
 begin
-  inherited Frame( AParent );
-  TPGLinkFrame.Create( Self, AParent );
+  Result := TPGLinkFrame;
 end;
 
 function TPGLink.GetDirExist: Boolean;
 begin
-  Result := DirectoryExistsEx( FDirectory );
+  Result := DirectoryExistsEx(FDirectory);
 end;
 
-function TPGLink.GetIsRunning( ): Boolean;
+function TPGLink.GetIsRunning(): Boolean;
 begin
-  Result := ProcessFileToPID( ExtractFileName( FFileName ) ) <> 0;
+  Result := ProcessFileToPID(ExtractFileName(FFileName)) <> 0;
 end;
 
-function TPGLink.GetIsValid( ): Boolean;
+function TPGLink.GetIsValid(): Boolean;
 begin
-  Result := GetFileExist( );
+  Result := GetFileExist();
 end;
 
-function TPGLink.GetFileExist( ): Boolean;
+function TPGLink.GetFileExist(): Boolean;
 begin
-  Result := FileExistsEx( FFileName );
+  Result := FileExistsEx(FFileName);
 end;
 
-function TPGLink.GetFileRepeat( ): Boolean;
+function TPGLink.GetFileRepeat(): Boolean;
 var
-  Item: TPGItem;
+  Item: TPGLink;
   Text: string;
 begin
   Result := False;
-  Text := FileUnExpandPath( Self.FFileName );
-  for Item in TPGLink.GlobList do
+  Text := FileUnExpandPath(Self.FFileName);
+  for Item in TPGLink.FLinkList do
   begin
-    if SameText( FileUnExpandPath( TPGLink( Item ).FFileName ), Text ) and
-      SameText( TPGLink( Item ).FParameter, Self.FParameter ) and ( Item <> Self )
-    then
+    if SameText(FileUnExpandPath(Item.FFileName), Text)
+    and SameText(Item.FParameter, Self.FParameter)
+    and (Item <> Self) then
     begin
       Result := true;
       Break;
@@ -179,284 +175,182 @@ begin
   end;
 end;
 
-function TPGLink.GetScriptAfter( ): string;
+function TPGLink.GetScriptAfter(): string;
 begin
   Result := FScriptAfter.Text;
 end;
 
-function TPGLink.GetScriptBefor( ): string;
+function TPGLink.GetScriptBefor(): string;
 begin
   Result := FScriptBefor.Text;
 end;
 
-function TPGLink.KillMe( ): Boolean;
+function TPGLink.KillMe(): Boolean;
 begin
-  Result := ProcessKill( ProcessFileToPID( ExtractFileName( FFileName ) ) );
+  Result := ProcessKill(ProcessFileToPID(ExtractFileName(FFileName)));
 end;
 
-procedure TPGLink.SetScriptAfter( AValue: string );
+procedure TPGLink.SetScriptAfter(AValue: string);
 begin
   FScriptAfter.Text := AValue;
 end;
 
-procedure TPGLink.SetScriptBefor( AValue: string );
+procedure TPGLink.SetScriptBefor(AValue: string);
 begin
   FScriptBefor.Text := AValue;
 end;
 
-procedure TPGLink.ThreadExecute(
-    AWaitFor: Boolean;
-    AParameter: string;
-    ARunAdmin: Boolean;
-    ASingleInstance: Boolean;
-    APriority: Byte;
-    AState: Byte;
-    ACaptureMsg: Boolean
-  );
+procedure TPGLink.Triggering();
+begin
+  Self.ExecuteAction(FParameter, False, FState, FRunAdmin, FSingleInstance);
+end;
+
+procedure TPGLink.ExecuteAction(AParameter: string; AWait: Boolean; AState: Byte;
+  ARunAdmin, ASingleInstance: Boolean);
 var
   LinkThread: TLinkThread;
 begin
   LinkThread := TLinkThread.Create(
     Self,
-    not AWaitFor,
+    AWait,
     AParameter,
     ARunAdmin,
     ASingleInstance,
-    APriority,
-    AState,
-    ACaptureMsg
+    AState
   );
+
   LinkThread.Start;
-  if AWaitFor then
+
+  if AWait then
   begin
-    LinkThread.WaitFor( );
-    LinkThread.Free( );
+    LinkThread.WaitFor();
+    LinkThread.Free();
   end;
 end;
 
-procedure TPGLink.Triggering( );
+procedure TPGLink.WaitFor(AParameter: string; AState: Byte);
 begin
-  Self.ThreadExecute(
-    False,
-    FParameter,
-    FRunAdmin,
-    FSingleInstance,
-    FPriority,
-    FState,
-    FCaptureMsg
-  );
+  Self.ExecuteAction(AParameter, True, AState, FRunAdmin, FSingleInstance);
 end;
 
-procedure TPGLink.WaitFor();
-begin
-  Self.ThreadExecute(
-    True,
-    FParameter,
-    FRunAdmin,
-    FSingleInstance,
-    FPriority,
-    FState,
-    FCaptureMsg
-  );
-end;
+class procedure TPGLink.Auto(ADir: string; AMask: string);
 
-procedure TPGLink.ExecuteWithArgs( Gramatica: TGramatica );
-var
-  LQuantidade: Byte;
-  LParameter: string;
-  LState: Byte;
-  LPriority: Byte;
-  LRunAdmin: Boolean;
-  LCaptureMsg: Boolean;
-  LSingleInstance: Boolean;
-begin
-  LParameter := FParameter;
-  LState:= FState;
-  LPriority:= FPriority;
-  LRunAdmin:= FRunAdmin;
-  LCaptureMsg:= FCaptureMsg;
-  LSingleInstance:= FSingleInstance;
-
-  LQuantidade := LerParamentros( Gramatica, 0, 6, True );
-
-  // Gramatica.TokenList.GetNextToken;
-  //Expressao( Gramatica );
-  //if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
-  //begin
-
-    if not Gramatica.Erro then
-    begin
-      if LQuantidade >= 6 then LCaptureMsg := Gramatica.Pilha.Desempilhar( LCaptureMsg );
-      if LQuantidade >= 5 then LState := Gramatica.Pilha.Desempilhar( LState );
-      if LQuantidade >= 4 then LPriority := Gramatica.Pilha.Desempilhar( LPriority );
-      if LQuantidade >= 3 then LSingleInstance := Gramatica.Pilha.Desempilhar( LSingleInstance );
-      if LQuantidade >= 2 then LRunAdmin := Gramatica.Pilha.Desempilhar( LRunAdmin );
-      if LQuantidade >= 1 then LParameter := Gramatica.Pilha.Desempilhar( LParameter );
-
-      Self.ThreadExecute(
-        False,
-        LParameter,
-        LRunAdmin,
-        LSingleInstance,
-        LPriority,
-        LState,
-        LCaptureMsg
-      );
-    end;
-  //end
-  //else
-  //  Gramatica.ErroAdd( Tr('Error_Interpreter_)') );
-end;
-
-{ TPGLinkDec }
-procedure TPGLinkDeclare.Execute( Gramatica: TGramatica );
-var
-  Titulo: string;
-  Quantidade: Byte;
-  Id: TPGItem;
-  Link: TPGLink;
-begin
-  if Self.TryExecuteChild(Gramatica) then
-    Exit;
-
-  Id := IdentificadorLocalizar( Gramatica );
-  if ( not Assigned( Id ) ) or ( Id is TPGLink ) then
+  // Fun��o encapsulada para checar a exist�ncia pr�via na FLinkList
+  function IsLinkAlreadyLoaded(const AFileName, AParameter: string): Boolean;
+  var
+    Item: TPGLink;
+    TargetName: string;
   begin
-    Titulo := Gramatica.TokenList.Token.Lexema;
-    Quantidade := LerParamentros( Gramatica, 1, 7 );
-    if not Gramatica.Erro then
+    Result := False;
+    TargetName := FileUnExpandPath(AFileName);
+
+    for Item in TPGLink.FLinkList do
     begin
-      if ( not Assigned( Id ) ) then
-        Link := TPGLink.Create( Titulo, nil )
-      else
-        Link := TPGLink( Id );
-
-      if Quantidade >= 10 then
-        Link.ScriptAfter := Gramatica.Pilha.Desempilhar( '' );
-
-      if Quantidade >= 9 then
-        Link.ScriptBefor := Gramatica.Pilha.Desempilhar( '' );
-
-      if Quantidade >= 8 then
-        Link.Priority := Gramatica.Pilha.Desempilhar( 3 );
-
-      if Quantidade >= 7 then
-        Link.CaptureMsg := Gramatica.Pilha.Desempilhar( False );
-
-      if Quantidade >= 6 then
-        Link.RunAdmin := Gramatica.Pilha.Desempilhar( False );
-
-      if Quantidade >= 5 then
-        Link.SingleInstance := Gramatica.Pilha.Desempilhar( False );
-
-      if Quantidade >= 4 then
-        Link.State := Gramatica.Pilha.Desempilhar( 1 );
-
-      if Quantidade >= 3 then
-        Link.Directory := Gramatica.Pilha.Desempilhar( '' );
-
-      if Quantidade >= 2 then
-        Link.Parameter := Gramatica.Pilha.Desempilhar( '' );
-
-      if Quantidade >= 1 then
-        Link.FileName := Gramatica.Pilha.Desempilhar( '' );
+      if SameText(FileUnExpandPath(Item.FFileName), TargetName) and
+         SameText(Item.FParameter, AParameter) then
+      begin
+        Result := True;
+        Break;
+      end;
     end;
-  end
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_IdExist' );
-end;
+  end;
 
-procedure TPGLinkDeclare.Auto( ADir: string; AMask: string );
-  procedure SearchFile( ASubDir: string );
+  // Fun��o recursiva de busca
+  procedure SearchFile(ASubDir: string);
   var
     SearchRec: TSearchRec;
     Link: TPGLink;
     Name, Ext: string;
     Shell: TShellLinkInfo;
     c: Integer;
+    TargetFileName, TargetParam, TargetDir: string;
+    TargetState: Byte;
   begin
     {$WARN SYMBOL_PLATFORM OFF}
-    ASubDir := IncludeTrailingBackslash( ASubDir );
+    ASubDir := IncludeTrailingBackslash(ASubDir);
     {$WARN SYMBOL_PLATFORM ON}
-    c := FindFirst( ASubDir + '*', faDirectory or faAnyFile, SearchRec );
-    while ( c = 0 ) do
-    begin
-      if ( SearchRec.Attr and faDirectory ) = 0 then
-      begin
-        Ext := ExtractFileExt( SearchRec.Name );
-        if pos( Ext, AMask ) > 0 then
-        begin
-          name := FileExtractOnlyFileName( SearchRec.Name );
-          name := TPGItemMirror.TranscendName( name, nil );
-          Link := TPGLink.Create( name, nil );
 
-          if Ext = '.lnk' then
+    c := FindFirst(ASubDir + '*', faDirectory or faAnyFile, SearchRec);
+    while (c = 0) do
+    begin
+      if (SearchRec.Attr and faDirectory) = 0 then
+      begin
+        Ext := ExtractFileExt(SearchRec.Name);
+        if pos(Ext, AMask) > 0 then
+        begin
+          // 1. Resolve os dados alvo ANTES de instanciar a classe
+          if SameText(Ext, '.lnk') then
           begin
-            Shell := GetShellLinkInfo( ASubDir + SearchRec.Name );
-            Link.FFileName := FileUnExpandPath( Shell.PathName );
-            Link.FParameter := FileUnExpandPath( Shell.Arguments );
-            Link.FDirectory := FileUnExpandPath( Shell.WorkingDirectory );
-            Link.FState := Shell.ShowCmd;
+            Shell := GetShellLinkInfo(ASubDir + SearchRec.Name);
+            TargetFileName := FileUnExpandPath(Shell.PathName);
+            TargetParam := FileUnExpandPath(Shell.Arguments);
+            TargetDir := FileUnExpandPath(Shell.WorkingDirectory);
+            TargetState := Shell.ShowCmd;
           end else begin
-            Link.FFileName := FileUnExpandPath( ASubDir + SearchRec.Name );
+            TargetFileName := FileUnExpandPath(ASubDir + SearchRec.Name);
+            TargetParam := '';
+            TargetDir := '';
+            TargetState := 1;
           end;
 
-          if ( not Link.isFileExist ) or ( Link.isFileRepeat ) then
-            Link.Free;
+          // 2. Verifica se o link j� foi carregado e se possui um alvo v�lido
+          if (TargetFileName <> '') and not IsLinkAlreadyLoaded(TargetFileName, TargetParam) then
+          begin
+            Name := FileExtractOnlyFileName(SearchRec.Name);
+            Name := TPGLink.TranscendName(Name, nil);
+
+            // 3. Instancia o objeto apenas sendo in�dito
+            Link := TPGLink.Create(nil, Name);
+            Link.FFileName := TargetFileName;
+            Link.FParameter := TargetParam;
+            Link.FDirectory := TargetDir;
+            Link.FState := TargetState;
+
+            // 4. Valida��o final de integridade: se o arquivo f�sico destino n�o existir, remove o objeto
+            if not Link.isFileExist then
+              Link.Free;
+          end;
         end;
       end else begin
-        if ( SearchRec.Name <> '.' ) and ( SearchRec.Name <> '..' ) then
-          SearchFile( ASubDir + SearchRec.Name + '\' );
+        if (SearchRec.Name <> '.') and (SearchRec.Name <> '..') then
+          SearchFile(ASubDir + SearchRec.Name + '\');
       end;
 
-      c := FindNext( SearchRec );
+      c := FindNext(SearchRec);
     end;
-    FindClose( SearchRec );
+    FindClose(SearchRec);
   end;
 
 begin
-  SearchFile( FileExpandPath( ADir ) );
+  SearchFile(FileExpandPath(ADir));
 end;
 
 { TPGLinkMirror }
-constructor TPGLinkMirror.Create( AItemDad: TPGItem; AName: string );
-begin
-  if AName = '' then AName := 'NewLink';
-  AName := TPGItemMirror.TranscendName( AName );
-  inherited Create( AItemDad, TPGLink.Create( AName, Self ) );
-end;
 
-procedure TPGLinkMirror.Frame( AParent: TObject );
+class function TPGLinkMirror.GetTriggerType: TPGItemTriggerType;
 begin
-  TPGLinkFrame.Create( Self.ItemOriginal, AParent );
-end;
-
-class function TPGLinkMirror.ClassNameEx: String;
-begin
-   Result := TPGLink.ClassNameEx();
+  Result := TPGLink;
 end;
 
 class function TPGLinkMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;
 var
-  LLink : TPGLink;
+  LLink: TPGLink;
 begin
   Result := False;
   if MatchText(ExtractFileExt(AFileName),
    ['.exe', '.lnk', '.bat', '.cmd', '.ps1', '.url', '.msc']) then
   begin
-    LLink := TPGLink( TPGLinkMirror.Create( AItemDad,
-         FileExtractOnlyFileName( AFileName ) ).ItemOriginal );
-    LLink.FileName := FileUnExpandPath( AFileName );
-    LLink.Directory := FileUnExpandPath( ExtractFilePath( AFileName ) );
+    LLink := TPGLink(TPGLinkMirror.Create(AItemDad,
+         FileExtractOnlyFileName(AFileName)).ItemOriginal);
+    LLink.FileName := FileUnExpandPath(AFileName);
+    LLink.Directory := FileUnExpandPath(ExtractFilePath(AFileName));
     Result := True;
   end;
 end;
 
 initialization
-
-TPGLinkDeclare.Create( GlobalItemCommand, 'Link' );
-TPGLink.GlobList := TPGFolder.Create( GlobalCollection, 'Links' );
-TriggersCollect.RegisterClass( TPGLinkMirror );
+  TPGItemDef.Create(TPGLink, 'LinkDef');
+  TriggersCollect.RegisterClass(TPGLinkMirror);
 
 finalization
 

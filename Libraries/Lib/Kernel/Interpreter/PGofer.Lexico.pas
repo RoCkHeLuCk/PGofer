@@ -3,644 +3,559 @@
 interface
 
 uses
-  System.SysUtils, System.Generics.Collections;
-
-const
-  LOW_STRING = low( string );
-  cIgnore = [ #9, #10, #11, #13, ' ' ];
-  cNumeric = [ '0' .. '9' ];
-  cBinary = [ '0', '1' ];
-  cHexadec = [ '0' .. '9', 'A' .. 'F', 'a' .. 'f' ];
-  cPrefix = [ 'y', 'z', 'a', 'f', 'p', 'n', 'u', 'm', 'k', 'M', 'G', 'T', 'P',
-    'E', 'Z', 'Y' ];
-  cAlphabet = [ 'A' .. 'Z', 'a' .. 'z', 'À' .. 'ÿ' ];
+  System.SysUtils, System.Generics.Collections, System.Rtti, System.Character;
 
 type
-  TLexicoClass = ( cmdUnDeclar, cmdIgnore, cmdComment, cmdNumeric, cmdString,
-    cmdStream, cmdDot, cmd2Dot, cmdDotComa, cmdComa, cmdEqual, cmdMore,
-    cmdMinor, cmdAdd, cmdSub, cmdMult, cmdBar, cmdCtrBar, cmdLPar, cmdRPar,
-    cmdLBrack, cmdRBrack, cmdExclam, cmdArroba, cmdSharp, cmdPercent, cmdTone,
-    cmdAnd, cmdQuery, cmdPipe, cmdDolar, cmdAttrib, cmdMoreEqual, cmdMinorEqual,
-    cmdDifferent, cmdDriver, cmdNetwork,
+  { Enumeração dos Tipos de Tokens (Tokens Kinds) }
+  TPGTokenKind = (
+    tkUnknown, tkIdentifier, tkNumber, tkString, tkEOF,
+    // Símbolos e Operadores
+    tkDot, tkDotDot, tkComma, tkColon, tkSemiColon, tkLPar, tkRPar,
+    tkLBrack, tkRBrack, tkAssign, tkEqual, tkNotEqual, tkGreater,
+    tkLess, tkGreaterEqual, tkLessEqual, tkAdd, tkSub, tkMult, tkDiv,
+    tkMod, tkNot, tkAnd, tkOr, tkXor, tkPower, tkRoot, tkTone,
+    // Palavras Reservadas
+    tkBegin, tkEnd, tkIf, tkThen, tkElse, tkFor, tkTo, tkDownTo,
+    tkDo, tkWhile, tkRepeat, tkUntil, tkCase, tkOf, tkGlobal, tkNull,
+    tkConst, tkVar, tkFunction
+  );
 
-    cmdID,
+  { Coordenada com suporte a Span para seleção no Editor }
+  TPGCoordinate = record
+  strict private
+    FLine: Integer;
+    FColumn: Integer;
+    FOffset: Integer;
+    FLength: Integer;
+  public
+    procedure Initialize;
+    procedure IncLine;
+    procedure IncCol(const AAmount: Integer = 1);
+    function ToString: string;
 
-    cmdRes_and, cmdRes_begin, cmdRes_case, cmdRes_do, cmdRes_downto,
-    cmdRes_else, cmdRes_end, cmdRes_global, cmdRes_mod, cmdRes_not, cmdRes_null,
-    cmdRes_of, cmdRes_or, cmdRes_root, cmdRes_then, cmdRes_to, cmdRes_until,
-    cmdRes_xor, cmdEOF );
+    property Line: Integer read FLine;
+    property Column: Integer read FColumn;
+    property Offset: Integer read FOffset;
+    property Length: Integer read FLength write FLength;
+  end;
 
-  TCordenada = record
+  { Classe de metadados para erros e autocomplete }
+  TPGTokenInfo = record
+    FKind: TPGTokenKind;
+    FFriendlyName: string;
+    FIsReserved: Boolean;
+  public
+    constructor Create( AKind: TPGTokenKind; AFriendlyName: string; AIsReserved: Boolean);
+  end;
+
+  { Registro Global de Vocabulário }
+  TPGLexicalRegistry = class
+  strict private
+    class var FKeywords: TDictionary<string, TPGTokenKind>;
+    class var FTokenInfos: TDictionary<TPGTokenKind, TPGTokenInfo>;
+    class constructor Create;
+    class destructor Destroy;
+  public
+    class function GetKind(const AIdentifier: string): TPGTokenKind;
+    class function GetFriendlyName(const AKind: TPGTokenKind): string;
+    class procedure RegisterKeyword(const AWord: string; const AKind: TPGTokenKind; const AFriendlyName: string);
+    class property Keywords: TDictionary<string, TPGTokenKind> read FKeywords;
+  end;
+
+  { Representação de um Token individual }
+  TPGToken = class
+  strict private
+    FKind: TPGTokenKind;
+    FValue: TValue;
+    FCoordinate: TPGCoordinate;
+  protected
+    procedure Update(const AKind: TPGTokenKind; const AValue: TValue);
+  public
+    constructor Create(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
+    destructor Destroy(); override;
+    property Kind: TPGTokenKind read FKind;
+    property Value: TValue read FValue;
+    property Coordinate: TPGCoordinate read FCoordinate;
+  end;
+
+  { Lista de Tokens resultante da análise }
+  TPGTokenList = class
+  strict private
+    FItems: TObjectList<TPGToken>;
+    FPosition: Integer;
+    function GetLast: TPGToken;
   private
-    FSingle: FixedInt;
-    FRow: FixedInt;
-    FCol: FixedInt;
-    procedure IncCol( );
-    procedure IncRow( );
-    procedure Zero( );
-    function AsString( ): string;
+    function GetCount: Integer;
   public
-    property Single: FixedInt read FSingle;
-    property Row: FixedInt read FRow;
-    property Col: FixedInt read FCol;
-    property ToString: string read AsString;
+    constructor Create;
+    destructor Destroy; override;
+    procedure Add(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
+    procedure Clear;
+    function Current: TPGToken;
+    procedure Next;
+    procedure Assign(ASource: TPGTokenList);
+    property Last: TPGToken read GetLast;
+    property Position: Integer read FPosition write FPosition;
+    property Count: Integer read GetCount;
   end;
 
-  TToken = class
-  private
-    FLexema: Variant;
-    FClasse: TLexicoClass;
-    FCordenada: TCordenada;
+  { O Motor Léxico (Lexer) }
+  TPGLexer = class
+  strict private
+    FScript: string;
+    FCurrent: PChar;
+    FStart: PChar;
+    FCoordinate: TPGCoordinate;
+
+    procedure SkipWhitespaceAndComments;
+    function HandleIdentifier(const AList: TPGTokenList): Boolean;
+    function HandleNumber(const AList: TPGTokenList): Boolean;
+    function HandleString(const AList: TPGTokenList; const AQuote: Char): Boolean;
+    function HandleSymbol(const AList: TPGTokenList): Boolean;
+
+    function AtEnd: Boolean; inline;
+    function Peek(const AOffset: Integer = 1): Char; inline;
+    function Advance: Char; inline;
   public
-    constructor Create( Lexema: Variant; Classe: TLexicoClass;
-      Cordenada: TCordenada );
-    destructor Destroy( ); override;
-    property Lexema: Variant read FLexema;
-    property Classe: TLexicoClass read FClasse write FClasse;
-    property Cordenada: TCordenada read FCordenada;
+    procedure Tokenize(const AScript: string; ATokenList: TPGTokenList);
   end;
-
-  TTokens = TObjectList<TToken>;
-
-  TTokenList = class
-  private
-    FTokenList: TTokens;
-    FTokenPosition: FixedInt;
-    function GetToken( ): TToken;
-  public
-    constructor Create( );
-    destructor Destroy( ); override;
-    property Token: TToken read GetToken;
-    property Position: FixedInt read FTokenPosition write FTokenPosition;
-    procedure Assign( TokenList: TTokenList );
-    procedure AssignToken( Token: TToken );
-    procedure TokenAdd( Lexema: Variant; Classe: TLexicoClass;
-      Cordenada: TCordenada );
-    procedure GetNextToken( );
-  end;
-
-  TAutomato = class
-  private type
-    TFita = record
-    private
-      FValor: string;
-      FHigh: FixedInt;
-      FPosição: FixedInt;
-      FCabeça: Char;
-      FCordenada: TCordenada;
-    public
-      procedure Create( Value: string );
-      procedure Destroy( );
-      procedure Incrementa( );
-      property Cabeça: Char read FCabeça;
-      property Cordenada: TCordenada read FCordenada;
-    end;
-
-    TLexema = record
-      Lexema: Variant;
-      Classe: TLexicoClass;
-      Cordenada: TCordenada;
-    end;
-
-  var
-    FFita: TFita;
-    FLexema: TLexema;
-
-    procedure IncCabeça( AddLexico: Boolean );
-    function ReadCharInSet( Caracteres: TSysCharSet;
-      AddLexico: Boolean ): Boolean;
-    function ReadCharOutSet( Caracteres: TSysCharSet;
-      AddLexico: Boolean ): Boolean;
-    procedure Ignorados( );
-    procedure Comentario( Caracteres: TSysCharSet );
-    procedure Caracter( );
-    procedure Numero( );
-    procedure Identificadores( );
-    procedure Texto( );
-    procedure Simbolos( );
-    procedure Fim( );
-  public
-    constructor Create( );
-    destructor Destroy( ); override;
-    function TokenListCreate( Algoritimo: string ): TTokenList;
-  end;
-
-function CreateCordenada( ): TCordenada;
 
 implementation
 
 uses
-  System.TypInfo,
   PGofer.Math.Controls;
 
-{ TCordenada }
+{ TPGCoordinate }
 
-function TCordenada.AsString: string;
+procedure TPGCoordinate.Initialize;
 begin
-  Result := Format( '%d:%d', [ FRow, FCol ] );
+  FLine := 1;
+  FColumn := 1;
+  FOffset := 0;
+  FLength := 0;
 end;
 
-procedure TCordenada.IncCol;
+procedure TPGCoordinate.IncCol(const AAmount: Integer);
 begin
-  Inc( FSingle );
-  Inc( FCol );
+  Inc(FColumn, AAmount);
+  Inc(FOffset, AAmount);
 end;
 
-procedure TCordenada.IncRow;
+procedure TPGCoordinate.IncLine;
 begin
-  Inc( FSingle, 1 );
-  Inc( FRow );
-  FCol := LOW_STRING;
+  Inc(FLine);
+  FColumn := 0;
 end;
 
-procedure TCordenada.Zero;
+function TPGCoordinate.ToString: string;
 begin
-  FSingle := LOW_STRING;
-  FRow := LOW_STRING;
-  FCol := LOW_STRING;
+  Result := Format('%d:%d', [FLine, FColumn]);
 end;
 
-function CreateCordenada( ): TCordenada;
+{ TPGLexicalRegistry }
+
+class constructor TPGLexicalRegistry.Create;
 begin
-  Result.Zero;
+  FKeywords := TDictionary<string, TPGTokenKind>.Create();
+  FTokenInfos := TDictionary<TPGTokenKind, TPGTokenInfo>.Create;
+
+  // Registro de Palavras Reservadas e Nomes Amigáveis para Erros
+  RegisterKeyword('and', tkAnd, 'and');
+  RegisterKeyword('begin', tkBegin, 'begin');
+  RegisterKeyword('case', tkCase, 'case');
+  RegisterKeyword('const', tkConst, 'const');
+  RegisterKeyword('do', tkDo, 'do');
+  RegisterKeyword('downto', tkDownTo, 'downto');
+  RegisterKeyword('else', tkElse, 'else');
+  RegisterKeyword('end', tkEnd, 'end');
+  RegisterKeyword('for', tkFor, 'for');
+  RegisterKeyword('function', tkFunction, 'function');
+  RegisterKeyword('global', tkGlobal, 'global');
+  RegisterKeyword('if', tkIf, 'if');
+  RegisterKeyword('mod', tkMod, 'mod');
+  RegisterKeyword('not', tkNot, 'not');
+  RegisterKeyword('null', tkNull, 'null');
+  RegisterKeyword('of', tkOf, 'of');
+  RegisterKeyword('or', tkOr, 'or');
+  RegisterKeyword('repeat', tkRepeat, 'repeat');
+  RegisterKeyword('then', tkThen, 'then');
+  RegisterKeyword('to', tkTo, 'to');
+  RegisterKeyword('until', tkUntil, 'until');
+  RegisterKeyword('var', tkVar, 'var');
+  RegisterKeyword('while', tkWhile, 'while');
+  RegisterKeyword('xor', tkXor, 'xor');
+
+  // Nomes Amigáveis para Símbolos (Melhora ErroAdd)
+  FTokenInfos.AddOrSetValue(tkAssign, TPGTokenInfo.Create(tkAssign, ':=', False));
+  FTokenInfos.AddOrSetValue(tkLPar, TPGTokenInfo.Create(tkLPar, '(', False));
+  FTokenInfos.AddOrSetValue(tkRPar, TPGTokenInfo.Create(tkRPar, ')', False));
+  FTokenInfos.AddOrSetValue(tkSemiColon, TPGTokenInfo.Create(tkSemiColon, ';', False));
 end;
 
-{ TToken }
-
-constructor TToken.Create( Lexema: Variant; Classe: TLexicoClass;
-  Cordenada: TCordenada );
+class destructor TPGLexicalRegistry.Destroy;
 begin
-  inherited Create( );
-  FLexema := Lexema;
-  FClasse := Classe;
-  FCordenada := Cordenada;
+  FKeywords.Free;
+  FTokenInfos.Free;
 end;
 
-destructor TToken.Destroy( );
-begin
-  FLexema := '';
-  FClasse := cmdUnDeclar;
-  FCordenada.Zero;
-  inherited Destroy( );
-end;
-
-{ TTokenList }
-procedure TTokenList.AssignToken( Token: TToken );
-begin
-  Self.FTokenList.Add( TToken.Create( Token.Lexema, Token.Classe,
-    Token.Cordenada ) );
-  if Token.Classe = cmdUnDeclar then
-    FTokenPosition := Self.FTokenList.Count - 1;
-end;
-
-constructor TTokenList.Create( );
-begin
-  inherited Create( );
-  FTokenList := TTokens.Create( True );
-  FTokenPosition := 0;
-end;
-
-destructor TTokenList.Destroy;
-begin
-  FreeAndNil( FTokenList );
-  FTokenPosition := 0;
-  inherited Destroy( );
-end;
-
-procedure TTokenList.Assign( TokenList: TTokenList );
+class procedure TPGLexicalRegistry.RegisterKeyword(const AWord: string; const AKind: TPGTokenKind; const AFriendlyName: string);
 var
-  c: FixedInt;
-  TokenAux: TToken;
+  LInfo: TPGTokenInfo;
 begin
-  for c := 0 to TokenList.FTokenList.Count - 1 do
-  begin
-    TokenAux := TToken.Create( TokenList.FTokenList[ c ].Lexema,
-      TokenList.FTokenList[ c ].Classe, TokenList.FTokenList[ c ].Cordenada );
-    Self.FTokenList.Add( TokenAux );
-  end;
-  FTokenPosition := 0;
+  FKeywords.Add(AWord, AKind);
+  LInfo.FKind := AKind;
+  LInfo.FFriendlyName := AFriendlyName;
+  LInfo.FIsReserved := True;
+  FTokenInfos.Add(AKind, LInfo);
 end;
 
-procedure TTokenList.GetNextToken( );
+class function TPGLexicalRegistry.GetKind(const AIdentifier: string): TPGTokenKind;
 begin
-  if FTokenPosition <= Self.FTokenList.Count then
-    Inc( FTokenPosition );
+  if not FKeywords.TryGetValue(AIdentifier, Result) then
+    Result := tkIdentifier;
 end;
 
-function TTokenList.GetToken: TToken;
+class function TPGLexicalRegistry.GetFriendlyName(const AKind: TPGTokenKind): string;
+var
+  LInfo: TPGTokenInfo;
 begin
-  if FTokenPosition < Self.FTokenList.Count then
-    Result := Self.FTokenList[ FTokenPosition ]
+  if FTokenInfos.TryGetValue(AKind, LInfo) then
+    Result := LInfo.FFriendlyName
+  else
+    Result := 'unknown';
+end;
+
+{ TPGToken }
+
+constructor TPGToken.Create(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
+begin
+  inherited Create;
+  FKind := AKind;
+  FValue := AValue;
+  FCoordinate := ACoordinate;
+end;
+
+destructor TPGToken.Destroy;
+begin
+  FValue := TValue.Empty;
+  inherited;
+end;
+
+procedure TPGToken.Update(const AKind: TPGTokenKind; const AValue: TValue);
+begin
+  FKind := AKind;
+  FValue := AValue;
+end;
+
+{ TPGTokenList }
+
+constructor TPGTokenList.Create;
+begin
+  FItems := TObjectList<TPGToken>.Create(True);
+  FPosition := 0;
+end;
+
+destructor TPGTokenList.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
+
+function TPGTokenList.GetCount: Integer;
+begin
+  Result := FItems.Count;
+end;
+
+procedure TPGTokenList.Add(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
+begin
+  FItems.Add(TPGToken.Create(AKind, AValue, ACoordinate));
+end;
+
+function TPGTokenList.GetLast: TPGToken;
+begin
+  if FItems.Count > 0 then
+    Result := FItems.Last
   else
     Result := nil;
 end;
 
-procedure TTokenList.TokenAdd( Lexema: Variant; Classe: TLexicoClass;
-  Cordenada: TCordenada );
-begin
-  Self.FTokenList.Add( TToken.Create( Lexema, Classe, Cordenada ) );
-  if Classe = cmdUnDeclar then
-    FTokenPosition := Self.FTokenList.Count - 1;
-end;
-
-{ TAutomato.TFita }
-
-procedure TAutomato.TFita.Create( Value: string );
-begin
-  FValor := Value + #0;
-  FHigh := high( Value );
-  FPosição := low( Value );
-  FCordenada.Zero;
-  FCabeça := FValor[ FPosição ];
-end;
-
-procedure TAutomato.TFita.Destroy( );
-begin
-  FValor := #0;
-  FHigh := 0;
-  FPosição := 0;
-  FCordenada.Zero;
-  FCabeça := #0;
-end;
-
-procedure TAutomato.TFita.Incrementa( );
-begin
-  if FCabeça = #13 then
-    FCordenada.IncRow
-  else
-    FCordenada.IncCol;
-
-  Inc( FPosição );
-
-  if FPosição <= FHigh then
-    FCabeça := FValor[ FPosição ]
-  else
-    FCabeça := #0;
-end;
-
-{ TAutomato }
-
-constructor TAutomato.Create( );
-begin
-  inherited Create( );
-  FLexema.Lexema := '';
-  FLexema.Classe := cmdUnDeclar;
-  FLexema.Cordenada.Zero;
-end;
-
-destructor TAutomato.Destroy( );
-begin
-  FFita.Destroy( );
-  FLexema.Lexema := '';
-  FLexema.Classe := cmdUnDeclar;
-  FLexema.Cordenada.Zero;
-  inherited Destroy( );
-end;
-
-procedure TAutomato.IncCabeça( AddLexico: Boolean );
-begin
-  if ( AddLexico ) then
-    FLexema.Lexema := FLexema.Lexema + FFita.Cabeça;
-  FFita.Incrementa;
-end;
-
-function TAutomato.ReadCharInSet( Caracteres: TSysCharSet;
-  AddLexico: Boolean ): Boolean;
-begin
-  Result := ( CharInSet( FFita.Cabeça, Caracteres ) );
-  if Result then
-    IncCabeça( AddLexico );
-end;
-
-function TAutomato.ReadCharOutSet( Caracteres: TSysCharSet;
-  AddLexico: Boolean ): Boolean;
-begin
-  Result := ( not CharInSet( FFita.Cabeça, Caracteres ) );
-  if Result then
-    IncCabeça( AddLexico );
-end;
-
-procedure TAutomato.Ignorados( );
-begin
-  while ReadCharInSet( cIgnore, False ) do;
-  FLexema.Classe := cmdIgnore;
-end;
-
-procedure TAutomato.Comentario( Caracteres: TSysCharSet );
-begin
-  while ReadCharOutSet( Caracteres, False ) do;
-  IncCabeça( False );
-  FLexema.Classe := cmdIgnore;
-end;
-
-procedure TAutomato.Caracter( );
+procedure TPGTokenList.Assign(ASource: TPGTokenList);
 var
-  Aux: Integer;
+  LItem: TPGToken;
 begin
-  IncCabeça( False );
-  while ReadCharInSet( cNumeric, True ) do;
-  if ( FLexema.Lexema <> '' ) and ( TryStrToInt( FLexema.Lexema, Aux ) ) then
-  begin
-    FLexema.Classe := cmdString;
-    FLexema.Lexema := Char( Aux );
-  end;
+  Self.Clear;
+  for LItem in ASource.FItems do
+    Self.Add(LItem.Kind, LItem.Value, LItem.Coordinate);
 end;
 
-procedure TAutomato.Numero( );
-var
-  iAux: Int64;
-  fAux: Extended;
+procedure TPGTokenList.Clear;
 begin
-  // binario, Hexadec
-  if ( FFita.Cabeça = '0' ) then
+  FItems.Clear;
+  FPosition := 0;
+end;
+
+function TPGTokenList.Current: TPGToken;
+begin
+  if (FPosition >= 0) and (FPosition < FItems.Count) then
+    Result := FItems[FPosition]
+  else if FItems.Count > 0 then
+    Result := FItems.Last // Retorna o tkEOF que o Lexer sempre adiciona no fim
+  else
+    Result := nil;
+end;
+
+procedure TPGTokenList.Next;
+begin
+  Inc(FPosition);
+end;
+
+{ TPGLexer }
+
+procedure TPGLexer.Tokenize(const AScript: string; ATokenList: TPGTokenList);
+var
+  LLast: TPGToken;
+begin
+  FScript := AScript;
+  FCurrent := PChar(FScript);
+  FCoordinate.Initialize;
+  ATokenList.Clear;
+
+  while not AtEnd do
   begin
-    IncCabeça( True );
+    SkipWhitespaceAndComments;
+    if AtEnd then Break;
 
-    case FFita.Cabeça of
+    FStart := FCurrent;
 
-      'B', 'b':
-        begin
-          IncCabeça( False );
-          while ReadCharInSet( cBinary, True ) do;
-          if ( FLexema.Lexema <> '' ) and
-            ( TryBinToInt64( FLexema.Lexema, iAux ) ) then
-          begin
-            FLexema.Lexema := iAux;
-            FLexema.Classe := cmdNumeric;
-          end;
-          Exit;
-        end;
-
-      'H', 'h':
-        begin
-          IncCabeça( False );
-          FLexema.Lexema := '$';
-          while ReadCharInSet( cHexadec, True ) do;
-          if ( FLexema.Lexema <> '' ) and
-            ( TryStrToInt64( FLexema.Lexema, iAux ) ) then
-          begin
-            FLexema.Lexema := iAux;
-            FLexema.Classe := cmdNumeric;
-          end;
-          Exit;
-        end;
-
-    end;
-  end;
-
-  // inteiro
-  while ReadCharInSet( cNumeric, True ) do;
-
-  // float
-  if ReadCharInSet( [ '.' ], True ) then
-    while ReadCharInSet( cNumeric, True ) do;
-
-  // expereção
-  if ReadCharInSet( [ 'e' ], True ) then
-  begin
-    ReadCharInSet( [ '-' ], True );
-    while ReadCharInSet( cNumeric, True ) do;
-  end else begin
-    // prefixo
-    if CharInSet( FFita.Cabeça, cPrefix ) then
+    if FCurrent^.IsLetter or (FCurrent^ = '_') then
+      HandleIdentifier(ATokenList)
+    else if FCurrent^.IsDigit then
+      HandleNumber(ATokenList)
+    else if (FCurrent^ = #39) or (FCurrent^ = '"') then
+      HandleString(ATokenList, FCurrent^)
+    else if (FCurrent^ = '#') then
     begin
-      // verifica o caracter
-      case FFita.Cabeça of
-        'y':
-          FLexema.Lexema := FLexema.Lexema + 'e-24';
-        'z':
-          FLexema.Lexema := FLexema.Lexema + 'e-21';
-        'a':
-          FLexema.Lexema := FLexema.Lexema + 'e-18';
-        'f':
-          FLexema.Lexema := FLexema.Lexema + 'e-15';
-        'p':
-          FLexema.Lexema := FLexema.Lexema + 'e-12';
-        'n':
-          FLexema.Lexema := FLexema.Lexema + 'e-9';
-        'u':
-          FLexema.Lexema := FLexema.Lexema + 'e-6';
-        'm':
-          FLexema.Lexema := FLexema.Lexema + 'e-3';
-        // ' ' :
-        'k':
-          FLexema.Lexema := FLexema.Lexema + 'e3';
-        'M':
-          FLexema.Lexema := FLexema.Lexema + 'e6';
-        'G':
-          FLexema.Lexema := FLexema.Lexema + 'e9';
-        'T':
-          FLexema.Lexema := FLexema.Lexema + 'e12';
-        'P':
-          FLexema.Lexema := FLexema.Lexema + 'e15';
-        'E':
-          FLexema.Lexema := FLexema.Lexema + 'e18';
-        'Z':
-          FLexema.Lexema := FLexema.Lexema + 'e21';
-        'Y':
-          FLexema.Lexema := FLexema.Lexema + 'e24';
+      Advance; // Pula o '#'
+      HandleNumber(ATokenList); // Isso vai adicionar um tkNumber na lista
+      LLast := ATokenList.Last;
+      if Assigned(LLast) and (LLast.Kind = tkNumber) then
+      begin
+        // Converte o número (ex: 65) em caractere ('A') e muda o tipo do token
+        LLast.Update(tkString, TValue.From<Char>(Char(LLast.Value.AsInteger)));
       end;
-      IncCabeça( False );
-    end;
+    end
+    else
+      HandleSymbol(ATokenList);
   end;
 
-  if ( FLexema.Lexema <> '' ) and ( TryStrToFloat( FLexema.Lexema, fAux ) ) then
+  ATokenList.Add(tkEOF, TValue.Empty, FCoordinate);
+end;
+
+procedure TPGLexer.SkipWhitespaceAndComments;
+begin
+  while not AtEnd do
   begin
-    FLexema.Lexema := fAux;
-    FLexema.Classe := cmdNumeric;
+    case FCurrent^ of
+      #10: begin
+             FCoordinate.IncLine;
+             Advance; // Advance garante que o \n seja contado no Offset
+           end;
+      #1..#9, #11, #12, #13, #32: Advance;
+      '{': begin
+             while (not AtEnd) and (FCurrent^ <> '}') do
+             begin
+               if FCurrent^ = #10 then begin FCoordinate.IncLine; Advance; end
+               else Advance;
+             end;
+             Advance; // Pula '}'
+           end;
+      '/': begin
+             if Peek = '/' then
+             begin
+               while (not AtEnd) and (FCurrent^ <> #10) do Advance;
+             end else Break;
+           end;
+    else
+      Break;
+    end;
   end;
 end;
 
-procedure TAutomato.Identificadores( );
+function TPGLexer.HandleIdentifier(const AList: TPGTokenList): Boolean;
 var
-  Aux: Integer;
-  id: string;
+  LText: string;
+  LCoord: TPGCoordinate;
 begin
-  IncCabeça( True );
-  while ReadCharInSet( cNumeric + cAlphabet + [ '_' ], True ) do;
+  LCoord := FCoordinate;
+  while (not AtEnd) and (FCurrent^.IsLetterOrDigit or (FCurrent^ = '_')) do
+    Advance;
 
-  id := LowerCase( FLexema.Lexema );
-  Aux := GetEnumValue( TypeInfo( TLexicoClass ), 'cmdRes_' + id );
-  if Aux = -1 then
-    FLexema.Classe := cmdID
-  else
-    FLexema.Classe := TLexicoClass( Aux );
+  LCoord.Length := FCurrent - FStart;
+  SetString(LText, FStart, LCoord.Length);
+  AList.Add(TPGLexicalRegistry.GetKind(LText), LText, LCoord);
+  Result := True;
 end;
 
-procedure TAutomato.Texto( );
+function TPGLexer.HandleNumber(const AList: TPGTokenList): Boolean;
 var
-  Caracter: Char;
+  LText: string;
+  LValue: Extended;
+  LCoord: TPGCoordinate;
+  LIsHex, LIsBin: Boolean;
 begin
-  Caracter := FFita.Cabeça;
-  IncCabeça( False );
-  while ReadCharOutSet( [ #0, #13, Caracter ], True ) do;
-  FLexema.Classe := cmdString;
-  IncCabeça( False );
-end;
+  LCoord := FCoordinate;
+  LIsHex := False;
+  LIsBin := False;
 
-procedure TAutomato.Simbolos( );
-begin
-  IncCabeça( True );
-
-  if Length( FLexema.Lexema ) > 0 then
-    case string( FLexema.Lexema )[ 1 ] of
-
-      '.':
-        FLexema.Classe := cmdDot;
-
-      ':':
-        begin
-          if ReadCharInSet( [ '=' ], True ) then
-            FLexema.Classe := cmdAttrib
-          else if ReadCharInSet( [ '\' ], True ) then
-            FLexema.Classe := cmdDriver
-          else
-            FLexema.Classe := cmd2Dot;
-        end;
-
-      ';':
-        FLexema.Classe := cmdDotComa;
-
-      ',':
-        FLexema.Classe := cmdComa;
-
-      '=':
-        FLexema.Classe := cmdEqual;
-
-      '>':
-        begin
-          if ReadCharInSet( [ '=' ], True ) then
-            FLexema.Classe := cmdMoreEqual
-          else
-            FLexema.Classe := cmdMore;
-        end;
-
-      '<':
-        begin
-          if ReadCharInSet( [ '=' ], True ) then
-            FLexema.Classe := cmdMinorEqual
-          else if ReadCharInSet( [ '>' ], True ) then
-            FLexema.Classe := cmdDifferent
-          else
-            FLexema.Classe := cmdMinor;
-        end;
-
-      '+':
-        FLexema.Classe := cmdAdd;
-
-      '-':
-        FLexema.Classe := cmdSub;
-
-      '*':
-        FLexema.Classe := cmdMult;
-
-      '/':
-        begin
-          if ReadCharInSet( [ '/' ], True ) then
-            Comentario( [ #0, #13 ] )
-          else
-            FLexema.Classe := cmdBar;
-        end;
-
-      '\':
-        begin
-          if ReadCharInSet( [ '\' ], True ) then
-            FLexema.Classe := cmdNetwork
-          else
-            FLexema.Classe := cmdCtrBar;
-        end;
-
-      '(':
-        FLexema.Classe := cmdLPar;
-
-      ')':
-        FLexema.Classe := cmdRPar;
-
-      '[':
-        FLexema.Classe := cmdLBrack;
-
-      ']':
-        FLexema.Classe := cmdRBrack;
-
-      '!':
-        FLexema.Classe := cmdExclam;
-
-      '@':
-        FLexema.Classe := cmdArroba;
-
-      '%':
-        FLexema.Classe := cmdPercent;
-
-      '^':
-        FLexema.Classe := cmdTone;
-
-      '&':
-        FLexema.Classe := cmdAnd;
-
-      '?':
-        FLexema.Classe := cmdQuery;
-
-      '|':
-        FLexema.Classe := cmdPipe;
-
-      '$':
-        FLexema.Classe := cmdDolar;
-    else
-      FLexema.Classe := cmdUnDeclar;
+  // Suporte a 0h (Hex) e 0b (Bin)
+  if (FCurrent^ = '0') then
+  begin
+    if (Peek = 'h') or (Peek = 'H') then
+    begin
+      LIsHex := True;
+      Advance; Advance; // Pula 0h
+      FStart := FCurrent;
+      while (not AtEnd) and CharInSet(FCurrent^,['0'..'9', 'A'..'F', 'a'..'f']) do Advance;
+    end
+    else if (Peek = 'b') or (Peek = 'B') then
+    begin
+      LIsBin := True;
+      Advance; Advance; // Pula 0b
+      FStart := FCurrent;
+      while (not AtEnd) and CharInSet(FCurrent^,['0', '1']) do Advance;
     end;
+  end;
+
+  if (not LIsHex) and (not LIsBin) then
+  begin
+    while (not AtEnd) and (FCurrent^.IsDigit or (FCurrent^ = '.')) do Advance;
+
+    // Científico (e-10)
+    if (FCurrent^ = 'e') or (FCurrent^ = 'E') then
+    begin
+      Advance;
+      if (FCurrent^ = '-') or (FCurrent^ = '+') then Advance;
+      while (not AtEnd) and (FCurrent^.IsDigit) do Advance;
+    end;
+  end;
+
+  SetString(LText, FStart, FCurrent - FStart);
+  LCoord.Length := FCurrent - FStart;
+
+  if LIsHex then
+    LValue := StrToInt64('$' + LText)
+  else if LIsBin then
+    LValue := BinToInt(LText) // Função em Math.Controls
+  else
+  begin
+    LValue := StrToFloat(LText);
+
+    // Tratamento de Prefixos SI (y..Y)
+    if (not AtEnd) and CharInSet(FCurrent^,['y','z','a','f','p','n','u','m','k','M','G','T','P','E','Z','Y']) then
+    begin
+      case FCurrent^ of
+        'y': LValue := LValue * 1e-24; 'z': LValue := LValue * 1e-21;
+        'a': LValue := LValue * 1e-18; 'f': LValue := LValue * 1e-15;
+        'p': LValue := LValue * 1e-12; 'n': LValue := LValue * 1e-9;
+        'u': LValue := LValue * 1e-6;  'm': LValue := LValue * 1e-3;
+        'k': LValue := LValue * 1e3;   'M': LValue := LValue * 1e6;
+        'G': LValue := LValue * 1e9;   'T': LValue := LValue * 1e12;
+        'P': LValue := LValue * 1e15;  'E': LValue := LValue * 1e18;
+        'Z': LValue := LValue * 1e21;  'Y': LValue := LValue * 1e24;
+      end;
+      Self.Advance;
+    end;
+  end;
+
+  AList.Add(tkNumber, LValue, LCoord);
+  Result := True;
 end;
 
-procedure TAutomato.Fim( );
+function TPGLexer.HandleString(const AList: TPGTokenList; const AQuote: Char): Boolean;
+var
+  LText: string;
+  LCoord: TPGCoordinate;
 begin
-  IncCabeça( True );
-  FLexema.Classe := cmdEOF;
+  LCoord := FCoordinate;
+  Advance; // Aspa inicial
+  FStart := FCurrent;
+  while (not AtEnd) and (FCurrent^ <> AQuote) do
+  begin
+    if FCurrent^ = #10 then Inc(FCurrent) else Advance;
+  end;
+  SetString(LText, FStart, FCurrent - FStart);
+  Advance; // Aspa final
+  LCoord.Length := FCurrent - FStart;
+  AList.Add(tkString, LText, LCoord);
+  Result := True;
 end;
 
-function TAutomato.TokenListCreate( Algoritimo: string ): TTokenList;
+function TPGLexer.HandleSymbol(const AList: TPGTokenList): Boolean;
+var
+  LKind: TPGTokenKind;
+  LCoord: TPGCoordinate;
+  LBegin: PChar;
 begin
-  FFita.Create( Algoritimo );
-  Result := TTokenList.Create( );
+  LCoord := FCoordinate;
+  LKind := tkUnknown;
+  LBegin := FCurrent;
 
-  repeat
-    FLexema.Lexema := '';
-    FLexema.Classe := cmdUnDeclar;
-    FLexema.Cordenada := FFita.Cordenada;
+  case Advance of
+    '.': if FCurrent^ = '.' then begin Advance; LKind := tkDotDot; end else LKind := tkDot;
+    ',': LKind := tkComma;
+    ';': LKind := tkSemiColon;
+    '(': LKind := tkLPar;
+    ')': LKind := tkRPar;
+    '[': LKind := tkLBrack;
+    ']': LKind := tkRBrack;
+    '+': LKind := tkAdd;
+    '-': LKind := tkSub;
+    '*': if FCurrent^ = '*' then begin Advance; LKind := tkPower; end else LKind := tkMult;
+    '/': LKind := tkDiv;
+    '^': LKind := tkTone;
+    '=': LKind := tkEqual;
+    ':': if FCurrent^ = '=' then begin Advance; LKind := tkAssign; end else LKind := tkColon;
+    '>': if FCurrent^ = '=' then begin Advance; LKind := tkGreaterEqual; end else LKind := tkGreater;
+    '<': if FCurrent^ = '=' then begin Advance; LKind := tkLessEqual; end
+         else if FCurrent^ = '>' then begin Advance; LKind := tkNotEqual; end
+         else LKind := tkLess;
+  end;
 
-    case FFita.Cabeça of
+  LCoord.Length := FCurrent - LBegin;
+  AList.Add(LKind, TValue.Empty, LCoord);
+  Result := True;
+end;
 
-      #0:
-        Fim( );
+function TPGLexer.Advance: Char;
+begin
+  Result := FCurrent^;
+  if Result <> #0 then
+  begin
+    Inc(FCurrent);
+    FCoordinate.IncCol;
+  end;
+end;
 
-      #9, #10, #11, #13, ' ':
-        Ignorados( );
+function TPGLexer.Peek(const AOffset: Integer): Char;
+begin
+  Result := (FCurrent + AOffset)^;
+end;
 
-      '{':
-        Comentario( [ #0, '}' ] );
+function TPGLexer.AtEnd: Boolean;
+begin
+  Result := FCurrent^ = #0;
+end;
 
-      '#':
-        Caracter( );
+{ TPGTokenInfo }
 
-      '0' .. '9':
-        Numero( );
-
-      'A' .. 'Z', 'a' .. 'z', 'À' .. 'ÿ':
-        Identificadores( );
-
-      #39, '"':
-        Texto( );
-    else
-      Simbolos( );
-    end; // case
-
-    if FLexema.Classe <> cmdIgnore then
-      Result.TokenAdd( FLexema.Lexema, FLexema.Classe, FLexema.Cordenada );
-
-  until ( FLexema.Classe in [ cmdEOF ] );
+constructor TPGTokenInfo.Create(AKind: TPGTokenKind; AFriendlyName: string; AIsReserved: Boolean);
+begin
+  Self.FKind := AKind;
+  Self.FFriendlyName := AFriendlyName;
+  Self.FIsReserved := AIsReserved;
 end;
 
 initialization
-
-FormatSettings.DecimalSeparator := '.';
 
 finalization
 

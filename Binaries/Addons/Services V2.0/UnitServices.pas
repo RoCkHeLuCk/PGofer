@@ -66,7 +66,6 @@ type
     BtnSearch: TButton;
     procedure FormCreate( Sender: TObject );
     procedure FormShow( Sender: TObject );
-    procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure MniUpdateClick( Sender: TObject );
     procedure MniIconsClick( Sender: TObject );
     procedure MniBootAutomaticoClick( Sender: TObject );
@@ -352,7 +351,6 @@ end;
 
 procedure TFrmServices.FormCreate( Sender: TObject );
 begin
-  inherited FormCreate( Sender );
   FColumn := 0;
   FSort := False;
   FHostName := 'LocalHost';
@@ -360,7 +358,6 @@ end;
 
 procedure TFrmServices.FormDestroy( Sender: TObject );
 begin
-  inherited FormDestroy( Sender );
   LtvServices.Clear;
   CloseServiceHandle( FHostHandle );
 end;
@@ -372,19 +369,13 @@ begin
   MniUpdate.Click;
 end;
 
-procedure TFrmServices.FormClose( Sender: TObject; var Action: TCloseAction );
-begin
-  inherited FormClose( Sender, Action );
-  //
-end;
-
 procedure TFrmServices.IniConfigLoad( );
   procedure CarregarFiltro( CheckListBox: TCheckListBox; Padrao: Boolean );
   var
     c: byte;
   begin
     for c := 0 to CheckListBox.Count - 1 do
-      CheckListBox.Checked[ c ] := FIniFile.ReadBool( Self.Name,
+      CheckListBox.Checked[ c ] := IniFile.ReadBool( Self.Name,
          'Service_' + CheckListBox.Name + '_' + FormatFloat( '00', c ),
          Padrao );
   end;
@@ -392,21 +383,21 @@ procedure TFrmServices.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
 
-  GrbDercription.Height := FIniFile.ReadInteger( Self.Name, 'Dercription',
+  GrbDercription.Height := IniFile.ReadInteger( Self.Name, 'Dercription',
      GrbDercription.Height );
-  if FIniFile.ReadBool( Self.Name, 'DercriptionHide', False) then
+  if IniFile.ReadBool( Self.Name, 'DercriptionHide', False) then
      btnDescription.Click;
 
-  GrbFilter.Height := FIniFile.ReadInteger( Self.Name, 'Filter',
+  GrbFilter.Height := IniFile.ReadInteger( Self.Name, 'Filter',
      GrbFilter.Height );
-  if FIniFile.ReadBool( Self.Name, 'FilterHide', False) then
+  if IniFile.ReadBool( Self.Name, 'FilterHide', False) then
      btnFilter.Click;
 
   CarregarFiltro( ClbStatus, True );
   CarregarFiltro( ClbConfig, True );
   CarregarFiltro( ClbType, True );
   CarregarFiltro( ClbAccess, False );
-  LtvServices.IniConfigLoad( FIniFile, Self.Name, 'List' );
+  LtvServices.IniConfigLoad( IniFile, Self.Name, 'List' );
 end;
 
 procedure TFrmServices.IniConfigSave( );
@@ -415,34 +406,34 @@ procedure TFrmServices.IniConfigSave( );
     c: byte;
   begin
     for c := 0 to CheckListBox.Count - 1 do
-      FIniFile.WriteBool( Self.Name, 'Service_' + CheckListBox.Name + '_' +
+      IniFile.WriteBool( Self.Name, 'Service_' + CheckListBox.Name + '_' +
          FormatFloat( '00', c ), CheckListBox.Checked[ c ] );
   end;
 
 begin
   if BtnDescription.Tag = 0 then
   begin
-     FIniFile.WriteBool( Self.Name, 'DercriptionHide', False );
-     FIniFile.WriteInteger( Self.Name, 'Dercription', GrbDercription.Height );
+     IniFile.WriteBool( Self.Name, 'DercriptionHide', False );
+     IniFile.WriteInteger( Self.Name, 'Dercription', GrbDercription.Height );
   end else begin
-     FIniFile.WriteBool( Self.Name, 'DercriptionHide', True );
-     FIniFile.WriteInteger( Self.Name, 'Dercription', btnDescription.Tag );
+     IniFile.WriteBool( Self.Name, 'DercriptionHide', True );
+     IniFile.WriteInteger( Self.Name, 'Dercription', btnDescription.Tag );
   end;
 
   if btnFilter.Tag = 0 then
   begin
-     FIniFile.WriteBool( Self.Name, 'FilterHide', False );
-     FIniFile.WriteInteger( Self.Name, 'Filter', GrbFilter.Height );
+     IniFile.WriteBool( Self.Name, 'FilterHide', False );
+     IniFile.WriteInteger( Self.Name, 'Filter', GrbFilter.Height );
   end else begin
-     FIniFile.WriteBool( Self.Name, 'FilterHide', True );
-     FIniFile.WriteInteger( Self.Name, 'Filter', btnFilter.Tag );
+     IniFile.WriteBool( Self.Name, 'FilterHide', True );
+     IniFile.WriteInteger( Self.Name, 'Filter', btnFilter.Tag );
   end;
 
   SalvarFiltro( ClbStatus );
   SalvarFiltro( ClbConfig );
   SalvarFiltro( ClbType );
   SalvarFiltro( ClbAccess );
-  LtvServices.IniConfigSave( FIniFile, Self.Name, 'List' );
+  LtvServices.IniConfigSave( IniFile, Self.Name, 'List' );
   inherited IniConfigSave( );
 end;
 

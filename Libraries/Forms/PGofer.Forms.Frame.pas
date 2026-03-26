@@ -6,7 +6,8 @@ uses
   System.Classes,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   Vcl.Dialogs,
-  PGofer.Classes, PGofer.Runtime, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame;
+  PGofer.Classes, PGofer.Runtime, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame,
+  Pgofer.Component.ComboBox, Pgofer.Component.Checkbox;
 
 type
   TPGFormsFrame = class( TPGItemFrame )
@@ -17,13 +18,13 @@ type
     LblTransparentColor: TLabel;
     LblWidth: TLabel;
     LblWindowState: TLabel;
-    CkbAlphaBlend: TCheckBox;
+    CkbAlphaBlend: TCheckBoxEx;
     UpdAlphaBlendValue: TUpDown;
-    CkbEnabled: TCheckBox;
-    CkbTransparent: TCheckBox;
+    CkbEnabled: TCheckBoxEx;
+    CkbTransparent: TCheckBoxEx;
     PnlTransparentColor: TPanel;
-    CkbVisible: TCheckBox;
-    CmbWindowState: TComboBox;
+    CkbVisible: TCheckBoxEx;
+    CmbWindowState: TPGComboBox;
     BtnClose: TButton;
     BtnShow: TButton;
     EdtAlphaBlendValue: TEditEx;
@@ -71,17 +72,17 @@ constructor TPGFormsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGForm( AItem );
-  CkbAlphaBlend.Checked := FItem.AlphaBlend;
-  EdtAlphaBlendValue.Text := FItem.AlphaBlendValue.ToString;
-  CkbEnabled.Checked := FItem.Enabled;
-  EdtHeigth.Text := FItem.Heigth.ToString;
-  EdtLeft.Text := FItem.Left.ToString;
-  EdtTop.Text := FItem.Top.ToString;
-  CkbTransparent.Checked := FItem.Transparent;
+  CkbAlphaBlend.SetCheckedSilent( FItem.AlphaBlend );
+  EdtAlphaBlendValue.SetTextSilent( FItem.AlphaBlendValue.ToString() );
+  CkbEnabled.SetCheckedSilent( FItem.Enabled );
+  EdtHeigth.SetTextSilent( FItem.Heigth.ToString() );
+  EdtLeft.SetTextSilent( FItem.Left.ToString() );
+  EdtTop.SetTextSilent( FItem.Top.ToString() );
+  CkbTransparent.SetCheckedSilent( FItem.Transparent );
   PnlTransparentColor.Color := FItem.TransparentColor;
-  CkbVisible.Checked := FItem.Visible;
-  EdtWidth.Text := FItem.Width.ToString;
-  CmbWindowState.ItemIndex := FItem.WindowState;
+  CkbVisible.SetCheckedSilent( FItem.Visible );
+  EdtWidth.SetTextSilent( FItem.Width.ToString() );
+  CmbWindowState.SetIndexSilent( FItem.WindowState );
 end;
 
 destructor TPGFormsFrame.Destroy;

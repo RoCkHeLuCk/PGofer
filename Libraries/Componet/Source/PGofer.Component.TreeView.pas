@@ -61,8 +61,8 @@ end;
 
 procedure TTreeViewEx.Delete( ANode: TTreeNode );
 begin
-  if FOwnsObjectsData and Assigned( ANode ) and Assigned( ANode.Data ) and ANode.Deleting
-  then
+  if FOwnsObjectsData and Assigned( ANode )
+  and Assigned( ANode.Data ) and ANode.Deleting then
   begin
     TObject( ANode.Data ).Free;
     ANode.Data := nil;
@@ -164,6 +164,7 @@ procedure TTreeViewEx.DeleteSelect( );
 var
   Count: Integer;
 begin
+  if Self.SelectionCount > 0 then
   for Count := Self.SelectionCount - 1 downto 0 do
   begin
     Self.Selections[ Count ].DeleteChildren;

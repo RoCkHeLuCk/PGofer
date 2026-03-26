@@ -20,6 +20,7 @@ object PGItemFrame: TPGItemFrame
     Caption = 'About'
     Constraints.MinHeight = 60
     TabOrder = 2
+    StyleElements = [seFont, seClient]
     object rceAbout: TRichEdit
       Left = 2
       Top = 15
@@ -43,6 +44,7 @@ object PGItemFrame: TPGItemFrame
       PlainText = True
       ReadOnly = True
       TabOrder = 0
+      StyleElements = [seFont, seClient]
       Zoom = 100
     end
   end
@@ -57,6 +59,7 @@ object PGItemFrame: TPGItemFrame
     ParentColor = True
     ShowCaption = False
     TabOrder = 0
+    StyleElements = [seFont, seClient]
     DesignSize = (
       400
       32)
@@ -68,6 +71,7 @@ object PGItemFrame: TPGItemFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Title:'
+      StyleElements = [seFont, seClient]
     end
     object EdtName: TEditEx
       Left = 70
@@ -78,6 +82,8 @@ object PGItemFrame: TPGItemFrame
       AutoSize = False
       Color = clSilver
       TabOrder = 0
+      Text = ''
+      StyleElements = [seFont, seClient]
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'
       OnAfterValidate = EdtNameAfterValidate
@@ -102,6 +108,7 @@ object PGItemFrame: TPGItemFrame
     ParentColor = True
     ShowCaption = False
     TabOrder = 1
+    StyleElements = [seFont, seClient]
     OnMouseDown = sptAboutMouseDown
     OnMouseMove = sptAboutMouseMove
     OnMouseUp = sptAboutMouseUp

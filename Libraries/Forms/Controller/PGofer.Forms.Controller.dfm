@@ -18,8 +18,6 @@ object FrmController: TFrmController
   Position = poDesigned
   ShowHint = True
   OnClose = FormClose
-  OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
@@ -35,6 +33,7 @@ object FrmController: TFrmController
     Margins.Bottom = 0
     Beveled = True
     Visible = False
+    StyleElements = [seFont, seClient]
     ExplicitTop = 5
   end
   object PnlTreeView: TPanel
@@ -51,6 +50,7 @@ object FrmController: TFrmController
     Constraints.MinWidth = 180
     ParentColor = True
     TabOrder = 0
+    StyleElements = [seFont, seClient]
     OnResize = PnlTreeViewResize
     object PnlFind: TPanel
       Left = 0
@@ -61,6 +61,7 @@ object FrmController: TFrmController
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
+      StyleElements = [seFont, seClient]
       object EdtFind: TButtonedEdit
         AlignWithMargins = True
         Left = 2
@@ -87,6 +88,7 @@ object FrmController: TFrmController
         RightButton.PressedImageIndex = 1
         RightButton.Visible = True
         TabOrder = 0
+        StyleElements = [seFont, seClient]
         OnKeyPress = EdtFindKeyPress
         ExplicitHeight = 21
       end
@@ -103,6 +105,7 @@ object FrmController: TFrmController
         Align = alRight
         Caption = '>>'
         TabOrder = 1
+        StyleElements = [seFont, seClient]
         OnClick = BtnRecallClick
       end
     end
@@ -119,6 +122,7 @@ object FrmController: TFrmController
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 1
+      StyleElements = [seFont, seClient]
       object BtnAlphaSort: TButton
         AlignWithMargins = True
         Left = 1
@@ -135,6 +139,7 @@ object FrmController: TFrmController
         Style = bsSplitButton
         TabOrder = 0
         WordWrap = True
+        StyleElements = [seFont, seClient]
         OnClick = MniAZClick
       end
       object BtnEdit: TButton
@@ -153,6 +158,7 @@ object FrmController: TFrmController
         Style = bsSplitButton
         TabOrder = 1
         WordWrap = True
+        StyleElements = [seFont, seClient]
       end
     end
     object TrvController: TTreeViewEx
@@ -170,15 +176,18 @@ object FrmController: TFrmController
       BevelOuter = bvNone
       BorderWidth = 1
       Color = clSilver
+      Ctl3D = True
       HideSelection = False
       Indent = 19
       MultiSelect = True
       MultiSelectStyle = [msControlSelect, msShiftSelect, msVisibleOnly, msSiblingOnly]
+      ParentCtl3D = False
       PopupMenu = PpmConttroler
       ReadOnly = True
       RightClickSelect = True
       RowSelect = True
       TabOrder = 2
+      StyleElements = [seFont, seClient]
       OnCompare = TrvControllerCompare
       OnCustomDrawItem = TrvControllerCustomDrawItem
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
@@ -186,7 +195,6 @@ object FrmController: TFrmController
       OnMouseDown = TrvControllerMouseDown
       OwnsObjectsData = True
       AttachMode = naAdd
-      ExplicitTop = 32
     end
   end
   object PnlFrame: TScrollBox
@@ -208,6 +216,7 @@ object FrmController: TFrmController
     ParentBackground = True
     TabOrder = 1
     Visible = False
+    StyleElements = [seFont, seClient]
     OnMouseWheelDown = PnlFrameMouseWheelDown
     OnMouseWheelUp = PnlFrameMouseWheelUp
     OnResize = PnlFrameResize

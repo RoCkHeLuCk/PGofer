@@ -46,6 +46,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       WantTabs = True
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
+      Text = ''
     end
   end
   inherited pnlItem: TPanel
@@ -64,6 +65,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Detect:'
+      StyleElements = [seFont, seClient]
     end
     object GrbHotKeys: TGroupBox [2]
       Left = 5
@@ -73,6 +75,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Anchors = [akLeft, akTop, akRight]
       Caption = 'HotKeys'
       TabOrder = 4
+      StyleElements = [seFont, seClient]
       object MmoHotKeys: TMemo
         Left = 2
         Top = 15
@@ -95,7 +98,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
         TabOrder = 0
         WantReturns = False
         WordWrap = False
-        StyleElements = []
+        StyleElements = [seFont, seClient]
         OnEnter = MmoHotKeysEnter
         OnExit = MmoHotKeysExit
         OnMouseEnter = MmoHotKeysEnter
@@ -111,9 +114,10 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       ImageIndex = 6
       TabOrder = 1
       TabStop = False
+      StyleElements = [seFont, seClient]
       OnClick = BtnCleanClick
     end
-    object CmbDetect: TComboBox [4]
+    object CmbDetect: TPGComboBox [4]
       Left = 175
       Top = 115
       Width = 96
@@ -124,6 +128,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       ItemIndex = 0
       TabOrder = 2
       Text = 'Down'
+      StyleElements = [seFont, seClient]
       OnChange = CmbDetectChange
       Items.Strings = (
         'Down'
@@ -131,7 +136,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
         'Up'
         'Wheel')
     end
-    object CkbInhibit: TCheckBox [5]
+    object CkbInhibit: TCheckBoxEx [5]
       Left = 295
       Top = 117
       Width = 98
@@ -139,6 +144,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Hint = 'Bloqueia a tecla detectada'
       Caption = 'Inhibit last key'
       TabOrder = 3
+      StyleElements = [seFont, seClient]
       OnClick = CkbInhibitClick
     end
   end

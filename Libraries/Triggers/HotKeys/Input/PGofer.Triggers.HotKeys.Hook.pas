@@ -89,7 +89,7 @@ var
   ParamInput: TParamInput;
   PKB: PKBDLLHOOKSTRUCT;
 begin
-  if ( ACode = HC_ACTION ) then
+  if ( ACode = HC_ACTION ) and (AwParam <> WM_MOUSEMOVE) then
   begin
     ParamInput.wParam := AwParam;
     if AwParam < WM_MOUSEFIRST then
@@ -100,7 +100,8 @@ begin
     end else begin
       ParamInput.dwVkData := PMSLLHOOKSTRUCT( AlParam ).dwMData;
     end;
-    TPGHotKey.OnProcessKeys( ParamInput );
+    if TPGHotKey.OnProcessKeys( ParamInput ) then
+       Exit(1);
   end;
   Result := CallNextHookEx( 0, ACode, AwParam, AlParam );
 end;

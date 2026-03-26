@@ -30,10 +30,8 @@ type
     MniUnExpand: TMenuItem;
     PpmConttroler: TPopupMenu;
     PnlFrame: TScrollBox;
-    procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormShow( Sender: TObject );
-    procedure FormDestroy( Sender: TObject );
     procedure FormResize( Sender: TObject );
     procedure EdtFindKeyPress( Sender: TObject; var Key: Char );
     procedure TrvControllerCompare( Sender: TObject; Node1, Node2: TTreeNode;
@@ -140,29 +138,17 @@ end;
 
 procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
-  inherited FormClose( Sender, Action );
-  Self.FrameHide( );
   FCollectItem.TreeViewDetach( );
-  TrvController.OnGetImageIndex := nil;
-end;
-
-procedure TFrmController.FormCreate( Sender: TObject );
-begin
-  inherited FormCreate( Sender );
-end;
-
-procedure TFrmController.FormDestroy( Sender: TObject );
-begin
-  inherited FormDestroy( Sender );
+  Self.FrameHide( );
 end;
 
 procedure TFrmController.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  FTreeViewWidth := FIniFile.ReadInteger( Self.Name, 'TreeViewWidth', PnlTreeView.ClientWidth );
-  FFrameWidth := FIniFile.ReadInteger( Self.Name, 'FrameWidth', FFrameWidth );
-  FAlphaSort := FIniFile.ReadBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
-  FAlphaSortFolder := FIniFile.ReadBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
+  FTreeViewWidth := IniFile.ReadInteger( Self.Name, 'TreeViewWidth', PnlTreeView.ClientWidth );
+  FFrameWidth := IniFile.ReadInteger( Self.Name, 'FrameWidth', FFrameWidth );
+  FAlphaSort := IniFile.ReadBool( Self.Name, 'AlphaSort', Self.FAlphaSort );
+  FAlphaSortFolder := IniFile.ReadBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
 
   PnlTreeView.ClientWidth := FTreeViewWidth;
   PnlFrame.ClientWidth := FFrameWidth;
@@ -175,10 +161,10 @@ end;
 
 procedure TFrmController.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.Name, 'TreeViewWidth', FTreeViewWidth );
-  FIniFile.WriteInteger( Self.Name, 'FrameWidth', FFrameWidth );
-  FIniFile.WriteBool( Self.Name, 'AlphaSort', FAlphaSort );
-  FIniFile.WriteBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
+  IniFile.WriteInteger( Self.Name, 'TreeViewWidth', FTreeViewWidth );
+  IniFile.WriteInteger( Self.Name, 'FrameWidth', FFrameWidth );
+  IniFile.WriteBool( Self.Name, 'AlphaSort', FAlphaSort );
+  IniFile.WriteBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
   inherited IniConfigSave( );
 end;
 
@@ -230,6 +216,8 @@ procedure TFrmController.PanelCleaning( );
 var
   c: Integer;
 begin
+  if Application.Terminated or (csDestroying in Self.ComponentState) then
+    Exit;
   for c := PnlFrame.ControlCount - 1 downto 0 do
   begin
     PnlFrame.Controls[ c ].Free( );
@@ -278,18 +266,28 @@ end;
 
 procedure TFrmController.MniAZClick( Sender: TObject );
 begin
-  BtnAlphaSort.OnClick := MniAZClick;
-  BtnAlphaSort.Caption := MniAZ.Caption;
-  FAlphaSort := True;
-  TrvController.AlphaSort( True );
+  TrvController.Items.BeginUpdate;
+  try
+    BtnAlphaSort.OnClick := MniAZClick;
+    BtnAlphaSort.Caption := MniAZ.Caption;
+    FAlphaSort := True;
+    TrvController.AlphaSort( True );
+  finally
+    TrvController.Items.EndUpdate;
+  end;
 end;
 
 procedure TFrmController.MniZAClick( Sender: TObject );
 begin
-  BtnAlphaSort.OnClick := MniZAClick;
-  BtnAlphaSort.Caption := MniZA.Caption;
-  FAlphaSort := False;
-  TrvController.AlphaSort( True );
+  TrvController.Items.BeginUpdate;
+  try
+    BtnAlphaSort.OnClick := MniZAClick;
+    BtnAlphaSort.Caption := MniZA.Caption;
+    FAlphaSort := False;
+    TrvController.AlphaSort( True );
+  finally
+    TrvController.Items.EndUpdate;
+  end;
 end;
 
 procedure TFrmController.MniAlphaSortFolderClick( Sender: TObject );

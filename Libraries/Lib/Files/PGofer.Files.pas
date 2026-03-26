@@ -12,17 +12,9 @@ type
   private
   public
   published
-    function AESEncryptFile(FileFrom, FileTo, Password: string): Boolean;
-    function AESDecryptFile(FileFrom, FileTo, Password: string): Boolean;
-    function AESEncryptStringToFile(StringFrom, FileTo, Password: string): Boolean;
-    function AESDecryptFileToString(FileFrom, Password: string): string;
     function Copy( FileFrom, FileTo: string; Flags: Word ): Integer;
     function Delete( FileFrom: string; Flags: Word ): Integer;
     function DirExists( Directory: string ): Boolean;
-    function DPAPIEncryptFile(FileFrom, FileTo, Entropy: string): Boolean;
-    function DPAPIDecryptFile(FileFrom, FileTo, Entropy: string): Boolean;
-    function DPAPIEncryptStringToFile(StringFrom, FileTo, Entropy: string): Boolean;
-    function DPAPIDecryptFileToString(FileFrom, Entropy: string): string;
     function Exec( FileName, Parametro, Diretorio: string; ShowControl: Integer;
       Operation: Byte; Prioridade: Byte ): string;
     function ExtractDir( FileName: string ): string;
@@ -52,6 +44,23 @@ type
   end;
   {$TYPEINFO ON}
 
+  {$M+}
+  TPGFileEncrypt = class( TPGItemClass )
+  private
+  public
+  published
+    function AESEncryptFile(FileFrom, FileTo, Password: string): Boolean;
+    function AESDecryptFile(FileFrom, FileTo, Password: string): Boolean;
+    function AESEncryptStringToFile(StringFrom, FileTo, Password: string): Boolean;
+    function AESDecryptFileToString(FileFrom, Password: string): string;
+    function DPAPIEncryptFile(FileFrom, FileTo, Entropy: string): Boolean;
+    function DPAPIDecryptFile(FileFrom, FileTo, Entropy: string): Boolean;
+    function DPAPIEncryptStringToFile(StringFrom, FileTo, Entropy: string): Boolean;
+    function DPAPIDecryptFileToString(FileFrom, Entropy: string): string;
+  end;
+  {$TYPEINFO ON}
+
+
 var
   PGFile: TPGFile;
 
@@ -62,26 +71,6 @@ uses
   PGofer.Sintatico, PGofer.Files.Controls;
 
 { TPGFile }
-
-function TPGFile.AESEncryptFile(FileFrom, FileTo, Password: string): Boolean;
-begin
-  Result := AESEncryptFile(FileFrom, FileTo, Password);
-end;
-
-function TPGFile.AESDecryptFile(FileFrom, FileTo, Password: string): Boolean;
-begin
-  Result := AESDecryptFile(FileFrom, FileTo, Password);
-end;
-
-function TPGFile.AESEncryptStringToFile(StringFrom, FileTo, Password: string): Boolean;
-begin
-  Result := AESEncryptStringToFile(StringFrom, FileTo, Password);
-end;
-
-function TPGFile.AESDecryptFileToString(FileFrom, Password: string): string;
-begin
-   Result := AESDecryptFileToString(FileFrom, Password);
-end;
 
 function TPGFile.Copy( FileFrom, FileTo: string; Flags: Word ): Integer;
 begin
@@ -96,26 +85,6 @@ end;
 function TPGFile.DirExists( Directory: string ): Boolean;
 begin
   Result := DirectoryExists( Directory, True );
-end;
-
-function TPGFile.DPAPIEncryptFile(FileFrom, FileTo, Entropy: string): Boolean;
-begin
-  Result := DPAPIEncryptFile(FileFrom, FileTo, Entropy);
-end;
-
-function TPGFile.DPAPIDecryptFile(FileFrom, FileTo, Entropy: string): Boolean;
-begin
-  Result := DPAPIDecryptFile(FileFrom, FileTo, Entropy);
-end;
-
-function TPGFile.DPAPIEncryptStringToFile(StringFrom, FileTo, Entropy: string): Boolean;
-begin
-   Result := DPAPIEncryptStringToFile(StringFrom, FileTo, Entropy);
-end;
-
-function TPGFile.DPAPIDecryptFileToString(FileFrom, Entropy: string): string;
-begin
-   Result := DPAPIDecryptFileToString(FileFrom, Entropy);
 end;
 
 function TPGFile.Exec( FileName, Parametro, Diretorio: string;
@@ -241,6 +210,48 @@ end;
 function TPGFile.SetDateTime( FileName: string; CreateTime, ModifyTime, AcessTime: TDateTime ): Boolean;
 begin
   Result := FileSetDateTime( FileName, CreateTime, ModifyTime, AcessTime );
+end;
+
+{ TPGFileEncrypt }
+
+function TPGFileEncrypt.AESEncryptFile(FileFrom, FileTo, Password: string): Boolean;
+begin
+  Result := AESEncryptFile(FileFrom, FileTo, Password);
+end;
+
+function TPGFileEncrypt.AESDecryptFile(FileFrom, FileTo, Password: string): Boolean;
+begin
+  Result := AESDecryptFile(FileFrom, FileTo, Password);
+end;
+
+function TPGFileEncrypt.AESEncryptStringToFile(StringFrom, FileTo, Password: string): Boolean;
+begin
+  Result := AESEncryptStringToFile(StringFrom, FileTo, Password);
+end;
+
+function TPGFileEncrypt.AESDecryptFileToString(FileFrom, Password: string): string;
+begin
+   Result := AESDecryptFileToString(FileFrom, Password);
+end;
+
+function TPGFileEncrypt.DPAPIEncryptFile(FileFrom, FileTo, Entropy: string): Boolean;
+begin
+  Result := DPAPIEncryptFile(FileFrom, FileTo, Entropy);
+end;
+
+function TPGFileEncrypt.DPAPIDecryptFile(FileFrom, FileTo, Entropy: string): Boolean;
+begin
+  Result := DPAPIDecryptFile(FileFrom, FileTo, Entropy);
+end;
+
+function TPGFileEncrypt.DPAPIEncryptStringToFile(StringFrom, FileTo, Entropy: string): Boolean;
+begin
+   Result := DPAPIEncryptStringToFile(StringFrom, FileTo, Entropy);
+end;
+
+function TPGFileEncrypt.DPAPIDecryptFileToString(FileFrom, Entropy: string): string;
+begin
+   Result := DPAPIDecryptFileToString(FileFrom, Entropy);
 end;
 
 initialization

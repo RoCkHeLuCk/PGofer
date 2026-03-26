@@ -45,15 +45,15 @@ type
     procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     FMouse: TPoint;
-    FHotKey_FrmPGofer: ATOM;
     FItem: TPGFrmPGofer;
-    procedure FormAutoSize( );
+    procedure FormAutoSize();
+    procedure CloseAllForms();
   protected
     procedure CreateParams( var AParams: TCreateParams ); override;
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
     procedure OnQueryEndSession( var Msg: TWMQueryEndSession ); message WM_QUERYENDSESSION;
     procedure OnEndSession(var Msg: TWMEndSession); message WM_ENDSESSION;
     procedure WndProc( var Msg: TMessage ); override;
-    procedure WMHotKey( var Msg: TWMHotKey ); message WM_HOTKEY;
     procedure WMPowerBroadcast(var Msg: TMessage); message WM_POWERBROADCAST;
   public
   end;
@@ -67,7 +67,9 @@ type
     destructor Destroy( ); override;
     procedure Frame( AParent: TObject ); override;
   published
+    procedure Close(); override;
     property CanClose: Boolean read FCanClose write FCanClose;
+    function GetVersion: string;
   end;
   {$TYPEINFO ON}
 
@@ -93,13 +95,10 @@ begin
   Self.ForceResizable := True;
 end;
 
-procedure TFrmPGofer.WMHotKey( var Msg: TWMHotKey );
+procedure TFrmPGofer.CreateWindowHandle(const Params: TCreateParams);
 begin
-  if Msg.HotKey = FHotKey_FrmPGofer then
-  begin
-    Self.Hide;
-    Self.ForceShow( True );
-  end;
+  inherited;
+  SetWindowLong(Handle, GWL_EXSTYLE, WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
 end;
 
 procedure TFrmPGofer.WndProc( var Msg: TMessage );
@@ -114,32 +113,10 @@ const
   PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuário (Mouse/Teclado/Botão)
 begin
   inherited; // Deixa o Windows processar o padrão
-  if (Msg.WParam = PBT_APMRESUMEAUTOMATIC) or (Msg.WParam = PBT_APMRESUMESUSPEND) then
+  if (Msg.WParam in [PBT_APMRESUMEAUTOMATIC,PBT_APMRESUMESUSPEND]) then
   begin
-    ScriptExec( 'MainMessage', 'hotkey.InputRestart;' );
+    ScriptExec( 'MainMessage', 'HotKeyDef.InputRestart;' );
   end;
-end;
-
-procedure TFrmPGofer.FormCreate( Sender: TObject );
-begin
-  inherited FormCreate( Sender );
-  FItem := TPGFrmPGofer.Create( Self );
-
-  Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
-  Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
-
-  {$IFNDEF DEBUG}
-    FHotKey_FrmPGofer := GlobalAddAtom( 'PGofer3' );
-    if not RegisterHotKey(Self.Handle, FHotKey_FrmPGofer, MOD_WIN or MOD_NOREPEAT, 71) then
-    begin
-      TPGKernel.Console('Error: Falhou ao registrar Win+G. ' + SysErrorMessage(GetLastError()));
-    end;
-  {$ENDIF}
-end;
-
-procedure TFrmPGofer.FormShow( Sender: TObject );
-begin
-  Self.FormAutoSize( );
 end;
 
 procedure TFrmPGofer.OnQueryEndSession( var Msg: TWMQueryEndSession );
@@ -147,23 +124,35 @@ begin
   if not PGWindows.CanOff then
   begin
     Msg.Result := 0;
-    PostMessage(Handle, WM_USER + 100, 0, 0);
+    PostMessage(Handle, WM_USER + 101, 0, 0);
   end else begin
     Msg.Result := 1;
   end;
 end;
 
 procedure TFrmPGofer.OnEndSession(var Msg: TWMEndSession);
-var
-  I: Integer;
 begin
+  if not PGWindows.CanOff then Exit;
   if Msg.EndSession then
   begin
-    for I := Screen.FormCount - 1 downto 0 do
-    begin
-      Screen.Forms[I].Close;
-    end;
+    Self.CloseAllForms();
   end;
+end;
+
+procedure TFrmPGofer.FormCreate( Sender: TObject );
+begin
+  FItem := TPGFrmPGofer.Create( Self );
+  Self.Caption := 'PGofer V'+ FItem.GetVersion;
+  Self.TryPGofer.Hint := Self.Caption;
+  Application.Title := Self.Caption;
+
+  Self.Constraints.MaxWidth := Screen.DesktopWidth - Self.Left - 10;
+  Self.Constraints.MaxHeight := Screen.DesktopHeight - Self.Top - 10;
+end;
+
+procedure TFrmPGofer.FormShow( Sender: TObject );
+begin
+  Self.FormAutoSize( );
 end;
 
 procedure TFrmPGofer.FormCloseQuery( Sender: TObject; var CanClose: Boolean );
@@ -174,18 +163,25 @@ end;
 
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
+  TPGGrammar.WaitForAll(5000);
+  Self.CloseAllForms();
   FrmAutoComplete.EditCtrlRemove( FrmPGofer.EdtScript );
-  inherited FormClose( Sender, Action );
 end;
 
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
 begin
-  {$IFNDEF DEBUG}
-     UnRegisterHotKey( Self.Handle, FHotKey_FrmPGofer );
-     GlobalDeleteAtom(FHotKey_FrmPGofer);
-  {$ENDIF}
   FItem := nil;
-  inherited FormDestroy( Sender );
+end;
+
+procedure TFrmPGofer.CloseAllForms();
+var
+  I: Integer;
+begin
+  for I := Screen.FormCount - 1 downto 0 do
+  begin
+    if Screen.Forms[I] <> Application.MainForm then
+      Screen.Forms[I].Close;
+  end;
 end;
 
 procedure TFrmPGofer.FormKeyPress(Sender: TObject; var Key: Char);
@@ -258,7 +254,10 @@ begin
 
       VK_ESCAPE:
         begin
-          Self.Hide;
+          if FrmConsole.Visible then
+            FrmConsole.Hide;
+          if Self.Visible then
+            Self.Hide;
         end;
     end;
   end;
@@ -303,6 +302,24 @@ begin
 end;
 
 { TPGFrmPGofer }
+
+procedure TPGFrmPGofer.Close( );
+begin
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      Sleep(200);
+      TThread.Queue(nil,
+        procedure
+        begin
+          if Assigned(Form) then
+            inherited Close;
+        end
+      );
+    end
+  ).Start;
+end;
+
 constructor TPGFrmPGofer.Create( AForm: TForm );
 begin
   inherited Create( AForm );
@@ -319,5 +336,36 @@ procedure TPGFrmPGofer.Frame( AParent: TObject );
 begin
   TPGFormsFrame.Create( Self, AParent );
 end;
+
+function TPGFrmPGofer.GetVersion(): string;
+var
+  Size, Dummy: DWORD;
+  Buffer: TBytes;
+  FixedFileInfo: PVSFixedFileInfo;
+  FileInfoLen: UINT;
+  FileName : String;
+begin
+  Result := '0.0.0.0';
+  // Pega o nome do executável atual
+  FileName := ParamStr(0);
+  Size := GetFileVersionInfoSize(PChar(FileName), Dummy);
+  if Size > 0 then
+  begin
+    SetLength(Buffer, Size);
+    if GetFileVersionInfo(PChar(FileName), 0, Size, Buffer) then
+    begin
+      if VerQueryValue(Buffer, '\', Pointer(FixedFileInfo), FileInfoLen) then
+      begin
+        Result := Format('%d.%d.%d.%d', [
+          HiWord(FixedFileInfo.dwFileVersionMS), // Major
+          LoWord(FixedFileInfo.dwFileVersionMS), // Minor
+          HiWord(FixedFileInfo.dwFileVersionLS), // Release
+          LoWord(FixedFileInfo.dwFileVersionLS)  // Build
+        ]);
+      end;
+    end;
+  end;
+end;
+
 
 end.

@@ -3,463 +3,329 @@
 interface
 
 uses
-  PGofer.Sintatico,
-  PGofer.Runtime;
+  System.SysUtils, System.Rtti,
+  PGofer.Sintatico, PGofer.Runtime;
 
 type
-  TPGCopy = class( TPGItemClass )
+  { Utilitários de String }
+  TPGCopy = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    function ExecuteAction(AValue: string; AStart, ACount: Integer): string;
   end;
 
-  TPGDelete = class( TPGItemClass )
+  TPGDelete = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    function ExecuteAction(AValue: string; AStart, ACount: Integer): string;
   end;
 
-  TPGDelay = class( TPGItemClass )
+  TPGInsert = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    function ExecuteAction(const ATarget, AValue: string; AStart: Integer): string;
   end;
 
-  TPGFor = class( TPGItemClass )
+  { Sistema }
+  TPGDelay = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure ExecuteAction(ADelayMS: Cardinal);
   end;
 
-  TPGIf = class( TPGItemClass )
+  TPGRead = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    function ExecuteAction(const ATitle, ADefault: string): string;
   end;
 
-  TPGIsDef = class( TPGItemClass )
+  { Controle de Fluxo (O Coração do Script) }
+  TPGIf = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGInsert = class( TPGItemClass )
+  TPGFor = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGRead = class( TPGItemClass )
+  TPGWhile = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGRepeat = class( TPGItemClass )
+  TPGRepeat = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGUnDef = class( TPGItemClass )
+  { Gestão de Memória de Script }
+  TPGIsDef = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGWaitFor = class( TPGItemClass )
+  TPGUnDef = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGWhile = class( TPGItemClass )
+  { Saída de Console }
+  TPGWrite = class(TPGItemClass)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure ExecuteAction(const AText: string; ANewLine: Boolean = False);
   end;
 
-  TPGWrite = class( TPGItemClass )
+  TPGWriteLN = class(TPGWrite)
   public
-    procedure Execute( Gramatica: TGramatica ); override;
+    procedure ExecuteAction(const AText: string); overload;
   end;
 
 implementation
 
 uses
-  System.SysUtils,
-  Vcl.Dialogs,
-  PGofer.Core, PGofer.Classes, PGofer.Lexico,
-  PGofer.Sintatico.Controls, PGofer.Standard.Variants;
+  Vcl.Dialogs, System.Math,
+  PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico.Controls,
+  PGofer.Standard.Variants;
 
 { TPGCopy }
-
-procedure TPGCopy.Execute( Gramatica: TGramatica );
-var
-  Valor: string;
-  Inicio, Fim: SmallInt;
+function TPGCopy.ExecuteAction(AValue: string; AStart, ACount: Integer): string;
 begin
-  LerParamentros( Gramatica, 3, 3 );
-  Fim := Gramatica.Pilha.Desempilhar( 0 );
-  Inicio := Gramatica.Pilha.Desempilhar( 0 );
-  Valor := Gramatica.Pilha.Desempilhar( '' );
-  if ( not Gramatica.Erro ) then
-  begin
-    Gramatica.Pilha.Empilhar( Copy( Valor, Inicio, Fim ) );
-  end;
+  Result := Copy(AValue, AStart, ACount);
 end;
 
 { TPGDelete }
-
-procedure TPGDelete.Execute( Gramatica: TGramatica );
-var
-  Valor: string;
-  Inicio, Fim: SmallInt;
+function TPGDelete.ExecuteAction(AValue: string; AStart, ACount: Integer): string;
 begin
-  LerParamentros( Gramatica, 3, 3 );
-  Fim := Gramatica.Pilha.Desempilhar( 0 );
-  Inicio := Gramatica.Pilha.Desempilhar( 0 );
-  Valor := Gramatica.Pilha.Desempilhar( '' );
-  if ( not Gramatica.Erro ) then
-  begin
-    System.Delete( Valor, Inicio, Fim );
-    Gramatica.Pilha.Empilhar( Valor );
-  end;
+  System.Delete(AValue, AStart, ACount);
+  Result := AValue;
+end;
+
+{ TPGInsert }
+function TPGInsert.ExecuteAction(const ATarget, AValue: string; AStart: Integer): string;
+var LTemp: string;
+begin
+  LTemp := ATarget;
+  System.Insert(AValue, LTemp, AStart);
+  Result := LTemp;
 end;
 
 { TPGDelay }
-
-procedure TPGDelay.Execute( Gramatica: TGramatica );
-var
-  Delay : Cardinal;
+procedure TPGDelay.ExecuteAction(ADelayMS: Cardinal);
 begin
-  LerParamentros( Gramatica, 1, 1 );
-  Delay := Gramatica.Pilha.Desempilhar( 0 );
-  if ( not Gramatica.Erro ) then
+  Sleep(ADelayMS);
+end;
+
+{ TPGRead }
+function TPGRead.ExecuteAction(const ATitle, ADefault: string): string;
+var LInput: string;
+begin
+  LInput := ADefault;
+  RunInMainThread(procedure begin
+    InputQuery('PGofer', ATitle, LInput);
+  end, True);
+  Result := LInput;
+end;
+
+{ TPGIf }
+procedure TPGIf.Execute(const AGrammar: TPGGrammar);
+var
+  LCondition: Boolean;
+begin
+  AGrammar.TokenList.Next; // Pula 'if'
+  Expression(AGrammar);
+
+  if not AGrammar.HasError then
   begin
-    Sleep( Delay );
+    LCondition := AGrammar.Stack.Pop.AsBoolean;
+
+    if AGrammar.Consume(tkThen) then
+    begin
+      if LCondition then
+        Commands(AGrammar)
+      else
+        FindEnd(AGrammar, AGrammar.Match(tkBegin));
+
+      // Trata o ELSE opcional
+      if (not AGrammar.HasError) and AGrammar.Match(tkElse) then
+      begin
+        AGrammar.TokenList.Next;
+        if not LCondition then
+          Commands(AGrammar)
+        else
+          FindEnd(AGrammar, AGrammar.Match(tkBegin));
+      end;
+    end;
   end;
 end;
 
 { TPGFor }
-
-procedure TPGFor.Execute( Gramatica: TGramatica );
+procedure TPGFor.Execute(const AGrammar: TPGGrammar);
 var
-  ID: TPGItem;
-  Variavel: TPGVariant;
-  VarInicio, VarLimite: Int64;
-  LoopContador, LoopLimite: Cardinal;
-  Decrecente: Boolean;
-  PositionIni: FixedInt;
+  LVar: TPGVariant;
+  LStart, LLimit: Int64;
+  LCounter, LLoopLimit: Cardinal;
+  LIsDownTo: Boolean;
+  LStartPos: Integer;
 begin
-  LoopLimite := TPGKernel.LoopLimit;
-  Gramatica.TokenList.GetNextToken;
-  ID := IdentificadorLocalizar( Gramatica );
+  LLoopLimit := TPGKernel.LoopLimit;
+  AGrammar.TokenList.Next; // Pula 'for'
 
-  if ( ID.ClassType = TPGVariant ) then
+  LVar := TPGVariant.GetOrCreate(AGrammar);
+  if Assigned(LVar) then
   begin
-    Variavel := TPGVariant( ID );
-    Variavel.Execute( Gramatica );
-    VarInicio := Variavel.Value;
-    if ( not Gramatica.Erro ) and ( Gramatica.TokenList.Token.Classe
-      in [ cmdRes_downto, cmdRes_to ] ) then
+    LVar.Execute(AGrammar); // Executa a atribuição inicial (i := 0)
+    LStart := ValueToInt64(LVar.Value);
+
+    LIsDownTo := AGrammar.Match(tkDownTo);
+    if AGrammar.Match(tkTo) or LIsDownTo then
     begin
-      Decrecente := ( Gramatica.TokenList.Token.Classe = cmdRes_downto );
-      Gramatica.TokenList.GetNextToken;
-      Expressao( Gramatica );
-      VarLimite := Gramatica.Pilha.Desempilhar( 0 );
-      if ( not Gramatica.Erro ) and
-        ( Gramatica.TokenList.Token.Classe = cmdRes_do ) then
+      AGrammar.TokenList.Next; // Pula 'to' ou 'downto'
+      Expression(AGrammar);
+      LLimit := ValueToInt64(AGrammar.Stack.Pop);
+
+      if AGrammar.Consume(tkDo) then
       begin
-        Gramatica.TokenList.GetNextToken;
-        PositionIni := Gramatica.TokenList.Position;
-        if ( VarInicio <> VarLimite ) then
+        if AGrammar.HasError then Exit;
+
+        LStartPos := AGrammar.TokenList.Position;
+        LCounter := 0;
+
+        while (not AGrammar.HasError) and (LCounter < LLoopLimit) and
+              (((not LIsDownTo) and (LStart <= LLimit)) or
+               (LIsDownTo and (LStart >= LLimit))) do
         begin
-          LoopContador := 0;
-          while ( not Gramatica.Erro ) and ( LoopContador < LoopLimite ) and
-            ( ( ( not Decrecente ) and ( VarInicio <= VarLimite ) ) or
-            ( ( Decrecente ) and ( VarInicio >= VarLimite ) ) ) do
-          begin
-            Gramatica.TokenList.Position := PositionIni;
-            Comandos( Gramatica );
+          AGrammar.TokenList.Position := LStartPos;
+          Commands(AGrammar);
 
-            if Decrecente then
-              Dec( VarInicio )
-            else
-              Inc( VarInicio );
+          if LIsDownTo then Dec(LStart) else Inc(LStart);
+          Inc(LCounter);
+          LVar.Value := LStart; // Atualiza a variável de loop
+        end;
 
-            Inc( LoopContador );
-            Variavel.Value := VarInicio;
-          end;
+        AGrammar.TokenList.Position := LStartPos;
+        // FindEnd vai pular o comando que o For acabou de repetir
+        FindEnd(AGrammar, AGrammar.Match(tkBegin));
 
-          if ( LoopContador >= LoopLimite ) then
-          begin
-            Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
-          end;
-
-        end
-        else
-          EncontrarFim( Gramatica,
-            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
-      end
-      else
-        Gramatica.ErroAdd( 'Error_Interpreter_Do' );
-    end
-    else
-      Gramatica.ErroAdd( 'Error_Interpreter_ToDownTo' );
-  end
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_Variable' );
-end;
-
-{ TPGIf }
-
-procedure TPGIf.Execute( Gramatica: TGramatica );
-var
-  Continuar: Boolean;
-begin
-  // executa a condi��o
-  Gramatica.TokenList.GetNextToken;
-  Expressao( Gramatica );
-
-  if ( not Gramatica.Erro ) then
-  begin
-    Continuar := Gramatica.Pilha.Desempilhar( false );
-
-    if ( Gramatica.TokenList.Token.Classe = cmdRes_then ) then
-    begin
-      Gramatica.TokenList.GetNextToken;
-      if Continuar then
-        Comandos( Gramatica )
-      else
-        EncontrarFim( Gramatica,
-          ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
-
-      // verifica se tem ELSE
-      if ( not Gramatica.Erro ) and
-        ( Gramatica.TokenList.Token.Classe = cmdRes_else ) then
-      begin
-        Gramatica.TokenList.GetNextToken;
-        if not Continuar then
-          Comandos( Gramatica )
-        else
-          EncontrarFim( Gramatica,
-            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
+        if LCounter >= LLoopLimit then
+          AGrammar.Error('Error_Interpreter_LoopLimit', [LLoopLimit]);
       end;
-
-    end
-    else
-      Gramatica.ErroAdd( 'Error_Interpreter_Thend' );
-  end
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_Boolean' );
-end;
-
-{ TPGisDef }
-
-procedure TPGIsDef.Execute( Gramatica: TGramatica );
-var
-  Nome: string;
-begin
-  Gramatica.TokenList.GetNextToken;
-  if Gramatica.TokenList.Token.Classe = cmdLPar then
-  begin
-    Gramatica.TokenList.GetNextToken;
-    Expressao( Gramatica );
-    if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-      Gramatica.ErroAdd( 'Error_Interpreter_)' )
-    else
-    begin
-      Nome := Gramatica.Pilha.Desempilhar( '' );
-      Gramatica.Pilha.Empilhar( Assigned( FindID( Gramatica.Local, Nome ) ) );
-      Gramatica.TokenList.GetNextToken;
     end;
-  end
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_(' );
-end;
-
-{ TPGInsert }
-
-procedure TPGInsert.Execute( Gramatica: TGramatica );
-var
-  Valor1, Valor2: string;
-  Inicio: SmallInt;
-begin
-  LerParamentros( Gramatica, 3, 3 );
-  Inicio := Gramatica.Pilha.Desempilhar( 0 );
-  Valor2 := Gramatica.Pilha.Desempilhar( '' );
-  Valor1 := Gramatica.Pilha.Desempilhar( '' );
-  if ( not Gramatica.Erro ) then
-  begin
-    System.Insert( Valor2, Valor1, Inicio );
-    Gramatica.Pilha.Empilhar( Valor1 );
   end;
-end;
-
-{ TPGRead }
-
-procedure TPGRead.Execute( Gramatica: TGramatica );
-var
-  S, P: string;
-begin
-  // read
-  LerParamentros( Gramatica, 2, 2 );
-  P := Gramatica.Pilha.Desempilhar( '' );
-  S := Gramatica.Pilha.Desempilhar( '' );
-  if ( not Gramatica.Erro ) then
-    Gramatica.Pilha.Empilhar( InputBox( 'PGofer', S, P ) );
-end;
-
-{ TPGRepeat }
-
-procedure TPGRepeat.Execute( Gramatica: TGramatica );
-var
-  LoopContador, LoopLimite: Cardinal;
-  Continuar: Boolean;
-  PositionIni: FixedInt;
-begin
-  LoopLimite := TPGKernel.LoopLimit;
-  LoopContador := 0;
-  Continuar := false;
-  Gramatica.TokenList.GetNextToken;
-  PositionIni := Gramatica.TokenList.Position;
-  repeat
-    Gramatica.TokenList.Position := PositionIni;
-    // executa a senten�a
-    Sentencas( Gramatica );
-
-    // verifica a condi��o
-    if ( Gramatica.TokenList.Token.Classe = cmdRes_until ) then
-    begin
-      Gramatica.TokenList.GetNextToken;
-      Expressao( Gramatica );
-      Continuar := Gramatica.Pilha.Desempilhar( false );
-    end
-    else
-      Gramatica.ErroAdd( 'Error_Interpreter_Until' );
-    Inc( LoopContador );
-    // verifica e executa novamente
-  until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
-
-  if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
-end;
-
-{ TPGUnDef }
-
-procedure TPGUnDef.Execute( Gramatica: TGramatica );
-var
-  Nome: string;
-  Item: TPGItem;
-begin
-  Gramatica.TokenList.GetNextToken;
-  if Gramatica.TokenList.Token.Classe = cmdLPar then
-  begin
-    Gramatica.TokenList.GetNextToken;
-    Expressao( Gramatica );
-    if ( Gramatica.TokenList.Token.Classe <> cmdRPar ) then
-      Gramatica.ErroAdd( 'Error_Interpreter_)' )
-    else
-    begin
-      Nome := Gramatica.Pilha.Desempilhar( '' );
-      Item := FindID( Gramatica.Local, Nome );
-      if Assigned( Item ) then
-      begin
-        Item.Free;
-        Gramatica.Pilha.Empilhar( True );
-      end
-      else
-        Gramatica.Pilha.Empilhar( false );
-      Gramatica.TokenList.GetNextToken;
-    end;
-  end
-  else
-    Gramatica.ErroAdd( 'Error_Interpreter_(' );
-end;
-
-{ TPGWaitFor }
-
-procedure TPGWaitFor.Execute( Gramatica: TGramatica );
-var
-  LoopContador, LoopLimite: Cardinal;
-  Continuar: Boolean;
-  PositionIni: FixedInt;
-begin
-  LoopLimite := TPGKernel.LoopLimit;
-  LoopContador := 0;
-  PositionIni := Gramatica.TokenList.Position;
-  repeat
-    Gramatica.TokenList.Position := PositionIni;
-    Sleep( 100 );
-    LerParamentros( Gramatica, 1, 1 );
-    Continuar := Gramatica.Pilha.Desempilhar( false );
-    Inc( LoopContador );
-    // verifica e executa novamente
-  until ( Continuar or Gramatica.Erro or ( LoopContador >= LoopLimite ) );
-
-  if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
 end;
 
 { TPGWhile }
-
-procedure TPGWhile.Execute( Gramatica: TGramatica );
+procedure TPGWhile.Execute(const AGrammar: TPGGrammar);
 var
-  LoopContador, LoopLimite: Cardinal;
-  Continuar: Boolean;
-  PositionIni: FixedInt;
+  LStartPos: Integer;
+  LLoopLimit: Cardinal;
+  LCounter: Cardinal;
 begin
-  LoopLimite := TPGKernel.LoopLimit;
-  Gramatica.TokenList.GetNextToken;
-  PositionIni := Gramatica.TokenList.Position;
-  LoopContador := 0;
-  Continuar := True;
-  while ( Continuar ) and ( not Gramatica.Erro ) and
-    ( LoopContador < LoopLimite ) do
-  begin
-    Gramatica.TokenList.Position := PositionIni;
-    // Expressao
-    Expressao( Gramatica );
-    if ( not Gramatica.Erro ) then
-    begin
-      Continuar := Gramatica.Pilha.Desempilhar( false );
-      // Executar
-      if ( Gramatica.TokenList.Token.Classe = cmdRes_do ) then
-      begin
-        Gramatica.TokenList.GetNextToken;
-        if Continuar then
-          Comandos( Gramatica )
-        else
-          EncontrarFim( Gramatica,
-            ( Gramatica.TokenList.Token.Classe = cmdRes_begin ) );
-      end
-      else
-        Gramatica.ErroAdd( 'Error_Interpreter_Do' );
-    end;
-    Inc( LoopContador );
-  end;
+  LLoopLimit := TPGKernel.LoopLimit;
+  LCounter := 0;
+  AGrammar.TokenList.Next; // Pula 'while'
+  LStartPos := AGrammar.TokenList.Position;
 
-  if ( LoopContador >= LoopLimite ) then
-    Gramatica.ErroAdd( 'Error_Interpreter_Loop' );
+  while (not AGrammar.HasError) and (LCounter < LLoopLimit) do
+  begin
+    AGrammar.TokenList.Position := LStartPos;
+    Expression(AGrammar);
+
+    if AGrammar.Stack.Pop.AsBoolean then
+    begin
+      if AGrammar.Consume(tkDo) then
+        Commands(AGrammar)
+      else Break;
+    end
+    else
+    begin
+      // Condição falsa, pula o corpo do while
+      AGrammar.Consume(tkDo);
+      FindEnd(AGrammar, AGrammar.Match(tkBegin));
+      Break;
+    end;
+    Inc(LCounter);
+  end;
+end;
+
+{ TPGRepeat }
+procedure TPGRepeat.Execute(const AGrammar: TPGGrammar);
+var
+  LStartPos: Integer;
+  LLoopLimit: Cardinal;
+  LCounter: Cardinal;
+begin
+  LLoopLimit := TPGKernel.LoopLimit;
+  LCounter := 0;
+  AGrammar.TokenList.Next; // Pula 'repeat'
+  LStartPos := AGrammar.TokenList.Position;
+
+  repeat
+    AGrammar.TokenList.Position := LStartPos;
+    Statements(AGrammar);
+
+    if AGrammar.Consume(tkUntil) then
+    begin
+      Expression(AGrammar);
+      if AGrammar.Stack.Pop.AsBoolean then Break;
+    end else Break;
+
+    Inc(LCounter);
+  until (AGrammar.HasError) or (LCounter >= LLoopLimit);
+end;
+
+{ TPGIsDef }
+procedure TPGIsDef.Execute(const AGrammar: TPGGrammar);
+var LName: string;
+begin
+  if ReadParameters(AGrammar, 1, 1) = 1 then
+  begin
+    LName := AGrammar.Stack.Pop.ToString;
+    AGrammar.Stack.Push(Assigned(FindID(AGrammar.Local, LName)));
+  end;
+end;
+
+{ TPGUnDef }
+procedure TPGUnDef.Execute(const AGrammar: TPGGrammar);
+var
+  LName: string;
+  LItem: TPGItem;
+begin
+  if ReadParameters(AGrammar, 1, 1) = 1 then
+  begin
+    LName := AGrammar.Stack.Pop.ToString;
+    LItem := FindID(AGrammar.Local, LName);
+    if Assigned(LItem) and (not LItem.SystemNode) then
+    begin
+      LItem.Free;
+      AGrammar.Stack.Push(True);
+    end
+    else
+      AGrammar.Stack.Push(False);
+  end;
 end;
 
 { TPGWrite }
-
-procedure TPGWrite.Execute( Gramatica: TGramatica );
-var
-  S: string;
+procedure TPGWrite.ExecuteAction(const AText: string; ANewLine: Boolean);
 begin
-  // write
-  LerParamentros( Gramatica, 1, 1 );
-  S := Gramatica.Pilha.Desempilhar( '' );
-  Gramatica.MSGsAdd( S );
+  TPGKernel.Console(AText, ANewLine, TPGKernel.ConsoleMessage);
+end;
+
+{ TPGWriteLN }
+procedure TPGWriteLN.ExecuteAction(const AText: string);
+begin
+  inherited ExecuteAction(AText, True);
 end;
 
 initialization
-
-  TPGCopy.Create( GlobalItemCommand );
-  TPGDelete.Create( GlobalItemCommand );
-  TPGDelay.Create( GlobalItemCommand );
-  TPGFor.Create( GlobalItemCommand );
-  TPGIf.Create( GlobalItemCommand );
-  TPGIsDef.Create( GlobalItemCommand );
-  TPGInsert.Create( GlobalItemCommand );
-  TPGRead.Create( GlobalItemCommand );
-  TPGRepeat.Create( GlobalItemCommand );
-  TPGUnDef.Create( GlobalItemCommand );
-  TPGWaitFor.Create( GlobalItemCommand );
-  TPGWhile.Create( GlobalItemCommand );
-  TPGWrite.Create( GlobalItemCommand );
-
-finalization
+  TPGCopy.Create(GlobalItemCommand);
+  TPGDelete.Create(GlobalItemCommand);
+  TPGInsert.Create(GlobalItemCommand);
+  TPGDelay.Create(GlobalItemCommand);
+  TPGRead.Create(GlobalItemCommand);
+  TPGIf.Create(GlobalItemCommand);
+  TPGFor.Create(GlobalItemCommand);
+  TPGWhile.Create(GlobalItemCommand);
+  TPGRepeat.Create(GlobalItemCommand);
+  TPGIsDef.Create(GlobalItemCommand);
+  TPGUnDef.Create(GlobalItemCommand);
+  TPGWrite.Create(GlobalItemCommand);
+  TPGWriteLN.Create(GlobalItemCommand);
 
 end.

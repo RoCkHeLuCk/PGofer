@@ -8,7 +8,8 @@ uses
   Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Triggers, PGofer.Triggers.Frame, PGofer.Triggers.HotKeys,
   PGofer.Component.RichEdit,
-  PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame, PGofer.Component.Edit;
+  PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame, PGofer.Component.Edit,
+  PGofer.Classes, Pgofer.Component.Checkbox, Pgofer.Component.ComboBox;
 
 type
   TPGHotKeyFrame = class( TPGTriggerFrame )
@@ -16,8 +17,8 @@ type
     MmoHotKeys: TMemo;
     BtnClean: TButton;
     LblDetect: TLabel;
-    CmbDetect: TComboBox;
-    CkbInhibit: TCheckBox;
+    CmbDetect: TPGComboBox;
+    CkbInhibit: TCheckBoxEx;
     GrbScript: TGroupBox;
     EdtScript: TRichEditEx;
     sptScript: TSplitter;
@@ -30,16 +31,16 @@ type
       Shift: TShiftState );
   private
     {$HINTS OFF}
-    procedure OnProcessKeys( AParamInput: TParamInput );
+    function OnProcessKeys(AParamInput: TParamInput): Boolean;
     {$HINTS ON}
+    function GetItem( ): TPGHotKey;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    function GetItem( ): TPGHotKey; virtual;
     property Item: TPGHotKey read GetItem;
     procedure InhibitToogle();
   public
-    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -56,12 +57,12 @@ uses
 {$R *.dfm}
 { TPGFrameHotKey }
 
-constructor TPGHotKeyFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
+constructor TPGHotKeyFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  CmbDetect.ItemIndex := Item.Detect;
-  CkbInhibit.Checked := Item.Inhibit;
-  EdtScript.Lines.Text := Item.Script;
+  CmbDetect.SetIndexSilent( Item.Detect );
+  CkbInhibit.SetCheckedSilent( Item.Inhibit );
+  EdtScript.SetTextSilent( Item.Script );
   MmoHotKeys.Lines.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
   Self.InhibitToogle();
@@ -83,14 +84,14 @@ end;
 procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  Item.Script := EdtScript.Lines.Text;
+  Item.Script := EdtScript.Text;
 end;
 
 procedure TPGHotKeyFrame.InhibitToogle();
 var
   LVisible: Boolean;
 begin
-  LVisible := ((TPGHotKeyDeclare.GetInput = 2) and (Item.Detect = 1));
+  LVisible := ((TPGHotKey.GetInputType = 2) and (Item.Detect = 1));
   CkbInhibit.Checked := LVisible;
   CkbInhibit.Enabled := LVisible;
   CkbInhibit.ShowHint := not LVisible;
@@ -139,14 +140,15 @@ begin
   TPGHotKey.SetProcessKeys( nil );
 end;
 
-procedure TPGHotKeyFrame.OnProcessKeys( AParamInput: TParamInput );
+function TPGHotKeyFrame.OnProcessKeys( AParamInput: TParamInput ): Boolean;
 var
   Key: TKey;
 begin
+  Result := False;
   Key := TKey.CalcVirtualKey( AParamInput );
   if Key.wKey > 0 then
   begin
-    //if Key.bDetect in [ kd_Down, kd_Wheel ] then
+    if Key.bDetect in [ kd_Down, kd_Wheel ] then
     begin
       if not( PGHotKeyFrame.Item.Keys.Contains( Key.wKey ) ) then
       begin
@@ -155,7 +157,8 @@ begin
         PGHotKeyFrame.Item.Inhibit := False;
       end;
     end;
-    PGHotKeyFrame.MmoHotKeys.Lines.Text := PGHotKeyFrame.Item.GetKeysName( );
+    PGHotKeyFrame.MmoHotKeys.Text := PGHotKeyFrame.Item.GetKeysName( );
+    Result := True;
   end;
 end;
 

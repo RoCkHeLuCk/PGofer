@@ -3,7 +3,7 @@ unit PGofer.Classes;
 interface
 
 uses
-  System.Generics.Collections,
+  System.SyncObjs, System.Generics.Collections,
   Vcl.ImgList, Vcl.Comctrls,
   PGofer.Component.Form, PGofer.Component.TreeView;
 
@@ -16,36 +16,48 @@ type
     FName: string;
     FEnabled: Boolean;
     FReadOnly: Boolean;
+    FSystemNode: Boolean;
+    FDestroying: Boolean;
     FParent: TPGItem;
     FNode: TTreeNode;
-    procedure SetParent(AParent: TPGItem);
     function GetCollectDad(): TPGItemCollect;
     procedure SetNode(AValue: TTreeNode);
+
     class var FIconCache: TDictionary<TClass, Integer>;
     class var FImageList: TCustomImageList;
     class var FIconPath: String;
-    class function LoadForClass(AClass: TClass): Integer;
     class procedure SetIconPath(const Value: String); static;
   protected
     class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
+
     function GetAbout(): String; virtual;
+    function GetIsValid(): Boolean; virtual;
+    function GetName(): String; virtual;
     procedure SetName(AName: string); virtual;
+    procedure SetNameForced(AName: string); virtual;
     procedure SetEnabled(AValue: Boolean); virtual;
+    procedure SetParent(AParent: TPGItem); virtual;
   public
     class constructor Create();
     class destructor Destroy();
     class function ClassNameEx(): String; virtual;
     class function IconIndex(): Integer; virtual;
     class property IconPath: String read FIconPath write SetIconPath;
+
     constructor Create(AParent: TPGItem; AName: string); overload; virtual;
     destructor Destroy(); override;
+    procedure BeforeDestruction; override;
+
     property About: string read GetAbout;
-    property Name: string read FName write SetName;
+    property Name: string read GetName write SetName;
     property Enabled: Boolean read FEnabled write SetEnabled;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
+    property SystemNode: Boolean read FSystemNode write FSystemNode;
     property Parent: TPGItem read FParent write SetParent;
     property Node: TTreeNode read FNode write SetNode;
+    property isValid: Boolean read GetIsValid;
     property CollectDad: TPGItemCollect read GetCollectDad;
+    property Destroying: Boolean read FDestroying;
     procedure Frame(AParent: TObject); virtual;
     function FindName(AName: string): TPGItem;
     function FindNameList(AName: string; APartial: Boolean): TArray<TPGItem>;
@@ -53,26 +65,33 @@ type
 
   TPGItemCollect = class(TPGItem)
   private
+    FAttached: Boolean;
+    FCollectLock: TCriticalSection;
     FTreeView: TTreeViewEx;
+    FForm: TFormEx;
     class function GetImageList(): TCustomImageList;
   protected
-    FForm: TFormEx;
+    procedure SetTreeView(AValue: TTreeViewEx);
+    procedure SetForm(AValue: TFormEx);
   public
     constructor Create(AName: string); overload;
     destructor Destroy(); override;
     property ImageList: TCustomImageList read GetImageList;
     property TreeView: TTreeViewEx read FTreeView;
     property Form: TFormEx read FForm;
+    property Attached: Boolean read FAttached;
     procedure FormCreate(); virtual;
     procedure FormShow();
     procedure TreeViewAttach();
-    procedure TreeViewDetach();
+    procedure TreeViewDetach(AItem: TPGItem = nil);
+    procedure CollectLocked();
+    procedure CollectUnlocked();
   end;
 
 implementation
 
 uses
-  System.SysUtils,
+  System.Classes, System.SysUtils,
   Vcl.Graphics,
   PGofer.Core, PGofer.Item.Frame, PGofer.Forms.Controller;
 
@@ -100,42 +119,40 @@ begin
   FAbout.Free;
 end;
 
-class function TPGItem.LoadForClass(AClass: TClass): Integer;
-var
-  LCurrentClass: TClass;
-  LIcon: TIcon;
-  LIconFileName: string;
-begin
-  Result := 0;
-
-  LCurrentClass := AClass;
-  while (LCurrentClass <> nil) and (LCurrentClass.InheritsFrom(TPGItem)) do
-  begin
-    LIconFileName := FIconPath + TPGItemType(LCurrentClass).ClassNameEx + '.ico';
-    if FileExists(LIconFileName) then
-    begin
-      LIcon := TIcon.Create( );
-      try
-        LIcon.LoadFromFile( LIconFileName );
-        Result := FImageList.AddIcon( LIcon );
-      finally
-        LIcon.Free( );
-      end;
-      Exit;
-    end;
-    //Next
-    LCurrentClass := LCurrentClass.ClassParent;
-  end;
-end;
-
 class function TPGItem.IconIndex(): Integer;
 var
   LClass: TClass;
+  function LLoadForClass(): Integer;
+  var
+    LCurrentClass: TClass;
+    LIcon: TIcon;
+    LIconFileName: string;
+  begin
+    Result := 0;
+
+    LCurrentClass := LClass;
+    while (LCurrentClass <> nil) and (LCurrentClass.InheritsFrom(TPGItem)) do
+    begin
+      LIconFileName := FIconPath + TPGItemType(LCurrentClass).ClassNameEx + '.ico';
+      if FileExists(LIconFileName) then
+      begin
+        LIcon := TIcon.Create( );
+        try
+          LIcon.LoadFromFile( LIconFileName );
+          Result := FImageList.AddIcon( LIcon );
+        finally
+          LIcon.Free( );
+        end;
+        Exit;
+      end;
+      LCurrentClass := LCurrentClass.ClassParent;
+    end;
+  end;
 begin
   LClass := Self;
   if not FIconCache.TryGetValue( LClass, Result ) then
   begin
-    Result := TPGItem.LoadForClass( LClass );
+    Result := LLoadForClass();
     FIconCache.Add( LClass , Result);
   end;
 end;
@@ -152,42 +169,40 @@ end;
 
 constructor TPGItem.Create(AParent: TPGItem; AName: string);
 begin
+  FDestroying := False;
   inherited Create(True);
   FName := AName;
   FEnabled := True;
   FReadOnly := False;
+  FSystemNode := True;
   FNode := nil;
-  FParent := AParent;
-  if Assigned(AParent) then
-  begin
-    AParent.Add(Self);
-    if Assigned(AParent.FNode) then
-    begin
-      Self.Node := TTreeView(AParent.FNode.TreeView).Items.AddChild(AParent.FNode, FName);
-    end else begin
-      if (AParent is TPGItemCollect) and (Assigned(TPGItemCollect(AParent).TreeView)) then
-      begin
-        Self.Node := TPGItemCollect(AParent).TreeView.Items.AddChild(nil, FName);
-      end;
-    end;
-  end;
+  FParent := nil;
+  Self.Parent := AParent;
 end;
 
-destructor TPGItem.Destroy();
+procedure TPGItem.BeforeDestruction();
 begin
-  if Assigned(FNode) and (not FNode.Deleting) then
-  begin
-    FNode.Data := nil;
-    FNode.Free();
-  end;
-  FNode := nil;
+  FDestroying := True;
+  inherited BeforeDestruction();
+end;
+
+destructor TPGItem.Destroy;
+var
+  LCollectDad: TPGItemCollect;
+begin
+  LCollectDad := GetCollectDad();
+
+  if Assigned(LCollectDad) then
+    LCollectDad.TreeViewDetach(Self);
+
+  if Assigned(FParent) and (not FParent.Destroying) then
+    FParent.Extract(Self);
 
   FName := '';
   FEnabled := False;
   FReadOnly := False;
-  if Assigned(FParent) then
-    FParent.Extract(Self);
-  FParent := nil;
+  FSystemNode := False;
+
   inherited Destroy();
 end;
 
@@ -200,13 +215,13 @@ procedure TPGItem.SetEnabled(AValue: Boolean);
 begin
   FEnabled := AValue;
   if Assigned(FNode) then
-  begin
     FNode.Enabled := FEnabled;
-  end;
 end;
 
 class procedure TPGItem.SetIconPath(const Value: String);
 begin
+  if SameText(FIconPath,Value) then Exit;
+
   FIconPath := Value;
   FIconCache.Clear;
   FImageList.Clear;
@@ -216,10 +231,14 @@ procedure TPGItem.SetNode(AValue: TTreeNode);
 var
   LIndex : Integer;
 begin
+  if FNode = AValue then Exit;
+  
   FNode := AValue;
   if Assigned(FNode) then
   begin
+    FNode.Text := FName;
     FNode.Data := Self;
+    FNode.Enabled := FEnabled;
     LIndex := Self.IconIndex;
     FNode.ImageIndex := LIndex;
     FNode.SelectedIndex := LIndex;
@@ -229,37 +248,71 @@ end;
 
 procedure TPGItem.SetParent(AParent: TPGItem);
 var
-  OwnerNode: TTreeNode;
+  //LCollectDad,
+  LNewCollectDad: TPGItemCollect;
 begin
-  if FParent <> AParent then
-  begin
-    if Assigned(FParent) then
-      FParent.Extract(Self);
+  if (FParent = AParent) or (FSystemNode and Assigned(FParent)) then Exit;
 
-    if Assigned(AParent) then
-      AParent.Add(Self);
+  //LCollectDad := GetCollectDad();
+  LNewCollectDad := nil;
+  if Assigned(AParent) then LNewCollectDad := AParent.CollectDad;
 
+//  // 1. Trava as listas em memória
+//  if Assigned(LCollectDad) then
+//   LCollectDad.LockSection;
+//  if Assigned(LNewCollectDad) and (LNewCollectDad <> LCollectDad) then
+//   LNewCollectDad.LockSection;
+
+  try
+    if Assigned(FParent) then FParent.Extract(Self);
+    if Assigned(AParent) then AParent.Add(Self);
+  finally
     FParent := AParent;
+//    if Assigned(LNewCollectDad) and (LNewCollectDad <> LCollectDad) then
+//      LNewCollectDad.UnlockSection;
+//    if Assigned(LCollectDad) then
+//      LCollectDad.UnlockSection;
   end;
 
-  if Assigned(FNode) then
-  begin
-    if Assigned(FParent) then
-      OwnerNode := FParent.Node
-    else
-      OwnerNode := nil;
+  // 2. Atualização VCL encapsulada na Main Thread
+  RunInMainThread(
+    procedure
+    var
+      LTreeView: TTreeView;
+      LNodeParent: TTreeNode;
+    begin
+      if not Assigned(FParent) then Exit;
+      if not Assigned(LNewCollectDad) or not LNewCollectDad.Attached then Exit;
 
-    FNode.MoveTo(OwnerNode, naAddChild);
-  end;
+      LTreeView := LNewCollectDad.TreeView;
+      if not Assigned(LTreeView) then Exit;
+
+      if FParent is TPGItemCollect then
+         LNodeParent := nil
+      else
+         LNodeParent := FParent.Node;
+
+      if not Assigned(FNode) then
+        Self.Node := LTreeView.Items.AddChild(LNodeParent, FName)
+      else
+        FNode.MoveTo(LNodeParent, naAddChild);
+    end,
+    True
+  );
 end;
 
 procedure TPGItem.SetName(AName: string);
 begin
+  if FSystemNode then Exit;
+  Self.SetNameForced(AName);
+end;
+
+procedure TPGItem.SetNameForced(AName: string);
+begin
+  if FName = AName then Exit;
   FName := AName;
   if Assigned(FNode) then
-  begin
     FNode.Text := FName;
-  end;
 end;
 
 procedure TPGItem.Frame(AParent: TObject);
@@ -277,31 +330,39 @@ begin
     Result := nil;
 end;
 
+function TPGItem.GetIsValid(): Boolean;
+begin
+  Result := True;
+end;
+
+function TPGItem.GetName(): String;
+begin
+   Result := FName;
+end;
+
 function TPGItem.FindName(AName: string): TPGItem;
 var
-  C: FixedInt;
+  LItem : TPGItem;
 begin
   Result := nil;
-  C := 0;
-  while (C < Self.Count) and (not Assigned(Result)) do
+  for LItem in Self do
   begin
-    if SameText(AName, Self[C].Name) then
-      Result := Self[C];
-    inc(C);
+    if SameText(AName, LItem.Name) then
+      Exit(LItem);
   end;
 end;
 
 function TPGItem.FindNameList(AName: string; APartial: Boolean): TArray<TPGItem>;
 var
-  Item: TPGItem;
+  LItem: TPGItem;
 begin
   SetLength(Result, 0);
-  for Item in Self do
+  for LItem in Self do
   begin
-    if (APartial and (Pos(LowerCase(AName), LowerCase(Item.Name)) > 0)) or
-      (not APartial and SameText(AName, Item.Name)) or (AName = '') then
+    if (APartial and (Pos(LowerCase(AName), LowerCase(LItem.Name)) > 0)) or
+      (not APartial and SameText(AName, LItem.Name)) or (AName = '') then
     begin
-      Result := Result + [Item];
+      Result := Result + [LItem];
     end;
   end;
 end;
@@ -311,14 +372,31 @@ end;
 constructor TPGItemCollect.Create(AName: string);
 begin
   inherited Create(nil, AName);
+  FCollectLock := TCriticalSection.Create;
 end;
 
 destructor TPGItemCollect.Destroy();
 begin
+  if FAttached then
+    Self.TreeViewDetach();
+
   FTreeView := nil;
   if Assigned(FForm) then
     FForm.Free();
+  FForm := nil;
+
+  FCollectLock.Free;
   inherited Destroy();
+end;
+
+procedure TPGItemCollect.CollectLocked;
+begin
+  FCollectLock.Acquire;
+end;
+
+procedure TPGItemCollect.CollectUnlocked;
+begin
+  FCollectLock.Release;
 end;
 
 procedure TPGItemCollect.FormCreate();
@@ -326,6 +404,7 @@ begin
   if not Assigned(FForm) then
   begin
     FForm := TFrmController.Create(Self);
+    FTreeView := TFrmController(FForm).TrvController;
   end;
 end;
 
@@ -339,60 +418,114 @@ begin
    Result := TPGItem.FImageList;
 end;
 
+procedure TPGItemCollect.SetForm(AValue: TFormEx);
+begin
+  FForm := AValue;
+end;
+
+procedure TPGItemCollect.SetTreeView(AValue: TTreeViewEx);
+begin
+  FTreeView := AValue;
+end;
+
 procedure TPGItemCollect.TreeViewAttach();
-  procedure NodeAttach(Item: TPGItem);
+  procedure LNodeAttach(AItem: TPGItem);
   var
-    Node: TTreeNode;
-    ItemChild: TPGItem;
+    LNode: TTreeNode;
+    LItemChild: TPGItem;
   begin
-    if Assigned(Item.Parent) then
-      Node := Item.Parent.Node
+    if Assigned(AItem.Parent) then
+      LNode := AItem.Parent.Node
     else
-      Node := nil;
+      LNode := nil;
 
-    Item.Node := FTreeView.Items.AddChild(Node, Item.Name);
+    AItem.Node := FTreeView.Items.AddChild(LNode, AItem.Name);
 
-    for ItemChild in Item do
-      NodeAttach(ItemChild);
+    for LItemChild in AItem do
+      LNodeAttach(LItemChild);
   end;
 
 var
-  Item: TPGItem;
+  LItem: TPGItem;
 begin
-  if Assigned(FForm) then
-  begin
-    FTreeView := TFrmController(FForm).TrvController;
-    for Item in Self do
-      NodeAttach(Item);
+  if not Assigned(FTreeView) or not FTreeView.HandleAllocated or FAttached then Exit;
+
+  Self.CollectLocked;
+  FTreeView.Items.BeginUpdate;
+  try
+    FTreeView.Items.Clear;
+    for LItem in Self do
+      LNodeAttach(LItem);
+  finally
+    FAttached := True;
+    FTreeView.Items.EndUpdate;
+    Self.CollectUnlocked;
   end;
 end;
 
-procedure TPGItemCollect.TreeViewDetach();
-  procedure NodeDetach(Item: TPGItem);
+procedure TPGItemCollect.TreeViewDetach(AItem: TPGItem = nil);
+  procedure LNodeDetach(Item: TPGItem);
   var
-    ItemChild: TPGItem;
+    LChild: TPGItem;
   begin
+    if not Assigned(Item) then Exit;
+    for LChild in Item do
+      LNodeDetach(LChild);
     if Assigned(Item.Node) then
-    begin
-      for ItemChild in Item do
-        NodeDetach(ItemChild);
       Item.Node.Data := nil;
-      Item.Node := nil;
-    end;
+    Item.Node := nil;
   end;
-
 var
-  Item: TPGItem;
+  LItem : TPGItem;
+  LNode : TTreeNode;
+  LIsFullClear: Boolean;
 begin
-  if Assigned(FTreeView) then
-  begin
-    for Item in Self do
-      NodeDetach(Item);
+  if not Assigned(FTreeView) or not FAttached then Exit;
 
-    FTreeView.Items.Clear();
-    FTreeView := nil;
+  if Assigned(AItem) then
+  begin
+    LIsFullClear := False;
+    if not Assigned(AItem.Node) then Exit;
+  end else
+    LIsFullClear := True;
+
+  LNode := nil;
+  Self.CollectLocked;
+  try
+    if Assigned(AItem) then
+    begin
+      LNode := AItem.Node;
+      LNodeDetach(AItem);
+    end else begin
+      for LItem in Self do
+        LNodeDetach(LItem);
+    end;
+  finally
+    if not Assigned(AItem) then
+      FAttached := False;
+    Self.CollectUnlocked;
   end;
+
+  RunInMainThread(
+    procedure
+    begin
+      FTreeView.Items.BeginUpdate;
+      try
+        if FTreeView.HandleAllocated then
+          if Assigned(LNode) and not LNode.Deleting then
+             LNode.Delete
+          else
+            if LIsFullClear then
+               FTreeView.Items.Clear();
+      finally
+        FTreeView.Items.EndUpdate;
+      end;
+    end,
+    False
+  );
 end;
+
+
 
 initialization
 

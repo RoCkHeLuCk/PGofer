@@ -16,7 +16,8 @@ implementation
 
 uses
   Winapi.Windows,
-  System.SysUtils;
+  System.SysUtils,
+  System.Character;
 
 //procedure KeyPressAllUp( );
 //var
@@ -437,24 +438,71 @@ begin
   Result := '';
   if AText = '' then Exit;
 
-  for I := 1 to Length(AText) do
+  I := 1;
+  while I <= Length(AText) do
   begin
     C := AText[I];
     W := Ord(C);
-    // 1. Mantém caracteres básicos de formatação (Tab, LF, CR)
-    // 2. Mantém o intervalo imprimível padrão (Space até o fim do ANSI/Unicode padrão)
-    if ( CharInSet(C,[#9, #10, #13])) or (C >= #32) then
+
+    // 1. Tratamento de Surrogate Pairs usando Char Helper (Sintaxe Moderna)
+    if C.IsHighSurrogate then // <--- Chamada direta no Char
     begin
-      // 3. Bloqueio específico de caracteres invisíveis/fantasmas (Unicode Zero-Width e Markings)
-      // $200B: Zero Width Space | $200C..$200F: Formatters | $FEFF: BOM
+      // Verifica se o próximo caractere completa o par
+      if (I < AText.Length) and AText[I + 1].IsLowSurrogate then
+      begin
+        Result := Result + AText[I] + AText[I + 1];
+        Inc(I, 2);
+        Continue;
+      end;
+    end;
+
+    // 2. Filtragem de caracteres normais e controle
+    // Usamos C.IsControl ou Ord(C) para lógica personalizada
+    if (CharInSet(C, [#9, #10, #13])) or (W >= 32) then
+    begin
+      if (W = $0B) or (W = $0C) then Continue;
+      // Bloqueio de caracteres invisíveis/fantasmas específicos
       if not (
-         ((W >= $200B) and (W <= $200F)) or // Zero Width e Formatters
-         (W = $FEFF) or                     // Byte Order Mark
-         ((W >= $202A) and (W <= $202E))    // Direcionais de texto
+         ((W >= $200B) and (W <= $200F)) or
+         (W = $FEFF) or
+         ((W >= $202A) and (W <= $202E))
       ) then
         Result := Result + C;
     end;
+
+    Inc(I);
   end;
 end;
+
+//function SanitizeText(const AText: string): string;
+//var
+//  I: Integer;
+//  C: Char;
+//  W: Word;
+//begin
+//  Exit(AText);
+//  //teste
+//  Result := '';
+//  if AText = '' then Exit;
+//
+//  for I := 1 to Length(AText) do
+//  begin
+//    C := AText[I];
+//    W := Ord(C);
+//    // 1. Mantém caracteres básicos de formatação (Tab, LF, CR)
+//    // 2. Mantém o intervalo imprimível padrão (Space até o fim do ANSI/Unicode padrão)
+//    if ( CharInSet(C,[#9, #10, #13])) or (C >= #32) then
+//    begin
+//      // 3. Bloqueio específico de caracteres invisíveis/fantasmas (Unicode Zero-Width e Markings)
+//      // $200B: Zero Width Space | $200C..$200F: Formatters | $FEFF: BOM
+//      if not (
+//         ((W >= $200B) and (W <= $200F)) or // Zero Width e Formatters
+//         (W = $FEFF) or                     // Byte Order Mark
+//         ((W >= $202A) and (W <= $202E))    // Direcionais de texto
+//      ) then
+//        Result := Result + C;
+//    end;
+//  end;
+//end;
 
 end.

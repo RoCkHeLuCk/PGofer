@@ -8,8 +8,8 @@ uses
   PGofer.Triggers;
 
 type
-
   {$M+}
+  [TPGArgs('Text, Mode, Speed, Delay')]
   TPGAutoFill = class( TPGItemTrigger )
   private
     FDelay : Cardinal;
@@ -17,39 +17,29 @@ type
     FMode : Byte;
     FText : String;
   protected
-    procedure ExecuteWithArgs( Gramatica: TGramatica ); override;
+    class function GetFrameType: TPGTriggerFrameType; override;
   public
-    class var GlobList: TPGItem;
-    constructor Create( AName: string; AMirror: TPGItemMirror ); overload;
+    constructor Create(AMirror: TPGItemMirror; AName: string); override;
     destructor Destroy( ); override;
-    procedure Frame( AParent: TObject ); override;
     procedure Triggering( ); override;
+    procedure ExecuteAction(AMode: Byte = 255; ASpeed: Cardinal = 0; ADelay: Cardinal = 0);
   published
-    [TPGAttribText('0:Write; 1:Send Point; 2:Copy; 3:Copy and Paste; 4:Script;')]
-    property Mode: Byte read FMode write FMode;
-    [TPGAttribText('Value millesecond;')]
-    property Delay: Cardinal read FDelay write FDelay;
-    [TPGAttribText('Value millesecond;')]
-    property Speed: Cardinal read FSpeed write FSpeed;
     property Text: string read FText write FText;
+    [TPGAbout('0:Write; 1:Send Point; 2:Copy; 3:Copy and Paste; 4:Script;')]
+    property Mode: Byte read FMode write FMode;
+    [TPGAbout('Value in milliseconds;')]
+    property Speed: Cardinal read FSpeed write FSpeed;
+    [TPGAbout('Value in milliseconds;')]
+    property Delay: Cardinal read FDelay write FDelay;
   end;
   {$TYPEINFO ON}
 
-  TPGAutoFillDeclare = class( TPGItemClass )
-  protected
-  public
-    procedure Execute( AGramatica: TGramatica ); override;
-  end;
-
   TPGAutoFillMirror = class( TPGItemMirror )
   protected
+    class function GetTriggerType: TPGItemTriggerType; override;
   public
-    constructor Create( AItemDad: TPGItem; AName: string = ''); override;
-    procedure Frame( AParent: TObject ); override;
     class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
-    class function ClassNameEx(): String; override;
   end;
-
 
 implementation
 
@@ -58,18 +48,17 @@ uses
   System.SysUtils, System.StrUtils,
   PGofer.Lexico,
   PGofer.Sintatico.Controls,
-  PGofer.Triggers.AutoFills.Frame,
   PGofer.Files.Controls,
   PGofer.Key.Post,
   PGofer.ClipBoards.Controls,
-  PGofer.Process.Controls;
+  PGofer.Process.Controls,
+  PGofer.Triggers.AutoFills.Frame;
 
-{ TPGAutoFills }
+{ TPGAutoFill }
 
-constructor TPGAutoFill.Create( AName: string; AMirror: TPGItemMirror );
+constructor TPGAutoFill.Create(AMirror: TPGItemMirror; AName: string);
 begin
-  inherited Create( TPGAutoFill.GlobList, AName, AMirror );
-  Self.ReadOnly := False;
+  inherited Create( AMirror, AName );
   FText := '';
   FSpeed := 10;
   FDelay := 500;
@@ -85,41 +74,30 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGAutoFill.ExecuteWithArgs( Gramatica: TGramatica );
-var
-  LParam, LText: string;
+class function TPGAutoFill.GetFrameType: TPGTriggerFrameType;
 begin
-  Gramatica.TokenList.GetNextToken;
-  Expressao( Gramatica );
-  if ( Gramatica.TokenList.Token.Classe = cmdRPar ) then
-  begin
-    LParam := Gramatica.Pilha.Desempilhar( '' );
-    if not Gramatica.Erro then
-    begin
-      LText := Self.Text;
-      Self.Text := LParam;
-      Self.Triggering();
-      Self.Text := LText;
-    end;
-    Gramatica.TokenList.GetNextToken;
-  end else
-    Gramatica.ErroAdd('Error_Interpreter_)');
-end;
-
-procedure TPGAutoFill.Frame( AParent: TObject );
-begin
-  inherited Frame( AParent );
-  TPGAutoFillsFrame.Create( Self, AParent );
+  Result := TPGAutoFillsFrame;
 end;
 
 procedure TPGAutoFill.Triggering( );
+begin
+  Self.ExecuteAction(FMode, FSpeed, FDelay);
+end;
+
+procedure TPGAutoFill.ExecuteAction(AMode: Byte; ASpeed, ADelay: Cardinal);
 var
   KeyPost: TKeyPost;
 begin
-  sleep(FDelay);
-  case self.Mode of
+  // Fallbacks: Se o usuário não informou no script (ou passou valor padrão), usa o da instância
+  if AMode > 4  then AMode := FMode;
+  if ASpeed = 0 then ASpeed := FSpeed;
+  if ADelay = 0 then ADelay := FDelay;
+
+  Sleep(ADelay);
+
+  case AMode of
      0:begin
-        KeyPost := TKeyPost.Create( self.Text, self.Speed);
+        KeyPost := TKeyPost.Create( FText, ASpeed);
         KeyPost.WaitFor( );
         KeyPost.Free( );
      end;
@@ -129,92 +107,37 @@ begin
           ProcessGetFocusedControl(),
           $000C ,
           0,
-          LPARAM(PChar(self.Text))
+          LPARAM(PChar(FText))
         );
      end;
 
      2:begin
-       ClipBoardCopyFromText(self.Text);
+       ClipBoardCopyFromText(FText);
      end;
 
      3:begin
-       ClipBoardCopyFromText(self.Text);
-       sleep(self.Speed*2);
+       ClipBoardCopyFromText(FText);
+       Sleep(ASpeed*2);
        keybd_event( VK_CONTROL, 0, KEYEVENTF_EXTENDEDKEY, 0 );
-       sleep(self.Speed);
+       Sleep(ASpeed);
        keybd_event( 86, 0, KEYEVENTF_EXTENDEDKEY, 0 ); //v
-       sleep(self.Speed);
+       Sleep(ASpeed);
        keybd_event( 86, 0, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 ); //v
-       sleep(self.Speed);
+       Sleep(ASpeed);
        keybd_event( VK_CONTROL, 0, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 );
      end;
 
      4:begin
-       ScriptExec( 'AutoFill: ' + Self.Name, Self.Text, nil );
+       ScriptExec( 'AutoFill: ' + Self.Name, FText, nil );
      end;
-
   end;
-
 end;
 
-{ TPGAutoFillsDeclare }
+{ TPGAutoFillMirror }
 
-procedure TPGAutoFillDeclare.Execute( AGramatica: TGramatica );
-var
-  Titulo: string;
-  Quantidade: Byte;
-  AutoFills: TPGAutoFill;
-  id: TPGItem;
+class function TPGAutoFillMirror.GetTriggerType: TPGItemTriggerType;
 begin
-  if Self.TryExecuteChild(AGramatica) then
-    Exit;
-
-  id := IdentificadorLocalizar( AGramatica );
-  if ( not Assigned( id ) ) or ( id is TPGAutoFill ) then
-  begin
-    Titulo := AGramatica.TokenList.Token.Lexema;
-    Quantidade := LerParamentros( AGramatica, 1, 3 );
-    if not AGramatica.Erro then
-    begin
-      if ( not Assigned( id ) ) then
-        AutoFills := TPGAutoFill.Create( Titulo, nil )
-      else
-        AutoFills := TPGAutoFill( id );
-
-      if Quantidade >= 4 then
-        AutoFills.Delay := AGramatica.Pilha.Desempilhar( 0 );
-
-      if Quantidade >= 3 then
-        AutoFills.Speed := AGramatica.Pilha.Desempilhar( 10 );
-
-      if Quantidade >= 2 then
-        AutoFills.Mode := AGramatica.Pilha.Desempilhar( 0 );
-
-      if Quantidade >= 1 then
-        AutoFills.Text := AGramatica.Pilha.Desempilhar( '' );
-    end;
-  end
-  else
-    AGramatica.ErroAdd('Error_Interpreter_IdExist');
-end;
-
-{ TPGAutoFillsMirror }
-
-constructor TPGAutoFillMirror.Create( AItemDad: TPGItem; AName: string );
-begin
-  if AName = '' then AName := 'NewAutoFill';
-  AName := TPGItemMirror.TranscendName( AName );
-  inherited Create( AItemDad, TPGAutoFill.Create( AName, Self ) );
-end;
-
-procedure TPGAutoFillMirror.Frame( AParent: TObject );
-begin
-  TPGAutoFillsFrame.Create( Self.ItemOriginal, AParent );
-end;
-
-class function TPGAutoFillMirror.ClassNameEx(): String;
-begin
-  Result := TPGAutoFill.ClassNameEx;
+  Result := TPGAutoFill;
 end;
 
 class function TPGAutoFillMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;
@@ -226,30 +149,23 @@ var
   LFolder: TPGItem;
   LParts: TArray<string>;
 begin
-  // Aceita .csv e .txt
   Result := MatchText(ExtractFileExt(AFileName), ['.csv']);
   if not Result then Exit;
 
   LList := TStringList.Create;
   try
     LList.LoadFromFile(AFileName);
-
-    // Cria uma pasta com o nome do arquivo para organizar os dados importados
     LFolder := TPGFolder.Create(AItemDad, FileExtractOnlyFileName(AFileName));
 
     for LRow in LList do
     begin
       if LRow.Trim = '' then Continue;
-
-      // Split simples por vírgula ou ponto-e-vírgula
       LParts := LRow.Split([',', ';']);
 
       if Length(LParts) >= 2 then
       begin
         LName := LParts[0].Trim;
         LValue := LParts[1].Trim;
-
-        // Cria o Mirror dentro da nova pasta
         LAutoFill := TPGAutoFill(TPGAutoFillMirror.Create(LFolder, LName).ItemOriginal);
         LAutoFill.Text := LValue;
       end;
@@ -260,10 +176,8 @@ begin
 end;
 
 initialization
-
-TPGAutoFillDeclare.Create( GlobalItemCommand, 'AutoFill' );
-TPGAutoFill.GlobList := TPGFolder.Create( GlobalCollection, 'AutoFills' );
-TriggersCollect.RegisterClass( TPGAutoFillMirror );
+  TPGItemDef.Create(TPGAutoFill, 'AutoFillDef');
+  TriggersCollect.RegisterClass( TPGAutoFillMirror );
 
 finalization
 

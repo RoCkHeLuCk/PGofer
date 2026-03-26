@@ -29,7 +29,7 @@ uses
   System.SysUtils,
   WinApi.Windows,
   Vcl.Forms,
-  PGofer.Runtime, PGofer.Triggers.Tasks;
+  PGofer.Runtime, PGofer.Triggers.Tasks, PGofer.Core;
 
 function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
 var

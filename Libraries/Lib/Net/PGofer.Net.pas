@@ -16,7 +16,7 @@ type
     FLogMaxSize: Cardinal;
   protected
   public
-    constructor Create( AItemDad: TPGItem; AName: string = ''); override;
+    constructor Create( AItemDad: TPGItem; const AName: string = ''); override;
   published
     property LogMaxSize: Cardinal read FLogMaxSize write FLogMaxSize;
     property Server: TPGNetServer read FServer;
@@ -37,7 +37,7 @@ uses
 
 { TPGNet }
 
-constructor TPGNet.Create(AItemDad: TPGItem; AName: string = '');
+constructor TPGNet.Create(AItemDad: TPGItem; const AName: string = '');
 begin
    inherited Create(AItemDad, 'Net');
    FLogMaxSize := 1000000;

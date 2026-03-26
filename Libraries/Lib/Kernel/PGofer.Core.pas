@@ -3,7 +3,7 @@ unit PGofer.Core;
 interface
 
 uses
-  System.Classes, System.Generics.Collections, System.Rtti,
+  System.Classes, System.SyncObjs, System.Generics.Collections, System.Rtti,
   Vcl.Controls;
 
 const
@@ -24,17 +24,25 @@ type
     class var FLoopLimit: Cardinal;
     class var FReportMemoryLeaks: Boolean;
     class procedure SetLanguageFile(const AValue: String); static;
+
     //console
     type TConsoleBuffer = record
       Msg: string;
       IsNewLine: Boolean;
       IsShow: Boolean;
     end;
+    class var FConsoleBuffer: TQueue<TConsoleBuffer>;
     class var FConsoleNotify: TPGConsoleNotify;
-    class var FConsoleBuffer: TList<TConsoleBuffer>;
+    class var FConsoleFlush: Boolean;
+    class var FConsoleLock: TCriticalSection;
+    class procedure ConsoleFlush(); static;
     class procedure SetConsoleNotify(AValue: TPGConsoleNotify); static;
+    class procedure ConsoleLocked();
+    class procedure ConsoleUnlocked();
+
     //translate
     class var FTranslate: TDictionary<string, string>;
+    //class var FTranslateLock: TCriticalSection;
   public
     class constructor Create();
     class destructor Destroy();
@@ -58,14 +66,15 @@ type
     //console translate
     class procedure ConsoleTr(const AValue: string; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
     class procedure ConsoleTr(const AKey: string; const AArgs: array of const; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
+    //???
+    class function IfThen<T>(const ACondition: Boolean; const ATrue, AFalse: T): T; static; inline;
   end;
 
-  TPGAttribText = class(TCustomAttribute)
+  TPGAboutAttribute = class(TCustomAttribute)
   private
     FText: string;
   public
-    constructor Create(const AText: string); overload;
-    destructor Destroy( ); override;
+    constructor Create(const AArgs: string); overload;
     property Text: string read FText;
     class function GetFromRtti(ARttiObject: TRttiObject): string; static;
     class function GetFromClass(AClass: TClass): string; static;
@@ -74,11 +83,24 @@ type
     class function GetFromParameter(AParameter: TRttiParameter): string; static;
   end;
 
-  function ConvertVariantToValue(const AValor: Variant;const ATypeKind: TTypeKind ): TValue;
-  function ConvertValueToVariant(const AValor: TValue;const ATypeKind: TTypeKind ): Variant;
+  TPGArgsAttribute = class(TCustomAttribute)
+  private
+    FArgs: TArray<string>;
+  public
+    constructor Create(const AArgs: String); overload;
+    property Args: TArray<string> read FArgs;
+    class function GetFromRtti(ARttiObject: TRttiObject): TArray<string>; static;
+    class function GetFromClass(AClass: TClass): TArray<string>; static;
+  end;
 
   procedure RunInMainThread(AMethod: TThreadMethod; Sync:Boolean = True); overload;
   procedure RunInMainThread(AProc: TThreadProcedure; Sync:Boolean = True); overload;
+
+  function ValueToInt64(const AValue: TValue): Int64;
+  function ValueToExtended(const AValue: TValue): Extended;
+  function ValueToBoolean(const AValue: TValue): Boolean;
+  function ValueToString(const AValue: TValue): string;
+  function ValueAlign(const AValue: TValue; ATargetType: TRttiType): TValue;
 
 implementation
 
@@ -93,7 +115,8 @@ uses
 class constructor TPGKernel.Create();
 begin
   //var
-  FRttiContext := TRttiContext.Create;
+  TPGKernel.FConsoleLock := TCriticalSection.Create();
+  TPGKernel.FRttiContext := TRttiContext.Create;
   TPGKernel.FPathCurrent:= IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));;
   TPGKernel.FReportMemoryLeaks := False;
   TPGKernel.FLoopLimit := 1000000;
@@ -102,7 +125,8 @@ begin
   TPGKernel.FConsoleMessage := True;
 
   //console
-  FConsoleBuffer := TList<TConsoleBuffer>.Create;
+  FConsoleBuffer := TQueue<TConsoleBuffer>.Create;
+  FConsoleFlush := False;
   FConsoleNotify := nil;
 
   //translate
@@ -118,54 +142,100 @@ end;
 
 class destructor TPGKernel.Destroy();
 begin
-  FConsoleNotify := nil;
-  FConsoleBuffer.Free;
-  FTranslate.Free;
-  FRttiContext.Free;
+  TPGKernel.FConsoleFlush := False;
+  TPGKernel.FConsoleNotify := nil;
+  TPGKernel.FConsoleBuffer.Free;
+  TPGKernel.FConsoleLock.Free;
+
+  TPGKernel.FTranslate.Free;
+  //TPGKernel.FRttiContext.Free;
 end;
 
-class procedure TPGKernel.SetConsoleNotify(AValue: TPGConsoleNotify);
-var
-  LLogBuffer: TConsoleBuffer;
+class procedure TPGKernel.ConsoleLocked;
 begin
-  FConsoleNotify := AValue;
-  if Assigned(FConsoleNotify) and (FConsoleBuffer.Count > 0) then
-  begin
-    for LLogBuffer in FConsoleBuffer do
-    begin
-      FConsoleNotify(LLogBuffer.Msg, LLogBuffer.IsNewLine, LLogBuffer.IsShow);
+  TPGKernel.FConsoleLock.Acquire;
+end;
+
+class procedure TPGKernel.ConsoleUnlocked;
+begin
+  TPGKernel.FConsoleLock.Release;
+end;
+
+class procedure TPGKernel.ConsoleFlush();
+var
+  LBatchText: TStringBuilder;
+  LItem: TConsoleBuffer;
+  LCount: Integer;
+begin
+  LBatchText := TStringBuilder.Create;
+  try
+    TPGKernel.ConsoleLocked;
+    try
+      LCount := 0;
+      while (FConsoleBuffer.Count > 0) and (LCount < 100) do
+      begin
+        LItem := FConsoleBuffer.Dequeue;
+        if LItem.IsShow then
+        begin
+          LBatchText.Append(LItem.Msg);
+          if LItem.IsNewLine then
+            LBatchText.AppendLine;
+        end;
+        Inc(LCount);
+      end;
+
+      if FConsoleBuffer.Count > 0 then
+        TThread.Queue(nil, ConsoleFlush)
+      else
+        FConsoleFlush := False;
+    finally
+      TPGKernel.ConsoleUnlocked;
     end;
-    FConsoleBuffer.Clear;
+
+    if (LBatchText.Length > 0) and Assigned(FConsoleNotify) then
+      FConsoleNotify(LBatchText.ToString, False, True);
+
+  finally
+    LBatchText.Free;
   end;
 end;
 
-class procedure TPGKernel.SetLanguageFile(const AValue: String);
+class procedure TPGKernel.SetConsoleNotify(AValue: TPGConsoleNotify);
 begin
-  FLanguageFile := AValue;
-  TPGKernel.LoadTranslateFile( FLanguageFile );
+  TPGKernel.ConsoleLocked;
+  try
+    FConsoleNotify := AValue;
+    if Assigned(FConsoleNotify) and (FConsoleBuffer.Count > 0) then
+    begin
+      if not FConsoleFlush then
+      begin
+        FConsoleFlush := True;
+        RunInMainThread(ConsoleFlush, False);
+      end;
+    end;
+  finally
+    TPGKernel.ConsoleUnlocked;
+  end;
 end;
 
 class procedure TPGKernel.Console(const AValue: string; ANewLine, AShow: Boolean);
 var
-  LLogBuffer: TConsoleBuffer;
+  LItem: TConsoleBuffer;
 begin
-  if Assigned(FConsoleNotify) then
-  begin
-    RunInMainThread(
-      procedure
-      begin
-        FConsoleNotify(AValue, ANewLine, AShow);
-      end
-    );
-  end else begin
-    {$IFDEF DEBUG}
-    OutputDebugString(PChar('PGofer: ' + AValue));
-    {$ENDIF}
+  LItem.Msg := AValue;
+  LItem.IsNewLine := ANewLine;
+  LItem.IsShow := AShow;
 
-    LLogBuffer.Msg := AValue;
-    LLogBuffer.IsNewLine := ANewLine;
-    LLogBuffer.IsShow := AShow;
-    FConsoleBuffer.Add(LLogBuffer);
+  TPGKernel.ConsoleLocked;
+  try
+    FConsoleBuffer.Enqueue(LItem);
+    if not FConsoleFlush then
+    begin
+      FConsoleFlush := True;
+      RunInMainThread(ConsoleFlush, False);
+    end;
+  finally
+    TPGKernel.ConsoleUnlocked;
   end;
 end;
 
@@ -192,6 +262,12 @@ begin
    TPGKernel.Console( TPGKernel.Translate(AKey, AArgs), ANewLine, AShow);
 end;
 
+class procedure TPGKernel.SetLanguageFile(const AValue: String);
+begin
+  FLanguageFile := AValue;
+  TPGKernel.LoadTranslateFile( FLanguageFile );
+end;
+
 class procedure TPGKernel.LoadTranslateFile(const AFileName: string);
 var
   JSONObject: TJSONObject;
@@ -203,6 +279,7 @@ begin
   if FileExistsEx(AFileName) then
   begin
     Content := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+    if Content = '' then Exit;
     JSONValue := TJSONObject.ParseJSONValue(Content);
     if Assigned(JSONValue) then
     begin
@@ -247,21 +324,23 @@ begin
   end;
 end;
 
-{ TPGAttribText }
+class function TPGKernel.IfThen<T>(const ACondition: Boolean; const ATrue, AFalse: T): T;
+begin
+  if ACondition then
+    Result := ATrue
+  else
+    Result := AFalse;
+end;
 
-constructor TPGAttribText.Create(const AText: string);
+{ TPGAboutAttribute }
+
+constructor TPGAboutAttribute.Create(const AArgs: string);
 begin
   inherited Create( );
-  FText := AText;
+  FText := AArgs;
 end;
 
-destructor TPGAttribText.Destroy( );
-begin
-  FText := '';
-  inherited Destroy( );
-end;
-
-class function TPGAttribText.GetFromRtti(ARttiObject: TRttiObject): string;
+class function TPGAboutAttribute.GetFromRtti(ARttiObject: TRttiObject): string;
 var
   LAttrib: TArray<TCustomAttribute>;
   LIndex: Integer;
@@ -272,128 +351,71 @@ begin
     LAttrib := ARttiObject.GetAttributes;
     for LIndex := Low(LAttrib) to High(LAttrib) do
     begin
-      if LAttrib[LIndex] is TPGAttribText then
-        Result := Result + TPGAttribText(LAttrib[LIndex]).Text;
+      if LAttrib[LIndex] is TPGAboutAttribute then
+        Result := Result + TPGAboutAttribute(LAttrib[LIndex]).Text;
       if LIndex < High(LAttrib) then
         Result := Result + #13;
     end;
   end;
 end;
 
-class function TPGAttribText.GetFromClass(AClass: TClass): string;
+class function TPGAboutAttribute.GetFromClass(AClass: TClass): string;
 begin
   Result := GetFromRtti( TPGKernel.RttiContext.GetType(AClass) );
 end;
 
-class function TPGAttribText.GetFromProperty(AProp: TRttiProperty): string;
+class function TPGAboutAttribute.GetFromProperty(AProp: TRttiProperty): string;
 begin
   Result := GetFromRtti(AProp);
 end;
 
-class function TPGAttribText.GetFromMethod(AMethod: TRttiMethod): string;
+class function TPGAboutAttribute.GetFromMethod(AMethod: TRttiMethod): string;
 begin
   Result := GetFromRtti(AMethod);
 end;
 
-class function TPGAttribText.GetFromParameter(AParameter: TRttiParameter): string;
+class function TPGAboutAttribute.GetFromParameter(AParameter: TRttiParameter): string;
 begin
   Result := GetFromRtti(AParameter);
 end;
 
-{ ConvertV }
+{ TPGArgsAttribute }
 
-function ConvertVariantToValue(const AValor: Variant;const ATypeKind: TTypeKind ): TValue;
+constructor TPGArgsAttribute.Create(const AArgs: String);
+var
+  LArr: TArray<string>;
+  i: Integer;
 begin
-  case ATypeKind of
-    tkUnknown:
-      ;
-
-    tkEnumeration:
-      Result := Boolean( AValor );
-
-    tkInteger:
-      Result := Integer( AValor );
-
-    tkInt64:
-      Result := Int64( AValor );
-
-    tkFloat:
-      Result := Double( AValor );
-
-    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
-      Result := string( AValor );
-
-    tkSet:
-      ;
-    tkClass:
-      ;
-    tkMethod:
-      ;
-    tkVariant:
-      Result.FromVariant( AValor );
-    tkArray:
-      ;
-    tkRecord:
-      ;
-    tkInterface:
-      ;
-    tkDynArray:
-      ;
-    tkClassRef:
-      ;
-    tkPointer:
-      ;
-    tkProcedure:
-      ;
-  end;
-
+  inherited Create();
+  LArr := AArgs.Split([',']);
+  SetLength(FArgs, Length(LArr));
+  for i := 0 to High(LArr) do
+    FArgs[i] := LArr[i].Trim;
 end;
 
-function ConvertValueToVariant(const AValor: TValue; const ATypeKind: TTypeKind ): Variant;
+class function TPGArgsAttribute.GetFromRtti(ARttiObject: TRttiObject): TArray<string>;
+var
+  LAttrib: TArray<TCustomAttribute>;
+  LIndex: Integer;
 begin
-  case ATypeKind of
-    tkUnknown:
-      ;
-
-    tkEnumeration:
-      Result := AValor.AsBoolean;
-
-    tkInteger:
-      Result := AValor.AsInteger;
-
-    tkInt64:
-      Result := AValor.AsInt64;
-
-    tkFloat:
-      Result := AValor.AsCurrency;
-
-    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
-      Result := AValor.AsString;
-
-    tkSet:
-      ;
-    tkClass:
-      ;
-    tkMethod:
-      ;
-    tkVariant:
-      Result := AValor.AsVariant;
-    tkArray:
-      ;
-    tkRecord:
-      ;
-    tkInterface:
-      ;
-    tkDynArray:
-      ;
-    tkClassRef:
-      ;
-    tkPointer:
-      ;
-    tkProcedure:
-      ;
+  SetLength(Result, 0);
+  if Assigned(ARttiObject) then
+  begin
+    LAttrib := ARttiObject.GetAttributes;
+    for LIndex := Low(LAttrib) to High(LAttrib) do
+    begin
+      if LAttrib[LIndex] is TPGArgsAttribute then
+        Exit(TPGArgsAttribute(LAttrib[LIndex]).Args); // Retorna o array pronto!
+    end;
   end;
 end;
+
+class function TPGArgsAttribute.GetFromClass(AClass: TClass): TArray<string>;
+begin
+  Result := GetFromRtti(TPGKernel.RttiContext.GetType(AClass));
+end;
+
+{ }
 
 procedure RunInMainThread(AMethod: TThreadMethod; Sync:Boolean = True);
 begin
@@ -419,8 +441,78 @@ begin
   end;
 end;
 
+function ValueToInt64(const AValue: TValue): Int64;
+begin
+  if AValue.IsEmpty then Exit(0);
+  case AValue.Kind of
+    tkInteger, tkInt64: Result := AValue.AsInt64;
+    tkFloat:            Result := Trunc(AValue.AsExtended);
+    tkEnumeration:      Result := AValue.AsOrdinal;
+    tkString, tkUString, tkWString, tkLString: Result := StrToInt64Def(AValue.ToString, 0);
+  else Result := 0;
+  end;
+end;
+
+function ValueToExtended(const AValue: TValue): Extended;
+begin
+  if AValue.IsEmpty then Exit(0.0);
+  case AValue.Kind of
+    tkFloat:            Result := AValue.AsExtended;
+    tkInteger, tkInt64: Result := AValue.AsInt64;
+    tkString, tkUString, tkWString: Result := StrToFloatDef(AValue.ToString, 0.0);
+  else Result := 0.0;
+  end;
+end;
+
+function ValueToBoolean(const AValue: TValue): Boolean;
+begin
+  if AValue.IsEmpty then Exit(False);
+  case AValue.Kind of
+    tkEnumeration:      Result := AValue.AsBoolean;
+    tkInteger, tkInt64: Result := AValue.AsInt64 <> 0;
+    tkFloat:            Result := AValue.AsExtended <> 0;
+    tkString, tkUString, tkWString: Result := StrToBoolDef(AValue.ToString, False);
+  else Result := False;
+  end;
+end;
+
+function ValueToString(const AValue: TValue): string;
+begin
+  if AValue.IsEmpty then Exit('');
+  Result := AValue.ToString;
+end;
+
+function ValueAlign(const AValue: TValue; ATargetType: TRttiType): TValue;
+begin
+  if ATargetType = nil then Exit(AValue);
+
+  case ATargetType.TypeKind of
+    tkInteger, tkInt64:
+      Result := TValue.From<Int64>(ValueToInt64(AValue));
+
+    tkFloat:
+      Result := TValue.From<Extended>(ValueToExtended(AValue));
+
+    tkEnumeration:
+    begin
+      if ATargetType.Handle = TypeInfo(Boolean) then
+        Result := TValue.From<Boolean>(ValueToBoolean(AValue))
+      else
+        Result := TValue.FromOrdinal(ATargetType.Handle, ValueToInt64(AValue));
+    end;
+
+    tkUString, tkString, tkWString, tkLString:
+      Result := TValue.From<string>(ValueToString(AValue));
+
+  else
+    Result := AValue;
+  end;
+end;
+
+
 initialization
 
 finalization
 
 end.
+

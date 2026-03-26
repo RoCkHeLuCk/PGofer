@@ -3,164 +3,233 @@
 interface
 
 uses
+  System.SysUtils, System.Rtti, System.Generics.Collections,
   PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
-
-  {$M+}
-  TPGVariant = class( TPGItemClass )
-  private
-    FValue: Variant;
-    FConstant: Boolean;
-  protected
+  { Variável de Script moderna com suporte a Array }
+  TPGVariant = class(TPGItemClass)
+  strict private
+    FValue: TValue;
+    FIsConstant: Boolean;
+    function GetValueAsArray: TArray<TValue>;
+    procedure SetValueAsArray(const AArray: TArray<TValue>);
   public
     class var GlobList: TPGItem;
-    constructor Create( AItemDad: TPGItem; AName: string; AValue: Variant;
-      AConstant: Boolean ); reintroduce; overload;
-    destructor Destroy( ); override;
-    procedure Execute( Gramatica: TGramatica ); override;
-    procedure Frame( AParent: TObject ); override;
-    property Constant: Boolean read FConstant;
-    property Value: Variant read FValue write FValue;
-  published
-  end;
-  {$TYPEINFO ON}
 
-  TPGVariantDeclare = class( TPGItemClass )
-  private
-    class procedure DeclaraNivel1( Gramatica: TGramatica; Nivel: TPGItem;
-      Constant: Boolean );
-  protected
+    constructor Create(AOwner: TPGItem; const AName: string; const AValue: TValue; AIsConstant: Boolean); reintroduce; overload;
+    destructor Destroy; override;
+
+    procedure Execute(const AGrammar: TPGGrammar); override;
+    procedure Frame(AParent: TObject); override;
+
+    class function GetOrCreate(const AGrammar: TPGGrammar): TPGVariant;
+
+    property IsConstant: Boolean read FIsConstant;
+    property Value: TValue read FValue write FValue;
+  end;
+
+  { Declarador de Variáveis e Constantes }
+  TPGVariantDeclare = class(TPGItemClass)
+  strict private
+    class procedure DeclareLevel1(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
   public
-    procedure Execute( Gramatica: TGramatica ); override;
-    class procedure ExecuteEx( Gramatica: TGramatica; Nivel: TPGItem );
+    procedure Execute(const AGrammar: TPGGrammar); override;
+    class procedure ExecuteEx(const AGrammar: TPGGrammar; ANivel: TPGItem);
   end;
 
 implementation
 
 uses
-  System.SysUtils,
   PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Standard.Variants.Frame;
 
 { TPGVariant }
 
-constructor TPGVariant.Create( AItemDad: TPGItem; AName: string;
-  AValue: Variant; AConstant: Boolean );
+constructor TPGVariant.Create(AOwner: TPGItem; const AName: string; const AValue: TValue; AIsConstant: Boolean);
 begin
-  inherited Create( AItemDad, AName );
-  FConstant := AConstant;
-  Self.ReadOnly := AConstant;
+  inherited Create(AOwner, AName);
+  Self.SystemNode := False;
+  FIsConstant := AIsConstant;
+  Self.ReadOnly := AIsConstant;
   FValue := AValue;
 end;
 
 destructor TPGVariant.Destroy;
 begin
-  FValue := '';
-  FConstant := False;
-  inherited Destroy( );
+  FValue := TValue.Empty;
+  inherited;
 end;
 
-procedure TPGVariant.Execute( Gramatica: TGramatica );
+function TPGVariant.GetValueAsArray: TArray<TValue>;
 begin
-  Gramatica.TokenList.GetNextToken;
+  if FValue.IsType<TArray<TValue>> then
+    Result := FValue.AsType<TArray<TValue>>
+  else
+    SetLength(Result, 0);
+end;
 
-  if Self.FConstant then
+procedure TPGVariant.SetValueAsArray(const AArray: TArray<TValue>);
+begin
+  FValue := TValue.From<TArray<TValue>>(AArray);
+end;
+
+class function TPGVariant.GetOrCreate(const AGrammar: TPGGrammar): TPGVariant;
+var
+  LID: TPGItem;
+  LName: string;
+begin
+  LName := AGrammar.TokenList.Current.Value.ToString;
+  LID := FindID(AGrammar.Local, LName);
+
+  if LID = nil then
+    Result := TPGVariant.Create(AGrammar.Local, LName, 0, False)
+  else if LID is TPGVariant then
+    Result := TPGVariant(LID)
+  else
+    Result := nil; // Colisão de nomes com outro tipo de objeto
+end;
+
+procedure TPGVariant.Execute(const AGrammar: TPGGrammar);
+var
+  LIndex: Integer;
+  LArray: TArray<TValue>;
+  LNewVal: TValue;
+begin
+  AGrammar.TokenList.Next; // Avança o nome da variável
+
+  // --- SUPORTE A INDEXAÇÃO: Variavel[n] ---
+  if AGrammar.Match(tkLBrack) then
   begin
-    if ( Gramatica.TokenList.Token.Classe <> cmdAttrib ) then
-      Gramatica.Pilha.Empilhar( Self.FValue )
+    AGrammar.TokenList.Next; // Pula '['
+    Expression(AGrammar);
+    LIndex := AGrammar.Stack.Pop.AsInteger;
+    AGrammar.Consume(tkRBrack);
+
+    LArray := GetValueAsArray;
+
+    // Se for ATRIBUIÇÃO ao índice: Variavel[0] := 10
+    if AGrammar.Match(tkAssign) then
+    begin
+      if FIsConstant then
+      begin
+        AGrammar.Error('Error_Interpreter_Const', []);
+        Exit;
+      end;
+
+      AGrammar.TokenList.Next; // Pula ':='
+      Expression(AGrammar);
+      LNewVal := AGrammar.Stack.Pop;
+
+      // Garante que o array tenha tamanho suficiente
+      if LIndex >= Length(LArray) then
+        SetLength(LArray, LIndex + 1);
+
+      LArray[LIndex] := LNewVal;
+      SetValueAsArray(LArray);
+    end
     else
-      Gramatica.ErroAdd( 'Error_Interpreter_Const' );
-  end else begin
-    if AtribuicaoNivel1( Gramatica ) then
-      Self.FValue := Gramatica.Pilha.Desempilhar( Self.FValue )
+    begin
+      // Se for LEITURA do índice: x := Variavel[0]
+      if (LIndex >= 0) and (LIndex < Length(LArray)) then
+        AGrammar.Stack.Push(LArray[LIndex])
+      else
+        AGrammar.Stack.Push(TValue.Empty);
+    end;
+  end
+  // --- ATRIBUIÇÃO NORMAL OU LEITURA ---
+  else if AGrammar.Match(tkAssign) then
+  begin
+    if FIsConstant then
+      AGrammar.Error('Error_Interpreter_Const', [])
     else
-      Gramatica.Pilha.Empilhar( Self.FValue );
-  end;
+    begin
+      AGrammar.TokenList.Next; // Pula ':='
+      Expression(AGrammar);
+      FValue := AGrammar.Stack.Pop;
+    end;
+  end
+  else
+    // Apenas leitura da variável: empilha o valor total
+    AGrammar.Stack.Push(FValue);
 end;
 
-procedure TPGVariant.Frame( AParent: TObject );
+procedure TPGVariant.Frame(AParent: TObject);
 begin
-  TPGVariantsFrame.Create( Self, AParent );
+  TPGVariantsFrame.Create(Self, AParent);
 end;
 
 { TPGVariantDeclare }
 
-class procedure TPGVariantDeclare.DeclaraNivel1( Gramatica: TGramatica;
-  Nivel: TPGItem; Constant: Boolean );
+class procedure TPGVariantDeclare.DeclareLevel1(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
 var
-  Titulo: string;
-  ID: TPGItem;
-  vValue: Variant;
+  LTitle: string;
+  LID: TPGItem;
+  LValue: TValue;
 begin
-  ID := IdentificadorLocalizar( Gramatica );
-  if ( not Assigned( ID ) ) or ( ID is TPGVariant ) then
+  LTitle := AGrammar.TokenList.Current.Value.ToString;
+  LID := FindID(ANivel, LTitle);
+
+  if (LID = nil) or (LID is TPGVariant) then
   begin
-    Titulo := Gramatica.TokenList.Token.Lexema;
-    Gramatica.TokenList.GetNextToken;
-    if Gramatica.TokenList.Token.Classe = cmdAttrib then
+    AGrammar.TokenList.Next;
+
+    // Inicialização opcional: var x := 10;
+    if AGrammar.Match(tkAssign) then
     begin
-      Gramatica.TokenList.GetNextToken;
-      Expressao( Gramatica );
-      if not Gramatica.Erro then
-        vValue := Gramatica.Pilha.Desempilhar( '' )
+      AGrammar.TokenList.Next;
+      Expression(AGrammar);
+      if not AGrammar.HasError then
+        LValue := AGrammar.Stack.Pop
       else
         Exit;
     end
     else
-      vValue := '';
+      LValue := 0; // Default
 
-    if ( not Assigned( ID ) ) or ( ( Nivel <> TPGVariant.GlobList ) and
-      ( ID.Parent <> Nivel ) ) then
+    if (LID = nil) or (LID.Parent <> ANivel) then
+      TPGVariant.Create(ANivel, LTitle, LValue, AIsConstant)
+    else
     begin
-      TPGVariant.Create( Nivel, Titulo, vValue, Constant );
-    end else begin
-      with TPGVariant( ID ) do
-      begin
-        Value := vValue;
-        Gramatica.MSGsAdd( 'Warning_Interpreter_Redeclare', [name] );
-      end;
+      // Re-declaração no mesmo nível: apenas atualiza
+      TPGVariant(LID).Value := LValue;
+      AGrammar.Msg('Warning_Interpreter_Redeclare', [LTitle]);
     end;
 
-    if Gramatica.TokenList.Token.Classe = cmdComa then
+    // Suporte a declaração múltipla: var a, b, c;
+    if AGrammar.Match(tkComma) then
     begin
-      Gramatica.TokenList.GetNextToken;
-      DeclaraNivel1( Gramatica, Nivel, Constant );
+      AGrammar.TokenList.Next;
+      DeclareLevel1(AGrammar, ANivel, AIsConstant);
     end;
-
   end
   else
-    Gramatica.ErroAdd( 'Error_Interpreter_Id' );
+    AGrammar.Error('Error_Interpreter_Id', []);
 end;
 
-procedure TPGVariantDeclare.Execute( Gramatica: TGramatica );
+procedure TPGVariantDeclare.Execute(const AGrammar: TPGGrammar);
 var
-  Constant: Boolean;
+  LIsConstant: Boolean;
 begin
-  Constant := SameText( Gramatica.TokenList.Token.Lexema, 'Const' );
-  Gramatica.TokenList.GetNextToken;
+  LIsConstant := SameText(AGrammar.TokenList.Current.Value.ToString, 'Const');
+  AGrammar.TokenList.Next;
 
-  if Gramatica.TokenList.Token.Classe = cmdRes_global then
+  if AGrammar.Match(tkGlobal) then
   begin
-    Gramatica.TokenList.GetNextToken;
-    DeclaraNivel1( Gramatica, TPGVariant.GlobList, Constant );
+    AGrammar.TokenList.Next;
+    DeclareLevel1(AGrammar, TPGVariant.GlobList, LIsConstant);
   end
   else
-    DeclaraNivel1( Gramatica, Gramatica.Local, Constant );
+    DeclareLevel1(AGrammar, AGrammar.Local, LIsConstant);
 end;
 
-class procedure TPGVariantDeclare.ExecuteEx( Gramatica: TGramatica;
-  Nivel: TPGItem );
+class procedure TPGVariantDeclare.ExecuteEx(const AGrammar: TPGGrammar; ANivel: TPGItem);
 begin
-  DeclaraNivel1( Gramatica, Nivel, False );
+  DeclareLevel1(AGrammar, ANivel, False);
 end;
 
 initialization
-
-TPGVariantDeclare.Create( GlobalItemCommand, 'Const' );
-TPGVariantDeclare.Create( GlobalItemCommand, 'Var' );
-TPGVariant.GlobList := TPGFolder.Create( GlobalCollection, 'Variants' );
-
-
-finalization
+  TPGVariantDeclare.Create(GlobalItemCommand, 'Const');
+  TPGVariantDeclare.Create(GlobalItemCommand, 'Var');
+  TPGVariant.GlobList := TPGFolder.Create(GlobalCollection, 'Variants');
 
 end.

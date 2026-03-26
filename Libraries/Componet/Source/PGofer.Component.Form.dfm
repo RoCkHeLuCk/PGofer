@@ -8,9 +8,6 @@ object FormEx: TFormEx
   ParentFont = True
   OldCreateOrder = False
   ShowHint = True
-  OnClose = FormClose
-  OnCreate = FormCreate
-  OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
 end

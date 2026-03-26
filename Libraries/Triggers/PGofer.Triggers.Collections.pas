@@ -14,7 +14,6 @@ type
 
   TClassList = class (TList<TClassItem>)
   private
-    //function TryGetClassFromArray<TKey, TValue: class> (const AArray: TArray<TKey>; out AValue: TValue): Boolean;
   protected
   public
     destructor Destroy(); override;
@@ -45,7 +44,8 @@ implementation
 uses
    System.SysUtils, System.RTTI, System.TypInfo,
    XML.XMLIntf, XML.XMLDoc,
-   PGofer.Core, PGofer.Triggers, PGofer.Triggers.Form;
+   PGofer.Core, PGofer.Triggers, PGofer.Triggers.Form,
+   PGofer.Key.Controls;
 
 { TClassList }
 
@@ -54,24 +54,6 @@ begin
   Self.Clear;
   inherited Destroy();
 end;
-
-//function TClassList.TryGetClassFromArray<TKey, TValue>(const AArray: TArray<TKey>; out AValue: TValue): Boolean;
-//var
-//  LItem: TKey;
-//begin
-//  Result := False;
-//  AValue := nil;
-//
-//  if Length(AArray) = 0 then Exit;
-//  for LItem in AArray do
-//  begin
-//    if LItem is TValue then
-//    begin
-//      AValue := TValue(TObject(LItem));
-//      Exit(True);
-//    end;
-//  end;
-//end;
 
 procedure TClassList.AddClass(AValue: TClass);
 type
@@ -134,10 +116,12 @@ end;
 
 procedure TPGItemCollectTrigger.FormCreate();
 begin
-  if not Assigned(FForm) then
+  if not Assigned(Self.Form) then
   begin
-    FForm := TFrmTriggerController.Create(Self);
+    SetForm( TFrmTriggerController.Create(Self) );
+    SetTreeView( TFrmTriggerController(Self.Form).TrvController);
   end;
+
   Self.XMLLoadFromFile();
 end;
 
@@ -155,7 +139,7 @@ procedure TPGItemCollectTrigger.XMLSaveToStream(AItemDad: TPGItem; AXMLStream: T
     XMLNode: IXMLNode;
     ItemChild: TPGItem;
     ItemOriginal: TPGItem;
-    ClassName: string;
+    ClassName, LPropValue: string;
   begin
     if not FClassList.TryGetName(Item.ClassType, ClassName) then
       Exit;
@@ -166,7 +150,7 @@ procedure TPGItemCollectTrigger.XMLSaveToStream(AItemDad: TPGItem; AXMLStream: T
       ItemOriginal := Item;
 
     XMLNode := XMLNodeDad.AddChild(ClassName);
-    XMLNode.Attributes['Name'] := ItemOriginal.Name;
+    XMLNode.Attributes['Name'] := SanitizeText( ItemOriginal.Name );
     XMLNode.Attributes['Enabled'] := ItemOriginal.Enabled;
     XMLNode.Attributes['ReadOnly'] := ItemOriginal.ReadOnly;
 
@@ -179,7 +163,8 @@ procedure TPGItemCollectTrigger.XMLSaveToStream(AItemDad: TPGItem; AXMLStream: T
       begin
         XMLNodeProperty := XMLNode.AddChild(RttiProperty.Name);
         XMLNodeProperty.Attributes['Type'] := RttiProperty.PropertyType.ToString;
-        XMLNodeProperty.NodeValue := TValue(RttiProperty.GetValue(ItemOriginal)).ToString;
+        LPropValue := TValue(RttiProperty.GetValue(ItemOriginal)).ToString;
+        XMLNodeProperty.NodeValue := SanitizeText(LPropValue);
       end;
     end;
 
@@ -193,8 +178,9 @@ var
   XMLRoot: IXMLNode;
   Item: TPGItem;
 begin
-  if Assigned(AXMLStream) then
-  begin
+  if not Assigned(AXMLStream) or not Assigned(Self.TreeView) then Exit;
+  Self.CollectLocked;
+  try
     XMLDocument := NewXMLDocument;
     XMLDocument.Encoding := 'utf-8';
     XMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
@@ -207,7 +193,9 @@ begin
     end;
     AXMLStream.Position := 0;
     XMLDocument.SaveToStream(AXMLStream);
+  finally
     XMLDocument.Active := False;
+    Self.CollectUnlocked;
   end;
 end;
 
@@ -246,13 +234,36 @@ procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream:
   var
     RttiType: TRttiType;
     RttiProperty: TRttiProperty;
-    XMLNodeProperty: IXMLNode;
     XMLNodeChild: IXMLNode;
     ClassRegister: TClass;
     Value: TValue;
     Item: TPGItem;
     ItemOriginal: TPGItem;
     NodeName: string;
+
+    procedure LAssignProperty(AProp: TRttiProperty);
+    var
+      XMLNodeProperty: IXMLNode;
+    begin
+      XMLNodeProperty := XMLNode.ChildNodes.FindNode(AProp.Name);
+      if Assigned(XMLNodeProperty) then
+      begin
+        try
+          case AProp.PropertyType.TypeKind of
+            tkInteger:
+              AProp.SetValue(ItemOriginal, StrToIntDef(XMLNodeProperty.Text, 0));
+            tkEnumeration:
+              AProp.SetValue(ItemOriginal, StrToBoolDef(XMLNodeProperty.Text, False));
+            tkFloat:
+              AProp.SetValue(ItemOriginal, StrToFloatDef(XMLNodeProperty.Text, 0));
+            tkString, tkLString, tkWString, tkUString:
+              AProp.SetValue(ItemOriginal, UnicodeString(XMLNodeProperty.Text));
+          end;
+        except
+          TPGKernel.ConsoleTr('Error_XML_LoadValue', [XMLNode.NodeName, AProp.Name, FFileName]);
+        end;
+      end;
+    end;
   begin
     if (not FClassList.TryGetClass(XMLNode.NodeName, ClassRegister)) or
       (not XMLNode.HasAttribute('Name')) then
@@ -279,29 +290,19 @@ procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream:
 
     for RttiProperty in RttiType.GetProperties do
     begin
-      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and
-        (RttiProperty.IsWritable) then
+      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and (RttiProperty.IsWritable) then
       begin
-        XMLNodeProperty := XMLNode.ChildNodes.FindNode(RttiProperty.Name);
-        if Assigned(XMLNodeProperty) then
-        begin
-          try
-            case RttiProperty.PropertyType.TypeKind of
-              tkInteger:
-                RttiProperty.SetValue(ItemOriginal, StrToIntDef(XMLNodeProperty.Text, 0));
-              tkEnumeration:
-                RttiProperty.SetValue(ItemOriginal, StrToBoolDef(XMLNodeProperty.Text, False));
-              tkFloat:
-                RttiProperty.SetValue(ItemOriginal, StrToFloatDef(XMLNodeProperty.Text, 0));
-              tkString, tkLString, tkWString, tkUString:
-                RttiProperty.SetValue(ItemOriginal, UnicodeString(XMLNodeProperty.Text));
-            end;
-          except
-            TPGKernel.ConsoleTr('Error_XML_LoadValue',
-              [XMLNode.NodeName, RttiProperty.Name, FFileName]
-            );
-          end;
-        end;
+        if not RttiProperty.Name.StartsWith('_') then
+          LAssignProperty(RttiProperty);
+      end;
+    end;
+
+    for RttiProperty in RttiType.GetProperties do
+    begin
+      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and (RttiProperty.IsWritable) then
+      begin
+        if RttiProperty.Name.StartsWith('_') then
+          LAssignProperty(RttiProperty);
       end;
     end;
 
@@ -320,31 +321,32 @@ var
   XMLDocument: IXMLDocument;
   XMLRoot, XMLNode: IXMLNode;
 begin
-  if Assigned(AXMLStream) then
-  begin
-    AItemDad.Clear;
-    XMLDocument := NewXMLDocument;
+  if not Assigned(AXMLStream) or not Assigned(Self.TreeView) then Exit;
+  Self.TreeView.Items.BeginUpdate;
+
+  AItemDad.Clear;
+  XMLDocument := NewXMLDocument;
+  try
+    AXMLStream.Position := 0;
     try
-      AXMLStream.Position := 0;
-      try
-        XMLDocument.LoadFromStream(AXMLStream);
-        XMLDocument.Active := True;
-        XMLRoot := XMLDocument.DocumentElement;
-      except
-        TPGKernel.ConsoleTr('Error_XML_Load',[FFileName]);
-      end;
-      if Assigned(XMLRoot) then
-      begin
-        XMLNode := XMLRoot.ChildNodes.First;
-        while Assigned(XMLNode) do
-        begin
-          CreateItem(AItemDad, XMLNode);
-          XMLNode := XMLNode.NextSibling;
-        end;
-      end;
-    finally
-      XMLDocument.Active := False;
+      XMLDocument.LoadFromStream(AXMLStream);
+      XMLDocument.Active := True;
+      XMLRoot := XMLDocument.DocumentElement;
+    except
+      TPGKernel.ConsoleTr('Error_XML_Load',[FFileName]);
     end;
+    if Assigned(XMLRoot) then
+    begin
+      XMLNode := XMLRoot.ChildNodes.First;
+      while Assigned(XMLNode) do
+      begin
+        CreateItem(AItemDad, XMLNode);
+        XMLNode := XMLNode.NextSibling;
+      end;
+    end;
+  finally
+    XMLDocument.Active := False;
+    Self.TreeView.Items.EndUpdate;
   end;
 end;
 

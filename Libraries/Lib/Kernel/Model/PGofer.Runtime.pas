@@ -3,425 +3,452 @@
 interface
 
 uses
-  System.Generics.Collections, System.RTTI,
+  System.Generics.Collections, System.Rtti, System.SysUtils,
   PGofer.Classes, PGofer.Sintatico;
 
 type
-  TPGItemClass = class( TPGItem )
-  private
-    procedure RttiCreate( );
-  protected
-    function GetAbout(): String; override;
-    function TryExecuteChild( AGramatica: TGramatica ): Boolean;
-    function GetNextChild( AGramatica: TGramatica ): TPGItem;
+  TPGItemClassType = class of TPGItemClass;
+
+  { Classe base para itens que executam algo no script }
+  TPGItemExecute = class(TPGItem)
   public
-    constructor Create( AItemDad: TPGItem; AName: string = ''); reintroduce; virtual;
-    destructor Destroy( ); override;
-    procedure Execute( AGramatica: TGramatica ); virtual;
+    procedure Execute(const AGrammar: TPGGrammar); virtual; abstract;
   end;
 
-  TPGItemMember = class( TPGItem )
-  private
+  { Classe base para Objetos do motor (Links, Tasks, Forms) }
+  TPGItemClass = class(TPGItemExecute)
+  strict private
+    FDefaultAction: TRttiMethod; // Cache de performance para ExecuteAction
   protected
-    FMember : TRttiMember;
+    procedure RttiCreate; virtual;
+    procedure ExecuteMember(const AGrammar: TPGGrammar);
+    procedure ExecuteDefault(const AGrammar: TPGGrammar); virtual;
+    function GetAbout: string; override;
+
+    // Callbacks para as classes filhas
+    procedure AfterCreate(const AGrammar: TPGGrammar); virtual;
+    procedure BeforeDestroy(const AGrammar: TPGGrammar); virtual;
+
+    class function GetClassArgsMap(AClass: TClass): TArray<TRttiProperty>;
+    class function ExecuteRttiMethod(const AGrammar: TPGGrammar; AMethod: TRttiMethod; ATarget: TValue): Boolean;
   public
-    constructor Create( AItemDad: TPGItem; AMember: TRttiMember ); overload; virtual;
-    destructor Destroy( ); override;
-    procedure Execute( AGramatica: TGramatica ); virtual; abstract;
+    constructor Create(AItemDad: TPGItem; const AName: string = ''); reintroduce; virtual;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  TPGItemProperty = class( TPGItemMember )
-  private
+  { Representa uma Propriedade ou Método via RTTI }
+  TPGItemMember = class(TPGItemExecute)
   protected
-    function GetAbout(): String; override;
+    FMember: TRttiMember;
+    FTargetClass: TClass;
   public
-    constructor Create( AItemDad: TPGItem; AMember: TRttiMember ); override;
-    procedure Execute( AGramatica: TGramatica ); override;
+    constructor Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass = nil); virtual;
   end;
 
-  TPGItemMethod = class( TPGItemMember )
-  private
+  TPGItemProperty = class(TPGItemMember)
   protected
-    function GetAbout(): String; override;
+    function GetAbout: string; override;
   public
-    procedure Execute( AGramatica: TGramatica ); override;
+    constructor Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass = nil); override;
+    procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
+  TPGItemMethod = class(TPGItemMember)
+  protected
+    function GetAbout: string; override;
+  public
+    procedure Execute(const AGrammar: TPGGrammar); override;
+  end;
+
+  { Fábrica de Objetos (Ex: TaskDef, LinkDef) }
+  TPGItemDef = class(TPGItemClass)
+  strict private
+    FTargetClass: TPGItemClassType;
+    FArgsMap: TArray<TRttiProperty>; // Cache do mapa de argumentos
+  protected
+    procedure RttiCreate; override;
+    function GetAbout: string; override;
+  public
+    constructor Create(AClass: TPGItemClassType; const AName: string = ''); reintroduce;
+    procedure Execute(const AGrammar: TPGGrammar); override;
+  end;
+
+  { Pastas de Organização }
   {$M+}
-  TPGFolder = class( TPGItem )
-  private
+  TPGFolder = class(TPGItemClass)
+  strict private
+    FExpanded: Boolean;
+    FLocked: Boolean;
   protected
+    procedure SetExpanded(const AValue: Boolean); virtual;
+    procedure SetLocked(const AValue: Boolean); virtual;
   public
+    constructor Create(AOwner: TPGItem; const AName: string); override;
+    procedure ExecuteAction(AExpanded: Boolean = True; ALocked: Boolean = False);
   published
+    property _Expanded: Boolean read FExpanded write SetExpanded;
+    property _Locked: Boolean read FLocked write SetLocked;
   end;
   {$TYPEINFO ON}
 
-  procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil; AWaitFor: Boolean = False );
-  function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
-
+  { Funções Globais de Execução }
+  procedure ScriptExec(const AName, AScript: string; ANivel: TPGItem = nil; AWaitFor: Boolean = False);
+  function FileScriptExec(const AFileName: string; AWait: Boolean): Boolean;
 
 var
   GlobalCollection: TPGItemCollect;
-  GlobalItemCommand: TPGItem;
-  GlobalItemTrigger: TPGItem;
+  GlobalItemCommand: TPGFolder;
+  GlobalItemDefines: TPGFolder;
 
 implementation
 
 uses
-  System.Classes, System.SysUtils, System.TypInfo,
+  System.Classes, System.TypInfo,
   PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls;
 
-{ TPGItemCMD }
+{ TPGItemClass }
 
-constructor TPGItemClass.Create( AItemDad: TPGItem; AName: string);
+constructor TPGItemClass.Create(AItemDad: TPGItem; const AName: string);
 begin
-  if AName = '' then
-    AName := Self.ClassNameEx;
-  inherited Create( AItemDad, AName );
-  Self.RttiCreate( );
+  inherited Create(AItemDad, TPGKernel.IfThen<String>(AName = '', Self.ClassNameEx, AName));
+  RttiCreate;
 end;
 
-destructor TPGItemClass.Destroy( );
-begin
-  inherited Destroy( );
-end;
-
-function TPGItemClass.GetAbout(): String;
+procedure TPGItemClass.RttiCreate;
 var
-  LClassAbout: TDictionary<string, string>;
-  LAux: String;
+  LType: TRttiType;
+  LProp: TRttiProperty;
+  LMethod: TRttiMethod;
 begin
-  Result := '';
+  LType := TPGKernel.RttiContext.GetType(Self.ClassType);
 
-  if not FAbout.TryGetValue(Self.ClassType, LClassAbout) then
-  begin
-    LClassAbout := TDictionary<string, string>.Create;
-    LClassAbout.Clear;
-    FAbout.Add(Self.ClassType, LClassAbout);
-  end;
+  // Cache da ação padrão ()
+  FDefaultAction := LType.GetMethod('ExecuteAction');
 
-  if not LClassAbout.TryGetValue('', Result) then
-  begin
-    Result := 'Class '+ Self.ClassNameEx + ';';
-    LAux := TPGAttribText.GetFromClass(TPGItemClass);
-    if LAux <> '' then
-      Result := Result + #13 + LAux;
-    LClassAbout.Add('', Result);
-  end;
-end;
-
-function TPGItemClass.GetNextChild( AGramatica: TGramatica ): TPGItem;
-var
-  LPGItem : TPGItem;
-begin
-  Result := nil;
-  AGramatica.TokenList.GetNextToken;
-  if AGramatica.TokenList.Token.Classe = cmdDot then
-  begin
-    AGramatica.TokenList.GetNextToken;
-    LPGItem := Self.FindName( AGramatica.TokenList.Token.Lexema );
-    if Assigned(LPGItem) and ((LPGItem is TPGItemClass) or (LPGItem is TPGItemMember)) then
-      Result := LPGItem
-    else
-      AGramatica.ErroAdd('Error_Interpreter_Unrecog');
-  end;
-end;
-
-function TPGItemClass.TryExecuteChild( AGramatica: TGramatica ): Boolean;
-var
-  LPGItem : TPGItem;
-begin
-  Result := False;
-  LPGItem := Self.GetNextChild( AGramatica );
-  if Assigned(LPGItem) then
-  begin
-    TPGItemMember(LPGItem).Execute(AGramatica);
-    Result := not AGramatica.Erro;
-  end;
-end;
-
-procedure TPGItemClass.Execute( AGramatica: TGramatica );
-begin
-  if not Self.TryExecuteChild( AGramatica ) then
-    AGramatica.ErroAdd('Error_Interpreter_.');
-end;
-
-procedure TPGItemClass.RttiCreate( );
-var
-  LRttiType: TRttiType;
-  LRttiProperty: TRttiProperty;
-  LRttiMethod: TRttiMethod;
-  LRttiField: TRttiField;
-  LRttiInstanceType: TRttiInstanceType;
-  LMetaClass: TClass;
-  LObject: TObject;
-begin
-  LRttiType := TPGKernel.RttiContext.GetType(Self.ClassType);
   if Self.CollectDad = GlobalCollection then
   begin
-    //Property
-    for LRttiProperty in LRttiType.GetProperties do
-    begin
-      if (LRttiProperty.Visibility = mvPublished) and (not LRttiProperty.Name.StartsWith('_')) then
-      begin
-        //Object
-        if LRttiProperty.PropertyType.IsInstance then
-        begin
-          LRttiInstanceType := TRttiInstanceType(LRttiProperty.PropertyType);
-          LRttiMethod := LRttiInstanceType.GetMethod('Create');
-          if not Assigned(LRttiMethod) then
-            continue;
+    // Mapeamento automático de Propriedades Published
+    for LProp in LType.GetProperties do
+      if (LProp.Visibility = mvPublished) and (not LProp.Name.StartsWith('_')) then
+        TPGItemProperty.Create(Self, LProp);
 
-          LMetaClass := LRttiInstanceType.MetaclassType;
-          LObject := nil;
-
-          //TPGItemClass
-          if LMetaClass.InheritsFrom(TPGItemClass) then
-            LObject := LRttiMethod.Invoke( LMetaClass, [Self, LRttiProperty.Name] ).AsObject
-          else
-             continue;  //while there are no others
-          //others
-          //.....
-
-          if not Assigned(LObject) then
-            continue;
-
-          //set value
-          if LRttiProperty.IsWritable then
-            LRttiProperty.SetValue(Self, LObject)
-          else begin
-            LRttiField := LRttiType.GetField('F' + LRttiProperty.Name);
-            if Assigned(LRttiField) then
-              LRttiField.SetValue(Self, LObject);
-          end;
-        end else begin
-          //Variable
-          TPGItemProperty.Create(Self, LRttiProperty);
-        end;
-      end;
-    end;
-
-    //Method
-    for LRttiMethod in LRttiType.GetMethods do
-      if (LRttiMethod.Visibility = mvPublished) and (not LRttiMethod.Name.StartsWith('_')) then
-        TPGItemMethod.Create(Self, LRttiMethod);
+    // Mapeamento automático de Métodos Published
+    for LMethod in LType.GetMethods do
+      if (LMethod.Visibility = mvPublished) and (not LMethod.Name.StartsWith('_')) and (not LMethod.IsClassMethod) then
+        TPGItemMethod.Create(Self, LMethod);
   end;
 end;
+
+procedure TPGItemClass.Execute(const AGrammar: TPGGrammar);
+begin
+  AGrammar.TokenList.Next;
+
+  case AGrammar.TokenList.Current.Kind of
+    tkDot:   ExecuteMember(AGrammar); // Obj.Membro
+    tkLPar:                           // Obj(Args)
+    begin
+      if Assigned(FDefaultAction) then
+        ExecuteRttiMethod(AGrammar, FDefaultAction, Self)
+      else
+        AGrammar.Error('Error_Interpreter_NoArgsSupported', []);
+    end;
+    tkSemiColon, tkEOF, tkEnd: ExecuteDefault(AGrammar);
+  else
+    AGrammar.Error('Error_Interpreter_Unrecog', []);
+  end;
+end;
+
+procedure TPGItemClass.ExecuteMember(const AGrammar: TPGGrammar);
+var
+  LMember: TPGItem;
+begin
+  AGrammar.TokenList.Next; // Pula o "."
+  LMember := Self.FindName(AGrammar.TokenList.Current.Value.ToString);
+
+  if Assigned(LMember) and (LMember is TPGItemExecute) then
+    TPGItemExecute(LMember).Execute(AGrammar)
+  else
+    AGrammar.Error('Error_Interpreter_MemberNotFound', []);
+end;
+
+procedure TPGItemClass.ExecuteDefault(const AGrammar: TPGGrammar);
+begin
+  // Ação padrão quando apenas o nome do objeto é citado
+end;
+
+class function TPGItemClass.ExecuteRttiMethod(const AGrammar: TPGGrammar; AMethod: TRttiMethod; ATarget: TValue): Boolean;
+var
+  LParams: TArray<TRttiParameter>;
+  LValues: array of TValue;
+  LCount, I: Integer;
+begin
+  Result := False;
+  if not Assigned(AMethod) then Exit;
+
+  LParams := AMethod.GetParameters;
+  SetLength(LValues, Length(LParams));
+  LCount := ReadParameters(AGrammar, 0, Length(LParams));
+
+  if not AGrammar.HasError then
+  begin
+    // Proteção de execução se o objeto estiver Disabled
+    if ATarget.IsObject and (not TPGItem(ATarget.AsObject).Enabled) then
+    begin
+      for I := 0 to LCount - 1 do AGrammar.Stack.Pop;
+      Exit(True);
+    end;
+
+    for I := LCount - 1 downto 0 do LValues[I] := AGrammar.Stack.Pop;
+
+    // Preenchimento de parâmetros restantes com propriedades do objeto ou default
+    for I := LCount to High(LParams) do
+      LValues[I] := TValue.Empty; // Placeholder
+
+    for I := 0 to High(LValues) do
+      LValues[I] := ValueAlign(LValues[I], LParams[I].ParamType);
+
+    try
+      if Assigned(AMethod.ReturnType) then
+        AGrammar.Stack.Push(AMethod.Invoke(ATarget, LValues))
+      else
+        AMethod.Invoke(ATarget, LValues);
+      Result := True;
+    except
+      on E: Exception do AGrammar.Error('Error_Runtime', [E.Message]);
+    end;
+  end;
+end;
+
+class function TPGItemClass.GetClassArgsMap(AClass: TClass): TArray<TRttiProperty>;
+var
+  LArgNames: TArray<string>;
+  LType: TRttiType;
+  LProp: TRttiProperty;
+  I: Integer;
+begin
+  LType := TPGKernel.RttiContext.GetType(AClass);
+  LArgNames := TPGArgsAttribute.GetFromClass(AClass);
+
+  if Length(LArgNames) > 0 then
+  begin
+    SetLength(Result, Length(LArgNames));
+    for I := 0 to High(LArgNames) do
+      Result[I] := LType.GetProperty(LArgNames[I]);
+  end
+  else
+  begin
+    // Fallback: todas as propriedades published escritíveis
+    for LProp in LType.GetProperties do
+      if (LProp.Visibility = mvPublished) and LProp.IsWritable then
+      begin
+        SetLength(Result, Length(Result) + 1);
+        Result[High(Result)] := LProp;
+      end;
+  end;
+end;
+
+function TPGItemClass.GetAbout: string;
+begin
+  Result := 'Class ' + Self.ClassNameEx + ';' + #13 + TPGAboutAttribute.GetFromClass(Self.ClassType);
+end;
+
+procedure TPGItemClass.AfterCreate(const AGrammar: TPGGrammar); begin end;
+procedure TPGItemClass.BeforeDestroy(const AGrammar: TPGGrammar); begin end;
 
 { TPGItemMember }
 
-constructor TPGItemMember.Create(AItemDad: TPGItem; AMember: TRttiMember);
+constructor TPGItemMember.Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass);
 begin
-  inherited Create(AItemDad, AMember.Name );
+  inherited Create(AOwner, AMember.Name);
   FMember := AMember;
+  FTargetClass := ATargetClass;
 end;
-
-destructor TPGItemMember.Destroy( );
-begin
-  FMember := nil;
-  inherited Destroy;
-end;
-
-{ TPGFolder }
-
 
 { TPGItemProperty }
 
-constructor TPGItemProperty.Create(AItemDad: TPGItem; AMember: TRttiMember);
+constructor TPGItemProperty.Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass);
 begin
   inherited;
-  Self.ReadOnly := not TRttiProperty(AMember).IsWritable;
+  Self.ReadOnly := not TRttiProperty(FMember).IsWritable;
 end;
 
-procedure TPGItemProperty.Execute(AGramatica: TGramatica);
+procedure TPGItemProperty.Execute(const AGrammar: TPGGrammar);
 var
-  LRttiProperty: TRttiProperty;
-  LValue: TValue;
-  LAux: Variant;
-begin
-  LRttiProperty := TRttiProperty(FMember);
-  if LRttiProperty.IsReadable then
-    LValue := LRttiProperty.GetValue( Self.Parent );
-
-  LAux := ConvertValueToVariant( LValue, LRttiProperty.PropertyType.TypeKind );
-  LAux := Atribuicao( AGramatica, LAux );
-  if not AGramatica.Erro then
-  begin
-    LValue := ConvertVariantToValue( LAux, LRttiProperty.PropertyType.TypeKind );
-    if LRttiProperty.IsWritable then
-      LRttiProperty.SetValue( Self.Parent, LValue );
-  end;
-
-  LValue.Empty;
-end;
-
-function TPGItemProperty.GetAbout(): String;
-var
-  LClassAbout: TDictionary<string, string>;
   LProp: TRttiProperty;
-  LAux: String;
+  LTarget: TValue;
+  LVal: TValue;
 begin
-  Result := '';
+  LProp := TRttiProperty(FMember);
+  LTarget := TPGKernel.IfThen<TValue>(Assigned(FTargetClass), TValue.From<TClass>(FTargetClass), TValue.From<TPGItem>(Self.Parent));
 
-  if not FAbout.TryGetValue(Self.Parent.ClassType, LClassAbout) then
-  begin
-    LClassAbout := TDictionary<string, string>.Create;
-    LClassAbout.Clear;
-    FAbout.Add(Self.Parent.ClassType, LClassAbout);
-  end;
+  if LProp.IsReadable then
+    LVal := LProp.GetValue(LTarget.AsObject);
 
-  if not LClassAbout.TryGetValue(Self.Name, Result) then
-  begin
-    LProp := TRttiProperty(FMember);
-    Result := 'Property ' + LProp.Name + ': ' + LProp.PropertyType.Name + '; {';
-    if LProp.IsReadable then
-      Result := Result + 'R';
+  // Atribuição ou Leitura
+  LVal := Assignment(AGrammar, LVal);
 
-    if LProp.IsWritable then
-    begin
-      if LProp.IsReadable then
-        Result := Result + ',';
-      Result := Result + 'W';
-    end;
-    Result := Result + '}';
-    LAux := TPGAttribText.GetFromProperty(LProp);
-    if LAux <> '' then
-      Result := Result + #13 + LAux;
-    LClassAbout.Add(Self.Name, Result);
-  end;
+  if (not AGrammar.HasError) and LProp.IsWritable then
+    LProp.SetValue(LTarget.AsObject, LVal);
+end;
+
+function TPGItemProperty.GetAbout: string;
+begin
+  Result := 'Property ' + FMember.Name + ': ' + TRttiProperty(FMember).PropertyType.Name + ';' +
+            #13 + TPGAboutAttribute.GetFromProperty(TRttiProperty(FMember));
 end;
 
 { TPGItemMethod }
 
-procedure TPGItemMethod.Execute(AGramatica: TGramatica);
+procedure TPGItemMethod.Execute(const AGrammar: TPGGrammar);
 var
-  LRttiMethods: TRttiMethod;
-  LParameters: TArray<TRttiParameter>;
-  LValue: TValue;
-  LValues: array of TValue;
-  LAux: Variant;
-  LMaxParams, LQtdeLida, I: Integer;
+  LTarget: TValue;
 begin
-  LRttiMethods := TRttiMethod(FMember);
-  LParameters := LRttiMethods.GetParameters;
-
-  LMaxParams := Length( LParameters );
-  SetLength( LValues, LMaxParams );
-  LQtdeLida := LerParamentros( AGramatica, LMaxParams, LMaxParams );
-  if not AGramatica.Erro then
-  begin
-    for I := LQtdeLida - 1 downto 0 do
-    begin
-      LAux := AGramatica.Pilha.Desempilhar( '' );
-      LValues[ I ] := ConvertVariantToValue( LAux,
-        LParameters[ I ].ParamType.TypeKind );
-    end;
-
-    if Assigned( LRttiMethods.ReturnType ) then
-    begin
-      LValue := LRttiMethods.Invoke( Self.Parent, LValues );
-      LAux := ConvertValueToVariant( LValue,
-        LRttiMethods.ReturnType.TypeKind );
-      AGramatica.Pilha.Empilhar( LAux );
-    end
-    else
-      LRttiMethods.Invoke( Self.Parent, LValues );
-  end;
-
-  LValue.Empty;
-  SetLength( LValues, 0 );
-  SetLength( LParameters, 0 );
+  AGrammar.TokenList.Next;
+  LTarget := TPGKernel.IfThen<TValue>(Assigned(FTargetClass), TValue.From<TClass>(FTargetClass), TValue.From<TPGItem>(Self.Parent));
+  TPGItemClass.ExecuteRttiMethod(AGrammar, TRttiMethod(FMember), LTarget);
 end;
 
-function TPGItemMethod.GetAbout(): String;
+function TPGItemMethod.GetAbout: string;
+begin
+  Result := 'Method ' + FMember.Name + ';' + #13 + TPGAboutAttribute.GetFromMethod(TRttiMethod(FMember));
+end;
+
+{ TPGItemDef }
+
+constructor TPGItemDef.Create(AClass: TPGItemClassType; const AName: string);
+begin
+  FTargetClass := AClass;
+  inherited Create(GlobalItemDefines, TPGKernel.IfThen<string>(AName = '', AClass.ClassNameEx + 'Def', AName));
+end;
+
+procedure TPGItemDef.RttiCreate;
 var
-  LClassAbout: TDictionary<string, string>;
+  LType: TRttiType;
   LMethod: TRttiMethod;
-  LParams: TArray<TRttiParameter>;
-  LIndex : SmallInt;
-  LPrefix, LAux: string;
-  LFlag: TParamFlag;
 begin
-  Result := '';
-
-  if not FAbout.TryGetValue(Self.Parent.ClassType, LClassAbout) then
+  inherited;
+  if Assigned(FTargetClass) then
   begin
-    LClassAbout := TDictionary<string, string>.Create;
-    LClassAbout.Clear;
-    FAbout.Add(Self.Parent.ClassType, LClassAbout);
-  end;
-
-  if not LClassAbout.TryGetValue(Self.Name, Result) then
-  begin
-    LMethod := TRttiMethod(FMember);
-    Result := 'Function ' + Self.Name + '(';
-    LParams := LMethod.GetParameters;
-    for LIndex := Low(LParams) to High(LParams) do
-    begin
-      for LFlag := Low(TParamFlag) to High(TParamFlag) do
-      begin
-        if LFlag <> pfResult then
-          LPrefix := GetEnumName(TypeInfo(TParamFlag), Ord(LFlag)).Substring(2) + ' ';
-      end;
-      Result := Result + LPrefix + LParams[LIndex].Name + ': ' + LParams[LIndex].ParamType.Name;
-      LAux := TPGAttribText.GetFromParameter(LParams[LIndex]);
-      if LAux <> '' then
-        Result := Result + ' ['+LAux+']';
-      if LIndex < High(LParams) then
-        Result := Result + '; ';
-    end;
-    Result := Result + ')';
-    if LMethod.ReturnType <> nil then
-      Result := Result + ': ' + LMethod.ReturnType.Name;
-    Result := Result + ';';
-
-    LAux := TPGAttribText.GetFromMethod(LMethod);
-    if LAux <> '' then
-      Result := Result + #13 + LAux;
-
-    LClassAbout.Add(Self.Name, Result);
+    LType := TPGKernel.RttiContext.GetType(FTargetClass);
+    for LMethod in LType.GetMethods do
+      if (LMethod.Visibility = mvPublished) and LMethod.IsClassMethod then
+        TPGItemMethod.Create(Self, LMethod, FTargetClass);
   end;
 end;
 
-procedure ScriptExec( AName, AScript: string; ANivel: TPGItem = nil; AWaitFor: Boolean = False );
+procedure TPGItemDef.Execute(const AGrammar: TPGGrammar);
 var
-  Gramatica: TGramatica;
+  LCount, I: Integer;
+  LParams: TArray<TValue>;
+  LName: string;
+  LNewObj: TPGItemClass;
 begin
-  if not Assigned( ANivel ) then
-    ANivel := GlobalCollection;
+  AGrammar.TokenList.Next;
+  if AGrammar.Match(tkLPar) then
+  begin
+    // Lazy load do mapa de argumentos
+    if FArgsMap = nil then FArgsMap := TPGItemClass.GetClassArgsMap(FTargetClass);
 
-  Gramatica := TGramatica.Create( AName, ANivel, not AWaitFor );
-  Gramatica.SetScript( AScript );
-  Gramatica.Start;
+    LCount := ReadParameters(AGrammar, 1, Length(FArgsMap) + 1);
+    if not AGrammar.HasError then
+    begin
+      SetLength(LParams, LCount - 1);
+      for I := High(LParams) downto 0 do LParams[I] := AGrammar.Stack.Pop;
+      LName := AGrammar.Stack.Pop.ToString;
+
+      // Criação ou Recuperação
+      LNewObj := TPGItemClass(FindID(GlobalCollection, LName));
+      if not Assigned(LNewObj) then
+        LNewObj := FTargetClass.Create(nil, LName);
+
+      // Injeção de propriedades via RTTI
+      for I := 0 to High(LParams) do
+        if Assigned(FArgsMap[I]) then
+          FArgsMap[I].SetValue(LNewObj, LParams[I]);
+
+      LNewObj.AfterCreate(AGrammar);
+    end;
+  end
+  else if AGrammar.Match(tkDot) then
+    ExecuteMember(AGrammar)
+  else
+    AGrammar.Error('Error_Interpreter_Unrecog', []);
+end;
+
+function TPGItemDef.GetAbout: string;
+begin
+  Result := 'Factory for ' + FTargetClass.ClassNameEx + #13 + TPGAboutAttribute.GetFromClass(FTargetClass);
+end;
+
+{ TPGFolder }
+
+constructor TPGFolder.Create(AOwner: TPGItem; const AName: string);
+begin
+  inherited;
+  FLocked := False;
+  FExpanded := False;
+end;
+
+procedure TPGFolder.ExecuteAction(AExpanded, ALocked: Boolean);
+begin
+  SetLocked(ALocked);
+  SetExpanded(AExpanded);
+end;
+
+procedure TPGFolder.SetExpanded(const AValue: Boolean);
+begin
+  if not FLocked then
+  begin
+    FExpanded := AValue;
+    if Assigned(Node) then Node.Expanded := FExpanded;
+  end;
+end;
+
+procedure TPGFolder.SetLocked(const AValue: Boolean);
+begin
+  FLocked := AValue;
+  if FLocked then SetExpanded(False);
+end;
+
+{ Execução de Scripts }
+
+procedure ScriptExec(const AName, AScript: string; ANivel: TPGItem; AWaitFor: Boolean);
+var
+  LGrammar: TPGGrammar;
+begin
+  LGrammar := TPGGrammar.Create(AName, ANivel, not AWaitFor);
+  LGrammar.SetScript(AScript);
+  LGrammar.Start;
   if AWaitFor then
   begin
-    Gramatica.WaitFor( );
-    Gramatica.Free( );
+    LGrammar.WaitFor;
+    LGrammar.Free;
   end;
 end;
 
-function FileScriptExec( FileName: string; Esperar: Boolean ): Boolean;
+function FileScriptExec(const AFileName: string; AWait: Boolean): Boolean;
 var
-  Texto: TStringList;
+  LContent: TStringList;
 begin
-  if FileExists( FileName ) then
+  Result := FileExists(AFileName);
+  if Result then
   begin
-    Texto := TStringList.Create;
-    Texto.LoadFromFile( FileName );
-    ScriptExec( 'FileScript: ' + ExtractFileName( FileName ), Texto.Text, nil, Esperar );
-    Texto.Free;
-    Result := True;
-  end
-  else
-    Result := False;
+    LContent := TStringList.Create;
+    try
+      LContent.LoadFromFile(AFileName);
+      ScriptExec(ExtractFileName(AFileName), LContent.Text, nil, AWait);
+    finally
+      LContent.Free;
+    end;
+  end;
 end;
 
 initialization
-  GlobalCollection := TPGItemCollect.Create( 'Globals' );
-  GlobalItemCommand := TPGFolder.Create( GlobalCollection, 'Commands' );
+  GlobalCollection := TPGItemCollect.Create('Globals');
+  GlobalItemCommand := TPGFolder.Create(GlobalCollection, 'Commands');
+  GlobalItemDefines := TPGFolder.Create(GlobalCollection, 'Defines');
 
 finalization
   GlobalCollection.Free;
 
 end.
-

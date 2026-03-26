@@ -6,15 +6,15 @@ uses
   System.Classes, System.SysUtils,
 
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Triggers, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit;
+  PGofer.Classes, PGofer.Triggers, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
+  PGofer.Component.Edit, PGofer.Component.RichEdit, Pgofer.Component.ComboBox;
 
 type
   TPGTaskFrame = class( TPGTriggerFrame )
     LblTrigger: TLabel;
     LblOccurrence: TLabel;
     LblRepeat: TLabel;
-    CmbTrigger: TComboBox;
+    CmbTrigger: TPGComboBox;
     GrbScript: TGroupBox;
     UpdOccurrence: TUpDown;
     UpdRepeat: TUpDown;
@@ -33,13 +33,13 @@ type
     procedure EdtRepeatAfterValidate(Sender: TObject);
     procedure EdtOccurrenceAfterValidate(Sender: TObject);
   private
+    function GetItem( ): TPGTask;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    function GetItem( ): TPGTask; reintroduce;
     property Item: TPGTask read GetItem;
   public
-    constructor Create( AItem: TPGItemTrigger; AParent: TObject ); reintroduce;
+    constructor Create( AItem: TPGItem; AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -51,13 +51,13 @@ uses
 {$R *.dfm}
 { TPGTaskFrame }
 
-constructor TPGTaskFrame.Create( AItem: TPGItemTrigger; AParent: TObject );
+constructor TPGTaskFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtScript.Lines.Text := Item.Script;
-  EdtRepeat.Text := Item.Repeats.ToString;
-  EdtOccurrence.Text := Item.Occurrence.ToString;
-  CmbTrigger.ItemIndex := Item.Trigger;
+  EdtScript.SetTextSilent( Item.Script );
+  EdtRepeat.SetTextSilent( Item.Repeats.ToString() );
+  EdtOccurrence.SetTextSilent( Item.Occurrence.ToString() );
+  CmbTrigger.SetIndexSilent( Item.Trigger );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
@@ -98,7 +98,7 @@ end;
 procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  Item.Script := EdtScript.Lines.Text;
+  Item.Script := EdtScript.Text;
 end;
 
 procedure TPGTaskFrame.UpdOccurrenceChangingEx( Sender: TObject;

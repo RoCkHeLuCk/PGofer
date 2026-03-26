@@ -41,7 +41,7 @@ uses
 constructor TPGFunctionFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtScript.Text := Item.Script;
+  EdtScript.SetTextSilent( Item.Script );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
@@ -49,7 +49,7 @@ destructor TPGFunctionFrame.Destroy( );
 begin
   FrmAutoComplete.EditCtrlRemove( EdtScript );
   if EdtScript.Modified then
-    Item.CompileScript( );
+    Item.Compile( );
   inherited Destroy( );
 end;
 

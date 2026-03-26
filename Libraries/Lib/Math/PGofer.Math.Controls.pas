@@ -3,6 +3,7 @@ unit PGofer.Math.Controls;
 interface
 
 function BoolToStr( const Valor: Boolean ): string; overload;
+function BinToInt( const S: string): Int64;
 function TryBinToInt64( const S: string; var Value: Int64 ): Boolean;
 function IntToBin( Valor: Int64 ): string;
 function FormatConvert( const Prefixo: Boolean; const Formato: string;
@@ -21,6 +22,20 @@ begin
     Result := '1'
   else
     Result := '0';
+end;
+
+function BinToInt( const S: string): Int64;
+var
+  c, d: Word;
+begin
+  d := Length( S );
+  Result := 0;
+  if d > 0 then
+  begin
+    for c := 0 to d do
+      if S[ c ] = '1' then
+        Result := Result + ( 1 shl ( d - c ) );
+  end;
 end;
 
 function TryBinToInt64( const S: string; var Value: Int64 ): Boolean;

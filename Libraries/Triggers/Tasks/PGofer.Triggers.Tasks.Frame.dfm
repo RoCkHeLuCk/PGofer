@@ -20,6 +20,7 @@ inherited PGTaskFrame: TPGTaskFrame
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 2
+    StyleElements = [seFont, seClient]
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -44,8 +45,10 @@ inherited PGTaskFrame: TPGTaskFrame
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
+      StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
+      Text = ''
     end
   end
   inherited grbAbout: TGroupBox
@@ -66,6 +69,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Trigger:'
+      StyleElements = [seFont, seClient]
     end
     object LblOccurrence: TLabel [2]
       Left = 137
@@ -76,6 +80,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Occurrence:'
+      StyleElements = [seFont, seClient]
     end
     object LblRepeat: TLabel [3]
       Left = 13
@@ -86,8 +91,9 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Repeat:'
+      StyleElements = [seFont, seClient]
     end
-    object CmbTrigger: TComboBox [4]
+    object CmbTrigger: TPGComboBox [4]
       Left = 70
       Top = 33
       Width = 100
@@ -97,6 +103,7 @@ inherited PGTaskFrame: TPGTaskFrame
       ItemIndex = 0
       TabOrder = 5
       Text = 'Initializing'
+      StyleElements = [seFont, seClient]
       OnChange = CmbTriggerChange
       Items.Strings = (
         'Initializing'
@@ -111,6 +118,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Color = clSilver
       TabOrder = 1
       Text = '0'
+      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtOccurrenceAfterValidate
     end
     object UpdOccurrence: TUpDown [6]
@@ -121,6 +129,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Associate = EdtOccurrence
       Max = 999999999
       TabOrder = 2
+      StyleElements = [seFont, seClient]
       OnChangingEx = UpdOccurrenceChangingEx
     end
     object EdtRepeat: TEditEx [7]
@@ -131,6 +140,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Color = clSilver
       TabOrder = 3
       Text = '0'
+      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtRepeatAfterValidate
     end
     object UpdRepeat: TUpDown [8]
@@ -141,6 +151,7 @@ inherited PGTaskFrame: TPGTaskFrame
       Associate = EdtRepeat
       Max = 999999999
       TabOrder = 4
+      StyleElements = [seFont, seClient]
       OnChangingEx = UpdRepeatChangingEx
     end
   end

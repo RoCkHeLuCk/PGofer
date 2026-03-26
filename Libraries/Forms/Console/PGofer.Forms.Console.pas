@@ -34,15 +34,16 @@ type
     FMouseA: TPoint;
     FItem: TPGFrmConsole;
     function GetAutoClose( ): Boolean;
+    procedure TimerReset();
   protected
     procedure CreateParams( var AParams: TCreateParams ); override;
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
     property AutoClose: Boolean read GetAutoClose;
     procedure ConsoleNotifyMessage(const AValue: string;
       const ANewLine, AShow: Boolean );
-    procedure ForceShow( AFocus: Boolean ); override;
   end;
 
   {$M+}
@@ -73,6 +74,8 @@ implementation
 {$R *.dfm}
 
 uses
+  Winapi.Messages,
+  System.SysUtils,
   PGofer.Core,
   PGofer.Classes,
   PGofer.Forms.Console.Frame;
@@ -84,42 +87,36 @@ begin
   AParams.Style := AParams.Style or WS_BORDER;
   AParams.ExStyle := WS_EX_NOACTIVATE;
   Application.AddPopupForm( Self );
-  Self.ForceResizable := True
+  Self.ForceResizable := True;
+end;
+
+procedure TFrmConsole.CreateWindowHandle(const Params: TCreateParams);
+begin
+  inherited;
+  SetWindowLong(Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE
+                or WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
 end;
 
 procedure TFrmConsole.FormCreate( Sender: TObject );
 begin
   FItem := TPGFrmConsole.Create( Self );
   TPGKernel.ConsoleNotify := Self.ConsoleNotifyMessage;
-  inherited FormCreate( Sender );
 end;
 
 procedure TFrmConsole.FormShow( Sender: TObject );
 begin
-  inherited;
-  Self.TmrConsole.Interval := FItem.Delay;
-  Self.TmrConsole.Enabled := False;
   Self.Left := Application.MainForm.Left;
   Self.Top := Application.MainForm.Top + Application.MainForm.Height;
-  Self.BtnFixed.Down := ( not FItem.AutoClose );
-  Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
-end;
-
-procedure TFrmConsole.ForceShow( AFocus: Boolean );
-begin
-  FItem.AutoClose := not AFocus;
-  inherited ForceShow( AFocus );
+  Self.TimerReset();
 end;
 
 procedure TFrmConsole.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
   TmrConsole.Enabled := False;
-  inherited FormClose( Sender, Action );
 end;
 
 procedure TFrmConsole.FormDestroy( Sender: TObject );
 begin
-  inherited FormDestroy( Sender );
   TmrConsole.Enabled := False;
   TPGKernel.ConsoleNotify := nil;
   FItem := nil;
@@ -127,9 +124,8 @@ end;
 
 procedure TFrmConsole.FormKeyPress( Sender: TObject; var Key: Char );
 begin
-  // fecha o console
   if Key = #27 then
-    Close;
+    Self.Close();
 end;
 
 function TFrmConsole.GetAutoClose: Boolean;
@@ -140,18 +136,18 @@ end;
 procedure TFrmConsole.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  FItem.Delay := FIniFile.ReadInteger( Self.Name, 'Delay', FItem.Delay );
-  FItem.ShowMessage := FIniFile.ReadBool( Self.Name, 'ShowMessage',
+  FItem.Delay := IniFile.ReadInteger( Self.Name, 'Delay', FItem.Delay );
+  FItem.ShowMessage := IniFile.ReadBool( Self.Name, 'ShowMessage',
     FItem.ShowMessage );
-  FItem.AutoClose := FIniFile.ReadBool( Self.Name, 'AutoClose',
+  FItem.AutoClose := IniFile.ReadBool( Self.Name, 'AutoClose',
     FItem.AutoClose );
 end;
 
 procedure TFrmConsole.IniConfigSave( );
 begin
-  FIniFile.WriteInteger( Self.Name, 'Delay', FItem.Delay );
-  FIniFile.WriteBool( Self.Name, 'ShowMessage', FItem.ShowMessage );
-  FIniFile.WriteBool( Self.Name, 'AutoClose', FItem.AutoClose );
+  IniFile.WriteInteger( Self.Name, 'Delay', FItem.Delay );
+  IniFile.WriteBool( Self.Name, 'ShowMessage', FItem.ShowMessage );
+  IniFile.WriteBool( Self.Name, 'AutoClose', FItem.AutoClose );
   inherited IniConfigSave( );
 end;
 
@@ -160,6 +156,13 @@ begin
   // trava o console
   TmrConsole.Enabled := ( not BtnFixed.Down );
   FItem.AutoClose := TmrConsole.Enabled;
+end;
+
+procedure TFrmConsole.TimerReset();
+begin
+  Self.TmrConsole.Interval := FItem.Delay;
+  Self.TmrConsole.Enabled := False;
+  Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
 end;
 
 procedure TFrmConsole.TmrConsoleTimer( Sender: TObject );
@@ -174,6 +177,7 @@ end;
 procedure TFrmConsole.PnlArrastarMouseDown( Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer );
 begin
+  Self.TimerReset();
   if Shift = [ ssLeft ] then
   begin
     FMouseA.X := Mouse.CursorPos.X - Left;
@@ -184,6 +188,7 @@ end;
 procedure TFrmConsole.PnlArrastarMouseMove( Sender: TObject; Shift: TShiftState;
   X, Y: Integer );
 begin
+  Self.TimerReset();
   if Shift = [ ssLeft ] then
   begin
     Self.Left := Mouse.CursorPos.X - FMouseA.X;
@@ -194,18 +199,26 @@ end;
 procedure TFrmConsole.ConsoleNotifyMessage(const AValue: string;
   const ANewLine, AShow: Boolean );
 begin
-  if ANewLine then
-    Self.EdtConsole.Lines.Append( AValue )
-  else
-    Self.EdtConsole.Text := Self.EdtConsole.Text + AValue;
+  Self.EdtConsole.Lines.BeginUpdate;
+  try
+    EdtConsole.SelStart := EdtConsole.GetTextLen;
+    EdtConsole.SelLength := 0;
 
-  Self.EdtConsole.CaretY := Self.EdtConsole.Lines.Count;
+    // WPARAM = 0 (Não permite Undo para economizar memória)
+    // LPARAM = Ponteiro para a string
+    SendMessage(EdtConsole.Handle, EM_REPLACESEL, 0, LPARAM(PChar(AValue)));
+
+    // 3. Auto-scroll opcional (apenas se o usuário não estiver rolando manualmente)
+    SendMessage(EdtConsole.Handle, WM_VSCROLL, SB_BOTTOM, 0);
+  finally
+    Self.EdtConsole.Lines.EndUpdate;
+  end;
 
   if AShow then
   begin
+    Self.TimerReset();
     Self.ForceShow( False );
   end;
-
 end;
 
 { TPGFrmConsole }
@@ -233,7 +246,8 @@ end;
 procedure TPGFrmConsole.SetAutoClose( AValue: Boolean );
 begin
   FAutoClose := AValue;
-  TFrmConsole( Self.Form ).BtnFixed.Down := ( not FAutoClose );
+  if Assigned( Self.Form) then
+    TFrmConsole( Self.Form ).BtnFixed.Down := ( not FAutoClose );
 end;
 
 procedure TPGFrmConsole.SetDelay(AValue: Cardinal);
