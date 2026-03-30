@@ -192,7 +192,7 @@ var
 begin
   LCollectDad := GetCollectDad();
 
-  if Assigned(LCollectDad) then
+  if Assigned(LCollectDad) and (FParent <> nil) and (not FParent.Destroying) then
     LCollectDad.TreeViewDetach(Self);
 
   if Assigned(FParent) and (not FParent.Destroying) then

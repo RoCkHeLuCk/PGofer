@@ -52,7 +52,8 @@ uses
   PGofer.Key.Post,
   PGofer.ClipBoards.Controls,
   PGofer.Process.Controls,
-  PGofer.Triggers.AutoFills.Frame;
+  PGofer.Triggers.AutoFills.Frame,
+  PGofer.Key.Controls;
 
 { TPGAutoFill }
 
@@ -140,36 +141,74 @@ begin
   Result := TPGAutoFill;
 end;
 
-class function TPGAutoFillMirror.OnDropFile(AItemDad: TPGItem; AFileName: String): boolean;
+class function TPGAutoFillMirror.OnDropFile(AItemDad: TPGItem; AFileName: string): Boolean;
 var
   LList: TStringList;
-  LRow: string;
-  LName, LValue: string;
-  LAutoFill: TPGAutoFill;
-  LFolder: TPGItem;
+  LRow, LUrl, LUser, LPass, LHost, LUserFolder: string;
   LParts: TArray<string>;
+  LMainFolder, LHostFolder, LFinalFolder: TPGItem;
+  I: Integer;
 begin
-  Result := MatchText(ExtractFileExt(AFileName), ['.csv']);
+  Result := SameText(ExtractFileExt(AFileName), '.csv');
   if not Result then Exit;
 
   LList := TStringList.Create;
   try
     LList.LoadFromFile(AFileName);
-    LFolder := TPGFolder.Create(AItemDad, FileExtractOnlyFileName(AFileName));
+    if LList.Count <= 1 then Exit;
 
-    for LRow in LList do
+    LMainFolder := TPGFolderMirror.Create(AItemDad, FileExtractOnlyFileName(AFileName));
+
+    for I := 0 to LList.Count - 1 do
     begin
-      if LRow.Trim = '' then Continue;
-      LParts := LRow.Split([',', ';']);
+      LRow := LList[I].Trim;
+      if (LRow = '') or (I = 0) and (ContainsText(LRow, 'url')) then Continue;
 
-      if Length(LParts) >= 2 then
+      LParts := LRow.Split([',', ';', #9]);
+      if Length(LParts) >= 3 then
       begin
-        LName := LParts[0].Trim;
-        LValue := LParts[1].Trim;
-        LAutoFill := TPGAutoFill(TPGAutoFillMirror.Create(LFolder, LName).ItemOriginal);
-        LAutoFill.Text := LValue;
+        LUrl  := LParts[0].Trim(['"', ' ']);
+        LUser := LParts[1].Trim(['"', ' ']);
+        LPass := LParts[2].Trim(['"', ' ']);
+
+        if LPass = '' then Continue;
+
+        // 1. Extração do Host (Sanitização equilibrada)
+        LHost := LUrl;
+        if ContainsText(LHost, '://') then LHost := LHost.Split(['://'])[1];
+        LHost := LHost.Split(['/', ':', '?'])[0];
+        LHost := ReplaceStr(LHost, 'www.', '');
+
+        // Troca pontos por underscores antes de sanitizar (google.com -> google_com)
+        LHost := ReplaceStr(LHost, '.', '_');
+        LHost := RemoveCharSpecial(LHost, True);
+
+        // 2. Localização Robusta
+        LHostFolder := LMainFolder.FindName(LHost);
+        if LHostFolder = nil then
+        begin
+          LHostFolder := TPGFolderMirror.Create(LMainFolder, LHost);
+          TPGFolderMirror(LHostFolder).Namespace := True;
+        end;
+
+        // 3. Pasta do Usuário (Shadowing)
+        LUserFolder := LUser;
+        if LUserFolder = '' then LUserFolder := 'default';
+        LUserFolder := RemoveCharSpecial(LUserFolder, True);
+
+        LFinalFolder := LHostFolder.FindName(LUserFolder);
+        if LFinalFolder = nil then
+        begin
+          LFinalFolder := TPGFolderMirror.Create(LHostFolder, LUserFolder);
+          TPGFolderMirror(LFinalFolder).Namespace := True;
+
+          // Itens de preenchimento
+          TPGAutoFill(TPGAutoFillMirror.Create(LFinalFolder, 'user').ItemOriginal).Text := LUser;
+          TPGAutoFill(TPGAutoFillMirror.Create(LFinalFolder, 'pass').ItemOriginal).Text := LPass;
+        end;
       end;
     end;
+    TriggersCollect.XMLSaveToFile();
   finally
     LList.Free;
   end;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="NewTask" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">17</Occurrence>
+    <Occurrence Type="Cardinal">21</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">HotKeyDef.SetInputType := 1;
 
@@ -20,7 +20,7 @@ end;
     <Trigger Type="Byte">0</Trigger>
   </Task>
   <Task Name="NewTask1" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">0</Occurrence>
+    <Occurrence Type="Cardinal">4</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">
 // --- BLOCO 1: MATEMÁTICA E CONSTANTES ---

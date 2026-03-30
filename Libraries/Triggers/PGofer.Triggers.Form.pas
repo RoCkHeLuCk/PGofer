@@ -172,7 +172,12 @@ begin
   if Vcl.Dialogs.MessageDlg( 'Delete Selected Item?', mtConfirmation,
     [ mbYes, mbNo ], 0, mbNo ) = mrYes then
   begin
-    TrvController.DeleteSelect( );
+    TrvController.Items.BeginUpdate();
+    try
+      TrvController.DeleteSelect();
+    finally
+      TrvController.Items.EndUpdate(); // Desenha tudo pronto de uma vez só
+    end;
   end;
   BtnEdit.Caption := MniDelete.Caption;
   BtnEdit.OnClick := MniDelete.OnClick;
