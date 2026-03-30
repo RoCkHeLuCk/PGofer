@@ -56,8 +56,7 @@ type
     procedure Show( AFocus: Boolean = true );
     property Top: Integer read GetTop write SetTop;
     property Transparent: Boolean read GetTransparent write SetTransparent;
-    property TransparentColor: Integer read GetTransparentColor
-      write SetTransparentColor;
+    property TransparentColor: Integer read GetTransparentColor write SetTransparentColor;
     property Visible: Boolean read GetVisible write SetVisible;
     property Width: Integer read GetWidth write SetWidth;
     property WindowState: Byte read GetWindowState write SetWindowState;
@@ -215,12 +214,12 @@ begin
     procedure
     begin
       case AGrammar.TokenList.Current.Kind of
-        tkDot:
+        pgkDot:
         begin
           Self.ExecuteMember(AGrammar);
         end;
 
-        tkSemiColon, tkEOF:
+        pgkSemiColon, pgkEOF:
         begin
           FForm.ForceShow(True);
         end

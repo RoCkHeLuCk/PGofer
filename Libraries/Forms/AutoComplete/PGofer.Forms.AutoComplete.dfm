@@ -1,4 +1,4 @@
-﻿object FrmAutoComplete: TFrmAutoComplete
+object FrmAutoComplete: TFrmAutoComplete
   Left = 960
   Top = 154
   Margins.Left = 0

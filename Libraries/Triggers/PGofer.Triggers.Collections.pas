@@ -250,8 +250,8 @@ procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream:
       begin
         try
           case AProp.PropertyType.TypeKind of
-            tkInteger:
-              AProp.SetValue(ItemOriginal, StrToIntDef(XMLNodeProperty.Text, 0));
+            tkInteger, tkInt64:
+              AProp.SetValue(ItemOriginal, StrToInt64Def(XMLNodeProperty.Text, 0));
             tkEnumeration:
               AProp.SetValue(ItemOriginal, StrToBoolDef(XMLNodeProperty.Text, False));
             tkFloat:

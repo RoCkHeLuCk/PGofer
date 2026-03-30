@@ -1,19 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="NewTask" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">14</Occurrence>
+    <Occurrence Type="Cardinal">17</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
-    <Script Type="string">Function global teste(ACount);
+    <Script Type="string">HotKeyDef.SetInputType := 1;
+
+
+Function global teste(ACount:=100, AStart:=10);
 begin
-  for c:=0 to ACount do
+  WriteLN('Inicio:'+ AStart +'|'+ ACount);
+  for c:=AStart to ACount do
   begin
     WriteLN('Teste'+c);
     Delay(1);
   end;
+  WriteLN('Fim:' + c);
 end;
-
-teste(1000);
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
+  <Task Name="NewTask1" Enabled="true" ReadOnly="false">
+    <Occurrence Type="Cardinal">0</Occurrence>
+    <Repeats Type="Cardinal">0</Repeats>
+    <Script Type="string">
+// --- BLOCO 1: MATEMÁTICA E CONSTANTES ---
+const PI := 3.14159;
+Const Global False := 0;
+Const Global True := 1;
+var global ResultCalculadora := (81 root 2) * 5 + (2 ^ 3) / 2.5;
+
+
+WriteLN('--- Teste de Precisão Matemática ---');
+WriteLN('Equação Complexa: ' + ResultCalculadora); // Deve ser 48.2
+WriteLN('Círculo Unitário: ' + (2 * PI * 100));
+
+// --- BLOCO 2: RECURSIVIDADE PROFUNDA (Nível 10) ---
+// Testa a criação e destruição massiva de gramáticas locais e escopos
+Function global ContagemRegressiva(N);
+begin
+  if N &gt; 0 then
+  begin
+    WriteLN('  Recursão Nível: ' + N);
+    Delay(10); // Pequeno delay para visualizarmos na árvore Global
+    Result := N + ContagemRegressiva(N - 1);
+  end;
+  else
+  begin
+    WriteLN('  Base da Recursão atingida.');
+    Result := 0;
+  end;
+end;
+
+// --- BLOCO 3: ARRAYS E LOOPS COMBINADOS ---
+Function global TesteEstruturas();
+begin
+  var Lista := [10.5, 20.7, 30.2];
+  var Total := 0;
+  var i := 0;
+  
+  WriteLN('--- Teste de Arrays e Loops ---');
+  
+  // Teste WHILE com acúmulo float
+  while i &lt; 3 do
+  begin
+    Total := Total + Lista[i];
+    i := i + 1;
+  end;
+  WriteLN('Soma do Array (While): ' + Total);
+  
+  // Teste REPEAT para busca
+  var busca := 0;
+  repeat
+    busca := busca + 1;
+  until busca &gt;= 5;
+  WriteLN('Busca Finalizada (Repeat): ' + busca);
+end;
+
+// --- EXECUÇÃO ---
+WriteLN('--- Início do Script de Tortura ---');
+
+// Executa recursão nível 10
+var somaTotal := ContagemRegressiva(10);
+WriteLN('Resultado da Soma Recursiva (1 a 10): ' + somaTotal);
+
+// Executa lógica de estruturas
+TesteEstruturas();
+
+// Teste final de existência
+if isDef('ContagemRegressiva') then
+  WriteLN('Função Recursiva permanece em memória.');
+
+WriteLN('--- Fim dos Testes de Estresse ---');
+</Script>
+    <Trigger Type="Byte">0</Trigger>
+  </Task>
+  <VaultFolder Name="NewVaultFolder" Enabled="true" ReadOnly="false">
+    <FileName Type="string">E:\teste.pgv</FileName>
+    <SavePassword Type="Boolean">True</SavePassword>
+    <Namespace Type="Boolean">False</Namespace>
+    <_Expanded Type="Boolean">False</_Expanded>
+    <_Locked Type="Boolean">False</_Locked>
+  </VaultFolder>
+  <HotKey Name="NewHotKey" Enabled="true" ReadOnly="false">
+    <HotKeysHex Type="string"></HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string"></Script>
+  </HotKey>
 </Triggers>

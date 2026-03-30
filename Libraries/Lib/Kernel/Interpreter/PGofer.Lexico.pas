@@ -1,26 +1,25 @@
 ﻿unit PGofer.Lexico;
-
+
 interface
 
 uses
-  System.SysUtils, System.Generics.Collections, System.Rtti, System.Character;
+  System.SysUtils, System.Generics.Collections, System.Generics.Defaults, System.Hash,
+  System.Rtti, System.Character, System.TypInfo;
 
 type
-  { Enumeração dos Tipos de Tokens (Tokens Kinds) }
+  { Enumeração dos Tipos de Tokens - Minimalista e focada em estrutura }
   TPGTokenKind = (
-    tkUnknown, tkIdentifier, tkNumber, tkString, tkEOF,
+    pgkUnknown, pgkIdentifier, pgkKeyword, pgkNumber, pgkString, pgkEOF,
     // Símbolos e Operadores
-    tkDot, tkDotDot, tkComma, tkColon, tkSemiColon, tkLPar, tkRPar,
-    tkLBrack, tkRBrack, tkAssign, tkEqual, tkNotEqual, tkGreater,
-    tkLess, tkGreaterEqual, tkLessEqual, tkAdd, tkSub, tkMult, tkDiv,
-    tkMod, tkNot, tkAnd, tkOr, tkXor, tkPower, tkRoot, tkTone,
-    // Palavras Reservadas
-    tkBegin, tkEnd, tkIf, tkThen, tkElse, tkFor, tkTo, tkDownTo,
-    tkDo, tkWhile, tkRepeat, tkUntil, tkCase, tkOf, tkGlobal, tkNull,
-    tkConst, tkVar, tkFunction
+    pgkDot, pgkDotDot, pgkComma, pgkColon, pgkSemiColon, pgkLPar, pgkRPar,
+    pgkLBrack, pgkRBrack, pgkAssign, pgkEqual, pgkNotEqual, pgkGreater,
+    pgkLess, pgkGreaterEqual, pgkLessEqual, pgkAdd, pgkSub, pgkMult, pgkDiv,
+    pgkMod, pgkNot, pgkAnd, pgkOr, pgkXor, pgkPower, pgkRoot,
+    // Delimitadores de Bloco
+    pgkBegin, pgkEnd
   );
 
-  { Coordenada com suporte a Span para seleção no Editor }
+  { Coordenada com suporte a Offset absoluto para o "Retrato" do script }
   TPGCoordinate = record
   strict private
     FLine: Integer;
@@ -44,8 +43,7 @@ type
     FKind: TPGTokenKind;
     FFriendlyName: string;
     FIsReserved: Boolean;
-  public
-    constructor Create( AKind: TPGTokenKind; AFriendlyName: string; AIsReserved: Boolean);
+    constructor Create(AKind: TPGTokenKind; AFriendlyName: string; AIsReserved: Boolean);
   end;
 
   { Registro Global de Vocabulário }
@@ -68,23 +66,22 @@ type
     FKind: TPGTokenKind;
     FValue: TValue;
     FCoordinate: TPGCoordinate;
-  protected
-    procedure Update(const AKind: TPGTokenKind; const AValue: TValue);
   public
     constructor Create(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
-    destructor Destroy(); override;
+    destructor Destroy; override;
+    procedure Update(const AKind: TPGTokenKind; const AValue: TValue);
+
     property Kind: TPGTokenKind read FKind;
     property Value: TValue read FValue;
     property Coordinate: TPGCoordinate read FCoordinate;
   end;
 
-  { Lista de Tokens resultante da análise }
+  { Lista de Tokens }
   TPGTokenList = class
-  strict private
+  private
     FItems: TObjectList<TPGToken>;
     FPosition: Integer;
     function GetLast: TPGToken;
-  private
     function GetCount: Integer;
   public
     constructor Create;
@@ -92,11 +89,14 @@ type
     procedure Add(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
     procedure Clear;
     function Current: TPGToken;
+    function Peek(const AOffset: Integer = 1): TPGToken;
     procedure Next;
     procedure Assign(ASource: TPGTokenList);
+
     property Last: TPGToken read GetLast;
     property Position: Integer read FPosition write FPosition;
     property Count: Integer read GetCount;
+    property Items: TObjectList<TPGToken> read FItems;
   end;
 
   { O Motor Léxico (Lexer) }
@@ -152,44 +152,66 @@ begin
   Result := Format('%d:%d', [FLine, FColumn]);
 end;
 
+{ TPGTokenInfo }
+
+constructor TPGTokenInfo.Create(AKind: TPGTokenKind; AFriendlyName: string; AIsReserved: Boolean);
+begin
+  FKind := AKind;
+  FFriendlyName := AFriendlyName;
+  FIsReserved := AIsReserved;
+end;
+
 { TPGLexicalRegistry }
 
 class constructor TPGLexicalRegistry.Create;
 begin
-  FKeywords := TDictionary<string, TPGTokenKind>.Create();
+  FKeywords := TDictionary<string, TPGTokenKind>.Create(
+    TEqualityComparer<string>.Construct(
+      function(const L, R: string): Boolean
+      begin
+        Result := SameText(L, R); // Case Insensitive perfeito
+      end,
+      function(const V: string): Integer
+      begin
+        if V = '' then Exit(0);
+        // Passamos o endereço do primeiro caractere (Pointer) e o tamanho total em bytes
+        Result := THashBobJenkins.GetHashValue(Pointer(LowerCase(V))^, Length(V) * SizeOf(Char));
+      end
+    )
+  );
+
   FTokenInfos := TDictionary<TPGTokenKind, TPGTokenInfo>.Create;
 
-  // Registro de Palavras Reservadas e Nomes Amigáveis para Erros
-  RegisterKeyword('and', tkAnd, 'and');
-  RegisterKeyword('begin', tkBegin, 'begin');
-  RegisterKeyword('case', tkCase, 'case');
-  RegisterKeyword('const', tkConst, 'const');
-  RegisterKeyword('do', tkDo, 'do');
-  RegisterKeyword('downto', tkDownTo, 'downto');
-  RegisterKeyword('else', tkElse, 'else');
-  RegisterKeyword('end', tkEnd, 'end');
-  RegisterKeyword('for', tkFor, 'for');
-  RegisterKeyword('function', tkFunction, 'function');
-  RegisterKeyword('global', tkGlobal, 'global');
-  RegisterKeyword('if', tkIf, 'if');
-  RegisterKeyword('mod', tkMod, 'mod');
-  RegisterKeyword('not', tkNot, 'not');
-  RegisterKeyword('null', tkNull, 'null');
-  RegisterKeyword('of', tkOf, 'of');
-  RegisterKeyword('or', tkOr, 'or');
-  RegisterKeyword('repeat', tkRepeat, 'repeat');
-  RegisterKeyword('then', tkThen, 'then');
-  RegisterKeyword('to', tkTo, 'to');
-  RegisterKeyword('until', tkUntil, 'until');
-  RegisterKeyword('var', tkVar, 'var');
-  RegisterKeyword('while', tkWhile, 'while');
-  RegisterKeyword('xor', tkXor, 'xor');
+  // 1. Delimitadores de Bloco (Pilar Central)
+  RegisterKeyword('begin', pgkBegin, 'begin');
+  RegisterKeyword('end',   pgkEnd,   'end');
+  RegisterKeyword('and',   pgkAnd,   'and');
+  RegisterKeyword('or',    pgkOr,    'or');
+  RegisterKeyword('xor',   pgkXor,   'xor');
+  RegisterKeyword('not',   pgkNot,   'not');
+  RegisterKeyword('mod',   pgkMod,   'mod');
+  RegisterKeyword('root',  pgkRoot,  'root');
 
-  // Nomes Amigáveis para Símbolos (Melhora ErroAdd)
-  FTokenInfos.AddOrSetValue(tkAssign, TPGTokenInfo.Create(tkAssign, ':=', False));
-  FTokenInfos.AddOrSetValue(tkLPar, TPGTokenInfo.Create(tkLPar, '(', False));
-  FTokenInfos.AddOrSetValue(tkRPar, TPGTokenInfo.Create(tkRPar, ')', False));
-  FTokenInfos.AddOrSetValue(tkSemiColon, TPGTokenInfo.Create(tkSemiColon, ';', False));
+  // Registro de Símbolos para Erros Amigáveis
+  FTokenInfos.AddOrSetValue(pgkSemiColon,    TPGTokenInfo.Create(pgkSemiColon,    ';', False));
+  FTokenInfos.AddOrSetValue(pgkLPar,         TPGTokenInfo.Create(pgkLPar,         '(', False));
+  FTokenInfos.AddOrSetValue(pgkRPar,         TPGTokenInfo.Create(pgkRPar,         ')', False));
+  FTokenInfos.AddOrSetValue(pgkLBrack,       TPGTokenInfo.Create(pgkLBrack,       '[', False));
+  FTokenInfos.AddOrSetValue(pgkRBrack,       TPGTokenInfo.Create(pgkRBrack,       ']', False));
+  FTokenInfos.AddOrSetValue(pgkAssign,       TPGTokenInfo.Create(pgkAssign,       ':=', False));
+  FTokenInfos.AddOrSetValue(pgkDot,          TPGTokenInfo.Create(pgkDot,          '.', False));
+  FTokenInfos.AddOrSetValue(pgkComma,        TPGTokenInfo.Create(pgkComma,        ',', False));
+  FTokenInfos.AddOrSetValue(pgkEqual,        TPGTokenInfo.Create(pgkEqual,        '=', False));
+  FTokenInfos.AddOrSetValue(pgkNotEqual,     TPGTokenInfo.Create(pgkNotEqual,     '<>', False));
+  FTokenInfos.AddOrSetValue(pgkGreater,      TPGTokenInfo.Create(pgkGreater,      '>', False));
+  FTokenInfos.AddOrSetValue(pgkLess,         TPGTokenInfo.Create(pgkLess,         '<', False));
+  FTokenInfos.AddOrSetValue(pgkGreaterEqual, TPGTokenInfo.Create(pgkGreaterEqual, '>=', False));
+  FTokenInfos.AddOrSetValue(pgkLessEqual,    TPGTokenInfo.Create(pgkLessEqual,    '<=', False));
+  FTokenInfos.AddOrSetValue(pgkAdd,          TPGTokenInfo.Create(pgkAdd,          '+', False));
+  FTokenInfos.AddOrSetValue(pgkSub,          TPGTokenInfo.Create(pgkSub,          '-', False));
+  FTokenInfos.AddOrSetValue(pgkMult,         TPGTokenInfo.Create(pgkMult,         '*', False));
+  FTokenInfos.AddOrSetValue(pgkDiv,          TPGTokenInfo.Create(pgkDiv,          '/', False));
+  FTokenInfos.AddOrSetValue(pgkPower,        TPGTokenInfo.Create(pgkPower,        '^', False));
 end;
 
 class destructor TPGLexicalRegistry.Destroy;
@@ -199,20 +221,15 @@ begin
 end;
 
 class procedure TPGLexicalRegistry.RegisterKeyword(const AWord: string; const AKind: TPGTokenKind; const AFriendlyName: string);
-var
-  LInfo: TPGTokenInfo;
 begin
-  FKeywords.Add(AWord, AKind);
-  LInfo.FKind := AKind;
-  LInfo.FFriendlyName := AFriendlyName;
-  LInfo.FIsReserved := True;
-  FTokenInfos.Add(AKind, LInfo);
+  FKeywords.AddOrSetValue(AWord, AKind);
+  FTokenInfos.AddOrSetValue(AKind, TPGTokenInfo.Create(AKind, AFriendlyName, True));
 end;
 
 class function TPGLexicalRegistry.GetKind(const AIdentifier: string): TPGTokenKind;
 begin
   if not FKeywords.TryGetValue(AIdentifier, Result) then
-    Result := tkIdentifier;
+    Result := pgkIdentifier;
 end;
 
 class function TPGLexicalRegistry.GetFriendlyName(const AKind: TPGTokenKind): string;
@@ -222,7 +239,7 @@ begin
   if FTokenInfos.TryGetValue(AKind, LInfo) then
     Result := LInfo.FFriendlyName
   else
-    Result := 'unknown';
+    Result := GetEnumName(TypeInfo(TPGTokenKind), Ord(AKind));
 end;
 
 { TPGToken }
@@ -261,22 +278,9 @@ begin
   inherited;
 end;
 
-function TPGTokenList.GetCount: Integer;
-begin
-  Result := FItems.Count;
-end;
-
 procedure TPGTokenList.Add(const AKind: TPGTokenKind; const AValue: TValue; const ACoordinate: TPGCoordinate);
 begin
   FItems.Add(TPGToken.Create(AKind, AValue, ACoordinate));
-end;
-
-function TPGTokenList.GetLast: TPGToken;
-begin
-  if FItems.Count > 0 then
-    Result := FItems.Last
-  else
-    Result := nil;
 end;
 
 procedure TPGTokenList.Assign(ASource: TPGTokenList);
@@ -299,9 +303,32 @@ begin
   if (FPosition >= 0) and (FPosition < FItems.Count) then
     Result := FItems[FPosition]
   else if FItems.Count > 0 then
-    Result := FItems.Last // Retorna o tkEOF que o Lexer sempre adiciona no fim
+    Result := FItems.Last
   else
     Result := nil;
+end;
+
+function TPGTokenList.Peek(const AOffset: Integer = 1): TPGToken;
+var
+  LIndex: Integer;
+begin
+  LIndex := FPosition + AOffset;
+  if (LIndex >= 0) and (LIndex < FItems.Count) then
+    Result := FItems[LIndex]
+  else if FItems.Count > 0 then
+    Result := FItems.Last // Retorna tkEOF por segurança
+  else
+    Result := nil;
+end;
+
+function TPGTokenList.GetCount: Integer;
+begin
+  Result := FItems.Count;
+end;
+
+function TPGTokenList.GetLast: TPGToken;
+begin
+  if FItems.Count > 0 then Result := FItems.Last else Result := nil;
 end;
 
 procedure TPGTokenList.Next;
@@ -335,20 +362,18 @@ begin
       HandleString(ATokenList, FCurrent^)
     else if (FCurrent^ = '#') then
     begin
-      Advance; // Pula o '#'
-      HandleNumber(ATokenList); // Isso vai adicionar um tkNumber na lista
+      Advance;
+      HandleNumber(ATokenList);
       LLast := ATokenList.Last;
-      if Assigned(LLast) and (LLast.Kind = tkNumber) then
-      begin
-        // Converte o número (ex: 65) em caractere ('A') e muda o tipo do token
-        LLast.Update(tkString, TValue.From<Char>(Char(LLast.Value.AsInteger)));
-      end;
+      if Assigned(LLast) and (LLast.Kind = pgkNumber) then
+        LLast.Update(pgkString, TValue.From<Char>(Char(LLast.Value.AsInteger)));
     end
     else
       HandleSymbol(ATokenList);
   end;
 
-  ATokenList.Add(tkEOF, TValue.Empty, FCoordinate);
+  FCoordinate.Length := 0;
+  ATokenList.Add(pgkEOF, 'EOF', FCoordinate);
 end;
 
 procedure TPGLexer.SkipWhitespaceAndComments;
@@ -358,22 +383,24 @@ begin
     case FCurrent^ of
       #10: begin
              FCoordinate.IncLine;
-             Advance; // Advance garante que o \n seja contado no Offset
+             Advance;
            end;
-      #1..#9, #11, #12, #13, #32: Advance;
+      #1..#9, #11..#13, #32: Advance;
       '{': begin
              while (not AtEnd) and (FCurrent^ <> '}') do
              begin
-               if FCurrent^ = #10 then begin FCoordinate.IncLine; Advance; end
-               else Advance;
+               if FCurrent^ = #10 then
+                 FCoordinate.IncLine;
+               Advance;
              end;
-             Advance; // Pula '}'
+             Advance;
            end;
       '/': begin
              if Peek = '/' then
-             begin
-               while (not AtEnd) and (FCurrent^ <> #10) do Advance;
-             end else Break;
+               while (not AtEnd) and (FCurrent^ <> #10) do
+                 Advance
+             else
+               Break;
            end;
     else
       Break;
@@ -404,54 +431,41 @@ var
   LIsHex, LIsBin: Boolean;
 begin
   LCoord := FCoordinate;
-  LIsHex := False;
-  LIsBin := False;
+  LIsHex := False; LIsBin := False;
 
-  // Suporte a 0h (Hex) e 0b (Bin)
   if (FCurrent^ = '0') then
   begin
     if (Peek = 'h') or (Peek = 'H') then
     begin
-      LIsHex := True;
-      Advance; Advance; // Pula 0h
-      FStart := FCurrent;
-      while (not AtEnd) and CharInSet(FCurrent^,['0'..'9', 'A'..'F', 'a'..'f']) do Advance;
+      LIsHex := True; Advance; Advance; FStart := FCurrent;
+      while (not AtEnd) and CharInSet(FCurrent^, ['0'..'9', 'A'..'F', 'a'..'f']) do Advance;
     end
     else if (Peek = 'b') or (Peek = 'B') then
     begin
-      LIsBin := True;
-      Advance; Advance; // Pula 0b
-      FStart := FCurrent;
-      while (not AtEnd) and CharInSet(FCurrent^,['0', '1']) do Advance;
+      LIsBin := True; Advance; Advance; FStart := FCurrent;
+      while (not AtEnd) and CharInSet(FCurrent^, ['0', '1']) do Advance;
     end;
   end;
 
   if (not LIsHex) and (not LIsBin) then
   begin
     while (not AtEnd) and (FCurrent^.IsDigit or (FCurrent^ = '.')) do Advance;
-
-    // Científico (e-10)
     if (FCurrent^ = 'e') or (FCurrent^ = 'E') then
     begin
-      Advance;
-      if (FCurrent^ = '-') or (FCurrent^ = '+') then Advance;
-      while (not AtEnd) and (FCurrent^.IsDigit) do Advance;
+      Advance; if (FCurrent^ = '-') or (FCurrent^ = '+') then Advance;
+      while (not AtEnd) and FCurrent^.IsDigit do Advance;
     end;
   end;
 
-  SetString(LText, FStart, FCurrent - FStart);
   LCoord.Length := FCurrent - FStart;
+  SetString(LText, FStart, LCoord.Length);
 
-  if LIsHex then
-    LValue := StrToInt64('$' + LText)
-  else if LIsBin then
-    LValue := BinToInt(LText) // Função em Math.Controls
+  if LIsHex then LValue := StrToInt64('$' + LText)
+  else if LIsBin then LValue := BinToInt(LText)
   else
   begin
     LValue := StrToFloat(LText);
-
-    // Tratamento de Prefixos SI (y..Y)
-    if (not AtEnd) and CharInSet(FCurrent^,['y','z','a','f','p','n','u','m','k','M','G','T','P','E','Z','Y']) then
+    if (not AtEnd) and CharInSet(FCurrent^, ['y','z','a','f','p','n','u','m','k','M','G','T','P','E','Z','Y']) then
     begin
       case FCurrent^ of
         'y': LValue := LValue * 1e-24; 'z': LValue := LValue * 1e-21;
@@ -463,11 +477,11 @@ begin
         'P': LValue := LValue * 1e15;  'E': LValue := LValue * 1e18;
         'Z': LValue := LValue * 1e21;  'Y': LValue := LValue * 1e24;
       end;
-      Self.Advance;
+      Advance;
     end;
   end;
 
-  AList.Add(tkNumber, LValue, LCoord);
+  AList.Add(pgkNumber, LValue, LCoord);
   Result := True;
 end;
 
@@ -477,16 +491,17 @@ var
   LCoord: TPGCoordinate;
 begin
   LCoord := FCoordinate;
-  Advance; // Aspa inicial
-  FStart := FCurrent;
+  Advance; FStart := FCurrent;
   while (not AtEnd) and (FCurrent^ <> AQuote) do
   begin
-    if FCurrent^ = #10 then Inc(FCurrent) else Advance;
+    if FCurrent^ = #10 then FCoordinate.IncLine;
+    Advance;
   end;
-  SetString(LText, FStart, FCurrent - FStart);
-  Advance; // Aspa final
   LCoord.Length := FCurrent - FStart;
-  AList.Add(tkString, LText, LCoord);
+  SetString(LText, FStart, LCoord.Length);
+  Advance;
+  LCoord.Length := LCoord.Length + 2; // Inclui aspas na coordenada
+  AList.Add(pgkString, LText, LCoord);
   Result := True;
 end;
 
@@ -494,35 +509,35 @@ function TPGLexer.HandleSymbol(const AList: TPGTokenList): Boolean;
 var
   LKind: TPGTokenKind;
   LCoord: TPGCoordinate;
-  LBegin: PChar;
+  LText: string;
 begin
   LCoord := FCoordinate;
-  LKind := tkUnknown;
-  LBegin := FCurrent;
+  LKind := pgkUnknown;
 
   case Advance of
-    '.': if FCurrent^ = '.' then begin Advance; LKind := tkDotDot; end else LKind := tkDot;
-    ',': LKind := tkComma;
-    ';': LKind := tkSemiColon;
-    '(': LKind := tkLPar;
-    ')': LKind := tkRPar;
-    '[': LKind := tkLBrack;
-    ']': LKind := tkRBrack;
-    '+': LKind := tkAdd;
-    '-': LKind := tkSub;
-    '*': if FCurrent^ = '*' then begin Advance; LKind := tkPower; end else LKind := tkMult;
-    '/': LKind := tkDiv;
-    '^': LKind := tkTone;
-    '=': LKind := tkEqual;
-    ':': if FCurrent^ = '=' then begin Advance; LKind := tkAssign; end else LKind := tkColon;
-    '>': if FCurrent^ = '=' then begin Advance; LKind := tkGreaterEqual; end else LKind := tkGreater;
-    '<': if FCurrent^ = '=' then begin Advance; LKind := tkLessEqual; end
-         else if FCurrent^ = '>' then begin Advance; LKind := tkNotEqual; end
-         else LKind := tkLess;
+    '.': if FCurrent^ = '.' then begin Advance; LKind := pgkDotDot; end else LKind := pgkDot;
+    ',': LKind := pgkComma;
+    ';': LKind := pgkSemiColon;
+    '(': LKind := pgkLPar;
+    ')': LKind := pgkRPar;
+    '[': LKind := pgkLBrack;
+    ']': LKind := pgkRBrack;
+    '+': LKind := pgkAdd;
+    '-': LKind := pgkSub;
+    '*': if FCurrent^ = '*' then begin Advance; LKind := pgkPower; end else LKind := pgkMult;
+    '/': LKind := pgkDiv;
+    '^': LKind := pgkPower;
+    '=': LKind := pgkEqual;
+    ':': if FCurrent^ = '=' then begin Advance; LKind := pgkAssign; end else LKind := pgkColon;
+    '>': if FCurrent^ = '=' then begin Advance; LKind := pgkGreaterEqual; end else LKind := pgkGreater;
+    '<': if FCurrent^ = '=' then begin Advance; LKind := pgkLessEqual; end
+         else if FCurrent^ = '>' then begin Advance; LKind := pgkNotEqual; end
+         else LKind := pgkLess;
   end;
 
-  LCoord.Length := FCurrent - LBegin;
-  AList.Add(LKind, TValue.Empty, LCoord);
+  LCoord.Length := FCurrent - FStart;
+  SetString(LText, FStart, LCoord.Length);
+  AList.Add(LKind, LText, LCoord);
   Result := True;
 end;
 
@@ -532,7 +547,7 @@ begin
   if Result <> #0 then
   begin
     Inc(FCurrent);
-    FCoordinate.IncCol;
+    FCoordinate.IncCol(1);
   end;
 end;
 
@@ -546,17 +561,9 @@ begin
   Result := FCurrent^ = #0;
 end;
 
-{ TPGTokenInfo }
-
-constructor TPGTokenInfo.Create(AKind: TPGTokenKind; AFriendlyName: string; AIsReserved: Boolean);
-begin
-  Self.FKind := AKind;
-  Self.FFriendlyName := AFriendlyName;
-  Self.FIsReserved := AIsReserved;
-end;
-
 initialization
 
 finalization
 
 end.
+

@@ -5,7 +5,7 @@ Write-Host "Iniciando conversão para UTF-8 com BOM e CRLF..." -ForegroundColor 
 $diretorioAtual = $PSScriptRoot
 
 # Busca todos os arquivos do Delphi recursivamente a partir da pasta do script
-$arquivos = Get-ChildItem -Path $diretorioAtual -Include *.pas, *.dfm, *.dpr, *.dpk -Recurse
+$arquivos = Get-ChildItem -Path $diretorioAtual -Include *.pas, *.dpr, *.dpk -Recurse
 
 foreach ($arq in $arquivos) {
     # Lê o conteúdo original do arquivo

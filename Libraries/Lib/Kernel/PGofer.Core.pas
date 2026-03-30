@@ -100,12 +100,14 @@ type
   function ValueToExtended(const AValue: TValue): Extended;
   function ValueToBoolean(const AValue: TValue): Boolean;
   function ValueToString(const AValue: TValue): string;
+  function FormatCalculatorResult(const AValue: TValue): string;
+  function ValueAdd(const AV1, AV2: TValue): TValue;
   function ValueAlign(const AValue: TValue; ATargetType: TRttiType): TValue;
 
 implementation
 
 uses
-  System.SysUtils, System.IOUtils, System.JSON, System.TypInfo,
+  System.SysUtils, System.IOUtils, System.JSON, System.TypInfo, System.Variants,
   Winapi.Windows,
   Vcl.Graphics,
   PGofer.Files.Controls;
@@ -415,7 +417,7 @@ begin
   Result := GetFromRtti(TPGKernel.RttiContext.GetType(AClass));
 end;
 
-{ }
+{ RunInMainThread }
 
 procedure RunInMainThread(AMethod: TThreadMethod; Sync:Boolean = True);
 begin
@@ -441,77 +443,218 @@ begin
   end;
 end;
 
-function ValueToInt64(const AValue: TValue): Int64;
+function ValueUnbox(const AValue: TValue): TValue;
 begin
-  if AValue.IsEmpty then Exit(0);
-  case AValue.Kind of
-    tkInteger, tkInt64: Result := AValue.AsInt64;
-    tkFloat:            Result := Trunc(AValue.AsExtended);
-    tkEnumeration:      Result := AValue.AsOrdinal;
-    tkString, tkUString, tkWString, tkLString: Result := StrToInt64Def(AValue.ToString, 0);
-  else Result := 0;
-  end;
+  Result := AValue;
+  if (AValue.Kind = tkRecord) and (AValue.TypeInfo = TypeInfo(TValue)) then
+    Result := AValue.AsType<TValue>;
 end;
 
 function ValueToExtended(const AValue: TValue): Extended;
+var
+  LValue: TValue;
 begin
-  if AValue.IsEmpty then Exit(0.0);
-  case AValue.Kind of
-    tkFloat:            Result := AValue.AsExtended;
-    tkInteger, tkInt64: Result := AValue.AsInt64;
-    tkString, tkUString, tkWString: Result := StrToFloatDef(AValue.ToString, 0.0);
-  else Result := 0.0;
-  end;
+  LValue := ValueUnbox(AValue);
+  if LValue.IsEmpty then Exit(0);
+
+  if LValue.IsType<Extended> or LValue.IsType<Double> or LValue.IsType<Single> then
+    Exit(LValue.AsExtended);
+
+  if LValue.IsType<Int64> or LValue.IsType<Integer> then
+    Exit(LValue.AsExtended);
+
+  if AValue.IsType<Boolean> then
+    Exit(TPGKernel.IfThen<Extended>(AValue.AsBoolean, 1, 0));
+
+  Result := StrToFloatDef(LValue.ToString, 0, FormatSettings);
+end;
+
+function ValueToInt64(const AValue: TValue): Int64;
+begin
+  Result := Trunc(ValueToExtended(AValue));
 end;
 
 function ValueToBoolean(const AValue: TValue): Boolean;
 begin
-  if AValue.IsEmpty then Exit(False);
-  case AValue.Kind of
-    tkEnumeration:      Result := AValue.AsBoolean;
-    tkInteger, tkInt64: Result := AValue.AsInt64 <> 0;
-    tkFloat:            Result := AValue.AsExtended <> 0;
-    tkString, tkUString, tkWString: Result := StrToBoolDef(AValue.ToString, False);
-  else Result := False;
-  end;
+  Result := ValueToExtended(AValue) <> 0;
 end;
 
 function ValueToString(const AValue: TValue): string;
+var
+  LArray: TArray<TValue>;
+  I: Integer;
+  LV: TValue;
 begin
-  if AValue.IsEmpty then Exit('');
-  Result := AValue.ToString;
+  // 1. Remove embalagem dupla se existir
+  LV := ValueUnbox(AValue);
+
+  if LV.IsEmpty then Exit('');
+
+  case LV.Kind of
+    tkString, tkLString, tkWString, tkUString, tkChar:
+      Result := LV.AsString;
+
+    tkInteger, tkInt64, tkFloat:
+      Result := LV.ToString;
+
+    tkEnumeration:
+    begin
+      if LV.TypeInfo = TypeInfo(Boolean) then
+        Result := TPGKernel.IfThen<string>(LV.AsBoolean, 'True', 'False')
+      else
+        Result := LV.ToString;
+    end;
+
+    tkArray, tkDynArray:
+    begin
+      if LV.IsType<TArray<TValue>> then
+      begin
+        LArray := LV.AsType<TArray<TValue>>;
+        Result := '[';
+        for I := 0 to High(LArray) do
+        begin
+          Result := Result + ValueToString(LArray[I]);
+          if I < High(LArray) then Result := Result + ', ';
+        end;
+        Result := Result + ']';
+      end else Result := '(array)';
+    end;
+  else
+    Result := LV.ToString;
+  end;
+end;
+
+{ Função auxiliar para o Modo Calculadora (=) }
+function FormatCalculatorResult(const AValue: TValue): string;
+var
+  LNum: Extended;
+begin
+  if AValue.IsType<Extended> or AValue.IsType<Double> or AValue.IsType<Single> then
+  begin
+    LNum := AValue.AsExtended;
+    // Usa o ReplyFormat do Kernel (ex: '0.00')
+    if TPGKernel.ReplyFormat <> '' then
+      Result := FormatFloat(TPGKernel.ReplyFormat, LNum)
+    else
+      Result := FloatToStr(LNum, FormatSettings);
+  end
+  else
+    Result := ValueToString(AValue);
+
+  // Adiciona o prefixo se estiver ativo (ex: "Result: ")
+  if TPGKernel.ReplyPrefix then
+    Result := TPGKernel.Translate('Reply_Prefix') + ' ' + Result;
+end;
+
+function ValueAdd(const AV1, AV2: TValue): TValue;
+var
+  LS1, LS2: string;
+  LN1, LN2: Extended;
+begin
+  // 1. TENTA SER MATEMÁTICO:
+  // Se os dois forem números (físicos ou strings numéricas), soma.
+  LS1 := ValueToString(AV1);
+  LS2 := ValueToString(AV2);
+
+  if TryStrToFloat(LS1, LN1, FormatSettings) and
+     TryStrToFloat(LS2, LN2, FormatSettings) then
+  begin
+    Result := LN1 + LN2;
+  end else begin
+    // 2. CASO CONTRÁRIO, CONCATENA (Resgate do texto original)
+    Result := LS1 + LS2;
+  end;
 end;
 
 function ValueAlign(const AValue: TValue; ATargetType: TRttiType): TValue;
 begin
-  if ATargetType = nil then Exit(AValue);
+  if (ATargetType = nil) or AValue.IsEmpty then Exit(AValue);
 
+  // 1. Se o alvo já é um TValue, passa o que temos (Unboxed)
+  if ATargetType.Handle = TypeInfo(TValue) then
+    Exit(ValueUnbox(AValue));
+
+  // 2. Se os tipos já forem idênticos, não processa nada (ganha performance)
+  if AValue.TypeInfo = ATargetType.Handle then
+    Exit(AValue);
+
+  // 3. Alinhamento por tipo físico exato
   case ATargetType.TypeKind of
-    tkInteger, tkInt64:
+    tkInteger: // Propriedades 32-bit (maioria da VCL)
+      Result := TValue.From<Integer>(Integer(ValueToInt64(AValue)));
+
+    tkInt64:   // Propriedades 64-bit
       Result := TValue.From<Int64>(ValueToInt64(AValue));
 
-    tkFloat:
-      Result := TValue.From<Extended>(ValueToExtended(AValue));
+    tkFloat:   // Ponto flutuante (Single, Double, Extended, Currency)
+    begin
+      if ATargetType.Handle = TypeInfo(Single) then
+        Result := TValue.From<Single>(Single(ValueToExtended(AValue)))
+      else if ATargetType.Handle = TypeInfo(Double) then
+        Result := TValue.From<Double>(Double(ValueToExtended(AValue)))
+      else if ATargetType.Handle = TypeInfo(Currency) then
+        Result := TValue.From<Currency>(ValueToExtended(AValue))
+      else
+        Result := TValue.From<Extended>(ValueToExtended(AValue));
+    end;
+
+    tkUString, tkString, tkWString, tkLString:
+      Result := TValue.From<string>(ValueToString(AValue));
 
     tkEnumeration:
     begin
       if ATargetType.Handle = TypeInfo(Boolean) then
         Result := TValue.From<Boolean>(ValueToBoolean(AValue))
       else
+        // Enums customizados (ex: TWindowState)
         Result := TValue.FromOrdinal(ATargetType.Handle, ValueToInt64(AValue));
     end;
-
-    tkUString, tkString, tkWString, tkLString:
-      Result := TValue.From<string>(ValueToString(AValue));
-
   else
+    // Objetos, Records, Arrays e outros
     Result := AValue;
   end;
 end;
 
+//  case AValue.Kind of
+//    tkInteger, tkInt64:
+//    begin
+//
+//    end;
+//
+//    tkChar, tkWChar, tkString, tkLString, tkWString, tkUString:
+//    begin
+//
+//    end;
+//
+//    tkEnumeration:
+//    begin
+//
+//    end;
+//
+//    tkFloat:
+//    begin
+//
+//    end;
+//
+//    tkArray, tkDynArray:
+//    begin
+//
+//    end;
+//
+//    tkVariant:
+//    begin
+//
+//    end;
+//
+//    //tkUnknown, tkSet, tkClass, tkMethod, tkClassRef, tkPointer, tkProcedure, tkMRecord
+//    //  tkRecord, tkInterface:
+//  else
+//
+//  end;
+
 
 initialization
-
+  FormatSettings.DecimalSeparator := '.';
 finalization
 
 end.

@@ -83,12 +83,12 @@ begin
   FPassword := '';
   FPasswordBuffer := '';
   FSavePassword := False;
-  inherited _Locked := True;
+  Self.SetLockedForced( True );
 end;
 
 destructor TPGVaultFolder.Destroy();
 begin
-  inherited _Locked := False;
+  Self.SetLockedForced( False );
   FSavePassword := False;
   FPassword := '';
   FPasswordBuffer := '';
@@ -111,7 +111,7 @@ begin
         ItemCollect.XMLLoadFromStream(Self, XMLStream);
       end else begin
         TPGKernel.ConsoleTr('Error_VaultLoad',[FFileName]);
-        inherited _Locked := True;
+        Self.SetLockedForced( True );
       end;
     finally
       XMLStream.Free;
@@ -168,18 +168,19 @@ end;
 procedure TPGVaultFolder.SetLocked(const AValue: Boolean);
 begin
   if AValue = Self._Locked then Exit;
-  if not Self.isValid then
+
+  if (not AValue) and (not Self.isValid) then
   begin
     inherited SetLocked( True );
     Exit;
   end;
 
-  inherited _Locked := False;
+  Self.SetLockedForced( False );
   if AValue then
   begin
     Self.BeforeXMLSave( TriggersCollect );
     Self.Clear;
-    inherited _Locked := True;
+    inherited SetLocked( True );
   end else begin
     Self.BeforeXMLLoad( TriggersCollect );
   end;

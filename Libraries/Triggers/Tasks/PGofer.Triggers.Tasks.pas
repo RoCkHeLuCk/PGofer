@@ -18,7 +18,7 @@ type
     FTrigger: Byte;
     function GetScript: string;
     procedure SetScript( AValue: string );
-    class var FTaskList: TList<TPGTask>;
+    class var FTaskList: TThreadList<TPGTask>;
   protected
     class function GetFrameType: TPGTriggerFrameType; override;
   public
@@ -55,7 +55,7 @@ uses
 
 class constructor TPGTask.Create;
 begin
-   FTaskList := TList<TPGTask>.Create;
+   FTaskList := TThreadList<TPGTask>.Create;
 end;
 
 class destructor TPGTask.Destroy;
@@ -69,30 +69,31 @@ begin
   Result := TPGTaskFrame;
 end;
 
-class procedure TPGTask.Working( AType: Byte; AWaitFor: Boolean = False );
+class procedure TPGTask.Working(AType: Byte; AWaitFor: Boolean = False);
 var
-  Item: TPGTask;
-  C: Integer;
-  NeedSave: Boolean;
+  LList: TList<TPGTask>;
+  LItem: TPGTask;
+  LNeedSave: Boolean;
 begin
-  NeedSave := False;
-  if Assigned(TPGTask.FTaskList) then
-  begin
-    for C := 0 to TPGTask.FTaskList.Count - 1 do
+  LNeedSave := False;
+  LList := FTaskList.LockList;
+  try
+    for LItem in LList do
     begin
-      Item := TPGTask.FTaskList[ C ];
-      if ( Item.Trigger = AType ) and ( Item.Enabled ) and
-        ( ( Item.Repeats = 0 ) or ( Item.Occurrence < Item.Repeats ) ) then
+      if (LItem.Trigger = AType) and (LItem.Enabled) and
+         ((LItem.Repeats = 0) or (LItem.Occurrence < LItem.Repeats)) then
       begin
-        ScriptExec( 'Task: ' + Item.Name, Item.Script, nil, AWaitFor );
-        Item.Occurrence := Item.Occurrence + 1;
-        NeedSave := True;
+        ScriptExec('Task: ' + LItem.Name, LItem.Script, nil, AWaitFor);
+        LItem.Occurrence := LItem.Occurrence + 1;
+        LNeedSave := True;
       end;
     end;
-
-    if NeedSave and Assigned(TriggersCollect) then
-       TriggersCollect.XMLSaveToFile( );
+  finally
+    FTaskList.UnlockList;
   end;
+
+  if LNeedSave and Assigned(TriggersCollect) then
+     TriggersCollect.XMLSaveToFile();
 end;
 
 

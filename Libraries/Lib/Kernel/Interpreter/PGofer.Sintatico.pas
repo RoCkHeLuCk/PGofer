@@ -54,13 +54,16 @@ type
 
     { Helpers Sintáticos }
     function Match(const AKind: TPGTokenKind): Boolean;
+    function MatchKeyword(const AWord: string): Boolean;
     function Consume(const AKind: TPGTokenKind; const AErrorMessageKey: string = ''): Boolean;
+    function ConsumeKeyword(const AWord: string): Boolean;
     procedure Error(const AMessageKey: string; const AArgs: array of const);
     procedure Msg(const AMessageKey: string; const AArgs: array of const);
 
     { Controle de Debug }
     procedure CheckBreakpoint;
     procedure ResumeExecution;
+    procedure DumpTokens;
 
     property Stack: TPGStack read FStack;
     property Local: TPGItem read FLocal;
@@ -68,12 +71,13 @@ type
     property HasError: Boolean read FError write FError;
     property Script: string read FScript;
     property IsDebugging: Boolean read FIsDebugging;
+    function IsStartOfCommand: Boolean;
   end;
 
 implementation
 
 uses
-  System.SysUtils, Vcl.Forms,
+  System.SysUtils, System.TypInfo, Vcl.Forms,
   PGofer.Core, PGofer.Sintatico.Controls, PGofer.Runtime;
 
 { TPGStack }
@@ -217,6 +221,42 @@ begin
   Result := (FTokenList.Current <> nil) and (FTokenList.Current.Kind = AKind);
 end;
 
+function TPGGrammar.MatchKeyword(const AWord: string): Boolean;
+begin
+  // Verifica se o token atual é uma palavra reservada E se o texto bate
+  Result := (TokenList.Current <> nil) and
+            (TokenList.Current.Kind = pgkKeyword) and
+            SameText(TokenList.Current.Value.ToString, AWord);
+end;
+
+function TPGGrammar.ConsumeKeyword(const AWord: string): Boolean;
+begin
+  if MatchKeyword(AWord) then
+  begin
+    TokenList.Next;
+    Exit(True);
+  end;
+  // Se não for a palavra esperada, gera erro
+  Error('Error_Expected', [AWord]);
+  Result := False;
+end;
+
+{ Novo Helper: Verifica se o token atual é o início de um comando válido }
+function TPGGrammar.IsStartOfCommand: Boolean;
+var
+  LKind: TPGTokenKind;
+begin
+  if (TokenList.Current = nil) then Exit(False);
+  LKind := TokenList.Current.Kind;
+
+  // Um comando pode começar com:
+  // 1. Identificador (Nome de classe ou variável)
+  // 2. Begin (Início de bloco)
+  // 3. "=" (Modo calculadora)
+  // 4. ";" (Comando vazio)
+  Result := LKind in [pgkIdentifier, pgkBegin, pgkEqual, pgkSemiColon];
+end;
+
 function TPGGrammar.Consume(const AKind: TPGTokenKind; const AErrorMessageKey: string): Boolean;
 begin
   if Match(AKind) then
@@ -235,23 +275,37 @@ end;
 
 procedure TPGGrammar.Error(const AMessageKey: string; const AArgs: array of const);
 var
-  LText, LLexema: string;
+  LText, LLexema, LCoordStr: string;
+  LToken: TPGToken;
 begin
   FError := True;
 
-  if FTokenList.Current <> nil then
-    LLexema := '"' + FTokenList.Current.Value.ToString + '" '
+  // Captura o token uma única vez para evitar race conditions ou mudanças de ponteiro
+  LToken := FTokenList.Current;
+
+  if (LToken <> nil) then
+  begin
+    LCoordStr := LToken.Coordinate.ToString;
+    LLexema := LToken.Value.ToString;
+
+    // Se o valor for vazio (keywords, símbolos), usa o nome amigável
+    if LLexema = '' then
+      LLexema := TPGLexicalRegistry.GetFriendlyName(LToken.Kind);
+
+    LLexema := '"' + LLexema + '" ';
+  end
   else
-    LLexema := 'EOF';
+  begin
+    // Fallback caso o token seja nulo (fim catastrófico do script)
+    LCoordStr := 'EOF';
+    LLexema := 'EOF ';
+  end;
 
   LText := TPGKernel.Translate(AMessageKey, AArgs);
 
+  // Agora é impossível dar AV aqui
   TPGKernel.Console(
-    Format('%s [%s]: %s', [
-      FLocal.Name,
-      LLexema,
-      LText
-    ]),
+    Format('%s [%s] %s: %s', [FLocal.Name, LCoordStr, LLexema, LText]),
     True, FShowMessages
   );
 end;
@@ -292,6 +346,29 @@ begin
   // Início da Análise Sintática
   PGofer.Sintatico.Controls.Statements(Self);
 end;
+
+procedure TPGGrammar.DumpTokens;
+var
+  I: Integer;
+  LMarker: string;
+  LToken: TPGToken;
+begin
+  TPGKernel.Console('--- DEBUG TOKEN LIST ---', True, True);
+  for I := 0 to FTokenList.Count - 1 do
+  begin
+    LToken := FTokenList.Items[I]; // Assumindo que você tem acesso à lista interna
+    if I = FTokenList.Position then LMarker := '>>> ' else LMarker := '    ';
+
+    TPGKernel.Console(Format('%s[%d] Kind: %s | Val: %s | Coord: %s', [
+      LMarker, I,
+      GetEnumName(TypeInfo(TPGTokenKind), Ord(LToken.Kind)),
+      LToken.Value.ToString,
+      LToken.Coordinate.ToString
+    ]), True, True);
+  end;
+  TPGKernel.Console('--- END DUMP ---', True, True);
+end;
+
 
 initialization
 

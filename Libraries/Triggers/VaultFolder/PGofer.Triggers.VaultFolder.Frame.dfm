@@ -1,4 +1,4 @@
-﻿inherited PGVaultFolderFrame: TPGVaultFolderFrame
+inherited PGVaultFolderFrame: TPGVaultFolderFrame
   Height = 216
   ExplicitHeight = 216
   inherited grbAbout: TGroupBox
@@ -64,13 +64,13 @@
       Anchors = [akLeft, akTop, akRight]
       Color = clSilver
       TabOrder = 2
-      Text = ''
       StyleElements = [seFont, seClient]
       ValidationMode = vmSaveFile
       ActionButtonShow = True
       PathAutoUnExpand = True
       PathDialogFilter = 'PGofer Vault (*.pgv)|*.pgv|All Files (*.*)|*.*'
       PathDialogTitle = 'Vault File'
+      PathDefaultExt = 'pgv'
       OnAfterValidate = EdtFileAfterValidate
     end
     object EdtPassword: TEditEx
@@ -82,7 +82,6 @@
       Color = clSilver
       PasswordChar = '*'
       TabOrder = 4
-      Text = ''
       StyleElements = [seFont, seClient]
       ValidationMode = vmPassword
       ActionButtonShow = True

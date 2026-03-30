@@ -30,6 +30,7 @@ type
     FPathAutoUnExpand: Boolean;
     FPathDialogFilter: string;
     FPathDialogTitle: string;
+    FPathDefaultExt: string;
 
     { RegEx }
     FRegEx: TRegEx;
@@ -87,6 +88,7 @@ type
     property PathAutoUnExpand: Boolean read FPathAutoUnExpand write FPathAutoUnExpand default False;
     property PathDialogFilter: string read FPathDialogFilter write FPathDialogFilter;
     property PathDialogTitle: string read FPathDialogTitle write FPathDialogTitle;
+    property PathDefaultExt: string read FPathDefaultExt write FPathDefaultExt;
 
     { Grupo: RegEx - Agora funciona em conjunto com qualquer ValidationMode }
     property RegExBlockInvalidKeys: Boolean read FRegExBlockInvalidKeys write FRegExBlockInvalidKeys default False;
@@ -277,7 +279,6 @@ begin
       FRegExCompiled := True;
     except
       FRegExCompiled := False;
-      //raise Exception.Create('EditEx Error: RegEx Expression invalid!');
     end;
   end;
 end;
@@ -301,7 +302,11 @@ begin
     vmOpenFile:
       LNewPath := FileOpenSaveDialog(FPathDialogTitle, FPathDialogFilter, Self.Text, False);
     vmSaveFile:
-      LNewPath := FileOpenSaveDialog(FPathDialogTitle, FPathDialogFilter, Self.Text, True);
+      begin
+        LNewPath := FileOpenSaveDialog(FPathDialogTitle, FPathDialogFilter, Self.Text, True);
+        if (LNewPath <> '') and (FPathDefaultExt <> '') and (ExtractFileExt(LNewPath) = '') then
+          LNewPath := LNewPath + '.' + FPathDefaultExt;
+      end;
     vmPathExists:
       LNewPath := FileDirDialog(Self.Text);
   else

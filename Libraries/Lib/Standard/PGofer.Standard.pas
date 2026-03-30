@@ -4,7 +4,7 @@ interface
 
 uses
   System.SysUtils, System.Rtti,
-  PGofer.Sintatico, PGofer.Runtime;
+  PGofer.Sintatico, PGofer.Classes, PGofer.Runtime;
 
 type
   { Utilitários de String }
@@ -34,28 +34,33 @@ type
     function ExecuteAction(const ATitle, ADefault: string): string;
   end;
 
-  { Controle de Fluxo (O Coração do Script) }
+  { Controle de Fluxo }
   TPGIf = class(TPGItemClass)
   public
+    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
+    function ExecuteAction(ACondition: Boolean; const ATrueValue, AFalseValue: TValue): TValue;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
   TPGFor = class(TPGItemClass)
   public
+    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
   TPGWhile = class(TPGItemClass)
   public
+    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
   TPGRepeat = class(TPGItemClass)
   public
+    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
-  { Gestão de Memória de Script }
+  { Gestão de Memória }
   TPGIsDef = class(TPGItemClass)
   public
     procedure Execute(const AGrammar: TPGGrammar); override;
@@ -81,13 +86,13 @@ implementation
 
 uses
   Vcl.Dialogs, System.Math,
-  PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico.Controls,
+  PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls,
   PGofer.Standard.Variants;
 
 { TPGCopy }
 function TPGCopy.ExecuteAction(AValue: string; AStart, ACount: Integer): string;
 begin
-  Result := Copy(AValue, AStart, ACount);
+  Result := System.Copy(AValue, AStart, ACount);
 end;
 
 { TPGDelete }
@@ -124,38 +129,75 @@ begin
 end;
 
 { TPGIf }
+constructor TPGIf.Create(AOwner: TPGItem; const AName: string);
+begin
+  inherited;
+  TPGLexicalRegistry.RegisterKeyword('then', pgkKeyword, 'then');
+  TPGLexicalRegistry.RegisterKeyword('else', pgkKeyword, 'else');
+end;
+
+function TPGIf.ExecuteAction(ACondition: Boolean; const ATrueValue, AFalseValue: TValue): TValue;
+begin
+  if ACondition then Result := ATrueValue else Result := AFalseValue;
+end;
+
 procedure TPGIf.Execute(const AGrammar: TPGGrammar);
 var
   LCondition: Boolean;
 begin
+  if AGrammar.TokenList.Peek(1).Kind = pgkLPar then
+  begin
+    inherited Execute(AGrammar); // Chama TPGItemClass.Execute (RTTI Funcional)
+    Exit;
+  end;
+
   AGrammar.TokenList.Next; // Pula 'if'
-  Expression(AGrammar);
+  Expression(AGrammar);    // Avalia a condição
 
   if not AGrammar.HasError then
   begin
-    LCondition := AGrammar.Stack.Pop.AsBoolean;
+    LCondition := ValueToBoolean(AGrammar.Stack.Pop);
 
-    if AGrammar.Consume(tkThen) then
+    if AGrammar.ConsumeKeyword('then') then
     begin
+      // --- BLOCO THEN ---
       if LCondition then
         Commands(AGrammar)
       else
-        FindEnd(AGrammar, AGrammar.Match(tkBegin));
+        FindEnd(AGrammar, AGrammar.Match(pgkBegin));
 
-      // Trata o ELSE opcional
-      if (not AGrammar.HasError) and AGrammar.Match(tkElse) then
+      // --- TRATAMENTO DO ELSE ---
+      // Se houver um ";" entre o comando do THEN e o ELSE, pulamos ele para checar o ELSE
+      if AGrammar.Match(pgkSemiColon) then
       begin
-        AGrammar.TokenList.Next;
+        // Espia o próximo token sem avançar o ponteiro principal
+        if SameText(AGrammar.TokenList.Items[AGrammar.TokenList.Position + 1].Value.ToString, 'else') then
+          AGrammar.TokenList.Next; // Pula o ";" apenas se o próximo for o ELSE
+      end;
+
+      if (not AGrammar.HasError) and AGrammar.MatchKeyword('else') then
+      begin
+        AGrammar.TokenList.Next; // Pula 'else'
+
+        // --- BLOCO ELSE ---
         if not LCondition then
           Commands(AGrammar)
         else
-          FindEnd(AGrammar, AGrammar.Match(tkBegin));
+          FindEnd(AGrammar, AGrammar.Match(pgkBegin));
       end;
     end;
   end;
 end;
 
 { TPGFor }
+constructor TPGFor.Create(AOwner: TPGItem; const AName: string);
+begin
+  inherited;
+  TPGLexicalRegistry.RegisterKeyword('to', pgkKeyword, 'to');
+  TPGLexicalRegistry.RegisterKeyword('downto', pgkKeyword, 'downto');
+  TPGLexicalRegistry.RegisterKeyword('do', pgkKeyword, 'do');
+end;
+
 procedure TPGFor.Execute(const AGrammar: TPGGrammar);
 var
   LVar: TPGVariant;
@@ -170,20 +212,19 @@ begin
   LVar := TPGVariant.GetOrCreate(AGrammar);
   if Assigned(LVar) then
   begin
-    LVar.Execute(AGrammar); // Executa a atribuição inicial (i := 0)
+    LVar.Execute(AGrammar); // Processa "i := 0"
     LStart := ValueToInt64(LVar.Value);
 
-    LIsDownTo := AGrammar.Match(tkDownTo);
-    if AGrammar.Match(tkTo) or LIsDownTo then
+    LIsDownTo := AGrammar.MatchKeyword('downto');
+    if AGrammar.MatchKeyword('to') or LIsDownTo then
     begin
-      AGrammar.TokenList.Next; // Pula 'to' ou 'downto'
+      AGrammar.TokenList.Next; // Pula 'to'/'downto'
       Expression(AGrammar);
       LLimit := ValueToInt64(AGrammar.Stack.Pop);
 
-      if AGrammar.Consume(tkDo) then
+      if AGrammar.ConsumeKeyword('do') then
       begin
         if AGrammar.HasError then Exit;
-
         LStartPos := AGrammar.TokenList.Position;
         LCounter := 0;
 
@@ -193,15 +234,13 @@ begin
         begin
           AGrammar.TokenList.Position := LStartPos;
           Commands(AGrammar);
-
           if LIsDownTo then Dec(LStart) else Inc(LStart);
           Inc(LCounter);
-          LVar.Value := LStart; // Atualiza a variável de loop
+          LVar.Value := LStart;
         end;
 
         AGrammar.TokenList.Position := LStartPos;
-        // FindEnd vai pular o comando que o For acabou de repetir
-        FindEnd(AGrammar, AGrammar.Match(tkBegin));
+        FindEnd(AGrammar, AGrammar.Match(pgkBegin));
 
         if LCounter >= LLoopLimit then
           AGrammar.Error('Error_Interpreter_LoopLimit', [LLoopLimit]);
@@ -211,6 +250,12 @@ begin
 end;
 
 { TPGWhile }
+constructor TPGWhile.Create(AOwner: TPGItem; const AName: string);
+begin
+  inherited;
+  TPGLexicalRegistry.RegisterKeyword('do', pgkKeyword, 'do');
+end;
+
 procedure TPGWhile.Execute(const AGrammar: TPGGrammar);
 var
   LStartPos: Integer;
@@ -227,17 +272,16 @@ begin
     AGrammar.TokenList.Position := LStartPos;
     Expression(AGrammar);
 
-    if AGrammar.Stack.Pop.AsBoolean then
+    if ValueToBoolean(AGrammar.Stack.Pop) then
     begin
-      if AGrammar.Consume(tkDo) then
+      if AGrammar.ConsumeKeyword('do') then
         Commands(AGrammar)
       else Break;
     end
     else
     begin
-      // Condição falsa, pula o corpo do while
-      AGrammar.Consume(tkDo);
-      FindEnd(AGrammar, AGrammar.Match(tkBegin));
+      AGrammar.ConsumeKeyword('do');
+      FindEnd(AGrammar, AGrammar.Match(pgkBegin));
       Break;
     end;
     Inc(LCounter);
@@ -245,6 +289,12 @@ begin
 end;
 
 { TPGRepeat }
+constructor TPGRepeat.Create(AOwner: TPGItem; const AName: string);
+begin
+  inherited;
+  TPGLexicalRegistry.RegisterKeyword('until', pgkKeyword, 'until');
+end;
+
 procedure TPGRepeat.Execute(const AGrammar: TPGGrammar);
 var
   LStartPos: Integer;
@@ -260,10 +310,10 @@ begin
     AGrammar.TokenList.Position := LStartPos;
     Statements(AGrammar);
 
-    if AGrammar.Consume(tkUntil) then
+    if AGrammar.ConsumeKeyword('until') then
     begin
       Expression(AGrammar);
-      if AGrammar.Stack.Pop.AsBoolean then Break;
+      if ValueToBoolean(AGrammar.Stack.Pop) then Break;
     end else Break;
 
     Inc(LCounter);
@@ -274,9 +324,10 @@ end;
 procedure TPGIsDef.Execute(const AGrammar: TPGGrammar);
 var LName: string;
 begin
+  AGrammar.TokenList.Next; // Pula nome
   if ReadParameters(AGrammar, 1, 1) = 1 then
   begin
-    LName := AGrammar.Stack.Pop.ToString;
+    LName := ValueToString(AGrammar.Stack.Pop);
     AGrammar.Stack.Push(Assigned(FindID(AGrammar.Local, LName)));
   end;
 end;
@@ -287,16 +338,16 @@ var
   LName: string;
   LItem: TPGItem;
 begin
+  AGrammar.TokenList.Next; // Pula nome
   if ReadParameters(AGrammar, 1, 1) = 1 then
   begin
-    LName := AGrammar.Stack.Pop.ToString;
+    LName := ValueToString(AGrammar.Stack.Pop);
     LItem := FindID(AGrammar.Local, LName);
     if Assigned(LItem) and (not LItem.SystemNode) then
     begin
       LItem.Free;
       AGrammar.Stack.Push(True);
-    end
-    else
+    end else
       AGrammar.Stack.Push(False);
   end;
 end;

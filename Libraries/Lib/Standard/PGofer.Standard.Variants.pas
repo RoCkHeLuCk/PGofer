@@ -29,11 +29,12 @@ type
     property Value: TValue read FValue write FValue;
   end;
 
-  { Declarador de Variáveis e Constantes }
+  { Declarador de Variáveis e Constantes (Var, Const) }
   TPGVariantDeclare = class(TPGItemClass)
   strict private
-    class procedure DeclareLevel1(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
+    class procedure InternalDeclare(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
   public
+    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
     class procedure ExecuteEx(const AGrammar: TPGGrammar; ANivel: TPGItem);
   end;
@@ -86,7 +87,7 @@ begin
   else if LID is TPGVariant then
     Result := TPGVariant(LID)
   else
-    Result := nil; // Colisão de nomes com outro tipo de objeto
+    Result := nil;
 end;
 
 procedure TPGVariant.Execute(const AGrammar: TPGGrammar);
@@ -95,61 +96,50 @@ var
   LArray: TArray<TValue>;
   LNewVal: TValue;
 begin
-  AGrammar.TokenList.Next; // Avança o nome da variável
+  AGrammar.TokenList.Next; // Pula o nome da variável
 
-  // --- SUPORTE A INDEXAÇÃO: Variavel[n] ---
-  if AGrammar.Match(tkLBrack) then
+  // --- INDEXAÇÃO: Variavel[n] ---
+  if AGrammar.Match(pgkLBrack) then
   begin
     AGrammar.TokenList.Next; // Pula '['
     Expression(AGrammar);
-    LIndex := AGrammar.Stack.Pop.AsInteger;
-    AGrammar.Consume(tkRBrack);
+    // Usa ValueToInt64 para aceitar arr[1.0] sem erro
+    LIndex := ValueToInt64(AGrammar.Stack.Pop);
+
+    if not AGrammar.Consume(pgkRBrack) then Exit;
 
     LArray := GetValueAsArray;
 
-    // Se for ATRIBUIÇÃO ao índice: Variavel[0] := 10
-    if AGrammar.Match(tkAssign) then
+    if AGrammar.Match(pgkAssign) then
     begin
-      if FIsConstant then
-      begin
-        AGrammar.Error('Error_Interpreter_Const', []);
-        Exit;
-      end;
-
-      AGrammar.TokenList.Next; // Pula ':='
+      if FIsConstant then begin AGrammar.Error('Error_Interpreter_Const', []); Exit; end;
+      AGrammar.TokenList.Next;
       Expression(AGrammar);
       LNewVal := AGrammar.Stack.Pop;
 
-      // Garante que o array tenha tamanho suficiente
-      if LIndex >= Length(LArray) then
-        SetLength(LArray, LIndex + 1);
-
+      if LIndex >= Length(LArray) then SetLength(LArray, LIndex + 1);
       LArray[LIndex] := LNewVal;
       SetValueAsArray(LArray);
     end
     else
     begin
-      // Se for LEITURA do índice: x := Variavel[0]
       if (LIndex >= 0) and (LIndex < Length(LArray)) then
         AGrammar.Stack.Push(LArray[LIndex])
       else
         AGrammar.Stack.Push(TValue.Empty);
     end;
   end
-  // --- ATRIBUIÇÃO NORMAL OU LEITURA ---
-  else if AGrammar.Match(tkAssign) then
+  // --- ATRIBUIÇÃO OU LEITURA ---
+  else if AGrammar.Match(pgkAssign) then
   begin
-    if FIsConstant then
-      AGrammar.Error('Error_Interpreter_Const', [])
-    else
-    begin
-      AGrammar.TokenList.Next; // Pula ':='
+    if FIsConstant then AGrammar.Error('Error_Interpreter_Const', [])
+    else begin
+      AGrammar.TokenList.Next;
       Expression(AGrammar);
       FValue := AGrammar.Stack.Pop;
     end;
   end
   else
-    // Apenas leitura da variável: empilha o valor total
     AGrammar.Stack.Push(FValue);
 end;
 
@@ -160,46 +150,47 @@ end;
 
 { TPGVariantDeclare }
 
-class procedure TPGVariantDeclare.DeclareLevel1(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
+constructor TPGVariantDeclare.Create(AOwner: TPGItem; const AName: string);
+begin
+  inherited;
+  // Registra a palavra reservada necessária para esta classe
+  TPGLexicalRegistry.RegisterKeyword('global', pgkKeyword, 'global');
+end;
+
+class procedure TPGVariantDeclare.InternalDeclare(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
 var
   LTitle: string;
   LID: TPGItem;
   LValue: TValue;
 begin
   LTitle := AGrammar.TokenList.Current.Value.ToString;
-  LID := FindID(ANivel, LTitle);
+  LID := ANivel.FindName(LTitle);
 
   if (LID = nil) or (LID is TPGVariant) then
   begin
     AGrammar.TokenList.Next;
 
-    // Inicialização opcional: var x := 10;
-    if AGrammar.Match(tkAssign) then
+    if AGrammar.Match(pgkAssign) then
     begin
       AGrammar.TokenList.Next;
       Expression(AGrammar);
-      if not AGrammar.HasError then
-        LValue := AGrammar.Stack.Pop
-      else
-        Exit;
+      if not AGrammar.HasError then LValue := AGrammar.Stack.Pop else Exit;
     end
     else
-      LValue := 0; // Default
+      LValue := 0;
 
     if (LID = nil) or (LID.Parent <> ANivel) then
-      TPGVariant.Create(ANivel, LTitle, LValue, AIsConstant)
-    else
     begin
-      // Re-declaração no mesmo nível: apenas atualiza
+      TPGVariant.Create(ANivel, LTitle, LValue, AIsConstant)
+    end else begin
       TPGVariant(LID).Value := LValue;
       AGrammar.Msg('Warning_Interpreter_Redeclare', [LTitle]);
     end;
 
-    // Suporte a declaração múltipla: var a, b, c;
-    if AGrammar.Match(tkComma) then
+    if AGrammar.Match(pgkComma) then
     begin
       AGrammar.TokenList.Next;
-      DeclareLevel1(AGrammar, ANivel, AIsConstant);
+      InternalDeclare(AGrammar, ANivel, AIsConstant);
     end;
   end
   else
@@ -210,21 +201,23 @@ procedure TPGVariantDeclare.Execute(const AGrammar: TPGGrammar);
 var
   LIsConstant: Boolean;
 begin
-  LIsConstant := SameText(AGrammar.TokenList.Current.Value.ToString, 'Const');
-  AGrammar.TokenList.Next;
+  // Identifica se é Var ou Const pelo nome da instância
+  LIsConstant := SameText(Self.Name, 'Const');
+  AGrammar.TokenList.Next; // Pula 'var' ou 'const'
 
-  if AGrammar.Match(tkGlobal) then
+  // Verifica se o modificador 'global' está presente
+  if AGrammar.MatchKeyword('global') then
   begin
-    AGrammar.TokenList.Next;
-    DeclareLevel1(AGrammar, TPGVariant.GlobList, LIsConstant);
+    AGrammar.TokenList.Next; // Pula 'global'
+    InternalDeclare(AGrammar, TPGVariant.GlobList, LIsConstant);
   end
   else
-    DeclareLevel1(AGrammar, AGrammar.Local, LIsConstant);
+    InternalDeclare(AGrammar, AGrammar.Local, LIsConstant);
 end;
 
 class procedure TPGVariantDeclare.ExecuteEx(const AGrammar: TPGGrammar; ANivel: TPGItem);
 begin
-  DeclareLevel1(AGrammar, ANivel, False);
+  InternalDeclare(AGrammar, ANivel, False);
 end;
 
 initialization

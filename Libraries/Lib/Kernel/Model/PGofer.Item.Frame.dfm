@@ -1,4 +1,4 @@
-﻿object PGItemFrame: TPGItemFrame
+object PGItemFrame: TPGItemFrame
   Left = 0
   Top = 0
   Width = 400
@@ -82,7 +82,6 @@
       AutoSize = False
       Color = clSilver
       TabOrder = 0
-      Text = ''
       StyleElements = [seFont, seClient]
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'

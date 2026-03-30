@@ -1,4 +1,4 @@
-﻿inherited PGFolderFrame: TPGFolderFrame
+inherited PGFolderFrame: TPGFolderFrame
   Height = 138
   ExplicitHeight = 138
   inherited grbAbout: TGroupBox

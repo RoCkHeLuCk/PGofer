@@ -82,6 +82,7 @@ type
   protected
     procedure SetExpanded(const AValue: Boolean); virtual;
     procedure SetLocked(const AValue: Boolean); virtual;
+    procedure SetLockedForced(const AValue: Boolean);
   public
     constructor Create(AOwner: TPGItem; const AName: string); override;
     procedure ExecuteAction(AExpanded: Boolean = True; ALocked: Boolean = False);
@@ -144,15 +145,15 @@ begin
   AGrammar.TokenList.Next;
 
   case AGrammar.TokenList.Current.Kind of
-    tkDot:   ExecuteMember(AGrammar); // Obj.Membro
-    tkLPar:                           // Obj(Args)
+    pgkDot:   ExecuteMember(AGrammar); // Obj.Membro
+    pgkLPar:                           // Obj(Args)
     begin
       if Assigned(FDefaultAction) then
         ExecuteRttiMethod(AGrammar, FDefaultAction, Self)
       else
         AGrammar.Error('Error_Interpreter_NoArgsSupported', []);
     end;
-    tkSemiColon, tkEOF, tkEnd: ExecuteDefault(AGrammar);
+    pgkSemiColon, pgkEOF, pgkEnd: ExecuteDefault(AGrammar);
   else
     AGrammar.Error('Error_Interpreter_Unrecog', []);
   end;
@@ -181,6 +182,7 @@ var
   LParams: TArray<TRttiParameter>;
   LValues: array of TValue;
   LCount, I: Integer;
+  LResult: TValue;
 begin
   Result := False;
   if not Assigned(AMethod) then Exit;
@@ -209,8 +211,12 @@ begin
 
     try
       if Assigned(AMethod.ReturnType) then
-        AGrammar.Stack.Push(AMethod.Invoke(ATarget, LValues))
-      else
+      begin
+        LResult := AMethod.Invoke(ATarget, LValues);
+        if (LResult.Kind = tkRecord) and (LResult.TypeInfo = TypeInfo(TValue)) then
+          LResult := LResult.AsType<TValue>;
+        AGrammar.Stack.Push(LResult);
+      end else
         AMethod.Invoke(ATarget, LValues);
       Result := True;
     except
@@ -279,7 +285,12 @@ var
   LVal: TValue;
 begin
   LProp := TRttiProperty(FMember);
-  LTarget := TPGKernel.IfThen<TValue>(Assigned(FTargetClass), TValue.From<TClass>(FTargetClass), TValue.From<TPGItem>(Self.Parent));
+
+  LTarget := TPGKernel.IfThen<TValue>(
+     Assigned(FTargetClass),
+     TValue.From<TClass>(FTargetClass),
+     TValue.From<TPGItem>(Self.Parent)
+  );
 
   if LProp.IsReadable then
     LVal := LProp.GetValue(LTarget.AsObject);
@@ -288,7 +299,15 @@ begin
   LVal := Assignment(AGrammar, LVal);
 
   if (not AGrammar.HasError) and LProp.IsWritable then
-    LProp.SetValue(LTarget.AsObject, LVal);
+  begin
+    try
+      LVal := ValueAlign(LVal, LProp.PropertyType);
+      LProp.SetValue(LTarget.AsObject, LVal);
+    except
+      on E: Exception do
+        AGrammar.Error('Error_Runtime_Typecast', [LProp.Name, E.Message]);
+    end;
+  end;
 end;
 
 function TPGItemProperty.GetAbout: string;
@@ -344,7 +363,7 @@ var
   LNewObj: TPGItemClass;
 begin
   AGrammar.TokenList.Next;
-  if AGrammar.Match(tkLPar) then
+  if AGrammar.Match(pgkLPar) then
   begin
     // Lazy load do mapa de argumentos
     if FArgsMap = nil then FArgsMap := TPGItemClass.GetClassArgsMap(FTargetClass);
@@ -369,7 +388,7 @@ begin
       LNewObj.AfterCreate(AGrammar);
     end;
   end
-  else if AGrammar.Match(tkDot) then
+  else if AGrammar.Match(pgkDot) then
     ExecuteMember(AGrammar)
   else
     AGrammar.Error('Error_Interpreter_Unrecog', []);
@@ -406,8 +425,14 @@ end;
 
 procedure TPGFolder.SetLocked(const AValue: Boolean);
 begin
+  if AValue = FLocked then Exit;
   FLocked := AValue;
   if FLocked then SetExpanded(False);
+end;
+
+procedure TPGFolder.SetLockedForced(const AValue: Boolean);
+begin
+  FLocked := AValue;
 end;
 
 { Execução de Scripts }

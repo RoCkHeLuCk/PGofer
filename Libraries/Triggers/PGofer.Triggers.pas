@@ -68,7 +68,6 @@ type
     procedure Frame( AParent: TObject ); override;
     function BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
     function BeforeXMLLoad(ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
-    //function isItemExist( AName: string; ALocal: Boolean ): Boolean; virtual;
     function TranscendName( AName: string; AItemList: TPGItem = nil ): string;
   published
     property Namespace: Boolean read FNamespace write SetNamespace;
@@ -302,20 +301,6 @@ procedure TPGFolderMirror.Frame(AParent: TObject);
 begin
   TPGFolderFrame.Create( Self, AParent );
 end;
-
-//function TPGFolderMirror.isItemExist(AName: string; ALocal: Boolean): Boolean;
-//var
-//  Item: TPGItem;
-//begin
-//  if not FNamespace then Exit(False);
-//
-//  if ALocal then
-//    Item := Self.Parent.FindName( AName )
-//  else
-//    Item := FindID( GlobalCollection, AName );
-//
-//  Result := ( Assigned( Item ) and ( Item <> Self ) );
-//end;
 
 function TPGFolderMirror.BeforeXMLSave(ItemCollect: TPGItemCollectTrigger): Boolean;
 begin
