@@ -1,4 +1,4 @@
-﻿inherited PGTaskFrame: TPGTaskFrame
+inherited PGTaskFrame: TPGTaskFrame
   Height = 255
   ExplicitHeight = 255
   object sptScript: TSplitter [0]
@@ -48,7 +48,6 @@
       StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
-      Text = ''
     end
   end
   inherited grbAbout: TGroupBox
@@ -101,7 +100,7 @@
       Style = csDropDownList
       Color = clSilver
       ItemIndex = 0
-      TabOrder = 5
+      TabOrder = 4
       Text = 'Initializing'
       StyleElements = [seFont, seClient]
       OnChange = CmbTriggerChange
@@ -116,41 +115,30 @@
       Width = 45
       Height = 21
       Color = clSilver
+      ReadOnly = True
       TabOrder = 1
       Text = '0'
       StyleElements = [seFont, seClient]
-      OnAfterValidate = EdtOccurrenceAfterValidate
     end
-    object UpdOccurrence: TUpDown [6]
-      Left = 247
-      Top = 60
-      Width = 16
-      Height = 21
-      Associate = EdtOccurrence
-      Max = 999999999
-      TabOrder = 2
-      StyleElements = [seFont, seClient]
-      OnChangingEx = UpdOccurrenceChangingEx
-    end
-    object EdtRepeat: TEditEx [7]
+    object EdtRepeat: TEditEx [6]
       Left = 70
       Top = 60
       Width = 45
       Height = 21
       Color = clSilver
-      TabOrder = 3
+      TabOrder = 2
       Text = '0'
       StyleElements = [seFont, seClient]
       OnAfterValidate = EdtRepeatAfterValidate
     end
-    object UpdRepeat: TUpDown [8]
+    object UpdRepeat: TUpDown [7]
       Left = 115
       Top = 60
       Width = 16
       Height = 21
       Associate = EdtRepeat
       Max = 999999999
-      TabOrder = 4
+      TabOrder = 3
       StyleElements = [seFont, seClient]
       OnChangingEx = UpdRepeatChangingEx
     end

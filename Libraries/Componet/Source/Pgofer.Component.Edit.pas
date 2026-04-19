@@ -19,6 +19,8 @@ type
 
   TEditEx = class(TEdit)
   private
+    FSilent: Boolean;
+
     { Validation / Appearance }
     FValidationMode: TValidationMode;
     FValidationColorError: TColor;
@@ -68,6 +70,7 @@ type
    { L�gica de Valida��o }
     procedure Validate;
 
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyPress(var AKey: Char); override;
     procedure Change(); override;
     procedure DoEnter();  override;
@@ -118,6 +121,7 @@ procedure Register;
 implementation
 
 uses
+  Winapi.Windows,
   PGofer.Files.Controls;
 
 procedure Register;
@@ -161,6 +165,7 @@ end;
 
 procedure TEditEx.Change( );
 begin
+
   Self.Validate( );
   inherited Change;
 end;
@@ -293,10 +298,12 @@ begin
         if Self.PasswordChar = #0 then
         begin
           Self.PasswordChar := '*';
-          FActionButton.Caption := 'abc';
+          if Assigned(FActionButton) then
+            FActionButton.Caption := 'abc';
         end else begin
           Self.PasswordChar := #0;
-          FActionButton.Caption := '***';
+          if Assigned(FActionButton) then
+            FActionButton.Caption := '***';
         end;
       end;
     vmOpenFile:
@@ -327,6 +334,17 @@ begin
     Self.FOnActionButtonClick(Self);
 
   Self.Validate( );
+end;
+
+procedure TEditEx.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  if (Key = VK_F8) and (FValidationMode = vmPassword) then
+  begin
+    Self.ActionButtonClick(Self);
+    Key := 0;
+  end;
+
+  inherited KeyDown(Key, Shift);
 end;
 
 procedure TEditEx.KeyPress(var AKey: Char);
@@ -377,6 +395,9 @@ begin
     end;
   end;
 
+  if FSilent then
+    Exit;
+
   { Custom Event Before }
   if Assigned(FOnBeforeValidate) then
     FOnBeforeValidate(Self, LValid);
@@ -405,11 +426,12 @@ var
   OldEvent: TNotifyEvent;
 begin
   if Self.Text = AValue then Exit;
-
+  FSilent := True;
   OldEvent := Self.OnChange;
   Self.OnChange := nil;
   Self.Text := AValue;
   Self.OnChange := OldEvent;
+  FSilent := False;
 end;
 
 

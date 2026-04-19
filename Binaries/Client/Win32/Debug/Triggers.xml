@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
   <Task Name="NewTask" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">21</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">HotKeyDef.SetInputType := 1;
 
@@ -20,7 +19,6 @@ end;
     <Trigger Type="Byte">0</Trigger>
   </Task>
   <Task Name="NewTask1" Enabled="true" ReadOnly="false">
-    <Occurrence Type="Cardinal">4</Occurrence>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">
 // --- BLOCO 1: MATEMÁTICA E CONSTANTES ---
@@ -94,17 +92,12 @@ WriteLN('--- Fim dos Testes de Estresse ---');
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
-  <VaultFolder Name="NewVaultFolder" Enabled="true" ReadOnly="false">
+  <VaultFolder Name="VaultTest" Enabled="true" ReadOnly="false">
     <FileName Type="string">E:\teste.pgv</FileName>
-    <SavePassword Type="Boolean">True</SavePassword>
-    <Namespace Type="Boolean">False</Namespace>
+    <SavePassword Type="Boolean">False</SavePassword>
+    <AutoLock Type="Integer">1</AutoLock>
+    <Namespace Type="Boolean">True</Namespace>
     <_Expanded Type="Boolean">False</_Expanded>
-    <_Locked Type="Boolean">False</_Locked>
+    <_Locked Type="Boolean">True</_Locked>
   </VaultFolder>
-  <HotKey Name="NewHotKey" Enabled="true" ReadOnly="false">
-    <HotKeysHex Type="string"></HotKeysHex>
-    <Detect Type="Byte">0</Detect>
-    <Inhibit Type="Boolean">False</Inhibit>
-    <Script Type="string"></Script>
-  </HotKey>
 </Triggers>

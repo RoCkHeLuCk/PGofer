@@ -24,16 +24,19 @@ type
     procedure EdtNameAfterValidate(Sender: TObject);
   private
     FAboutSplitter: Boolean;
-    function GetItem( ): TPGItem;
+    FItem: TPGItem;
+    FLoading: Boolean;
     function GetIniFile(): TMemIniFileEx;
   protected
-    FItem: TPGItem;
     procedure IniConfigSave( ); virtual;
     procedure IniConfigLoad( ); virtual;
+    function GetItem( ): TPGItem; virtual;
     property Item: TPGItem read GetItem;
+    property Loading: Boolean read FLoading;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce; virtual;
     destructor Destroy( ); override;
+    procedure AfterConstruction(); override;
     property IniFile: TMemIniFileEx read GetIniFile;
   end;
 
@@ -46,6 +49,7 @@ uses
 
 constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
+  FLoading := True;
   inherited Create( nil );
   FItem := AItem;
   Self.Parent := TWinControl( AParent );
@@ -62,6 +66,12 @@ begin
   Self.IniConfigSave( );
   FItem := nil;
   inherited Destroy( );
+end;
+
+procedure TPGItemFrame.AfterConstruction;
+begin
+  inherited AfterConstruction;
+  FLoading := False;
 end;
 
 procedure TPGItemFrame.IniConfigLoad( );
@@ -99,6 +109,9 @@ end;
 
 procedure TPGItemFrame.EdtNameAfterValidate(Sender: TObject);
 begin
+  if Self.Loading then
+    Exit;
+
   FItem.Name := EdtName.Text;
 end;
 

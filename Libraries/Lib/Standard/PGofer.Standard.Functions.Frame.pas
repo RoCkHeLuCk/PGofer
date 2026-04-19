@@ -20,7 +20,7 @@ type
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
-    function GetItem( ): TPGFunction; virtual;
+    function GetItem( ): TPGFunction; reintroduce;
     property Item: TPGFunction read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
@@ -55,7 +55,7 @@ end;
 
 function TPGFunctionFrame.GetItem: TPGFunction;
 begin
-  Result := TPGFunction(FItem);
+  Result := TPGFunction(inherited Item);
 end;
 
 procedure TPGFunctionFrame.IniConfigLoad;
@@ -73,6 +73,9 @@ end;
 procedure TPGFunctionFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Script := EdtScript.Text;
 end;
 

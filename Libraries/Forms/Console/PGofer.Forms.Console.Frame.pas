@@ -13,13 +13,13 @@ uses
 type
   TPGConsoleFrame = class( TPGFormsFrame )
     lblDelay: TLabel;
-    edtDelay: TEditEx;
+    EdtDelay: TEditEx;
     updDelay: TUpDown;
     ckbShowMessage: TCheckBoxEx;
     ckbAutoClose: TCheckBoxEx;
     procedure ckbShowMessageClick( Sender: TObject );
     procedure ckbAutoCloseClick( Sender: TObject );
-    procedure edtDelayExit( Sender: TObject );
+    procedure EdtDelayExit( Sender: TObject );
     procedure updDelayChanging( Sender: TObject; var AllowChange: Boolean );
   private
     FItem: TPGFrmConsole;
@@ -40,7 +40,7 @@ constructor TPGConsoleFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   FItem := TPGFrmConsole( AItem );
-  edtDelay.SetTextSilent( FItem.Delay.ToString );
+  EdtDelay.SetTextSilent( FItem.Delay.ToString );
   ckbShowMessage.SetCheckedSilent( FItem.ShowMessage );
   ckbAutoClose.SetCheckedSilent( FItem.AutoClose );
 end;
@@ -53,23 +53,35 @@ end;
 
 procedure TPGConsoleFrame.ckbAutoCloseClick( Sender: TObject );
 begin
+  if Self.Loading then
+    Exit;
+
   FItem.AutoClose := ckbAutoClose.Checked;
 end;
 
 procedure TPGConsoleFrame.ckbShowMessageClick( Sender: TObject );
 begin
+  if Self.Loading then
+    Exit;
+
   FItem.ShowMessage := ckbShowMessage.Checked;
 end;
 
-procedure TPGConsoleFrame.edtDelayExit( Sender: TObject );
+procedure TPGConsoleFrame.EdtDelayExit( Sender: TObject );
 begin
-  FItem.Delay := StrToInt( edtDelay.Text );
+  if Self.Loading then
+    Exit;
+
+  FItem.Delay := StrToIntDef( EdtDelay.Text, 0);
 end;
 
 procedure TPGConsoleFrame.updDelayChanging( Sender: TObject;
   var AllowChange: Boolean );
 begin
-  edtDelayExit( Sender );
+  if Self.Loading then
+    Exit;
+
+  EdtDelayExit( Sender );
 end;
 
 end.

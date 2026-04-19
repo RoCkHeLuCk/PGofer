@@ -41,7 +41,6 @@ uses
   PGofer.Registry.Environment in '..\..\Libraries\Lib\Registry\PGofer.Registry.Environment.pas',
   PGofer.Registry in '..\..\Libraries\Lib\Registry\PGofer.Registry.pas',
   PGofer.Services.Controls in '..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas',
-  PGofer.Services.Thread in '..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas',
   PGofer.Services in '..\..\Libraries\Lib\Services\PGofer.Services.pas',
   PGofer.Sound.Controls in '..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas',
   PGofer.Sound.MMDevApi in '..\..\Libraries\Lib\Sound\PGofer.Sound.MMDevApi.pas',
@@ -69,24 +68,25 @@ uses
   PGofer.Triggers.Folder.Frame in '..\..\Libraries\Triggers\PGofer.Triggers.Folder.Frame.pas' {PGFolderFrame: TFrame},
   PGofer.Triggers in '..\..\Libraries\Triggers\PGofer.Triggers.pas',
   PGofer.Triggers.VaultFolder.KeyStore in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.KeyStore.pas',
-  PGofer.Triggers.VaultFolder in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.pas',
   PGofer.Triggers.VaultFolder.Frame in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.Frame.pas' {PGVaultFolderFrame: TFrame},
-  PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
+  PGofer.Triggers.VaultFolder.Password.Form in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.Password.Form.pas' {FrmVaultFolderPassword},
+  PGofer.Triggers.VaultFolder in '..\..\Libraries\Triggers\VaultFolder\PGofer.Triggers.VaultFolder.pas',
   PGofer.Triggers.AutoFills.Frame in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.Frame.pas' {PGAutoFillsFrame: TFrame},
+  PGofer.Triggers.AutoFills in '..\..\Libraries\Triggers\AutoFills\PGofer.Triggers.AutoFills.pas',
   PGofer.Triggers.HotKeys.Controls in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Controls.pas',
   PGofer.Triggers.HotKeys.MMHook in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMHook.pas',
   PGofer.Triggers.HotKeys.Hook in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.Hook.pas',
   PGofer.Triggers.HotKeys.MMRawInput in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.MMRawInput.pas',
   PGofer.Triggers.HotKeys.RawInput in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.RawInput.pas',
   PGofer.Triggers.HotKeys.Async in '..\..\Libraries\Triggers\HotKeys\Input\PGofer.Triggers.HotKeys.Async.pas',
-  PGofer.Triggers.HotKeys in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas',
   PGofer.Triggers.HotKeys.Frame in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.Frame.pas' {PGHotKeyFrame: TFrame},
+  PGofer.Triggers.HotKeys in '..\..\Libraries\Triggers\HotKeys\PGofer.Triggers.HotKeys.pas',
   PGofer.Triggers.Links.Thread in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Thread.pas',
   PGofer.Triggers.Links.ProcessUI in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.ProcessUI.pas',
-  PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Links.Frame in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.Frame.pas' {PGLinkFrame: TFrame},
-  PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
+  PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
+  PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
   PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
@@ -100,12 +100,8 @@ begin
 
     SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
     SetProcessPriorityBoost( GetCurrentProcess, False );
-
-    //SetProcessWorkingSetSize( GetCurrentProcess, 10*1024*1024, 15*1024*1024);
     SetProcessWorkingSetSize(GetCurrentProcess, 32 * 1024 * 1024, 64 * 1024 * 1024);
-
     SetProcessShutdownParameters($4FF, 0);
-
     timeBeginPeriod(1);
 
     Application.Initialize;

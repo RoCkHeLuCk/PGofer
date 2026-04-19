@@ -1,4 +1,4 @@
-﻿inherited PGVariantsFrame: TPGVariantsFrame
+inherited PGVariantsFrame: TPGVariantsFrame
   Height = 133
   ExplicitHeight = 133
   inherited grbAbout: TGroupBox
@@ -27,7 +27,6 @@
       Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 1
-      Text = ''
       StyleElements = [seFont, seClient]
       OnAfterValidate = EdtValueAfterValidate
     end

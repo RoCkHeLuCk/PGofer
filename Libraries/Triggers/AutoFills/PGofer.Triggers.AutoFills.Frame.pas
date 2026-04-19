@@ -34,10 +34,10 @@ type
     procedure EdtDelayAfterValidate(Sender: TObject);
     procedure EdtSpeedAfterValidate(Sender: TObject);
   private
-    function GetItem( ): TPGAutoFill;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    function GetItem( ): TPGAutoFill; reintroduce;
     property Item: TPGAutoFill read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); override;
@@ -69,39 +69,56 @@ end;
 
 function TPGAutoFillsFrame.GetItem: TPGAutoFill;
 begin
-  Result := TPGAutoFill(FItem);
+  Result := TPGAutoFill(inherited Item);
 end;
 
 procedure TPGAutoFillsFrame.EdtDelayAfterValidate(Sender: TObject);
 begin
-  Item.Delay := StrToInt(EdtDelay.Text);
+  if Self.Loading then
+    Exit;
+
+  Item.Delay := StrToIntDef(EdtDelay.Text,0);
 end;
 
 procedure TPGAutoFillsFrame.updDelayChangingEx(Sender: TObject; var AllowChange: Boolean;
   NewValue: Integer; Direction: TUpDownDirection);
 begin
-  Item.Delay := NewValue;
+//  if Self.Loading then
+//    Exit;
+//  Item.Delay := NewValue;
 end;
 
 procedure TPGAutoFillsFrame.UpdSpeedChangingEx(Sender: TObject;
   var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
 begin
-  Item.Speed := NewValue;
+//  if Self.Loading then
+//    Exit;
+//
+//  Item.Speed := NewValue;
 end;
 
 procedure TPGAutoFillsFrame.EdtSpeedAfterValidate(Sender: TObject);
 begin
-  Item.Speed := StrToInt(EdtSpeed.Text);
+  if Self.Loading then
+    Exit;
+
+  Item.Speed := StrToIntDef(EdtSpeed.Text,0);
 end;
 
 procedure TPGAutoFillsFrame.EdtTextKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Text := EdtText.Text;
 end;
 
 procedure TPGAutoFillsFrame.CmbModeChange(Sender: TObject);
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Mode := CmbMode.ItemIndex;
   if Item.Mode = 4 then
   begin

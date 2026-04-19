@@ -1,4 +1,4 @@
-﻿inherited PGFunctionFrame: TPGFunctionFrame
+inherited PGFunctionFrame: TPGFunctionFrame
   Height = 196
   ExplicitHeight = 196
   object sptScript: TSplitter [0]
@@ -44,7 +44,6 @@
       StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
-      Text = ''
     end
   end
   inherited grbAbout: TGroupBox

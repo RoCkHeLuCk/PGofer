@@ -1,4 +1,4 @@
-﻿object FrmController: TFrmController
+object FrmController: TFrmController
   Left = 480
   Top = 386
   Margins.Left = 0
@@ -190,6 +190,7 @@
       StyleElements = [seFont, seClient]
       OnCompare = TrvControllerCompare
       OnCustomDrawItem = TrvControllerCustomDrawItem
+      OnExpanding = TrvControllerExpanding
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
       OnKeyUp = TrvControllerKeyUp
       OnMouseDown = TrvControllerMouseDown

@@ -13,8 +13,8 @@ type
     CkbNamespace: TCheckBoxEx;
     procedure CkbNamespaceClick(Sender: TObject);
   private
-    function GetItem( ): TPGFolderMirror;
   protected
+    function GetItem(): TPGFolderMirror; reintroduce;
     property Item: TPGFolderMirror read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); override;
@@ -36,7 +36,7 @@ end;
 
 function TPGFolderFrame.GetItem(): TPGFolderMirror;
 begin
-  Result := TPGFolderMirror(FItem);
+  Result := TPGFolderMirror(inherited Item);
 end;
 
 procedure TPGFolderFrame.CkbNamespaceClick(Sender: TObject);

@@ -14,8 +14,9 @@ type
     EdtValue: TEditEx;
     procedure EdtValueAfterValidate(Sender: TObject);
   private
+  protected
+    function GetItem( ): TPGVariant; reintroduce;
   public
-    function GetItem( ): TPGVariant; virtual;
     property Item: TPGVariant read GetItem;
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
   end;
@@ -60,13 +61,16 @@ begin
   EdtValue.ReadOnly := Item.IsConstant;
 end;
 
-function TPGVariantsFrame.GetItem: TPGVariant;
+function TPGVariantsFrame.GetItem(): TPGVariant;
 begin
-  Result := TPGVariant(FItem);
+  Result := TPGVariant(inherited Item);
 end;
 
 procedure TPGVariantsFrame.EdtValueAfterValidate(Sender: TObject);
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Value := EdtValue.Text;
 end;
 

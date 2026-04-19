@@ -64,6 +64,9 @@ type
     btnFilter: TButton;
     BtnDescription: TButton;
     BtnSearch: TButton;
+    GrbLog: TGroupBox;
+    Splitter3: TSplitter;
+    mmoLog: TMemo;
     procedure FormCreate( Sender: TObject );
     procedure FormShow( Sender: TObject );
     procedure MniUpdateClick( Sender: TObject );
@@ -88,6 +91,7 @@ type
     procedure LtvServicesCompare(Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer);
     procedure LtvServicesColumnClick(Sender: TObject; Column: TListColumn);
+    procedure mmoLogDblClick(Sender: TObject);
   private
     FHostName: string;
     FHostHandle: SC_Handle;
@@ -102,6 +106,7 @@ type
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
+    procedure LogMessage(const AMsg: string);
   end;
 
 var
@@ -112,11 +117,21 @@ implementation
 {$R *.dfm}
 
 uses
+  Winapi.Messages,
   Pgofer.ClipBoards.Controls,
   Pgofer.Services.Controls,
-  Pgofer.Services.Thread;
+  Services.Thread;
 
 { TFrmServices }
+
+procedure TFrmServices.LogMessage(const AMsg: string);
+begin
+  mmoLog.Lines.Add(Format('[%s] %s', [FormatDateTime('hh:nn:ss', Now), AMsg]));
+  mmoLog.SelStart := Length(mmoLog.Text);
+  mmoLog.SelLength := 0;
+  SendMessage(mmoLog.Handle, EM_SCROLLCARET, 0, 0);
+end;
+
 
 function TFrmServices.FilterTipe( ): Cardinal;
 begin
@@ -332,8 +347,8 @@ begin
             end; // if filtro.
             Dispose( pConfig );
           except
-            ShowMessage( 'Error: When Loading Service "' + ssa^[ c ]
-               .lpServiceName + '".' );
+            on E: Exception do
+               LogMessage(Format('Erro interno ao carregar "%s": %s', [ssa^[ c ].lpServiceName, E.Message]));
           end;
           CloseServiceHandle( Service );
         end; // if service
@@ -393,6 +408,8 @@ begin
   if IniFile.ReadBool( Self.Name, 'FilterHide', False) then
      btnFilter.Click;
 
+  GrbLog.Height := IniFile.ReadInteger( Self.Name, 'Log', GrbLog.Height );
+
   CarregarFiltro( ClbStatus, True );
   CarregarFiltro( ClbConfig, True );
   CarregarFiltro( ClbType, True );
@@ -429,6 +446,8 @@ begin
      IniFile.WriteInteger( Self.Name, 'Filter', btnFilter.Tag );
   end;
 
+  IniFile.WriteInteger( Self.Name, 'Log', GrbLog.Height );
+
   SalvarFiltro( ClbStatus );
   SalvarFiltro( ClbConfig );
   SalvarFiltro( ClbType );
@@ -440,6 +459,11 @@ end;
 procedure TFrmServices.MinNomeInternoClick( Sender: TObject );
 begin
   ClipBoardCopyFromText( LtvServices.ItemFocused.SubItems[ 4 ] );
+end;
+
+procedure TFrmServices.mmoLogDblClick(Sender: TObject);
+begin
+  mmoLog.Clear;
 end;
 
 procedure TFrmServices.MniUpdateClick( Sender: TObject );
@@ -469,10 +493,12 @@ begin
            ServiceStatusToConfig( TMenuItem( Sender ).tag );
         LtvServices.Items[ c ].SubItems[ 9 ] := LtvServices.Items[ c ].SubItems
            [ 9 ][ 1 ] + Char( TMenuItem( Sender ).tag );
-      end
-      else
-        ShowMessage( 'Error: Unable to configure the service "' +
-           LtvServices.Items[ c ].Caption + '".' );
+
+        LogMessage(Format('Configuração de "%s" alterada com sucesso.',
+         [LtvServices.Items[ c ].Caption]));
+      end else
+        LogMessage(Format('Falha ao configurar "%s": %s',
+          [LtvServices.Items[ c ].Caption, ServiceGetLastErrorMessage]));
     end; // if select
   end; // for
 end;
@@ -524,10 +550,10 @@ begin
           LtvServices.Items[ c ].SubItems[ 0 ] := 'Deletado';
           LtvServices.Items[ c ].SubItems[ 1 ] := 'Deletado';
           LtvServices.Items[ c ].SubItems[ 9 ] := #255 + #255;
-        end
-        else
-          ShowMessage( 'Error: Unable to delete the service "' +
-             LtvServices.Items[ c ].Caption + '".' );
+          LogMessage(Format('Serviço "%s" deletado com sucesso.', [LtvServices.Items[ c ].Caption]));
+        end else
+          LogMessage(Format('Falha ao deletar "%s": %s',
+            [LtvServices.Items[ c ].Caption, ServiceGetLastErrorMessage]));
       end;
     end; // if select
   end; // for

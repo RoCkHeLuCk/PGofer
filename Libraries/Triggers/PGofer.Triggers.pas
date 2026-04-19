@@ -48,6 +48,19 @@ type
     class function OnDropFile( AItemDad: TPGItem; AFileName: string ): Boolean; virtual;
   end;
 
+  TPGFolderMirror = class;
+
+  TPGFolderOriginal = class( TPGFolder )
+  private
+    FFolderMirror :TPGFolderMirror;
+  protected
+    procedure SetName( AName: string ); override;
+  public
+    constructor Create( AFolderMirror: TPGFolderMirror; AName: string ); reintroduce; virtual;
+    destructor Destroy(); override;
+    procedure BeforeAccess(); override;
+  end;
+
   {$M+}
   TPGFolderMirror = class( TPGFolder )
   private
@@ -271,6 +284,40 @@ begin
     FItemOriginal.Frame(AParent);
 end;
 
+{ TPGFolderOriginal }
+
+constructor TPGFolderOriginal.Create( AFolderMirror: TPGFolderMirror; AName: string );
+begin
+  inherited Create(GlobalTriggerFolder, AName);
+  FFolderMirror := AFolderMirror;
+end;
+
+destructor TPGFolderOriginal.Destroy;
+begin
+  if Assigned( FFolderMirror ) and (not FFolderMirror.Destroying) then
+  begin
+    FFolderMirror.FFolderOriginal := nil;
+    FFolderMirror.Free();
+  end;
+  FFolderMirror := nil;
+  inherited Destroy();
+end;
+
+procedure TPGFolderOriginal.SetName(AName: string);
+begin
+  if Self.Name = AName then Exit;
+  Self.SetNameForced(AName);
+  if Assigned(FFolderMirror) then
+    FFolderMirror.SetNameForced(AName);
+end;
+
+procedure TPGFolderOriginal.BeforeAccess();
+begin
+  inherited BeforeAccess;
+  if Assigned( FFolderMirror ) then
+     FFolderMirror.BeforeAccess();
+end;
+
 { TPGFolderMirror }
 
 constructor TPGFolderMirror.Create( AItemDad: TPGItem; AName: string );
@@ -317,7 +364,7 @@ begin
   Result := DirectoryExists(AFileName);
   if Result then
   begin
-    TPGFolder.Create(AItemDad, ExtractFileName(AFileName));
+    TPGFolderOriginal.Create( TPGFolderMirror(AItemDad), ExtractFileName(AFileName));
   end;
 end;
 
@@ -393,7 +440,7 @@ begin
   Self.Name := Self.TranscendName(Self.Name, LItem);
 
   // Cria a pasta de execu��o correspondente
-  FFolderOriginal := TPGFolder.Create(LItem, Self.Name);
+  FFolderOriginal := TPGFolderOriginal.Create(Self, Self.Name);
 
   // Varre os filhos do Mirror visual e joga os Originais para dentro da nova pasta l�gica
   MoveOriginalsTo(Self, FFolderOriginal);
@@ -418,7 +465,7 @@ begin
   Self.SetNameForced( AName );
   if FNamespace and Assigned(FFolderOriginal)
   and (FFolderOriginal <> GlobalTriggerFolder) then
-    FFolderOriginal.Name :=  AName;
+    TPGFolderOriginal(FFolderOriginal).SetNameForced( AName );
 end;
 
 function TPGFolderMirror.TranscendName(AName: string; AItemList: TPGItem): string;

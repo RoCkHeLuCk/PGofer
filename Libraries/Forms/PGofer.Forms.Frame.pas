@@ -54,7 +54,9 @@ type
       var AllowChange: Boolean; NewValue: Integer;
       Direction: TUpDownDirection );
   private
-    FItem: TPGForm;
+  protected
+    function GetItem( ): TPGForm; reintroduce;
+    property Item: TPGForm read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
@@ -71,97 +73,100 @@ uses
 constructor TPGFormsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FItem := TPGForm( AItem );
-  CkbAlphaBlend.SetCheckedSilent( FItem.AlphaBlend );
-  EdtAlphaBlendValue.SetTextSilent( FItem.AlphaBlendValue.ToString() );
-  CkbEnabled.SetCheckedSilent( FItem.Enabled );
-  EdtHeigth.SetTextSilent( FItem.Heigth.ToString() );
-  EdtLeft.SetTextSilent( FItem.Left.ToString() );
-  EdtTop.SetTextSilent( FItem.Top.ToString() );
-  CkbTransparent.SetCheckedSilent( FItem.Transparent );
-  PnlTransparentColor.Color := FItem.TransparentColor;
-  CkbVisible.SetCheckedSilent( FItem.Visible );
-  EdtWidth.SetTextSilent( FItem.Width.ToString() );
-  CmbWindowState.SetIndexSilent( FItem.WindowState );
+  CkbAlphaBlend.SetCheckedSilent( Self.Item.AlphaBlend );
+  EdtAlphaBlendValue.SetTextSilent( Self.Item.AlphaBlendValue.ToString() );
+  CkbEnabled.SetCheckedSilent( Self.Item.Enabled );
+  EdtHeigth.SetTextSilent( Self.Item.Heigth.ToString() );
+  EdtLeft.SetTextSilent( Self.Item.Left.ToString() );
+  EdtTop.SetTextSilent( Self.Item.Top.ToString() );
+  CkbTransparent.SetCheckedSilent( Self.Item.Transparent );
+  PnlTransparentColor.Color := Self.Item.TransparentColor;
+  CkbVisible.SetCheckedSilent( Self.Item.Visible );
+  EdtWidth.SetTextSilent( Self.Item.Width.ToString() );
+  CmbWindowState.SetIndexSilent( Self.Item.WindowState );
 end;
 
 destructor TPGFormsFrame.Destroy;
 begin
-  FItem := nil;
   inherited Destroy( );
 end;
 
 procedure TPGFormsFrame.BtnCloseClick( Sender: TObject );
 begin
-  FItem.Close;
+  Self.Item.Close;
 end;
 
 procedure TPGFormsFrame.BtnShowClick( Sender: TObject );
 begin
-  FItem.Show( );
+  Self.Item.Show( );
 end;
 
 procedure TPGFormsFrame.CkbAlphaBlendClick( Sender: TObject );
 begin
-  FItem.AlphaBlend := CkbAlphaBlend.Checked;
+  Self.Item.AlphaBlend := CkbAlphaBlend.Checked;
 end;
 
 procedure TPGFormsFrame.CkbEnabledClick( Sender: TObject );
 begin
-  FItem.Enabled := CkbEnabled.Checked;
+  Self.Item.Enabled := CkbEnabled.Checked;
 end;
 
 procedure TPGFormsFrame.CkbTransparentClick( Sender: TObject );
 begin
-  FItem.Transparent := CkbTransparent.Checked;
+  Self.Item.Transparent := CkbTransparent.Checked;
 end;
 
 procedure TPGFormsFrame.CkbVisibleClick( Sender: TObject );
 begin
-  FItem.Visible := CkbVisible.Checked;
+  Self.Item.Visible := CkbVisible.Checked;
 end;
 
 procedure TPGFormsFrame.CmbWindowStateChange( Sender: TObject );
 begin
-  FItem.WindowState := CmbWindowState.ItemIndex;
+  Self.Item.WindowState := CmbWindowState.ItemIndex;
 end;
 
 procedure TPGFormsFrame.EdtAlphaBlendValueKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.AlphaBlendValue := StrToInt( EdtAlphaBlendValue.Text );
+  Self.Item.AlphaBlendValue := StrToIntDef( EdtAlphaBlendValue.Text, 0);
 end;
 
 procedure TPGFormsFrame.EdtHeigthKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.Heigth := StrToInt( EdtHeigth.Text );
+  Self.Item.Heigth := StrToIntDef( EdtHeigth.Text , 0);
 end;
 
 procedure TPGFormsFrame.EdtLeftKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.Left := StrToInt( EdtLeft.Text );
+  Self.Item.Left := StrToIntDef( EdtLeft.Text, 0);
 end;
 
 procedure TPGFormsFrame.EdtTopKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.Top := StrToInt( EdtTop.Text );
+  Self.Item.Top := StrToIntDef( EdtTop.Text, 0);
 end;
 
 procedure TPGFormsFrame.EdtWidthKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  FItem.Width := StrToInt( EdtWidth.Text );
+  Self.Item.Width := StrToIntDef( EdtWidth.Text, 0);
+end;
+
+function TPGFormsFrame.GetItem: TPGForm;
+begin
+  Result := TPGForm(inherited Item);
 end;
 
 procedure TPGFormsFrame.PnlTransparentColorClick( Sender: TObject );
 begin
-  cldTrasparentColor.Color := FItem.TransparentColor;
+  cldTrasparentColor.Color := Self.Item.TransparentColor;
   if cldTrasparentColor.Execute( Handle ) then
   begin
-    FItem.TransparentColor := cldTrasparentColor.Color;
+    Self.Item.TransparentColor := cldTrasparentColor.Color;
     PnlTransparentColor.Color := cldTrasparentColor.Color;
   end;
 end;
@@ -169,7 +174,7 @@ end;
 procedure TPGFormsFrame.UpdAlphaBlendValueChangingEx( Sender: TObject;
   var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
 begin
-  FItem.AlphaBlendValue := NewValue;
+  Self.Item.AlphaBlendValue := NewValue;
 end;
 
 end.

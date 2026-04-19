@@ -1,17 +1,18 @@
-﻿object FrmServices: TFrmServices
+object FrmServices: TFrmServices
   Left = 493
   Top = 105
+  Margins.Left = 1
+  Margins.Top = 1
+  Margins.Right = 1
+  Margins.Bottom = 1
+  VertScrollBar.Visible = False
   Caption = 'Services'
-  ClientHeight = 323
+  ClientHeight = 474
   ClientWidth = 617
   Color = clBtnFace
   Constraints.MinHeight = 350
   Constraints.MinWidth = 625
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'MS Sans Serif'
-  Font.Style = []
+  ParentFont = True
   Icon.Data = {
     0000010002001010020001000100B00000002600000020200200010001003001
     0000D60000002800000010000000200000000100010000000000000000000000
@@ -31,6 +32,7 @@
     FFFC3FFFFFFC00000000000000000000000000000000C0000000C0000000FFFF
     FFFFFFFFFFFF}
   OldCreateOrder = False
+  StyleElements = [seFont, seClient]
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
@@ -44,6 +46,7 @@
     Cursor = crVSplit
     Align = alTop
     Beveled = True
+    StyleElements = [seFont, seClient]
     ExplicitTop = 177
   end
   object Splitter2: TSplitter
@@ -54,7 +57,19 @@
     Cursor = crVSplit
     Align = alTop
     Beveled = True
+    StyleElements = [seFont, seClient]
     ExplicitTop = 132
+  end
+  object Splitter3: TSplitter
+    Left = 0
+    Top = 381
+    Width = 617
+    Height = 3
+    Cursor = crVSplit
+    Align = alBottom
+    StyleElements = [seFont, seClient]
+    ExplicitLeft = -8
+    ExplicitTop = 386
   end
   object GrbFilter: TGroupBox
     Left = 0
@@ -65,6 +80,7 @@
     Caption = '         Filter'
     Constraints.MinHeight = 10
     TabOrder = 0
+    StyleElements = [seFont, seClient]
     object GrbType: TGroupBox
       Left = 250
       Top = 15
@@ -73,6 +89,7 @@
       Align = alLeft
       Caption = 'Type'
       TabOrder = 0
+      StyleElements = [seFont, seClient]
       object ClbType: TCheckListBox
         Left = 2
         Top = 15
@@ -89,6 +106,7 @@
           'Servi'#231'o Compartilhado'
           'Intera'#231#227'o de Processos')
         TabOrder = 0
+        StyleElements = [seFont, seClient]
         OnClick = MniUpdateClick
       end
     end
@@ -100,6 +118,7 @@
       Align = alLeft
       Caption = 'Run'
       TabOrder = 1
+      StyleElements = [seFont, seClient]
       object ClbConfig: TCheckListBox
         Left = 2
         Top = 15
@@ -114,6 +133,7 @@
           'Manual'
           'Desabilitado')
         TabOrder = 0
+        StyleElements = [seFont, seClient]
         OnClick = MniUpdateClick
       end
     end
@@ -125,6 +145,7 @@
       Align = alLeft
       Caption = 'Status'
       TabOrder = 2
+      StyleElements = [seFont, seClient]
       object ClbStatus: TCheckListBox
         Left = 2
         Top = 15
@@ -136,6 +157,7 @@
           'Iniciado'
           'Parado')
         TabOrder = 0
+        StyleElements = [seFont, seClient]
         OnClick = MniUpdateClick
       end
     end
@@ -147,6 +169,7 @@
       Align = alLeft
       Caption = 'Access'
       TabOrder = 3
+      StyleElements = [seFont, seClient]
       object ClbAccess: TCheckListBox
         Left = 2
         Top = 15
@@ -167,6 +190,7 @@
           'Configura'#231#227'o por Tempo'
           'Configura'#231#227'o por Tentativa')
         TabOrder = 0
+        StyleElements = [seFont, seClient]
         OnClick = MniUpdateClick
       end
     end
@@ -177,6 +201,7 @@
       Height = 15
       Caption = '<<'
       TabOrder = 4
+      StyleElements = [seFont, seClient]
       OnClick = btnFilterClick
     end
   end
@@ -184,16 +209,16 @@
     Left = 0
     Top = 179
     Width = 617
-    Height = 88
+    Height = 165
     Align = alClient
     Caption = 'Lista'
-    Constraints.MinHeight = 10
     TabOrder = 1
+    StyleElements = [seFont, seClient]
     object LtvServices: TListViewEx
       Left = 2
       Top = 15
       Width = 613
-      Height = 71
+      Height = 148
       Align = alClient
       Columns = <
         item
@@ -232,6 +257,7 @@
       IconOptions.WrapText = False
       LargeImages = ImlServices
       MultiSelect = True
+      StyleElements = [seFont, seClient]
       ReadOnly = True
       RowSelect = True
       PopupMenu = PpmServices
@@ -253,6 +279,7 @@
     Caption = '         Descri'#231#227'o'
     Constraints.MinHeight = 10
     TabOrder = 2
+    StyleElements = [seFont, seClient]
     object MemDescription: TMemo
       Left = 2
       Top = 15
@@ -262,8 +289,11 @@
       Alignment = taCenter
       BevelInner = bvNone
       BevelOuter = bvNone
+      BorderStyle = bsNone
+      ParentColor = True
       ReadOnly = True
       TabOrder = 0
+      StyleElements = [seFont, seClient]
     end
     object BtnDescription: TButton
       Left = 10
@@ -272,12 +302,13 @@
       Height = 15
       Caption = '<<'
       TabOrder = 1
+      StyleElements = [seFont, seClient]
       OnClick = BtnDescriptionClick
     end
   end
   object StbSercive: TStatusBar
     Left = 0
-    Top = 304
+    Top = 455
     Width = 617
     Height = 19
     Panels = <
@@ -289,22 +320,25 @@
         Text = 'Total de Servi'#231'os: 0'
         Width = 200
       end>
+    StyleElements = [seFont, seClient]
   end
   object GrbSearch: TGroupBox
     Left = 0
-    Top = 267
+    Top = 344
     Width = 617
     Height = 37
     Align = alBottom
     Caption = 'Procurar'
     Constraints.MinHeight = 10
     TabOrder = 4
+    StyleElements = [seFont, seClient]
     object LblWords: TLabel
       Left = 10
       Top = 15
-      Width = 39
+      Width = 40
       Height = 13
       Caption = 'Palavra:'
+      StyleElements = [seFont, seClient]
     end
     object EdtSearch: TEdit
       Left = 55
@@ -312,6 +346,7 @@
       Width = 286
       Height = 21
       TabOrder = 0
+      StyleElements = [seFont, seClient]
       OnKeyPress = EdtSearchKeyPress
     end
     object CbxSearch: TCheckBox
@@ -323,6 +358,7 @@
       Checked = True
       State = cbChecked
       TabOrder = 1
+      StyleElements = [seFont, seClient]
     end
     object BtnSearch: TButton
       Left = 344
@@ -337,7 +373,34 @@
       SelectedImageIndex = 7
       StylusHotImageIndex = 7
       TabOrder = 2
+      StyleElements = [seFont, seClient]
       OnClick = BtnSearchClick
+    end
+  end
+  object GrbLog: TGroupBox
+    Left = 0
+    Top = 384
+    Width = 617
+    Height = 71
+    Align = alBottom
+    Caption = 'Log'
+    TabOrder = 5
+    StyleElements = [seFont, seClient]
+    object mmoLog: TMemo
+      Left = 2
+      Top = 15
+      Width = 613
+      Height = 54
+      Align = alClient
+      BevelInner = bvNone
+      BevelOuter = bvNone
+      BorderStyle = bsNone
+      ParentColor = True
+      ReadOnly = True
+      ScrollBars = ssVertical
+      TabOrder = 0
+      StyleElements = [seFont, seClient]
+      OnDblClick = mmoLogDblClick
     end
   end
   object ImlServices: TImageList

@@ -31,6 +31,9 @@ function FileGetModifyTime(FileName: string): string;
 function FileGetAcessTime(FileName: string): string;
 function FileExtractOnlyFileName(const FileName: string): string;
 
+function FileCommitWithBackup(const AFileName: string; AMaxBackups: Integer = 10): Boolean;
+procedure FileDeleteBackups(const AFileName: string; AMaxBackups: Integer = 10);
+
 function CreateSymbolicLinkW(lpSymlinkFileName: PWideChar;
   lpTargetFileName: PWideChar; dwFlags: DWORD): Boolean; stdcall;
   external 'kernel32';
@@ -44,9 +47,9 @@ implementation
 
 uses
 {$WARN UNIT_PLATFORM OFF}
-  Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs,
+  System.Classes, System.IOUtils,
   WinApi.ShellApi, WinApi.ShlwApi,
-  System.Classes, System.SysUtils;
+  Vcl.Forms, Vcl.FileCtrl, Vcl.Dialogs, System.SysUtils;
 {$WARN UNIT_PLATFORM ON}
 
 function DateTimeToFileTime(DateTime: TDateTime): PFileTime;
@@ -266,7 +269,7 @@ var
   SearchRec: TSearchRec;
 begin
   Result := 0;
-  if FindFirst(FileName + #0 + #0, faAnyFile, SearchRec) = 0 then
+  if FindFirst(FileName, faAnyFile, SearchRec) = 0 then
   begin
     Result := SearchRec.Size;
     FindClose(SearchRec);
@@ -439,6 +442,54 @@ function FileExtractOnlyFileName(const FileName: string): string;
 begin
   Result := ExtractFileName(FileName);
   Result := copy(Result, 1, Length(Result) - ExtractFileExt(Result).Length);
+end;
+
+function FileCommitWithBackup(const AFileName: string; AMaxBackups: Integer = 10): Boolean;
+var
+  LTempFile, LBackupFile, LOldBackup: string;
+  LCount: Integer;
+begin
+  Result := False;
+  LTempFile := AFileName + '.tmp';
+
+  if not TFile.Exists(LTempFile) then Exit;
+
+  if TFile.Exists(AFileName) then
+  begin
+    for LCount := (AMaxBackups - 1) downto 1 do
+    begin
+      LOldBackup := AFileName + '.bak' + IntToStr(LCount);
+      LBackupFile := AFileName + '.bak' + IntToStr(LCount + 1);
+
+      if TFile.Exists(LOldBackup) then
+      begin
+        if TFile.Exists(LBackupFile) then
+          TFile.Delete(LBackupFile);
+        TFile.Move(LOldBackup, LBackupFile);
+      end;
+    end;
+
+    LBackupFile := AFileName + '.bak1';
+    if TFile.Exists(LBackupFile) then
+      TFile.Delete(LBackupFile);
+    TFile.Move(AFileName, LBackupFile);
+  end;
+
+  TFile.Move(LTempFile, AFileName);
+  Result := True;
+end;
+
+procedure FileDeleteBackups(const AFileName: string; AMaxBackups: Integer = 10);
+var
+  LCount: Integer;
+  LBackupFile: string;
+begin
+  for LCount := 1 to AMaxBackups do
+  begin
+    LBackupFile := AFileName + '.bak' + IntToStr(LCount);
+    if TFile.Exists(LBackupFile) then
+      TFile.Delete(LBackupFile);
+  end;
 end;
 
 end.

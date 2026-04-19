@@ -16,7 +16,6 @@ type
     LblRepeat: TLabel;
     CmbTrigger: TPGComboBox;
     GrbScript: TGroupBox;
-    UpdOccurrence: TUpDown;
     UpdRepeat: TUpDown;
     EdtOccurrence: TEditEx;
     EdtScript: TRichEditEx;
@@ -27,16 +26,12 @@ type
       Shift: TShiftState );
     procedure UpdRepeatChangingEx( Sender: TObject; var AllowChange: Boolean;
       NewValue: Integer; Direction: TUpDownDirection );
-    procedure UpdOccurrenceChangingEx( Sender: TObject;
-      var AllowChange: Boolean; NewValue: Integer;
-      Direction: TUpDownDirection );
     procedure EdtRepeatAfterValidate(Sender: TObject);
-    procedure EdtOccurrenceAfterValidate(Sender: TObject);
   private
-    function GetItem( ): TPGTask;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    function GetItem( ): TPGTask; reintroduce;
     property Item: TPGTask read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); override;
@@ -69,7 +64,7 @@ end;
 
 function TPGTaskFrame.GetItem(): TPGTask;
 begin
-   Result := TPGTask( FItem );
+   Result := TPGTask(inherited Item);
 end;
 
 procedure TPGTaskFrame.IniConfigLoad;
@@ -85,36 +80,34 @@ begin
   inherited IniConfigSave( );
 end;
 
-procedure TPGTaskFrame.EdtOccurrenceAfterValidate(Sender: TObject);
-begin
-  Item.Occurrence := StrToInt( EdtOccurrence.Text );
-end;
-
 procedure TPGTaskFrame.EdtRepeatAfterValidate(Sender: TObject);
 begin
-  Item.Repeats := StrToInt( EdtRepeat.Text );
+  if Self.Loading then
+    Exit;
+  Item.Repeats := StrToIntDef( EdtRepeat.Text, 0);
 end;
 
 procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
+  if Self.Loading then
+    Exit;
   Item.Script := EdtScript.Text;
-end;
-
-procedure TPGTaskFrame.UpdOccurrenceChangingEx( Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
-begin
-  Item.Occurrence := NewValue;
 end;
 
 procedure TPGTaskFrame.UpdRepeatChangingEx( Sender: TObject;
   var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
 begin
-  Item.Repeats := NewValue;
+//  if Self.Loading then
+//    Exit;
+//  Item.Repeats := NewValue;
 end;
 
 procedure TPGTaskFrame.CmbTriggerChange( Sender: TObject );
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Trigger := CmbTrigger.ItemIndex;
 end;
 

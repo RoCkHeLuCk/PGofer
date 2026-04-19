@@ -11,8 +11,8 @@ type
   TPGTriggerFrame = class(TPGItemFrame)
     procedure EdtNameBeforeValidate(ASender: TObject; var AIsValid: Boolean);
   private
-    function GetItem( ): TPGItem; virtual;
   protected
+    function GetItem( ): TPGItem; reintroduce;
     property Item: TPGItem read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); override;
@@ -34,6 +34,9 @@ procedure TPGTriggerFrame.EdtNameBeforeValidate(ASender: TObject; var AIsValid: 
 var
   LFoundItem: TPGItem;
 begin
+  if Self.Loading then
+    Exit;
+
   // 1. Regra herdada do FolderMirror: Se for pasta e N�O for namespace, n�o precisa validar colis�o
   if (Item is TPGFolderMirror) and (not TPGFolderMirror(Item).Namespace) then
   begin
@@ -57,7 +60,7 @@ end;
 
 function TPGTriggerFrame.GetItem(): TPGItem;
 begin
-  Result := TPGItemTrigger(FItem);
+  Result := TPGItemTrigger(inherited Item);
 end;
 
 end.

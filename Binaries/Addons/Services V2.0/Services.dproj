@@ -114,12 +114,15 @@
         <DCC_RemoteDebug>true</DCC_RemoteDebug>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <VerInfo_Build>3</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeluCk&apos;s;FileDescription=Services;FileVersion=1.0.0.3;InternalName=TFrmServices;LegalCopyright=FreeWare;LegalTrademarks=;OriginalFilename=Services;ProductName=Services;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>4</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeluCk&apos;s;FileDescription=Services;FileVersion=1.0.0.4;InternalName=TFrmServices;LegalCopyright=FreeWare;LegalTrademarks=;OriginalFilename=Services;ProductName=Services;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Debugger_RunParams>/Duplicate</Debugger_RunParams>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <BT_BuildType>Debug</BT_BuildType>
+        <Icon_MainIcon>..\..\..\Documents\Imagens\Icons\Services.ico</Icon_MainIcon>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
+        <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <VerInfo_Locale>1033</VerInfo_Locale>
@@ -144,14 +147,13 @@
         <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Build>369</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeluCk&apos;s;FileDescription=Services;FileVersion=1.0.0.369;InternalName=TFrmServices;LegalCopyright=FreeWare;LegalTrademarks=;OriginalFilename=Services;ProductName=Services;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
+        <VerInfo_Build>381</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeluCk&apos;s;FileDescription=Services;FileVersion=1.0.0.381;InternalName=TFrmServices;LegalCopyright=FreeWare;LegalTrademarks=;OriginalFilename=Services;ProductName=Services;ProductVersion=1.0.0.0;Comments=Autor: Franco Michel Almeida Caixeta;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Icon_MainIcon>..\..\..\Documents\Imagens\Icons\Services.ico</Icon_MainIcon>
         <BT_BuildType>Debug</BT_BuildType>
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <AppDPIAwarenessMode>PerMonitor</AppDPIAwarenessMode>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -162,10 +164,10 @@
         <DCCReference Include="..\..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas"/>
         <DCCReference Include="..\..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas"/>
         <DCCReference Include="..\..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas"/>
-        <DCCReference Include="..\..\..\Libraries\Lib\Services\PGofer.Services.Thread.pas"/>
         <DCCReference Include="..\..\..\Libraries\Componet\Source\PGofer.Component.Form.pas">
             <Form>FormEx</Form>
         </DCCReference>
+        <DCCReference Include="Services.Thread.pas"/>
         <DCCReference Include="UnitServices.pas">
             <Form>FrmServices</Form>
         </DCCReference>
@@ -241,8 +243,8 @@
                     <Source Name="MainSource">Services.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">

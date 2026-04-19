@@ -21,7 +21,6 @@ type
     FParent: TPGItem;
     FNode: TTreeNode;
     function GetCollectDad(): TPGItemCollect;
-    procedure SetNode(AValue: TTreeNode);
 
     class var FIconCache: TDictionary<TClass, Integer>;
     class var FImageList: TCustomImageList;
@@ -37,6 +36,7 @@ type
     procedure SetNameForced(AName: string); virtual;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure SetParent(AParent: TPGItem); virtual;
+    procedure SetNode(AValue: TTreeNode); virtual;
   public
     class constructor Create();
     class destructor Destroy();
@@ -525,9 +525,7 @@ begin
   );
 end;
 
-
-
-initialization
+initialization
 
 finalization
 

@@ -1,4 +1,4 @@
-﻿inherited PGLinkFrame: TPGLinkFrame
+inherited PGLinkFrame: TPGLinkFrame
   Height = 387
   ExplicitHeight = 387
   object sptScriptBefore: TSplitter [0]
@@ -55,7 +55,6 @@
       StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptAfterKeyUp
-      Text = ''
     end
   end
   object GrbScriptBefore: TGroupBox [3]
@@ -88,7 +87,6 @@
       StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtScriptBeforeKeyUp
-      Text = ''
     end
   end
   inherited grbAbout: TGroupBox
@@ -160,7 +158,6 @@
       Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 1
-      Text = ''
       StyleElements = [seFont, seClient]
       ValidationMode = vmOpenFile
       ActionButtonShow = True
@@ -179,7 +176,6 @@
       Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 3
-      Text = ''
       StyleElements = [seFont, seClient]
       OnAfterValidate = EdtPatameterAfterValidate
     end
@@ -192,7 +188,6 @@
       Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 4
-      Text = ''
       StyleElements = [seFont, seClient]
       ValidationMode = vmPathExists
       ActionButtonShow = True

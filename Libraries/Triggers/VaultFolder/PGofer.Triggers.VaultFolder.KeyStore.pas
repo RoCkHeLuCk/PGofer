@@ -12,12 +12,14 @@ const
   function KeyStoreXMLFromAES(AFileName, APassword: string): TStream;
   function KeyStoreSavePassword(AFileID: TGUID; APassword: string): TGUID;
   function KeyStoreLoadPassoword(AFileID: TGUID): string;
+  function KeyStoreChangeFilePassword(AFileName, AOldPassword, ANewPassword: string; AFileID: TGUID): Boolean;
 
 implementation
 
 uses
   System.SysUtils, System.JSON,
   PGofer.Core,
+  PGofer.Files.Controls,
   PGofer.Files.Encrypt,
   PGofer.Triggers.VaultFolder;
 
@@ -62,24 +64,29 @@ begin
   end;
 end;
 
-function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string;
-                          AFileID: TGUID):Boolean;
+function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string; AFileID: TGUID):Boolean;
 var
   AESStream: TStream;
+  LTempFile: string;
 begin
   Result := False;
-  if Assigned(AXMLStream) then
-  begin
-    AESStream := TFileStream.Create(AFileName, fmCreate );
-    try
-      AESStream.Write( AFileID, GUID_SIZE);
-      AESStream.Position := GUID_SIZE;
-      AXMLStream.Position := 0;
-      Result := AESEncryptStream(AXMLStream, AESStream, APassword);
-    finally
-      AESStream.Free;
-    end;
+  if not Assigned(AXMLStream) then Exit;
+
+  LTempFile := AFileName + '.tmp';
+
+  AESStream := TFileStream.Create(LTempFile, fmCreate);
+  try
+    AESStream.Write(AFileID, GUID_SIZE);
+    AESStream.Position := GUID_SIZE;
+    AXMLStream.Position := 0;
+    Result := AESEncryptStream(AXMLStream, AESStream, APassword);
+  finally
+    AESStream.Free;
   end;
+
+  if not Result then Exit;
+
+  Result := FileCommitWithBackup(AFileName);
 end;
 
 function KeyStoreXMLFromAES(AFileName, APassword: string): TStream;
@@ -144,6 +151,26 @@ begin
     finally
       JSONObject.Free;
     end;
+  end;
+end;
+
+function KeyStoreChangeFilePassword(AFileName, AOldPassword, ANewPassword: string; AFileID: TGUID): Boolean;
+var
+  XMLStream: TStream;
+begin
+  Result := False;
+
+  XMLStream := KeyStoreXMLFromAES(AFileName, AOldPassword);
+  try
+    if Assigned(XMLStream) then
+    begin
+      Result := KeyStoreXMLToAES(XMLStream, AFileName, ANewPassword, AFileID);
+      if Result then
+        FileDeleteBackups(AFileName);
+    end;
+  finally
+    if Assigned(XMLStream) then
+      XMLStream.Free;
   end;
 end;
 

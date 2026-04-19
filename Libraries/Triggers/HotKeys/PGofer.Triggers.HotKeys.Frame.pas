@@ -33,10 +33,10 @@ type
     {$HINTS OFF}
     function OnProcessKeys(AParamInput: TParamInput): Boolean;
     {$HINTS ON}
-    function GetItem( ): TPGHotKey;
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
+    function GetItem( ): TPGHotKey; reintroduce;
     property Item: TPGHotKey read GetItem;
     procedure InhibitToogle();
   public
@@ -63,7 +63,7 @@ begin
   CmbDetect.SetIndexSilent( Item.Detect );
   CkbInhibit.SetCheckedSilent( Item.Inhibit );
   EdtScript.SetTextSilent( Item.Script );
-  MmoHotKeys.Lines.Text := Item.GetKeysName( );
+  MmoHotKeys.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
   Self.InhibitToogle();
   CkbInhibit.Hint := TPGKernel.Translate('Hint_HotKey_InhibitSupport');
@@ -78,12 +78,15 @@ end;
 
 function TPGHotKeyFrame.GetItem: TPGHotKey;
 begin
-  Result := TPGHotKey(FItem);
+  Result := TPGHotKey(inherited Item);
 end;
 
 procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Script := EdtScript.Text;
 end;
 
@@ -118,11 +121,17 @@ end;
 
 procedure TPGHotKeyFrame.CkbInhibitClick( Sender: TObject );
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Inhibit := CkbInhibit.Checked;
 end;
 
 procedure TPGHotKeyFrame.CmbDetectChange( Sender: TObject );
 begin
+  if Self.Loading then
+    Exit;
+
   Item.Detect := CmbDetect.ItemIndex;
   Self.InhibitToogle();
 end;

@@ -1,4 +1,4 @@
-﻿inherited PGAutoFillsFrame: TPGAutoFillsFrame
+inherited PGAutoFillsFrame: TPGAutoFillsFrame
   Height = 283
   ExplicitHeight = 283
   object sptScript: TSplitter [0]
@@ -48,7 +48,6 @@
       StyleElements = [seFont, seClient]
       Zoom = 100
       OnKeyUp = EdtTextKeyUp
-      Text = ''
     end
   end
   inherited grbAbout: TGroupBox
@@ -122,6 +121,7 @@
       TabOrder = 3
       Text = '10'
       StyleElements = [seFont, seClient]
+      RegExExpression = '^\d*$'
       OnAfterValidate = EdtSpeedAfterValidate
     end
     object UpdSpeed: TUpDown
@@ -162,17 +162,19 @@
       Height = 21
       Color = clSilver
       TabOrder = 1
-      Text = '0'
+      Text = '200'
       StyleElements = [seFont, seClient]
+      RegExExpression = '^\d*$'
       OnAfterValidate = EdtDelayAfterValidate
     end
     object updDelay: TUpDown
-      Left = 145
+      Left = 147
       Top = 33
       Width = 16
       Height = 21
       Associate = EdtDelay
       Max = 255
+      Position = 200
       TabOrder = 2
       StyleElements = [seFont, seClient]
       OnChangingEx = updDelayChangingEx

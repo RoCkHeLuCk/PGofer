@@ -1,22 +1,19 @@
-﻿inherited PGFormsFrame: TPGFormsFrame
+inherited PGFormsFrame: TPGFormsFrame
   Height = 310
   ExplicitHeight = 310
   inherited grbAbout: TGroupBox
     Top = 236
     Height = 64
-    StyleElements = [seFont, seClient]
     ExplicitTop = 236
     ExplicitHeight = 64
     inherited rceAbout: TRichEdit
       Height = 47
-      StyleElements = [seFont, seClient]
       ExplicitHeight = 47
     end
   end
   inherited pnlItem: TPanel
     Height = 233
     Constraints.MinHeight = 230
-    StyleElements = [seFont, seClient]
     ExplicitHeight = 233
     DesignSize = (
       400
@@ -89,9 +86,6 @@
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'WindowState:'
-      StyleElements = [seFont, seClient]
-    end
-    inherited LblName: TLabel
       StyleElements = [seFont, seClient]
     end
     object CkbAlphaBlend: TCheckBoxEx [8]
@@ -213,7 +207,6 @@
       Height = 21
       Color = clSilver
       TabOrder = 10
-      Text = ''
       StyleElements = [seFont, seClient]
       OnKeyUp = EdtHeigthKeyUp
     end
@@ -224,7 +217,6 @@
       Height = 21
       Color = clSilver
       TabOrder = 11
-      Text = ''
       StyleElements = [seFont, seClient]
       OnKeyUp = EdtTopKeyUp
     end
@@ -235,7 +227,6 @@
       Height = 21
       Color = clSilver
       TabOrder = 12
-      Text = ''
       StyleElements = [seFont, seClient]
       OnKeyUp = EdtWidthKeyUp
     end
@@ -246,18 +237,15 @@
       Height = 21
       Color = clSilver
       TabOrder = 13
-      Text = ''
       StyleElements = [seFont, seClient]
       OnKeyUp = EdtLeftKeyUp
     end
     inherited EdtName: TEditEx
       TabOrder = 14
-      StyleElements = [seFont, seClient]
     end
   end
   inherited sptAbout: TPanel
     Top = 303
-    StyleElements = [seFont, seClient]
     ExplicitTop = 303
   end
   object cldTrasparentColor: TColorDialog

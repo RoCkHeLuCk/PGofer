@@ -62,7 +62,7 @@ begin
   inherited Create( AMirror, AName );
   FText := '';
   FSpeed := 10;
-  FDelay := 500;
+  FDelay := 200;
   FMode := 0;
 end;
 

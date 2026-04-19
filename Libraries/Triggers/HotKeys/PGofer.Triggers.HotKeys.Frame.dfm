@@ -1,4 +1,4 @@
-﻿inherited PGHotKeyFrame: TPGHotKeyFrame
+inherited PGHotKeyFrame: TPGHotKeyFrame
   Height = 304
   OnExit = MmoHotKeysExit
   ExplicitHeight = 304
@@ -46,7 +46,6 @@
       WantTabs = True
       Zoom = 100
       OnKeyUp = EdtScriptKeyUp
-      Text = ''
     end
   end
   inherited pnlItem: TPanel

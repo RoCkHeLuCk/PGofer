@@ -42,10 +42,10 @@ type
 implementation
 
 uses
-   System.SysUtils, System.RTTI, System.TypInfo,
+   System.SysUtils, System.IOUtils, System.RTTI, System.TypInfo,
    XML.XMLIntf, XML.XMLDoc,
-   PGofer.Core, PGofer.Triggers, PGofer.Triggers.Form,
-   PGofer.Key.Controls;
+   PGofer.Core, PGofer.Runtime, PGofer.Triggers, PGofer.Triggers.Form,
+   PGofer.Key.Controls, PGofer.Files.Controls;
 
 { TClassList }
 
@@ -200,32 +200,58 @@ begin
 end;
 
 procedure TPGItemCollectTrigger.XMLSaveToFile();
-var
-  FileStream: TFileStream;
-  MemStream: TMemoryStream;
-begin
-  if (FFileName <> '') then
+  function SaveToFile(AFileName: String): Boolean;
+  var
+    LFileStream: TFileStream;
+    LMemStream: TMemoryStream;
   begin
-    MemStream := TMemoryStream.Create;
+    Result := False; // Agora o compilador sabe que isso pode ser retornado!
+    LMemStream := TMemoryStream.Create;
     try
       try
-        Self.XMLSaveToStream(Self, MemStream);
-        MemStream.Position := 0;
-        FileStream := TFileStream.Create(FFileName, fmCreate);
+        Self.XMLSaveToStream(Self, LMemStream);
+      except
+        on E: Exception do
+        begin
+          TPGKernel.ConsoleTr('Error_XML_Save', [FFileName, E.Message]);
+          Exit; // Se o XML falhou, vaza daqui retornando o False imediatamente
+        end;
+      end;
+
+      LMemStream.Position := 0;
+
+      // Envolvemos a criação do arquivo para não estourar Exception solta
+      try
+        LFileStream := TFileStream.Create(AFileName, fmCreate);
         try
-          FileStream.CopyFrom(MemStream, 0);
+          LFileStream.CopyFrom(LMemStream, 0);
+          Result := True; // Tudo perfeito, devolve True
         finally
-          FileStream.Free;
+          LFileStream.Free;
         end;
       except
-        on E: Exception do TPGKernel.ConsoleTr(
-          'Error_XML_Save', [FFileName, E.Message]
-        );
+        on E: Exception do
+        begin
+          // Se der pau no disco (acesso negado, etc), avisa o console e devolve o Result False
+          TPGKernel.ConsoleTr('Error_XML_Save', [AFileName, E.Message]);
+        end;
       end;
     finally
-      MemStream.Free;
+      LMemStream.Free;
     end;
   end;
+
+var
+  LTempFile: string;
+begin
+  if (FFileName = '') then
+    Exit;
+
+  LTempFile := FFileName + '.tmp';
+  if not SaveToFile(LTempFile) then
+    Exit;
+
+  FileCommitWithBackup(FFileName);
 end;
 
 procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream: TStream);
@@ -306,7 +332,7 @@ procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream:
       end;
     end;
 
-    if (item is TPGFolderMirror) and (TPGFolderMirror(Item).BeforeXMLLoad(Self)) then
+    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item).BeforeXMLLoad(Self)) then
     begin
       XMLNodeChild := XMLNode.ChildNodes.First();
       while Assigned(XMLNodeChild) do
@@ -351,17 +377,49 @@ begin
 end;
 
 procedure TPGItemCollectTrigger.XMLLoadFromFile();
-var
-  Stream: TStream;
-begin
-  if FileExists(FFileName) then
+  function LoadFromFile(AFileName: String): Boolean;
+  var
+    Stream: TStream;
   begin
-    Stream := TFileStream.Create(FFileName, fmOpenRead);
-    try
-      Self.XMLLoadFromStream(Self, Stream);
-    finally
-      Stream.Free;
+    Result := False;
+    if TFile.Exists(AFileName) and (PGofer.Files.Controls.FileGetSize(AFileName) > 0) then
+    begin
+      Stream := TFileStream.Create(AFileName, fmOpenRead);
+      try
+        Self.XMLLoadFromStream(Self, Stream);
+      finally
+        Stream.Free;
+        Result := True;
+      end;
     end;
+  end;
+
+var
+  LBackupFile: string;
+  LCount: Integer;
+  LLoaded: Boolean;
+begin
+  LBackupFile := FFileName;
+
+  // Tenta o arquivo principal primeiro
+  LLoaded := LoadFromFile(LBackupFile);
+  LCount := 1;
+
+  // Se falhou, caça nos backups do 1 ao 10
+  while (not LLoaded) and (LCount <= 10) do
+  begin
+    LBackupFile := FFileName + '.bak' + IntToStr(LCount);
+    LLoaded := LoadFromFile(LBackupFile);
+    Inc(LCount);
+  end;
+
+  // Só sobreescreve o arquivo principal se achou um backup saudável!
+  if LLoaded and (LBackupFile <> FFileName) then
+  begin
+    if TFile.Exists(FFileName) then
+       TFile.Delete(FFileName);
+    TFile.Copy(LBackupFile, FFileName, True);
+    TPGKernel.ConsoleTr('Warning_RestoreBackup', [LBackupFile]);
   end;
 end;
 

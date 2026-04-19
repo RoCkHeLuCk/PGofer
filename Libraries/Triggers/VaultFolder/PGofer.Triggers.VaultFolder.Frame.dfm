@@ -1,32 +1,22 @@
 inherited PGVaultFolderFrame: TPGVaultFolderFrame
-  Height = 216
-  ExplicitHeight = 216
+  Height = 222
+  ExplicitHeight = 222
   inherited grbAbout: TGroupBox
-    Top = 140
-    Height = 66
-    ExplicitTop = 140
-    ExplicitHeight = 66
+    Top = 141
+    Height = 71
+    ExplicitTop = 141
+    ExplicitHeight = 71
     inherited rceAbout: TRichEdit
-      Height = 49
-      ExplicitHeight = 49
+      Height = 54
+      ExplicitHeight = 54
     end
   end
   inherited pnlItem: TPanel
-    Height = 137
-    ExplicitHeight = 137
-    object LblPassword: TLabel [0]
+    Height = 138
+    ExplicitHeight = 138
+    object LblFileName: TLabel [0]
       Left = 5
-      Top = 83
-      Width = 59
-      Height = 13
-      Alignment = taRightJustify
-      AutoSize = False
-      Caption = 'Password:'
-      StyleElements = [seFont, seClient]
-    end
-    object LblFileName: TLabel [2]
-      Left = 5
-      Top = 56
+      Top = 59
       Width = 59
       Height = 13
       Alignment = taRightJustify
@@ -34,36 +24,45 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Caption = 'File:'
       StyleElements = [seFont, seClient]
     end
-    object ckbSavePassword: TCheckBoxEx
-      Left = 70
-      Top = 104
-      Width = 131
-      Height = 17
-      Caption = 'Save Password'
-      TabOrder = 6
+    object LblRepeat: TLabel [2]
+      Left = 5
+      Top = 86
+      Width = 59
+      Height = 13
+      Hint = 'Forma de detectar a Tarefa'
+      Alignment = taRightJustify
+      AutoSize = False
+      Caption = 'Auto Lock:'
       StyleElements = [seFont, seClient]
-      OnClick = ckbSavePasswordClick
     end
-    object ckbLocked: TCheckBoxEx
-      Left = 240
-      Top = 105
-      Width = 120
+    object LblMinute: TLabel [3]
+      Left = 137
+      Top = 88
+      Width = 42
+      Height = 13
+      AutoSize = False
+      Caption = 'minute'
+    end
+    object CkbLocked: TCheckBoxEx [4]
+      Left = 301
+      Top = 85
+      Width = 94
       Height = 17
       Caption = 'Locked'
       Checked = True
       State = cbChecked
-      TabOrder = 7
+      TabOrder = 2
       StyleElements = [seFont, seClient]
-      OnClick = ckbLockedClick
+      OnClick = CkbLockedClick
     end
-    object EdtFile: TEditEx
+    object EdtFile: TEditEx [5]
       Left = 70
-      Top = 53
+      Top = 56
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       Color = clSilver
-      TabOrder = 2
+      TabOrder = 0
       StyleElements = [seFont, seClient]
       ValidationMode = vmSaveFile
       ActionButtonShow = True
@@ -73,25 +72,59 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       PathDefaultExt = 'pgv'
       OnAfterValidate = EdtFileAfterValidate
     end
-    object EdtPassword: TEditEx
-      Left = 70
-      Top = 80
-      Width = 290
-      Height = 21
-      Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
-      PasswordChar = '*'
+    inherited CkbNamespace: TCheckBoxEx
       TabOrder = 4
+    end
+    inherited EdtName: TEditEx
+      TabOrder = 3
+    end
+    object EdtAutoLock: TEditEx
+      Left = 70
+      Top = 83
+      Width = 45
+      Height = 21
+      Color = clSilver
+      NumbersOnly = True
+      TabOrder = 5
+      Text = '0'
       StyleElements = [seFont, seClient]
-      ValidationMode = vmPassword
-      ActionButtonShow = True
-      RegExExpression = '^.{6,}$'
-      SelectAllOnFocus = True
-      OnAfterValidate = EdtPasswordAfterValidate
+      OnAfterValidate = EdtAutoLockAfterValidate
+    end
+    object UpdAutoLock: TUpDown
+      Left = 115
+      Top = 83
+      Width = 16
+      Height = 21
+      Associate = EdtAutoLock
+      Max = 999999999
+      TabOrder = 6
+      StyleElements = [seFont, seClient]
+      OnChangingEx = UpdAutoLockChangingEx
+    end
+    object CkbSavePassword: TCheckBoxEx
+      Left = 185
+      Top = 85
+      Width = 110
+      Height = 17
+      Caption = 'Save Password'
+      TabOrder = 7
+      StyleElements = [seFont, seClient]
+      OnClick = CkbSavePasswordClick
+    end
+    object BtnPassword: TButton
+      Left = 160
+      Top = 107
+      Width = 75
+      Height = 25
+      Anchors = [akTop]
+      Caption = 'Password'
+      TabOrder = 8
+      StyleElements = [seFont, seClient]
+      OnClick = BtnPasswordClick
     end
   end
   inherited sptAbout: TPanel
-    Top = 209
-    ExplicitTop = 209
+    Top = 215
+    ExplicitTop = 215
   end
 end

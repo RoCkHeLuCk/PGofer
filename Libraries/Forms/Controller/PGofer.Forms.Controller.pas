@@ -55,6 +55,8 @@ type
       MousePos: TPoint; var Handled: Boolean );
     procedure PnlFrameResize(Sender: TObject);
     procedure PnlTreeViewResize(Sender: TObject);
+    procedure TrvControllerExpanding(Sender: TObject; Node: TTreeNode;
+      var AllowExpansion: Boolean);
   private
     FCollectItem: TPGItemCollect;
     FSelectedItem: TPGItem;
@@ -357,6 +359,23 @@ begin
       Sender.Canvas.Font.Color := clGray;
   end;
 
+end;
+
+procedure TFrmController.TrvControllerExpanding(Sender: TObject;
+  Node: TTreeNode; var AllowExpansion: Boolean);
+var
+  LItem: TPGItem;
+begin
+  LItem := Self.GetTargetWorking(Node);
+  if Assigned(LItem) and (LItem is TPGItemExecute) then
+  begin
+    TPGItemExecute(LItem).BeforeAccess();
+    if LItem.Count = 0 then
+    begin
+      Node.HasChildren := False;
+      AllowExpansion := False;
+    end;
+  end;
 end;
 
 procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;  Node: TTreeNode );

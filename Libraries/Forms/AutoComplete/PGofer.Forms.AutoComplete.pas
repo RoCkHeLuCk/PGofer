@@ -570,14 +570,18 @@ begin
     for I := 0 to High(LSubCMD) - 1 do
     begin
       if Assigned(LItem) then
-        LItem := FindID(LItem, LSubCMD[I])
-      else
+      begin
+        LItem := FindID(LItem, LSubCMD[I]);
+      end else
         Break;
     end;
 
     // Se encontrou o objeto pai, lista o que tem dentro dele
     if Assigned(LItem) then
     begin
+      if Assigned(LItem) and (LItem is TPGItemExecute) then
+         TPGItemExecute(LItem).BeforeAccess;
+
       for LItemAux in LItem.FindNameList(LSearchText, True) do
         if LItemAux <> LItem then
           ListViewAdd(LItemAux);

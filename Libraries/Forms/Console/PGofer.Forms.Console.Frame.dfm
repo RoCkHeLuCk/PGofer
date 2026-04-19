@@ -1,4 +1,4 @@
-﻿inherited PGConsoleFrame: TPGConsoleFrame
+inherited PGConsoleFrame: TPGConsoleFrame
   Height = 337
   ExplicitHeight = 337
   inherited grbAbout: TGroupBox
@@ -31,7 +31,7 @@
     inherited CmbWindowState: TPGComboBox
       ParentColor = True
     end
-    object edtDelay: TEditEx [23]
+    object EdtDelay: TEditEx [23]
       Left = 70
       Top = 254
       Width = 51
@@ -39,14 +39,14 @@
       Color = clSilver
       TabOrder = 14
       Text = '0'
-      OnExit = edtDelayExit
+      OnExit = EdtDelayExit
     end
     object updDelay: TUpDown [24]
       Left = 121
       Top = 254
       Width = 16
       Height = 21
-      Associate = edtDelay
+      Associate = EdtDelay
       Max = 255
       TabOrder = 15
       OnChanging = updDelayChanging

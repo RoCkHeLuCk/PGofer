@@ -6,32 +6,87 @@ function ServiceQueryConfig3( hService: THandle; dwInfoLevel: Cardinal;
   lpBuffer: Pointer; cbBufSize: Cardinal; var pcbBytesNeeded: Cardinal )
   : LongBool; stdcall; external 'advapi32.dll' name 'QueryServiceConfig2W';
 
-function ServiceStatusToAccess( AStatus: Cardinal ): string;
-function ServiceStatusToDrive( AStatus: Cardinal ): Integer;
-function ServiceStatusToState( AStatus: Cardinal ): string;
-function ServiceStatusToSystem( AStatus: Cardinal ): string;
-function ServiceStatusToConfig( AStatus: Cardinal ): string;
-function ServiceSetState( AMachine, AService: string; Control: Byte ): Boolean;
-function ServiceGetState( AMachine, AService: string ): Cardinal;
-function ServiceSetConfig( AMachine, AService: string; Config: Byte ): Boolean;
-function ServiceGetConfig( AMachine, AService: string ): Cardinal;
-function ServiceDelete( AMachine, AService: string ): Boolean;
-function ServiceCreate( AMachine, AService, ADisplayName, APathFile: string )
+// Novas funções expostas para o sistema
+function ResolveServiceMask(const AMask: string): TArray<string>;
+function ServiceGetLastErrorMessage: string;
+
+// Todas as strings e tipos primitivos de entrada agora usam "const"
+function ServiceStatusToAccess( const AStatus: Cardinal ): string;
+function ServiceStatusToDrive( const AStatus: Cardinal ): Integer;
+function ServiceStatusToState( const AStatus: Cardinal ): string;
+function ServiceStatusToSystem( const AStatus: Cardinal ): string;
+function ServiceStatusToConfig( const AStatus: Cardinal ): string;
+function ServiceSetState( const AMachine, AService: string; const Control: Byte ): Boolean;
+function ServiceGetState( const AMachine, AService: string ): Cardinal;
+function ServiceSetConfig( const AMachine, AService: string; const Config: Byte ): Boolean;
+function ServiceGetConfig( const AMachine, AService: string ): Cardinal;
+function ServiceDelete( const AMachine, AService: string ): Boolean;
+function ServiceCreate( const AMachine, AService, ADisplayName, APathFile: string )
   : Cardinal;
-function ServiceGetDescription( AMachine, AService: string ): string;
-function ServiceSetDescription( AMachine, AService, ADescription: string ): Boolean;
+function ServiceGetDescription( const AMachine, AService: string ): string;
+function ServiceSetDescription( const AMachine, AService, ADescription: string ): Boolean;
 
 implementation
 
 uses
   WinApi.Windows, WinApi.WinSvc,
-  System.SysUtils, System.Win.Registry;
+  System.SysUtils, System.Win.Registry, System.Classes, System.Masks; // Classes e Masks adicionados
 
 const
   REG_SERVICES_LOCATION =
     'SYSTEM\CurrentControlSet\Services\';
 
-function ServiceStatusToAccess( AStatus: Cardinal ): string;
+threadvar
+  _LastServiceErrorCode: DWORD;
+
+function ServiceGetLastErrorMessage: string;
+begin
+  if _LastServiceErrorCode = 0 then
+    Result := ''
+  else
+    Result := SysErrorMessage(_LastServiceErrorCode);
+end;
+
+function ResolveServiceMask(const AMask: string): TArray<string>;
+var
+  Reg: TRegistry;
+  Keys: TStringList;
+  I: Integer;
+begin
+  SetLength(Result, 0);
+
+  // Se não tem máscara, devolve um array com 1 posição contendo o nome exato
+  if Pos('*', AMask) = 0 then
+  begin
+    SetLength(Result, 1);
+    Result[0] := AMask;
+    Exit;
+  end;
+
+  Reg := TRegistry.Create(KEY_READ);
+  Keys := TStringList.Create;
+  try
+    Reg.RootKey := HKEY_LOCAL_MACHINE;
+    if Reg.OpenKeyReadOnly(REG_SERVICES_LOCATION) then
+    begin
+      Reg.GetKeyNames(Keys);
+      for I := 0 to Keys.Count - 1 do
+      begin
+        if MatchesMask(Keys[I], AMask) then
+        begin
+          // Adiciona cada clone encontrado à lista
+          SetLength(Result, Length(Result) + 1);
+          Result[High(Result)] := Keys[I];
+        end;
+      end;
+    end;
+  finally
+    Keys.Free;
+    Reg.Free;
+  end;
+end;
+
+function ServiceStatusToAccess( const AStatus: Cardinal ): string;
 begin
   Result := '';
   if ( AStatus and SERVICE_ACCEPT_STOP = SERVICE_ACCEPT_STOP ) then
@@ -45,25 +100,25 @@ begin
     Result := Result + '"Configurar" ';
   if ( AStatus and SERVICE_ACCEPT_NETBINDCHANGE = SERVICE_ACCEPT_NETBINDCHANGE )
   then
-    Result := Result + '"Configura��o pela Rede" ';
+    Result := Result + '"Configuração pela Rede" ';
   if ( AStatus and SERVICE_ACCEPT_HARDWAREPROFILECHANGE =
     SERVICE_ACCEPT_HARDWAREPROFILECHANGE ) then
-    Result := Result + '"Configura��o pelo Hardware" ';
+    Result := Result + '"Configuração pelo Hardware" ';
   if ( AStatus and SERVICE_ACCEPT_POWEREVENT = SERVICE_ACCEPT_POWEREVENT ) then
     Result := Result + '"Acordar o PC" ';
   if ( AStatus and SERVICE_ACCEPT_SESSIONCHANGE = SERVICE_ACCEPT_SESSIONCHANGE )
   then
-    Result := Result + '"Configura��o por Sess�es" ';
+    Result := Result + '"Configuração por Sessões" ';
   if ( AStatus and SERVICE_ACCEPT_PRESHUTDOWN = SERVICE_ACCEPT_PRESHUTDOWN ) then
-    Result := Result + '"Pr� Fechamento" ';
+    Result := Result + '"Pré Fechamento" ';
   if ( AStatus and SERVICE_ACCEPT_TIMECHANGE = SERVICE_ACCEPT_TIMECHANGE ) then
-    Result := Result + '"Configura��o por Tempo" ';
+    Result := Result + '"Configuração por Tempo" ';
   if ( AStatus and SERVICE_ACCEPT_TRIGGEREVENT = SERVICE_ACCEPT_TRIGGEREVENT )
   then
-    Result := Result + '"Configura��o por Tentativa" ';
+    Result := Result + '"Configuração por Tentativa" ';
 end;
 
-function ServiceStatusToDrive( AStatus: Cardinal ): Integer;
+function ServiceStatusToDrive( const AStatus: Cardinal ): Integer;
 begin
   case ( AStatus ) of
     SERVICE_KERNEL_DRIVER:
@@ -85,7 +140,7 @@ begin
   end; // case
 end;
 
-function ServiceStatusToState( AStatus: Cardinal ): string;
+function ServiceStatusToState( const AStatus: Cardinal ): string;
 begin
   case ( AStatus ) of
     SERVICE_STOPPED:
@@ -103,11 +158,11 @@ begin
     SERVICE_PAUSED:
       Result := 'Pausado';
   else
-    Result := intToStr( AStatus );
+    Result := IntToStr( AStatus );
   end; // case
 end;
 
-function ServiceStatusToSystem( AStatus: Cardinal ): string;
+function ServiceStatusToSystem( const AStatus: Cardinal ): string;
 begin
   case ( AStatus ) of
     SERVICE_KERNEL_DRIVER:
@@ -121,21 +176,21 @@ begin
     SERVICE_DRIVER:
       Result := 'Driver Geral';
     SERVICE_WIN32_OWN_PROCESS, 272, 288:
-      Result := 'Servi�o Comum';
+      Result := 'Serviço Comum';
     SERVICE_WIN32_SHARE_PROCESS:
-      Result := 'Servi�o Compartilhado';
+      Result := 'Serviço Compartilhado';
     SERVICE_WIN32:
-      Result := 'Servi�o Geral';
+      Result := 'Serviço Geral';
     SERVICE_INTERACTIVE_PROCESS:
-      Result := 'Intera��o de Processos';
+      Result := 'Interação de Processos';
     SERVICE_TYPE_ALL:
       Result := 'Todos';
   else
-    Result := intToStr( AStatus );
+    Result := IntToStr( AStatus );
   end; // case
 end;
 
-function ServiceStatusToConfig( AStatus: Cardinal ): string;
+function ServiceStatusToConfig( const AStatus: Cardinal ): string;
 begin
   case ( AStatus ) of
     SERVICE_BOOT_START:
@@ -149,23 +204,25 @@ begin
     SERVICE_DISABLED:
       Result := 'Desabilitado';
   else
-    Result := intToStr( AStatus );
+    Result := IntToStr( AStatus );
   end;
 end;
 
-function ServiceSetState( AMachine, AService: string; Control: Byte ): Boolean;
+function ServiceSetState( const AMachine, AService: string; const Control: Byte ): Boolean;
 var
   sc_Machie, sc_Service: SC_Handle;
   ss_Status: TServiceStatus;
   Tempo: PChar;
 begin
   Result := False;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ), SERVICE_START or
       SERVICE_STOP or SERVICE_PAUSE_CONTINUE or SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
@@ -190,48 +247,60 @@ begin
           Result := ControlService( sc_Service, SERVICE_CONTROL_PAUSE,
             ss_Status );
       end; // case control
+
+      if not Result then _LastServiceErrorCode := GetLastError;
+
       CloseServiceHandle( sc_Service );
-    end; // if service
+    end else _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
-function ServiceGetState( AMachine, AService: string ): Cardinal;
+function ServiceGetState( const AMachine, AService: string ): Cardinal;
 var
   sc_Machie, sc_Service: SC_Handle;
   ss_Status: TServiceStatus;
 begin
   Result := 0;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
     begin
       if QueryServiceStatus( sc_Service, ss_Status ) then
-        Result := ss_Status.dwCurrentState;
+        Result := ss_Status.dwCurrentState
+      else
+        _LastServiceErrorCode := GetLastError;
+
       CloseServiceHandle( sc_Service );
-    end; // if service
+    end else _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
-function ServiceSetConfig( AMachine, AService: string; Config: Byte ): Boolean;
+function ServiceSetConfig( const AMachine, AService: string; const Config: Byte ): Boolean;
 var
   sc_Machie, sc_Service: SC_Handle;
   Reg: TRegistry;
 begin
   Result := False;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_MODIFY_BOOT_CONFIG );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_CHANGE_CONFIG or SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
@@ -239,12 +308,16 @@ begin
       // configura
       Result := ChangeServiceConfig( sc_Service, SERVICE_NO_CHANGE, Config,
         SERVICE_ERROR_NORMAL, nil, nil, nil, nil, nil, nil, nil );
-      CloseServiceHandle( sc_Service );
-    end; // if service
-    CloseServiceHandle( sc_Machie );
-  end; // if servidor
 
-  //for�a no registro
+      if not Result then _LastServiceErrorCode := GetLastError;
+
+      CloseServiceHandle( sc_Service );
+    end else _LastServiceErrorCode := GetLastError;
+
+    CloseServiceHandle( sc_Machie );
+  end else _LastServiceErrorCode := GetLastError;
+
+  // Força no registro se a API falhar
   if not Result then
   begin
     Reg := TRegistry.Create;
@@ -256,6 +329,7 @@ begin
           Reg.CreateKey( 'Start' );
         Reg.WriteInteger( 'Start', Config );
         Result := True;
+        _LastServiceErrorCode := 0; // Limpa o erro, pois forçamos com sucesso
       end;
     finally
       Reg.free;
@@ -263,7 +337,7 @@ begin
   end;
 end;
 
-function ServiceGetConfig( AMachine, AService: string ): Cardinal;
+function ServiceGetConfig( const AMachine, AService: string ): Cardinal;
 var
   sc_Machie, sc_Service: SC_Handle;
   nBytesNeeded: DWord;
@@ -271,66 +345,79 @@ var
   pConfig: PQueryServiceConfigA;
 begin
   Result := 0;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_QUERY_STATUS );
     if ( sc_Service > 0 ) then
     begin
       sConfig := nil;
-      // pega informa��es
+      // pega informações
       if not QueryServiceConfig( sc_Service, sConfig, 0, nBytesNeeded ) then
       begin
         if ( GetLastError = ERROR_INSUFFICIENT_BUFFER ) then
         begin
           GetMem( sConfig, nBytesNeeded );
-          if QueryServiceConfig( sc_Service, sConfig, nBytesNeeded, nBytesNeeded )
-          then
-          begin
-            pConfig := PQueryServiceConfigA( sConfig );
-            Result := pConfig.dwStartType;
+          try // <-- INÍCIO DA BLINDAGEM DE MEMÓRIA
+            if QueryServiceConfig( sc_Service, sConfig, nBytesNeeded, nBytesNeeded )
+            then
+            begin
+              pConfig := PQueryServiceConfigA( sConfig );
+              Result := pConfig.dwStartType;
+            end else _LastServiceErrorCode := GetLastError;
+          finally
+            FreeMem( sConfig, nBytesNeeded ); // <-- O ASSASSINO DE LEAKS AQUI!
           end;
-        end; // if error
-      end; // if Query
+        end else _LastServiceErrorCode := GetLastError;
+      end;
       CloseServiceHandle( sc_Service );
-    end; // if service
+    end else _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
-function ServiceDelete( AMachine, AService: string ): Boolean;
+function ServiceDelete( const AMachine, AService: string ): Boolean;
 var
   sc_Machie, sc_Service: SC_Handle;
 begin
   Result := False;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_ALL_ACCESS );
     if ( sc_Service > 0 ) then
     begin
       // Deleta;
       Result := DeleteService( sc_Service );
+      if not Result then _LastServiceErrorCode := GetLastError;
       CloseServiceHandle( sc_Service );
-    end; // if service
+    end else _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
-function ServiceCreate( AMachine, AService, ADisplayName, APathFile: string )
+function ServiceCreate( const AMachine, AService, ADisplayName, APathFile: string )
   : Cardinal;
 var
   sc_Machie: SC_Handle;
 begin
   Result := 0;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
@@ -341,25 +428,30 @@ begin
       PWideChar( ADisplayName ), SERVICE_ALL_ACCESS, SERVICE_WIN32,
       SERVICE_DISABLED, SERVICE_ERROR_NORMAL, PWideChar( APathFile ), nil, nil,
       nil, nil, nil );
+
+    if Result = 0 then _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
-function ServiceGetDescription( AMachine, AService: string ): string;
+function ServiceGetDescription( const AMachine, AService: string ): string;
 var
   dwNeeded: DWord;
   Buffer: LPSERVICE_DESCRIPTION;
   sc_Machie, sc_Service: SC_Handle;
 begin
   Result := '';
+  _LastServiceErrorCode := 0;
   dwNeeded := 0;
   Buffer := nil;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_ALL_ACCESS );
     if ( sc_Service > 0 ) then
@@ -371,29 +463,36 @@ begin
           GetMem( Buffer, dwNeeded );
           if ServiceQueryConfig3( sc_Service, 1, Buffer, dwNeeded, dwNeeded )
           then
-            Result := Buffer^.lpDescription;
+            Result := Buffer^.lpDescription
+          else
+            _LastServiceErrorCode := GetLastError;
         finally
           FreeMem( Buffer, dwNeeded );
         end;
-      end;
+      end else if GetLastError <> ERROR_INSUFFICIENT_BUFFER then
+        _LastServiceErrorCode := GetLastError;
+
       CloseServiceHandle( sc_Service );
-    end; // if service
+    end else _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
-function ServiceSetDescription( AMachine, AService, ADescription: string ): Boolean;
+function ServiceSetDescription( const AMachine, AService, ADescription: string ): Boolean;
 var
   Sc_Buffer: SERVICE_DESCRIPTION;
   sc_Machie, sc_Service: SC_Handle;
 begin
   Result := False;
+  _LastServiceErrorCode := 0;
+
   // abre a maquina
   sc_Machie := OpenSCManager( PWideChar( AMachine ), nil,
     SC_MANAGER_ALL_ACCESS );
   if ( sc_Machie > 0 ) then
   begin
-    // abre o servi�o
+    // abre o serviço
     sc_Service := OpenService( sc_Machie, PWideChar( AService ),
       SERVICE_ALL_ACCESS );
     if ( sc_Service > 0 ) then
@@ -401,10 +500,14 @@ begin
       Sc_Buffer.lpDescription := PWideChar( ADescription );
       Result := ChangeServiceConfig2( sc_Service, SERVICE_CONFIG_DESCRIPTION,
         @Sc_Buffer );
+
+      if not Result then _LastServiceErrorCode := GetLastError;
+
       CloseServiceHandle( sc_Service );
-    end; // if service
+    end else _LastServiceErrorCode := GetLastError;
+
     CloseServiceHandle( sc_Machie );
-  end; // if servidor
+  end else _LastServiceErrorCode := GetLastError;
 end;
 
 end.
