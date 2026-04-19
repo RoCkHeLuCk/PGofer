@@ -237,9 +237,13 @@ begin
 
   if Length(Lista) = 0 then Exit(False);
 
-  // Dispara o comando inicial para todos do lote
   for NomeReal in Lista do
-    CheckResult(ServiceSetState( FMachineName, NomeReal, AState ), NomeReal);
+  begin
+    if ServiceGetState( FMachineName, NomeReal ) <> AState then
+    begin
+      CheckResult(ServiceSetState( FMachineName, NomeReal, AState ), NomeReal);
+    end;
+  end;
 
   Start := GetTickCount;
 

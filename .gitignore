@@ -43,3 +43,5 @@ Win32/Debug/
 Win32/Release/
 Win64/Debug/
 Win64/Release/
+KeyStore.pgk
+*.bak1

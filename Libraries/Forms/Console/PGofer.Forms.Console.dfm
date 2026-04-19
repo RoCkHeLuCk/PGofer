@@ -1,4 +1,4 @@
-﻿object FrmConsole: TFrmConsole
+object FrmConsole: TFrmConsole
   Left = 0
   Top = 0
   BorderIcons = []
@@ -146,6 +146,7 @@
       Font.Style = [fsBold]
       HideSelection = False
       ParentFont = False
+      PopupMenu = ppmConsole
       ReadOnly = True
       ScrollBars = ssBoth
       TabOrder = 1
@@ -160,5 +161,24 @@
     OnTimer = TmrConsoleTimer
     Left = 60
     Top = 28
+  end
+  object ppmConsole: TPopupMenu
+    Left = 122
+    Top = 26
+    object mniCopy: TMenuItem
+      Caption = 'Copy'
+      ShortCut = 16451
+      OnClick = mniCopyClick
+    end
+    object mniSelectAll: TMenuItem
+      Caption = 'Select All'
+      ShortCut = 16449
+      OnClick = mniSelectAllClick
+    end
+    object mniClear: TMenuItem
+      Caption = 'Clear'
+      ShortCut = 16460
+      OnClick = mniClearClick
+    end
   end
 end

@@ -6,7 +6,7 @@ uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
   Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Forms;
+  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Forms, Vcl.Menus;
 
 type
   TPGFrmConsole = class;
@@ -18,6 +18,10 @@ type
     TmrConsole: TTimer;
     EdtConsole: TRichEditEx;
     ShpDrag: TShape;
+    ppmConsole: TPopupMenu;
+    mniCopy: TMenuItem;
+    mniSelectAll: TMenuItem;
+    mniClear: TMenuItem;
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormKeyPress( Sender: TObject; var Key: Char );
     procedure TmrConsoleTimer( Sender: TObject );
@@ -29,6 +33,9 @@ type
     procedure FormShow( Sender: TObject );
     procedure FormCreate( Sender: TObject );
     procedure FormDestroy( Sender: TObject );
+    procedure mniCopyClick(Sender: TObject);
+    procedure mniSelectAllClick(Sender: TObject);
+    procedure mniClearClick(Sender: TObject);
   private
     { Private declarations }
     FMouseA: TPoint;
@@ -149,6 +156,21 @@ begin
   IniFile.WriteBool( Self.Name, 'ShowMessage', FItem.ShowMessage );
   IniFile.WriteBool( Self.Name, 'AutoClose', FItem.AutoClose );
   inherited IniConfigSave( );
+end;
+
+procedure TFrmConsole.mniClearClick(Sender: TObject);
+begin
+  EdtConsole.Clear;
+end;
+
+procedure TFrmConsole.mniCopyClick(Sender: TObject);
+begin
+  EdtConsole.CopyToClipboard;
+end;
+
+procedure TFrmConsole.mniSelectAllClick(Sender: TObject);
+begin
+  EdtConsole.SelectAll;
 end;
 
 procedure TFrmConsole.BtnFixedClick( Sender: TObject );
