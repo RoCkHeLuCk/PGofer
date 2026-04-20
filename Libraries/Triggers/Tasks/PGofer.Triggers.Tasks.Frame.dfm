@@ -142,6 +142,16 @@ inherited PGTaskFrame: TPGTaskFrame
       StyleElements = [seFont, seClient]
       OnChangingEx = UpdRepeatChangingEx
     end
+    object CkbEnable: TCheckBoxEx
+      Left = 202
+      Top = 33
+      Width = 97
+      Height = 17
+      Caption = 'Enable'
+      TabOrder = 5
+      StyleElements = [seFont, seClient]
+      OnClick = CkbEnableClick
+    end
   end
   inherited sptAbout: TPanel
     Top = 248

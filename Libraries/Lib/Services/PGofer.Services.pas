@@ -16,8 +16,8 @@ type
     procedure CheckResult(ASuccess: Boolean; const AService: string);
   public
     constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
-    property LastError: string read FLastError;
   published
+    property LastError: string read FLastError;
 
     [TPGAboutAttribute('Target Computer Name or IP Address.')]
     [TPGAboutAttribute('Leave empty for Localhost.')]

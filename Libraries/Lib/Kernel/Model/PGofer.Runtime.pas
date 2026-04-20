@@ -21,13 +21,15 @@ type
     FDefaultAction: TRttiMethod;
     FRttiLoaded: Boolean;
   protected
-    procedure RttiCreate; virtual;
+    procedure RttiCreateChildren; virtual;
+    procedure RttiCreateDefaultAction; virtual;
     procedure ExecuteMember(const AGrammar: TPGGrammar);
     procedure ExecuteDefault(const AGrammar: TPGGrammar); virtual;
     function GetAbout: string; override;
     procedure SetNode(AValue: TTreeNode); override;
     class function GetClassArgsMap(AClass: TClass): TArray<TRttiProperty>;
     class function ExecuteRttiMethod(const AGrammar: TPGGrammar; AMethod: TRttiMethod; ATarget: TValue): Boolean;
+    class function GetMethodSignature(AMethod: TRttiMethod; const ACustomName: string = ''): string;
   public
     constructor Create(AItemDad: TPGItem; const AName: string = ''); reintroduce; virtual;
     procedure Execute(const AGrammar: TPGGrammar); override;
@@ -62,7 +64,7 @@ type
     FTargetClass: TPGItemClassType;
     FArgsMap: TArray<TRttiProperty>;
   protected
-    procedure RttiCreate; override;
+    procedure RttiCreateChildren; override;
     function GetAbout: string; override;
   public
     constructor Create(AClass: TPGItemClassType; const AName: string = ''); reintroduce;
@@ -114,11 +116,11 @@ end;
 
 procedure TPGItemClass.BeforeAccess;
 begin
-  inherited BeforeAccess;
   if FRttiLoaded then
     Exit;
   FRttiLoaded := True;
-  Self.RttiCreate;
+  Self.RttiCreateChildren;
+  inherited BeforeAccess;
 end;
 
 constructor TPGItemClass.Create(AItemDad: TPGItem; const AName: string);
@@ -126,15 +128,13 @@ begin
   inherited Create(AItemDad, TPGKernel.IfThen<String>(AName = '', Self.ClassNameEx, AName));
 end;
 
-procedure TPGItemClass.RttiCreate;
+procedure TPGItemClass.RttiCreateChildren();
 var
   LType: TRttiType;
   LProp: TRttiProperty;
   LMethod: TRttiMethod;
 begin
   LType := TPGKernel.RttiContext.GetType(Self.ClassType);
-
-  FDefaultAction := LType.GetMethod('ExecuteAction');
 
   if Self.CollectDad = GlobalCollection then
   begin
@@ -157,6 +157,17 @@ begin
   end;
 end;
 
+procedure TPGItemClass.RttiCreateDefaultAction();
+var
+  LType: TRttiType;
+begin
+  if not Assigned(FDefaultAction) then
+  begin
+    LType := TPGKernel.RttiContext.GetType(Self.ClassType);
+    FDefaultAction := LType.GetMethod('ExecuteAction');
+  end;
+end;
+
 procedure TPGItemClass.SetNode(AValue: TTreeNode);
 begin
   inherited SetNode(AValue);
@@ -166,14 +177,13 @@ end;
 
 procedure TPGItemClass.Execute(const AGrammar: TPGGrammar);
 begin
-  Self.BeforeAccess();
-
   AGrammar.TokenList.Next;
 
   case AGrammar.TokenList.Current.Kind of
     pgkDot:   ExecuteMember(AGrammar);
     pgkLPar:
     begin
+      Self.RttiCreateDefaultAction();
       if Assigned(FDefaultAction) then
         ExecuteRttiMethod(AGrammar, FDefaultAction, Self)
       else
@@ -279,9 +289,72 @@ begin
   end;
 end;
 
-function TPGItemClass.GetAbout: string;
+class function TPGItemClass.GetMethodSignature(AMethod: TRttiMethod; const ACustomName: string = ''): string;
+var
+  LParams: TArray<TRttiParameter>;
+  LIndex: Integer;
+  LPrefix, LAux: string;
 begin
-  Result := 'Class ' + Self.ClassNameEx + ';' + #13 + TPGAboutAttribute.GetFromClass(Self.ClassType);
+  if not Assigned(AMethod) then Exit('');
+
+  if ACustomName <> '' then
+    Result := ACustomName + '('
+  else
+    Result := 'Function ' + AMethod.Name + '(';
+
+  LParams := AMethod.GetParameters;
+  for LIndex := Low(LParams) to High(LParams) do
+  begin
+    LPrefix := '';
+    if pfVar in LParams[LIndex].Flags then LPrefix := 'Var '
+    else if pfOut in LParams[LIndex].Flags then LPrefix := 'Out '
+    else if pfConst in LParams[LIndex].Flags then LPrefix := 'Const ';
+
+    Result := Result + LPrefix + LParams[LIndex].Name;
+
+    if Assigned(LParams[LIndex].ParamType) then
+      Result := Result + ': ' + LParams[LIndex].ParamType.Name;
+
+    LAux := TPGAboutAttribute.GetFromParameter(LParams[LIndex]);
+    if LAux <> '' then
+      Result := Result + ' [' + LAux + ']';
+
+    if LIndex < High(LParams) then
+      Result := Result + '; ';
+  end;
+  Result := Result + ')';
+
+  if AMethod.ReturnType <> nil then
+    Result := Result + ': ' + AMethod.ReturnType.Name;
+
+  Result := Result + ';';
+end;
+
+function TPGItemClass.GetAbout: string;
+var
+  LClassAbout: TDictionary<string, string>;
+  AttribText: String;
+begin
+  if not FAbout.TryGetValue(Self.ClassType, LClassAbout) then
+  begin
+    LClassAbout := TDictionary<string, string>.Create;
+    FAbout.Add(Self.ClassType, LClassAbout);
+  end;
+
+  if not LClassAbout.TryGetValue(Self.ClassName, Result) then
+  begin
+    Result := 'Class ' + Self.ClassNameEx + ';';
+
+    AttribText := TPGAboutAttribute.GetFromClass(Self.ClassType);
+    if AttribText <> '' then
+       Result := Result + #13 + AttribText;
+
+    Self.RttiCreateDefaultAction;
+    if Assigned(FDefaultAction) then
+      Result := Result + #13 + GetMethodSignature(FDefaultAction, Self.Name);
+
+    LClassAbout.Add(Self.ClassName, Result);
+  end;
 end;
 
 { TPGItemMember }
@@ -390,11 +463,8 @@ end;
 function TPGItemMethod.GetAbout: string;
 var
   LClassAbout: TDictionary<string, string>;
-  LMethod: TRttiMethod;
-  LParams: TArray<TRttiParameter>;
-  LIndex: Integer;
-  LPrefix, LAux: string;
   LTargetClass: TClass;
+  LAux: string;
 begin
   Result := '';
   if Assigned(FTargetClass) then
@@ -410,36 +480,8 @@ begin
 
   if not LClassAbout.TryGetValue(Self.Name, Result) then
   begin
-    LMethod := TRttiMethod(FMember);
-    Result := 'Function ' + Self.Name + '(';
-    LParams := LMethod.GetParameters;
-
-    for LIndex := Low(LParams) to High(LParams) do
-    begin
-      LPrefix := '';
-      if pfVar in LParams[LIndex].Flags then LPrefix := 'Var '
-      else if pfOut in LParams[LIndex].Flags then LPrefix := 'Out '
-      else if pfConst in LParams[LIndex].Flags then LPrefix := 'Const ';
-
-      if Assigned(LParams[LIndex].ParamType) then
-        Result := Result + LPrefix + LParams[LIndex].Name + ': ' + LParams[LIndex].ParamType.Name
-      else
-        Result := Result + LPrefix + LParams[LIndex].Name;
-
-      LAux := TPGAboutAttribute.GetFromParameter(LParams[LIndex]);
-      if LAux <> '' then
-        Result := Result + ' [' + LAux + ']';
-
-      if LIndex < High(LParams) then
-        Result := Result + '; ';
-    end;
-    Result := Result + ')';
-
-    if LMethod.ReturnType <> nil then
-      Result := Result + ': ' + LMethod.ReturnType.Name;
-    Result := Result + ';';
-
-    LAux := TPGAboutAttribute.GetFromMethod(LMethod);
+    Result := TPGItemClass.GetMethodSignature(TRttiMethod(FMember));
+    LAux := TPGAboutAttribute.GetFromMethod(TRttiMethod(FMember));
     if LAux <> '' then
       Result := Result + #13 + LAux;
 
@@ -455,7 +497,7 @@ begin
   inherited Create(GlobalItemDefines, TPGKernel.IfThen<string>(AName = '', AClass.ClassNameEx + 'Def', AName));
 end;
 
-procedure TPGItemDef.RttiCreate();
+procedure TPGItemDef.RttiCreateChildren();
 var
   LType: TRttiType;
   LMethod: TRttiMethod;

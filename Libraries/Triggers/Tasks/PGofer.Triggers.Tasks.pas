@@ -30,6 +30,7 @@ type
     procedure Triggering( ); override;
     procedure ExecuteAction(AScript: string = '');
   published
+    property Enabled;
     property Occurrence: Cardinal read FOccurrence;
     property Repeats: Cardinal read FRepeat write FRepeat;
     property Script: string read GetScript write SetScript;

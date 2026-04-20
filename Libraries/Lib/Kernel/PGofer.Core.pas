@@ -17,6 +17,7 @@ type
     //vars
     class var FRttiContext: TRttiContext;
     class var FPathCurrent: String;
+    class var FPathData: String;
     class var FLanguageFile: String;
     class var FConsoleMessage: Boolean;
     class var FReplyFormat: String;
@@ -49,6 +50,7 @@ type
     //vars
     class property RttiContext: TRttiContext read FRttiContext;
     class property PathCurrent: String read FPathCurrent;
+    class property PathData: String read FPathData;
     class property LanguageFile: String read FLanguageFile write SetLanguageFile;
     class property ReportMemoryLeaks: Boolean read FReportMemoryLeaks write FReportMemoryLeaks;
     class property LoopLimit: Cardinal read FLoopLimit write FLoopLimit;

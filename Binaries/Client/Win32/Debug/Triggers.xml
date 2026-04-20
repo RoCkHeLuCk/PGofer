@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Triggers Version="1.0">
-  <Task Name="NewTask" Enabled="true" ReadOnly="false">
+  <Task Name="NewTask" Enabled="false" ReadOnly="false">
+    <Enabled Type="Boolean">False</Enabled>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">HotKeyDef.SetInputType := 1;
 
@@ -18,7 +19,8 @@ end;
 </Script>
     <Trigger Type="Byte">0</Trigger>
   </Task>
-  <Task Name="NewTask1" Enabled="true" ReadOnly="false">
+  <Task Name="NewTask1" Enabled="false" ReadOnly="false">
+    <Enabled Type="Boolean">False</Enabled>
     <Repeats Type="Cardinal">0</Repeats>
     <Script Type="string">
 // --- BLOCO 1: MATEMÁTICA E CONSTANTES ---
@@ -98,6 +100,13 @@ WriteLN('--- Fim dos Testes de Estresse ---');
     <AutoLock Type="Integer">1</AutoLock>
     <Namespace Type="Boolean">True</Namespace>
     <_Expanded Type="Boolean">False</_Expanded>
-    <_Locked Type="Boolean">True</_Locked>
+    <_Locked Type="Boolean">False</_Locked>
   </VaultFolder>
+  <HotKey Name="NewHotKey" Enabled="false" ReadOnly="false">
+    <Enabled Type="Boolean">False</Enabled>
+    <HotKeysHex Type="string"></HotKeysHex>
+    <Detect Type="Byte">0</Detect>
+    <Inhibit Type="Boolean">False</Inhibit>
+    <Script Type="string"></Script>
+  </HotKey>
 </Triggers>

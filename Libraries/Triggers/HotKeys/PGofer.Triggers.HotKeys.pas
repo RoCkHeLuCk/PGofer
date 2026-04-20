@@ -43,6 +43,7 @@ type
     function GetKeysName(): string;
     property Keys: TList<Word> read FKeys;
   published
+    property Enabled;
     property HotKeysHex: string read GetKeysHex write SetKeysHex;
     [TPGAbout('0:Press; 1:Down; 2:Up; 3:Wheel;')]
     property Detect: Byte read FDetect write FDetect;

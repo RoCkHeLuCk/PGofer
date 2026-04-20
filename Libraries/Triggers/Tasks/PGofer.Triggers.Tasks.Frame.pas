@@ -7,7 +7,8 @@ uses
 
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit, Pgofer.Component.ComboBox;
+  PGofer.Component.Edit, PGofer.Component.RichEdit, Pgofer.Component.ComboBox,
+  Pgofer.Component.Checkbox;
 
 type
   TPGTaskFrame = class( TPGTriggerFrame )
@@ -21,12 +22,14 @@ type
     EdtScript: TRichEditEx;
     EdtRepeat: TEditEx;
     sptScript: TSplitter;
+    CkbEnable: TCheckBoxEx;
     procedure CmbTriggerChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
     procedure UpdRepeatChangingEx( Sender: TObject; var AllowChange: Boolean;
       NewValue: Integer; Direction: TUpDownDirection );
     procedure EdtRepeatAfterValidate(Sender: TObject);
+    procedure CkbEnableClick(Sender: TObject);
   private
   protected
     procedure IniConfigSave( ); override;
@@ -53,6 +56,7 @@ begin
   EdtRepeat.SetTextSilent( Item.Repeats.ToString() );
   EdtOccurrence.SetTextSilent( Item.Occurrence.ToString() );
   CmbTrigger.SetIndexSilent( Item.Trigger );
+  CkbEnable.SetCheckedSilent( Item.Enabled );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
@@ -101,6 +105,14 @@ begin
 //  if Self.Loading then
 //    Exit;
 //  Item.Repeats := NewValue;
+end;
+
+procedure TPGTaskFrame.CkbEnableClick(Sender: TObject);
+begin
+  if Self.Loading then
+    Exit;
+
+  Item.Enabled := CkbEnable.Checked;
 end;
 
 procedure TPGTaskFrame.CmbTriggerChange( Sender: TObject );

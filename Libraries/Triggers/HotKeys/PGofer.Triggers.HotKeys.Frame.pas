@@ -22,6 +22,7 @@ type
     GrbScript: TGroupBox;
     EdtScript: TRichEditEx;
     sptScript: TSplitter;
+    CkbEnable: TCheckBoxEx;
     procedure CkbInhibitClick( Sender: TObject );
     procedure CmbDetectChange( Sender: TObject );
     procedure MmoHotKeysEnter( Sender: TObject );
@@ -29,6 +30,7 @@ type
     procedure BtnCleanClick( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
+    procedure CkbEnableClick(Sender: TObject);
   private
     {$HINTS OFF}
     function OnProcessKeys(AParamInput: TParamInput): Boolean;
@@ -62,6 +64,7 @@ begin
   inherited Create( AItem, AParent );
   CmbDetect.SetIndexSilent( Item.Detect );
   CkbInhibit.SetCheckedSilent( Item.Inhibit );
+  CkbEnable.SetCheckedSilent( Item.Enabled );
   EdtScript.SetTextSilent( Item.Script );
   MmoHotKeys.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
@@ -117,6 +120,14 @@ procedure TPGHotKeyFrame.BtnCleanClick( Sender: TObject );
 begin
   Item.Keys.Clear;
   MmoHotKeys.Clear;
+end;
+
+procedure TPGHotKeyFrame.CkbEnableClick(Sender: TObject);
+begin
+  if Self.Loading then
+    Exit;
+
+  Item.Enabled := CkbEnable.Checked;
 end;
 
 procedure TPGHotKeyFrame.CkbInhibitClick( Sender: TObject );

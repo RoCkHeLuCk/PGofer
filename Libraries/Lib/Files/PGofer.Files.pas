@@ -36,7 +36,7 @@ type
     function PathUnExpand( FileName: string ): string;
     function Rename( FileFrom, FileTo: string; Flags: Word ): Integer;
     function SaveToText( FileName, Text: string ): Boolean;
-    function Script( FileName: string; Esperar: Boolean ): Boolean;
+    function Script( FileName: string; Esperar: Boolean = False ): Boolean;
     function Search( FileName, DirList: string ): string;
     function SetAttrib( FileName: string; Flags: Integer ): Boolean;
     function SetDateTime( FileName: string;
@@ -59,7 +59,6 @@ type
     function DPAPIDecryptFileToString(FileFrom, Entropy: string): string;
   end;
   {$TYPEINFO ON}
-
 
 var
   PGFile: TPGFile;
