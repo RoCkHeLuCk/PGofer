@@ -85,11 +85,11 @@ implementation
 {$R *.dfm}
 
 uses
-  System.SysUtils, System.UITypes,
+  System.UITypes,
   WinApi.Windows,
-  Vcl.Dialogs,
-  PGofer.Core,
-  PGofer.Files.Controls,
+
+
+
   PGofer.Component.RichEdit;
 
 { TFrmController }

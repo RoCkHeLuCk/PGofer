@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Runtime,
   PGofer.Triggers;
 
 type
@@ -46,8 +46,8 @@ implementation
 uses
   Winapi.Windows,
   System.SysUtils, System.StrUtils,
-  PGofer.Lexico,
-  PGofer.Sintatico.Controls,
+
+
   PGofer.Files.Controls,
   PGofer.Key.Post,
   PGofer.ClipBoards.Controls,

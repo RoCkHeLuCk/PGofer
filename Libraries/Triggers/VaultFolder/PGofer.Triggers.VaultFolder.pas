@@ -5,7 +5,7 @@ interface
 uses
   System.Generics.Collections,
   Vcl.ExtCtrls,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico,
+  PGofer.Core, PGofer.Classes,
   PGofer.Triggers.Collections, PGofer.Triggers;
 
 type

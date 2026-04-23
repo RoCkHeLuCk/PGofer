@@ -4,8 +4,8 @@ interface
 
 uses
   System.Classes,
-  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,  Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Component.Edit, PGofer.Classes, PGofer.Item.Frame;
+  Vcl.Forms, Vcl.Controls,
+  PGofer.Component.Edit, PGofer.Classes, PGofer.Item.Frame, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
   TPGTriggerFrame = class(TPGItemFrame)

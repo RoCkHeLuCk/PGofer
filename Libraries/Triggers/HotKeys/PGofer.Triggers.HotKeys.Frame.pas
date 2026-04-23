@@ -5,11 +5,12 @@ interface
 uses
   System.Classes,
   Vcl.Forms, Vcl.StdCtrls, Vcl.Graphics,
-  Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Triggers, PGofer.Triggers.Frame, PGofer.Triggers.HotKeys,
+  Vcl.Controls, Vcl.ExtCtrls,
+  PGofer.Triggers.Frame, PGofer.Triggers.HotKeys,
   PGofer.Component.RichEdit,
-  PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame, PGofer.Component.Edit,
-  PGofer.Classes, Pgofer.Component.Checkbox, Pgofer.Component.ComboBox;
+  PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame,
+  PGofer.Classes, Pgofer.Component.Checkbox, Pgofer.Component.ComboBox, PGofer.Component.Edit,
+  Vcl.ComCtrls;
 
 type
   TPGHotKeyFrame = class( TPGTriggerFrame )
@@ -52,7 +53,7 @@ var
 implementation
 
 uses
-  Winapi.Windows,
+
   PGofer.Core,
   PGofer.Forms.AutoComplete;
 

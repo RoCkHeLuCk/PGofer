@@ -16,9 +16,11 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     Top = 242
     Height = 62
     TabOrder = 1
-    ExplicitTop = 234
+    ExplicitTop = 242
+    ExplicitHeight = 62
     inherited rceAbout: TRichEdit
       Height = 45
+      ExplicitHeight = 45
     end
   end
   object GrbScript: TGroupBox [2]
@@ -31,7 +33,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 2
-    ExplicitTop = 148
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -49,7 +50,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
-      Zoom = 100
       OnKeyUp = EdtScriptKeyUp
     end
   end
@@ -165,6 +165,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
   inherited sptAbout: TPanel
     Top = 307
     TabOrder = 3
-    ExplicitTop = 297
+    ExplicitTop = 307
   end
 end

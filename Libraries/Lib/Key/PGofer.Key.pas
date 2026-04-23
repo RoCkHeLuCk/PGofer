@@ -28,7 +28,7 @@ var
 implementation
 
 uses
-  PGofer.Key.Controls, PGofer.Key.Post, PGofer.Core;
+  PGofer.Key.Controls, PGofer.Key.Post;
 
 { TPGRegistry }
 

@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.Generics.Collections,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Runtime,
   PGofer.Triggers;
 
 type
@@ -49,7 +49,7 @@ implementation
 
 uses
   System.SysUtils, System.IniFiles,
-  PGofer.Sintatico.Controls,
+
   PGofer.Triggers.Tasks.Frame;
 
 { TPGTask }

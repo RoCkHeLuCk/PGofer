@@ -42,7 +42,7 @@ type
 implementation
 
 uses
-  PGofer.Core, PGofer.Sintatico.Controls, PGofer.Standard.Functions.Frame;
+  PGofer.Sintatico.Controls, PGofer.Standard.Functions.Frame;
 
 { TPGFunction }
 

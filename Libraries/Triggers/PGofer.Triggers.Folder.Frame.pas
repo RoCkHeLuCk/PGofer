@@ -3,10 +3,10 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PGofer.Triggers.Frame, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
-  Pgofer.Component.Checkbox, PGofer.Component.Edit,
-  PGofer.Classes, PGofer.Triggers;
+  System.Classes,
+  Vcl.Controls, Vcl.Forms, PGofer.Triggers.Frame, Vcl.StdCtrls,
+  Pgofer.Component.Checkbox,
+  PGofer.Classes, PGofer.Triggers, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
 
 type
   TPGFolderFrame = class(TPGTriggerFrame)

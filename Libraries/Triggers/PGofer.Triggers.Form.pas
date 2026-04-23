@@ -3,12 +3,12 @@
 interface
 
 uses
-  Winapi.Windows,
+
   System.SysUtils, System.Classes,
   Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.Dialogs, Vcl.Menus, Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.Dialogs, Vcl.Menus, Vcl.ComCtrls,
   Pgofer.Component.TreeView, PGofer.Forms.Controller,
-  PGofer.Classes, PGofer.Triggers.Collections;
+  PGofer.Classes, PGofer.Triggers.Collections, Vcl.ExtCtrls;
 
 type
   TFrmTriggerController = class(TFrmController)
@@ -46,7 +46,7 @@ implementation
 
 uses
   System.UITypes, System.RTTI,
-  PGofer.Core, PGofer.Triggers;
+  PGofer.Triggers;
 
 constructor TFrmTriggerController.Create( ACollectItem: TPGItemCollectTrigger );
 begin

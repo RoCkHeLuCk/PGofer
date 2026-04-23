@@ -5,7 +5,7 @@ interface
 uses
   System.Classes,
   System.Generics.Collections,
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Runtime,
   PGofer.Triggers, PGofer.Triggers.HotKeys.Controls;
 
 type
@@ -69,12 +69,11 @@ implementation
 uses
   System.SysUtils,
   Winapi.Windows,
-  PGofer.Lexico,
-  PGofer.Sintatico.Controls,
+
+
   PGofer.Key.Controls,
   PGofer.Triggers.HotKeys.Frame,
-  PGofer.Triggers.HotKeys.Async,
-  PGofer.Triggers.HotKeys.Hook;
+  PGofer.Triggers.HotKeys.Async;
 
 { TPGHotKey }
 

@@ -53,7 +53,6 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 0
       WantTabs = True
       StyleElements = [seFont, seClient]
-      Zoom = 100
       OnKeyUp = EdtScriptAfterKeyUp
     end
   end
@@ -85,7 +84,6 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 0
       WantTabs = True
       StyleElements = [seFont, seClient]
-      Zoom = 100
       OnKeyUp = EdtScriptBeforeKeyUp
     end
   end

@@ -67,7 +67,7 @@ implementation
 
 uses
   System.SysUtils,
-  PGofer.Sintatico, PGofer.Files.Controls;
+  PGofer.Files.Controls;
 
 { TPGFile }
 

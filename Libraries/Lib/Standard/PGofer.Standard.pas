@@ -85,7 +85,7 @@ type
 implementation
 
 uses
-  Vcl.Dialogs, System.Math,
+  Vcl.Dialogs,
   PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls,
   PGofer.Standard.Variants;
 

@@ -30,7 +30,7 @@ function FindID(const AItem: TPGItem; const AName: string): TPGItem;
 implementation
 
 uses
-  PGofer.Core, PGofer.Runtime, PGofer.Math.Controls;
+  PGofer.Core, PGofer.Runtime;
 
 { --- Auxiliares de Execução --- }
 

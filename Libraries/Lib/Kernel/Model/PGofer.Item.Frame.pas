@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Runtime, PGofer.Component.Edit, PGofer.Component.IniFile;
+  PGofer.Classes, PGofer.Component.Edit, PGofer.Component.IniFile;
 
 type
   TPGItemFrame = class( TFrame )
@@ -45,7 +45,7 @@ implementation
 {$R *.dfm}
 
 uses
-  PGofer.Component.Form, PGofer.Core;
+  PGofer.Component.Form;
 
 constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
 begin

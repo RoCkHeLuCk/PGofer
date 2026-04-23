@@ -37,7 +37,10 @@ type
     procedure SetVerticalScrollPos( const AValue: Integer );
     function GetVerticalScrollPos( ): Integer;
     function GetVerticalScrollMax( ): Integer;
+    function GetZoom( ): Integer;
+    procedure SetZoom(AValue: Integer);
   protected
+    procedure WMMouseWheel(var Message: TWMMouseWheel); message WM_MOUSEWHEEL;
   public
     property CaretY: Integer read GetCaretY write SetCaretY;
     property CaretX: Integer read GetCaretX write SetCaretX;
@@ -53,6 +56,7 @@ type
   published
     property OnDropFiles: TOnDropFile read FOnDropFiles write SetOnDropFiles;
     procedure SetTextSilent(const AValue: String);
+    property Zoom: Integer read GetZoom write SetZoom default 100;
     property Text;
   end;
 
@@ -61,7 +65,7 @@ procedure Register;
 implementation
 
 uses
-  WinApi.ShellApi;
+  WinApi.ShellApi, Winapi.RichEdit;
 
 procedure Register;
 begin
@@ -72,7 +76,6 @@ end;
 
 function TRichEditEx.GetCaretX( ): Integer;
 begin
-  //Result := Self.GetCaretPos.X + 1;
   Result := Self.SelStart - Self.Perform(EM_LINEINDEX, WPARAM(-1), 0) + 1;
 end;
 
@@ -83,7 +86,6 @@ end;
 
 function TRichEditEx.GetCaretY( ): Integer;
 begin
-  //Result := Self.GetCaretPos.Y + 1;
   Result := Self.Perform(EM_LINEFROMCHAR, Self.SelStart, 0) + 1;
 end;
 
@@ -130,7 +132,6 @@ function TRichEditEx.GetDisplayXY: TPoint;
 var
   Pt: TPoint;
 begin
-  // Para RichEdit, usamos SendMessage com a estrutura POINTL
   Winapi.Windows.SendMessage(
     Self.Handle,
     EM_POSFROMCHAR,
@@ -140,15 +141,9 @@ begin
   Result := Pt;
 end;
 
-//function TRichEditEx.GetDisplayXY: TPoint;
-//begin
-//  Self.Perform( EM_POSFROMCHAR, WPARAM( @Result ), Self.SelStart );
-//end;
-
 procedure TRichEditEx.SetDisplayXY( const Value: TPoint );
 begin
   Self.Perform( EM_CHARFROMPOS, 0, Long( @Value ) );
-  // MakeLong(Value.X, Value.Y)
 end;
 
 procedure TRichEditEx.SetVerticalScrollPos( const AValue: Integer );
@@ -162,6 +157,23 @@ begin
   R.fMask := SIF_POS;
   R.nPos := AValue;
   SetScrollInfo( Self.Handle, SB_VERT, R, True );
+end;
+
+procedure TRichEditEx.WMMouseWheel(var Message: TWMMouseWheel);
+begin
+  if (GetKeyState(VK_CONTROL) < 0) then
+  begin
+    if Message.WheelDelta > 0 then
+      Self.Zoom := Self.Zoom + 10
+    else
+      Self.Zoom := Self.Zoom - 10;
+    Message.Result := 1;
+  end
+  else
+  begin
+    Message.Keys := Message.Keys and not (MK_CONTROL or MK_LBUTTON);
+    inherited;
+  end;
 end;
 
 function TRichEditEx.GetVerticalScrollPos( ): Integer;
@@ -241,6 +253,26 @@ begin
   Self.OnChange := nil;
   Self.Text := AValue;
   Self.OnChange := OldEvent;
+end;
+
+function TRichEditEx.GetZoom: Integer;
+var
+  LNum, LDen: NativeUInt;
+begin
+  LNum := 0;
+  LDen := 0;
+  SendMessage(Self.Handle, EM_GETZOOM, WPARAM(@LNum), LPARAM(@LDen));
+  if (LNum = 0) or (LDen = 0) then
+    Result := 100
+  else
+    Result := Round((LNum / LDen) * 100);
+end;
+
+procedure TRichEditEx.SetZoom(AValue: Integer);
+begin
+  if AValue < 10 then AValue := 10;
+  if AValue > 500 then AValue := 500;
+  SendMessage(Self.Handle, EM_SETZOOM, WPARAM(AValue), 100);
 end;
 
 

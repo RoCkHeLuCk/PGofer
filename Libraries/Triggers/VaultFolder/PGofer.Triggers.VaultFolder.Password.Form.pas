@@ -3,9 +3,9 @@ unit PGofer.Triggers.VaultFolder.Password.Form;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, PGofer.Component.Form, Vcl.StdCtrls,
-  Pgofer.Component.Checkbox, PGofer.Component.Edit, Vcl.ExtCtrls;
+  Winapi.Windows, System.Classes,
+  Vcl.Controls, Vcl.Forms, PGofer.Component.Form, Vcl.StdCtrls,
+  PGofer.Component.Edit, Vcl.ExtCtrls;
 
 type
   TFrmVaultFolderPassword = class(TFormEx)

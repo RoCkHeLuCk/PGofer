@@ -36,9 +36,8 @@ var
 implementation
 
 uses
-  WinApi.Windows,
-  System.SysUtils, System.Classes,
-  Vcl.Forms, Vcl.Dialogs;
+
+  System.SysUtils;
 
 { TPGEnvironment }
 

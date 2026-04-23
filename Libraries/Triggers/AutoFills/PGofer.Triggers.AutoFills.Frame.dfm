@@ -46,7 +46,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       TabOrder = 0
       WantTabs = True
       StyleElements = [seFont, seClient]
-      Zoom = 100
       OnKeyUp = EdtTextKeyUp
     end
   end
@@ -168,7 +167,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       OnAfterValidate = EdtDelayAfterValidate
     end
     object updDelay: TUpDown
-      Left = 147
+      Left = 145
       Top = 33
       Width = 16
       Height = 21

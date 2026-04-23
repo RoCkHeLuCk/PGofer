@@ -197,18 +197,20 @@ end;
 
 procedure TPGItemClass.ExecuteMember(const AGrammar: TPGGrammar);
 var
+  LMemberName: String;
   LMember: TPGItem;
 begin
   Self.BeforeAccess();
   AGrammar.TokenList.Next; // Pula o "."
-  LMember := Self.FindName(AGrammar.TokenList.Current.Value.ToString);
+  LMemberName := AGrammar.TokenList.Current.Value.ToString;
+  LMember := Self.FindName(LMemberName);
 
   if Assigned(LMember) and (LMember is TPGItemExecute) then
   begin
     TPGItemExecute(LMember).BeforeAccess();
     TPGItemExecute(LMember).Execute(AGrammar);
   end else
-    AGrammar.Error('Error_Interpreter_MemberNotFound', []);
+    AGrammar.Error('Error_Interpreter_MemberNotFound', [Self.Name]);
 end;
 
 procedure TPGItemClass.ExecuteDefault(const AGrammar: TPGGrammar);

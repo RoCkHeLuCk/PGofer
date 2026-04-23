@@ -46,7 +46,6 @@ inherited PGTaskFrame: TPGTaskFrame
       TabOrder = 0
       WantTabs = True
       StyleElements = [seFont, seClient]
-      Zoom = 100
       OnKeyUp = EdtScriptKeyUp
     end
   end

@@ -4,9 +4,9 @@ interface
 
 uses
   System.Classes, System.SysUtils,
-  Vcl.StdCtrls, Vcl.Controls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.StdCtrls, Vcl.Controls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers.Folder.Frame, PGofer.Component.Edit,
-  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder, PGofer.Item.Frame;
+  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder, PGofer.Item.Frame, Vcl.ExtCtrls;
 
 type
   TPGVaultFolderFrame = class( TPGFolderFrame )

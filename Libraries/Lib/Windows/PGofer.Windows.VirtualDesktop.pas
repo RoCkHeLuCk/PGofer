@@ -3,7 +3,7 @@
 interface
 
 uses
-  WinApi.Windows, System.SysUtils, ActiveX, Comobj;
+  WinApi.Windows, System.SysUtils, ActiveX;
 
 const
   IID_VDM: TGUID = '{A5CD92FF-29BE-454C-8D04-D82879FB3F1B}';

@@ -18,7 +18,7 @@ implementation
 
 uses
   System.SysUtils, System.JSON,
-  PGofer.Core,
+
   PGofer.Files.Controls,
   PGofer.Files.Encrypt,
   PGofer.Triggers.VaultFolder;

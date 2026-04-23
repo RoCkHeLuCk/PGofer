@@ -33,7 +33,7 @@ var
 implementation
 
 uses
-  PGofer.Net.Controls, PGofer.Core;
+  PGofer.Net.Controls;
 
 { TPGNet }
 

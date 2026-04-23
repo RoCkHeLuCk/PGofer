@@ -97,7 +97,7 @@ implementation
 
 uses
   Vcl.Dialogs,
-  PGofer.Core, PGofer.Lexico, PGofer.Runtime, PGofer.Sintatico,
+  PGofer.Core, PGofer.Lexico, PGofer.Runtime,
   PGofer.Sintatico.Controls, PGofer.Files.Controls, PGofer.Forms.Frame;
 
 {$R *.dfm}

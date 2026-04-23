@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.Classes, System.SysUtils,
+  System.Classes,
   PGofer.Triggers.HotKeys.Controls;
 
 type

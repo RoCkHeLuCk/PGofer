@@ -105,7 +105,6 @@ object FrmAutoComplete: TFrmAutoComplete
     ReadOnly = True
     TabOrder = 1
     StyleElements = [seFont, seClient]
-    Zoom = 100
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

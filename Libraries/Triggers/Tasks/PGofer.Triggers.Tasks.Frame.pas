@@ -6,7 +6,7 @@ uses
   System.Classes, System.SysUtils,
 
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
-  PGofer.Classes, PGofer.Triggers, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
+  PGofer.Classes, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
   PGofer.Component.Edit, PGofer.Component.RichEdit, Pgofer.Component.ComboBox,
   Pgofer.Component.Checkbox;
 

@@ -8,10 +8,10 @@ uses
   System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms,
   Vcl.ExtCtrls, Vcl.Menus,
-  Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.ComCtrls,
   PGofer.Forms,
   PGofer.Component.RichEdit,
-  PGofer.Component.Form;
+  PGofer.Component.Form, Vcl.StdCtrls;
 
 type
   TPGFrmPGofer = class;

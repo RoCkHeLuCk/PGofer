@@ -2,11 +2,11 @@
   "Lg": "pt_BR",
   "Language": "Portugues Brasil",
 
-  "Error_IconNoFound": "Erro Icone: '%s' não encontrado",
+  "Error_IconNoFound": "Icone: '%s' não encontrado",
 
-  "Error_XML_Save": "Erro XML: Ao salvar '%s', mensagem '%s'.",
-  "Error_XML_Load": "Erro XML: Arquivo corrompido '%s'.",
-  "Error_XML_LoadValue": "Erro XML: Item '%s', propriedade '%s' do arquivo: '%s'.",
+  "Error_XML_Save": "XML: Ao salvar '%s', mensagem '%s'.",
+  "Error_XML_Load": "XML: Arquivo corrompido '%s'.",
+  "Error_XML_LoadValue": "XML: Item '%s', propriedade '%s' do arquivo: '%s'.",
 
   "About_Vault": "Pasta Criptografada 'AES'",
 
@@ -38,6 +38,7 @@
   "Error_Interpreter_Until": "'Until' esperado.",
   "Error_Interpreter_Unrecog": "Comando ou valor não reconhecido.",
   "Error_Interpreter_Variable": "Variavel esperada.",
+  "Error_Interpreter_MemberNotFound": "não contem em '%s'",
 
   "Warning_Interpreter_Stack": "Pilha '%s' terminou com: %d",
   "Warning_Interpreter_StackChild": "Pilha Filhos '%s' terminou com: %d",
@@ -45,23 +46,23 @@
 
   "Ok_ShellExecute_Executed": "OK: Executado com exito.",
 
-  "Error_ShellExecute_FileNotFound": "Erro: O arquivo especificado não foi encontrado.",
-  "Error_ShellExecute_PathNotFound": "Erro: O caminho da pasta não foi encontrado.",
-  "Error_ShellExecute_BadFormat": "Erro: O arquivo não é um executável válido ou é incompatível com a arquitetura (32/64 bits).",
-  "Error_ShellExecute_AccessDenied": "Erro: O sistema negou o acesso. Tente executar como administrador.",
-  "Error_ShellExecute_AssociationIncomplete": "Erro: A associação do arquivo está incompleta ou corrompida.",
-  "Error_ShellExecute_DDEBusy": "Erro: A operação DDE não pôde ser concluída porque o sistema está ocupado.",
-  "Error_ShellExecute_DDEFail": "Erro: Falha na transação DDE.",
-  "Error_ShellExecute_DDETimeout": "Erro: O tempo de resposta da transação DDE expirou.",
-  "Error_ShellExecute_DLLNotFound": "Erro: Uma biblioteca DLL necessária para esta operação não foi encontrada.",
-  "Error_ShellExecute_NoAssociation": "Erro: Não há aplicativo instalado associado a este tipo de arquivo.",
-  "Error_ShellExecute_OutOfMemory": "Erro: Não há memória ou recursos de sistema suficientes para executar o arquivo.",
-  "Error_ShellExecute_ShareViolation": "Erro: O arquivo está sendo usado por outro processo.",
-  "Error_ShellExecute_UnknownError": "Erro: Executar o arquivo Código Desconhecido '%d'.",
+  "Error_ShellExecute_FileNotFound": "O arquivo especificado não foi encontrado.",
+  "Error_ShellExecute_PathNotFound": "O caminho da pasta não foi encontrado.",
+  "Error_ShellExecute_BadFormat": "O arquivo não é um executável válido ou é incompatível com a arquitetura (32/64 bits).",
+  "Error_ShellExecute_AccessDenied": "O sistema negou o acesso. Tente executar como administrador.",
+  "Error_ShellExecute_AssociationIncomplete": "A associação do arquivo está incompleta ou corrompida.",
+  "Error_ShellExecute_DDEBusy": "A operação DDE não pôde ser concluída porque o sistema está ocupado.",
+  "Error_ShellExecute_DDEFail": "Falha na transação DDE.",
+  "Error_ShellExecute_DDETimeout": "O tempo de resposta da transação DDE expirou.",
+  "Error_ShellExecute_DLLNotFound": "Uma biblioteca DLL necessária para esta operação não foi encontrada.",
+  "Error_ShellExecute_NoAssociation": "Não há aplicativo instalado associado a este tipo de arquivo.",
+  "Error_ShellExecute_OutOfMemory": "Não há memória ou recursos de sistema suficientes para executar o arquivo.",
+  "Error_ShellExecute_ShareViolation": "O arquivo está sendo usado por outro processo.",
+  "Error_ShellExecute_UnknownError": "Executar o arquivo Código Desconhecido '%d'.",
 
-  "Error_Link_SingleInstance": "Erro: Link '%s' já esta em execução.",
+  "Error_Link_SingleInstance": "Link '%s' já esta em execução.",
 
-  "Error_RawInput_NInstal": "Erro RawInput: Não instalado",
+  "Error_RawInput_NInstal": "RawInput: Não instalado",
 
   "Ok_HotKey_SetNone": "OK: HotHey definido para Desligado.",
   "Ok_HotKey_SetAsyncInput": "OK: HotHey definido para AsyncInput.",

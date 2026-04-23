@@ -3,8 +3,7 @@
 interface
 
 uses
-  System.Classes, System.SyncObjs, System.Generics.Collections, System.Rtti,
-  Vcl.Controls;
+  System.Classes, System.SyncObjs, System.Generics.Collections, System.Rtti;
 
 const
   LOW_STRING = low( string );
@@ -109,9 +108,9 @@ type
 implementation
 
 uses
-  System.SysUtils, System.IOUtils, System.JSON, System.TypInfo, System.Variants,
+  System.SysUtils, System.IOUtils, System.JSON, System.TypInfo,
   Winapi.Windows,
-  Vcl.Graphics,
+
   PGofer.Files.Controls;
 
 { TPGKernel }

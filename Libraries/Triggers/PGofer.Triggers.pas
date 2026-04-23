@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, System.Generics.Collections,
+  System.Generics.Collections,
   PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers.Collections, PGofer.Triggers.Frame;
 
@@ -94,8 +94,8 @@ var
 implementation
 
 uses
-  System.SysUtils, System.RTTI, System.TypInfo,
-  PGofer.Lexico, PGofer.Sintatico.Controls,
+  System.SysUtils, System.TypInfo,
+  PGofer.Sintatico.Controls,
   PGofer.Key.Controls, PGofer.Triggers.Folder.Frame;
 
 { TPGItemTrigger }

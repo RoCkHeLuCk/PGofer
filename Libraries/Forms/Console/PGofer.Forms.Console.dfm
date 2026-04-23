@@ -164,7 +164,7 @@ object FrmConsole: TFrmConsole
   end
   object ppmConsole: TPopupMenu
     Left = 122
-    Top = 26
+    Top = 28
     object mniCopy: TMenuItem
       Caption = 'Copy'
       ShortCut = 16451

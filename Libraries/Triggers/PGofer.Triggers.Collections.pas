@@ -44,7 +44,7 @@ implementation
 uses
    System.SysUtils, System.IOUtils, System.RTTI, System.TypInfo,
    XML.XMLIntf, XML.XMLDoc,
-   PGofer.Core, PGofer.Runtime, PGofer.Triggers, PGofer.Triggers.Form,
+   PGofer.Core, PGofer.Triggers, PGofer.Triggers.Form,
    PGofer.Key.Controls, PGofer.Files.Controls;
 
 { TClassList }
