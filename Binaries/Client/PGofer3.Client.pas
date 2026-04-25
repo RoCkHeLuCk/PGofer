@@ -109,11 +109,11 @@ end;
 
 procedure TFrmPGofer.WMPowerBroadcast(var Msg: TMessage);
 const
-  PBT_APMRESUMEAUTOMATIC = $0012; // Acordou sozinho (Task, Update)
-  PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usu�rio (Mouse/Teclado/Bot�o)
+  //PBT_APMRESUMEAUTOMATIC = $0012; // Acordou sozinho (Task, Update)
+  PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuário (Mouse/Teclado/Botão)
 begin
-  inherited; // Deixa o Windows processar o padr�o
-  if (Msg.WParam in [PBT_APMRESUMEAUTOMATIC,PBT_APMRESUMESUSPEND]) then
+  inherited; // Deixa o Windows processar o padrão
+  if (Msg.WParam = PBT_APMRESUMESUSPEND) then
   begin
     ScriptExec( 'MainMessage', 'HotKeyDef.InputRestart;' );
   end;

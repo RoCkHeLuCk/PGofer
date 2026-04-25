@@ -116,10 +116,17 @@ end;
 
 procedure TPGItemClass.BeforeAccess;
 begin
-  if FRttiLoaded then
-    Exit;
-  FRttiLoaded := True;
-  Self.RttiCreateChildren;
+  if FRttiLoaded then Exit;
+  try
+    FRttiLoaded := True;
+    Self.RttiCreateChildren;
+  except
+    on E: Exception do
+    begin
+      FRttiLoaded := False;
+      TPGKernel.Console('Error_RTTI_Load: ' + Self.ClassName + ' - ' + E.Message, True);
+    end;
+  end;
   inherited BeforeAccess;
 end;
 
@@ -143,7 +150,13 @@ begin
       if (LProp.Visibility = mvPublished)
       and (not LProp.Name.StartsWith('_'))
       and (not Assigned(Self.FindName(LProp.Name))) then
-        TPGItemProperty.Create(Self, LProp);
+      begin
+        if (LProp.PropertyType.IsInstance)
+        and(LProp.PropertyType.AsInstance.MetaclassType.InheritsFrom(TPGItemClass)) then
+          TPGItemClassType(LProp.PropertyType.AsInstance.MetaclassType).Create(Self, LProp.Name)
+        else
+          TPGItemProperty.Create(Self, LProp);
+      end;
     end;
 
     for LMethod in LType.GetMethods do
@@ -504,7 +517,6 @@ var
   LType: TRttiType;
   LMethod: TRttiMethod;
 begin
-  inherited;
   if Assigned(FTargetClass) then
   begin
     LType := TPGKernel.RttiContext.GetType(FTargetClass);
@@ -512,6 +524,7 @@ begin
       if (LMethod.Visibility = mvPublished) and LMethod.IsClassMethod then
         TPGItemMethod.Create(Self, LMethod, FTargetClass);
   end;
+  inherited;
 end;
 
 procedure TPGItemDef.Execute(const AGrammar: TPGGrammar);

@@ -67,7 +67,7 @@ type
     //console translate
     class procedure ConsoleTr(const AValue: string; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
     class procedure ConsoleTr(const AKey: string; const AArgs: array of const; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
-    //???
+    //Standards
     class function IfThen<T>(const ACondition: Boolean; const ATrue, AFalse: T): T; static; inline;
   end;
 

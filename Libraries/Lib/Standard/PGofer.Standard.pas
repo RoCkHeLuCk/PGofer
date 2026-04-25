@@ -345,8 +345,6 @@ begin
     LItem := FindID(AGrammar.Local, LName);
     if Assigned(LItem) and (not LItem.SystemNode) then
     begin
-      //execute beforedesctructor ?????
-
       LItem.Free;
       AGrammar.Stack.Push(True);
     end else

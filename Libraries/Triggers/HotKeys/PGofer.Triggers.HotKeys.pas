@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes,
+  System.Classes, System.SyncObjs,
   System.Generics.Collections,
   PGofer.Core, PGofer.Classes, PGofer.Runtime,
   PGofer.Triggers, PGofer.Triggers.HotKeys.Controls;
@@ -22,6 +22,7 @@ type
     procedure SetKeysHex(AValue: string);
     procedure SetScript(const AValue: string);
     procedure SetInhibit(AValue: Boolean);
+    class var FInputLock: TCriticalSection;
     class var FHotKeyList: TList<TPGHotKey>;
     class var FShootKeys: TList<Word>;
     class var FOnProcessKeys: TProcessKeys;
@@ -73,12 +74,14 @@ uses
 
   PGofer.Key.Controls,
   PGofer.Triggers.HotKeys.Frame,
-  PGofer.Triggers.HotKeys.Async;
+  PGofer.Triggers.HotKeys.Async,
+  PGofer.Triggers.HotKeys.Hook;
 
 { TPGHotKey }
 
 class constructor TPGHotKey.Create;
 begin
+  FInputLock := TCriticalSection.Create();
   FHotKeyList := TList<TPGHotKey>.Create();
   FShootKeys := TList<Word>.Create();
   FOnProcessKeys := nil;
@@ -94,6 +97,8 @@ begin
   FShootKeys := nil;
   FHotKeyList.Free();
   FHotKeyList := nil;
+  FInputLock.Free;
+  FInputLock := nil;
 end;
 
 constructor TPGHotKey.Create(AMirror: TPGItemMirror; AName: string);
@@ -301,8 +306,9 @@ end;
 
 class procedure TPGHotKey.SetInputType(AType: Byte);
 begin
-  FTypeIndex := AType;
+  FInputLock.Enter;
   try
+    FTypeIndex := AType;
     if Assigned(TPGHotKey.FTypeInput) then
     begin
       TPGHotKey.FTypeInput.Free();
@@ -330,6 +336,7 @@ begin
       TPGKernel.ConsoleTr('Ok_HotKey_SetNone');
       FTypeIndex := 0;
     end;
+    FInputLock.Leave;
   end;
 end;
 
