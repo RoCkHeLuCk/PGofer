@@ -3,144 +3,105 @@
 interface
 
 uses
-  WinApi.Messages;
+  WinApi.Messages, WinApi.Windows, System.SysUtils;
 
 const
-  WM_SETFOCUS = WM_SETFOCUS;
-  WM_PG_HIDE = WM_USER + 1;
-  WM_PG_NOFOCUS = WM_USER + 2;
-  WM_PG_SETFOCUS = WM_USER + 3;
-  WM_PG_CLOSE = WM_USER + 4;
-  WM_PG_SCRIPT = WM_USER + 5;
-  WM_PG_LINKUPD = WM_USER + 6;
-  WM_PG_HOTHEYUPD = WM_USER + 7;
-  WM_PG_SHUTDOWN = WM_USER + 101;
+  WM_PG_SETFOCUS = WM_USER + 1;
+  WM_PG_SCRIPT   = WM_USER + 2;
+  MSGFLT_ALLOW = 1;
 
-function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
-function FormBeforeInitialize( Classe: PWideChar; DefaultWM: Cardinal )
-  : Boolean;
-procedure OnMessage( var AMessage: TMessage );
-procedure SendScript( Text: string );
-procedure LinkUpdate( );
+function ChangeWindowMessageFilterEx(hWnd: HWND; message: UINT; action: DWORD;
+          pFilterStatus: Pointer): BOOL; stdcall; external 'user32.dll';
+procedure PresetMessageFilter(AHandle: HWND);
+procedure FormAfterInitialize();
+function FormBeforeInitialize(Classe: PWideChar): Boolean;
+procedure OnMessage(var AMessage: TMessage);
 
 implementation
 
 uses
-  System.SysUtils,
-  WinApi.Windows,
-  Vcl.Forms,
-  PGofer.Runtime, PGofer.Triggers.Tasks;
+  Vcl.Forms, PGofer.Runtime;
 
-function FormAfterInitialize( H: THandle; DefaultWM: Cardinal ): Boolean;
-var
-  Parametro: string;
+procedure PresetMessageFilter(AHandle: HWND);
 begin
-  // se a janela exixte
-  if ( H <> 0 ) then
+  if AHandle = 0 then Exit;
+
+  ChangeWindowMessageFilterEx(AHandle, WM_PG_SETFOCUS, MSGFLT_ALLOW, nil);
+  ChangeWindowMessageFilterEx(AHandle, WM_PG_SCRIPT, MSGFLT_ALLOW, nil);
+end;
+
+procedure FormAfterInitialize();
+var
+  LParam: string;
+begin
+  PresetMessageFilter( Application.MainForm.Handle );
+
+  if FindCmdLineSwitch('script', LParam, True) then
+    ScriptExec('External', LParam, nil, False)
+  else
+    Application.MainForm.Show;
+end;
+
+function FormBeforeInitialize(Classe: PWideChar): Boolean;
+var
+  H: HWND;
+  LParam: string;
+begin
+  if FindCmdLineSwitch('Duplicate', True) then
+    Exit(True);
+
+  Result := True;
+  H := FindWindow(Classe, nil);
+
+  if H <> 0 then
   begin
     Result := False;
-    // procura parametros e envia mensagem
-    if FindCmdLineSwitch( 'Duplicate', True ) then
-      Result := True
-    else if FindCmdLineSwitch( 'Hide', True ) then
-      SendMessage( H, WM_PG_HIDE, 0, 0 )
-    else if FindCmdLineSwitch( 'NoFocus', True ) then
-      SendMessage( H, WM_PG_NOFOCUS, 0, 0 )
-    else if FindCmdLineSwitch( 'SetFocus', True ) then
-      SendMessage( H, WM_PG_SETFOCUS, 0, 0 )
-    else if FindCmdLineSwitch( 'Close', True ) then
-      SendMessage( H, WM_PG_CLOSE, 0, 0 )
-    else if FindCmdLineSwitch( 'Script', Parametro, True,
-      [ clstValueNextParam, clstValueAppended ] ) then
-      SendMessage( H, WM_PG_SCRIPT, Length( Parametro ),
-        GlobalAddAtom( PChar( Parametro ) ) )
+
+    if FindCmdLineSwitch('script', LParam, True) then
+      SendMessage(H, WM_PG_SCRIPT, Length(LParam), GlobalAddAtom(PWideChar(LParam)))
     else
-      SendMessage( H, DefaultWM, 0, 0 );
-  end
-  else
-    Result := True;
-end;
-
-function FormBeforeInitialize( Classe: PWideChar; DefaultWM: Cardinal )
-  : Boolean;
-begin
-  Result := FormAfterInitialize( FindWindow( Classe, nil ), DefaultWM );
-end;
-
-procedure OnMessage( var AMessage: TMessage );
-var
-  Parametro: string;
-  Buffer: PChar;
-begin
-  case AMessage.Msg of
-    WM_PG_HIDE:
-      begin
-        Application.ShowMainForm := False;
-        Application.MainForm.Hide;
-      end;
-
-    WM_PG_NOFOCUS:
-      begin
-        Application.MainForm.Visible := True;
-        if Assigned( Application.MainForm.OnActivate ) then
-          Application.MainForm.OnActivate( nil );
-      end;
-
-    WM_PG_SETFOCUS:
-      begin
-        Application.MainForm.Show;
-      end;
-
-    WM_PG_CLOSE:
-      begin
-        Application.Terminate;
-      end;
-
-    WM_PG_SCRIPT:
-      begin
-        Buffer := StrAlloc( AMessage.WParam + 1 );
-        GlobalGetAtomName( AMessage.LParam, Buffer, AMessage.WParam + 1 );
-        Parametro := StrPas( Buffer );
-        StrDispose( Buffer );
-        GlobalDeleteAtom( AMessage.LParam );
-        ScriptExec( 'External', Parametro, nil, False );
-      end;
-
-    WM_MOUSEACTIVATE:
-      begin
-        AMessage.Result := MA_NOACTIVATE;
-      end;
-
-    WM_NCLBUTTONDOWN:
-      begin
-        if TWMNCLButtonDown( AMessage ).HitTest = HTCAPTION then
-          Application.BringToFront;
-      end;
-
-    WM_PG_SHUTDOWN:
-      begin
-         TPGTask.Working( 2, False );
-      end;
+      SendMessage(H, WM_PG_SETFOCUS, 0, 0);
   end;
 end;
 
-procedure SendScript( Text: string );
+procedure OnMessage(var AMessage: TMessage);
 var
-  H: THandle;
+  Buffer: PWideChar;
+  Parametro: string;
 begin
-  H := FindWindow( 'TFrmPGofer', nil );
-  if ( H <> 0 ) then
-    SendMessage( H, WM_PG_SCRIPT, Length( Text ),
-      GlobalAddAtom( PChar( Text ) ) );
-end;
+  case AMessage.Msg of
+    WM_PG_SETFOCUS:
+    begin
+      if Assigned(Application.MainForm) then
+        Application.MainForm.Show;
+    end;
 
-procedure LinkUpdate( );
-var
-  H: THandle;
-begin
-  H := FindWindow( 'TFrmPGofer', nil );
-  if ( H <> 0 ) then
-    SendMessage( H, WM_PG_LINKUPD, 0, 0 );
+    WM_PG_SCRIPT:
+    begin
+      Buffer := StrAlloc(AMessage.WParam + 1);
+      try
+        if GlobalGetAtomName(AMessage.LParam, Buffer, AMessage.WParam + 1) > 0 then
+        begin
+          Parametro := StrPas(Buffer);
+          ScriptExec('External', Parametro, nil, False);
+        end;
+      finally
+        StrDispose(Buffer);
+        GlobalDeleteAtom(AMessage.LParam);
+      end;
+    end;
+
+    WM_MOUSEACTIVATE:
+    begin
+       AMessage.Result := MA_NOACTIVATE;
+    end;
+
+    WM_NCLBUTTONDOWN:
+    begin
+      if TWMNCLButtonDown(AMessage).HitTest = HTCAPTION then
+         Application.BringToFront;
+    end;
+  end;
 end;
 
 end.

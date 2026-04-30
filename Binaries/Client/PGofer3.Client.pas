@@ -4,14 +4,12 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages,
-  System.SysUtils,
-  System.Classes,
-  Vcl.Graphics, Vcl.Controls, Vcl.Forms,
-  Vcl.ExtCtrls, Vcl.Menus,
-  Vcl.ComCtrls,
-  PGofer.Forms,
+  System.SysUtils, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls,
+  Vcl.ExtCtrls, Vcl.Menus, Vcl.ComCtrls,
+  PGofer.Component.Form,
   PGofer.Component.RichEdit,
-  PGofer.Component.Form, Vcl.StdCtrls;
+  PGofer.Forms;
 
 type
   TPGFrmPGofer = class;
@@ -109,7 +107,6 @@ end;
 
 procedure TFrmPGofer.WMPowerBroadcast(var Msg: TMessage);
 const
-  //PBT_APMRESUMEAUTOMATIC = $0012; // Acordou sozinho (Task, Update)
   PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuário (Mouse/Teclado/Botão)
 begin
   inherited; // Deixa o Windows processar o padrão
@@ -124,7 +121,7 @@ begin
   if not PGWindows.CanOff then
   begin
     Msg.Result := 0;
-    PostMessage(Handle, WM_USER + 101, 0, 0);
+    TPGTask.Working( 2, False );
   end else begin
     Msg.Result := 1;
   end;
@@ -303,6 +300,18 @@ end;
 
 { TPGFrmPGofer }
 
+constructor TPGFrmPGofer.Create( AForm: TForm );
+begin
+  inherited Create( AForm );
+  FCanClose := True;
+end;
+
+destructor TPGFrmPGofer.Destroy( );
+begin
+  FCanClose := True;
+  inherited Destroy( );
+end;
+
 procedure TPGFrmPGofer.Close( );
 begin
   TThread.CreateAnonymousThread(
@@ -318,18 +327,6 @@ begin
       );
     end
   ).Start;
-end;
-
-constructor TPGFrmPGofer.Create( AForm: TForm );
-begin
-  inherited Create( AForm );
-  FCanClose := True;
-end;
-
-destructor TPGFrmPGofer.Destroy( );
-begin
-  FCanClose := True;
-  inherited Destroy( );
 end;
 
 procedure TPGFrmPGofer.Frame( AParent: TObject );

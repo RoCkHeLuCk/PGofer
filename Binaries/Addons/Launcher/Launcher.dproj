@@ -143,8 +143,8 @@
         <AppExecutionLevel>requireAdministrator</AppExecutionLevel>
         <UWP_DelphiLogo44>..\..\..\Documents\Imagens\Launcher 44px.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>..\..\..\Documents\Imagens\Launcher 150px.png</UWP_DelphiLogo150>
-        <VerInfo_Build>381</VerInfo_Build>
-        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.381;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
+        <VerInfo_Build>392</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=HeLuCk&apos;s;FileDescription=Launching PGofer ;FileVersion=1.0.0.392;InternalName=Launcher;LegalCopyright=FreeWare;LegalTrademarks=HeLuCk&apos;s PGofer Launcher;OriginalFilename=Launcher.exe;ProgramID=Launcher V1.0;ProductName=HeLuCk&apos;s PGofer Launcher;ProductVersion=1.0;Author=Franco Michel Almeida Caixeta</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -177,23 +177,16 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
-                <DeployFile LocalName="Win32\Debug\Launcher.exe" Configuration="Debug" Class="ProjectOutput">
-                    <Platform Name="Win32">
-                        <RemoteName>Launcher.exe</RemoteName>
+                <DeployFile LocalName="Launcher.dpr" Configuration="Release" Class="ProjectFile">
+                    <Platform Name="Win64">
+                        <RemoteDir>.\</RemoteDir>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
                 <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 150px.png" Configuration="Release" Class="UWP_DelphiLogo150">
-                    <Platform Name="Win32">
+                    <Platform Name="Win64">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo150x150.png</RemoteName>
-                        <Overwrite>true</Overwrite>
-                    </Platform>
-                </DeployFile>
-                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 44px.png" Configuration="Release" Class="UWP_DelphiLogo44">
-                    <Platform Name="Win32">
-                        <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -201,6 +194,13 @@
                     <Platform Name="Win64">
                         <RemoteDir>Assets\</RemoteDir>
                         <RemoteName>Logo44x44.png</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 150px.png" Configuration="Release" Class="UWP_DelphiLogo150">
+                    <Platform Name="Win32">
+                        <RemoteDir>Assets\</RemoteDir>
+                        <RemoteName>Logo150x150.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
@@ -210,10 +210,22 @@
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
-                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 150px.png" Configuration="Release" Class="UWP_DelphiLogo150">
+                <DeployFile LocalName="Win32\Debug\Launcher.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>Launcher.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win64\Release\Launcher.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win64">
+                        <RemoteName>Launcher.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="..\..\..\Documents\Imagens\Launcher 44px.png" Configuration="Release" Class="UWP_DelphiLogo44">
+                    <Platform Name="Win32">
                         <RemoteDir>Assets\</RemoteDir>
-                        <RemoteName>Logo150x150.png</RemoteName>
+                        <RemoteName>Logo44x44.png</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>

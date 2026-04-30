@@ -79,18 +79,14 @@ begin
   if not ASuccess then
   begin
     FLastError := ServiceGetLastErrorMessage;
-    // Joga o erro graciosamente no console nativo do PGofer (sem travar a thread)
-    TPGKernel.Console(Format('Error Service: Failed on [%s] - %s', [AService, FLastError]));
-  end
-  else
-  begin
+    TPGKernel.Console('Error Service: Failed on [%s] - %s', [AService, FLastError]);
+  end else begin
     FLastError := '';
   end;
 end;
 
 function TPGService.Created( const AService, ADisplayName, APathFile: string ): Cardinal;
 begin
-  // Criar não usa curinga
   Result := ServiceCreate( FMachineName, AService, ADisplayName, APathFile );
   CheckResult(Result > 0, AService);
 end;
@@ -183,7 +179,7 @@ begin
   begin
     Res := ServiceSetConfig( FMachineName, NomeReal, AConfig );
     CheckResult(Res, NomeReal);
-    if not Res then Result := False; // Se um falhar, o retorno geral é falso, mas continua tentando
+    if not Res then Result := False;
   end;
 end;
 
@@ -247,7 +243,6 @@ begin
 
   Start := GetTickCount;
 
-  // Fica no laço esperando TODOS atingirem o estado
   while ( GetTickCount - Start ) < ATimeout do
   begin
     AllDone := True;
@@ -256,7 +251,7 @@ begin
       if ServiceGetState( FMachineName, NomeReal ) <> AState then
       begin
         AllDone := False;
-        Break; // Achou um que ainda não terminou, aborta a checagem atual
+        Break;
       end;
     end;
 
@@ -269,11 +264,10 @@ begin
     Sleep( 100 );
   end;
 
-  // Se atingiu o timeout, chora bonito no console
   if not Result then
   begin
     FLastError := 'Timeout atingido aguardando mudança de estado.';
-    TPGKernel.Console(Format('Error Service: Timeout on [%s] - %s', [AService, FLastError]));
+    TPGKernel.Console('Error Service: Timeout on [%s] - %s', [AService, FLastError]);
   end;
 end;
 

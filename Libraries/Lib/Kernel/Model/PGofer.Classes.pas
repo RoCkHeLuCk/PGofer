@@ -21,7 +21,6 @@ type
     FParent: TPGItem;
     FNode: TTreeNode;
     function GetCollectDad(): TPGItemCollect;
-
     class var FIconCache: TDictionary<TClass, Integer>;
     class var FImageList: TCustomImageList;
     class var FIconPath: String;

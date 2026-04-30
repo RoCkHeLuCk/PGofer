@@ -87,12 +87,14 @@ uses
   PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
+  PGofer.Scheduler.Controls in '..\..\Libraries\Lib\Scheduler\PGofer.Scheduler.Controls.pas',
+  PGofer.Scheduler in '..\..\Libraries\Lib\Scheduler\PGofer.Scheduler.pas';
 
 {$R *.res}
 
 begin
-  if FormBeforeInitialize( 'TFrmPGofer', WM_PG_SETFOCUS ) then
+  if FormBeforeInitialize( 'TFrmPGofer' ) then
   begin
     {$IFDEF DEBUG}
     ReportMemoryLeaksOnShutdown := True;
@@ -109,13 +111,13 @@ begin
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.FormCreate();
     TriggersCollect.FormCreate();
-    FormAfterInitialize( FrmPGofer.Handle, WM_PG_SETFOCUS );
     TPGTask.Working( 0, False );
+    FormAfterInitialize();
 
     SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
     SetProcessPriorityBoost( GetCurrentProcess, False );
