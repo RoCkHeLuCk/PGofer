@@ -80,7 +80,7 @@ begin
   LNeedSave := False;
 
   // Abre o arquivo de estados uma única vez antes do loop
-  LIni := TMemIniFile.Create(TPGKernel.PathCurrent + 'TaskStates.ini');
+  LIni := TMemIniFile.Create(TPGKernel.PathData + 'TaskStates.ini');
   try
     LList := FTaskList.LockList;
     try
@@ -121,7 +121,7 @@ begin
   inherited Create( AMirror, AName );
   FTaskList.Add(Self);
 
-  LIni := TMemIniFile.Create(TPGKernel.PathCurrent + 'TaskStates.ini');
+  LIni := TMemIniFile.Create(TPGKernel.PathData + 'TaskStates.ini');
   try
     FOccurrence := LIni.ReadInteger(Self.Name, 'Occurrence', 0);
   finally

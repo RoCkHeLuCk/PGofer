@@ -14,6 +14,7 @@ type
     FForceResizable: boolean;
     class var FIniFile: TMemIniFileEx;
     procedure SetForceResizable(const Value: boolean);
+    class function GetIniFile: TMemIniFileEx; static;
   protected
     procedure DoCreate(); override;
     procedure DoClose( var Action: TCloseAction ); override;
@@ -24,7 +25,8 @@ type
     procedure CreateParams( var AParams: TCreateParams ); override;
     procedure CreateWindowHandle(const Params: TCreateParams); override;
   public
-    class property IniFile:TMemIniFileEx read FIniFile;
+    class property IniFile: TMemIniFileEx read GetIniFile;
+    class procedure SetIniFile(const AFileName: String);
     procedure ForceShow( AFocus: boolean ); virtual;
   published
     property ForceResizable: boolean read FForceResizable write SetForceResizable
@@ -44,6 +46,28 @@ end;
 
 {$R *.dfm}
 { TFormEx }
+
+class function TFormEx.GetIniFile: TMemIniFileEx;
+begin
+  if not Assigned(TFormEx.FIniFile) then
+     TFormEx.SetIniFile('');
+  Result := TFormEx.FIniFile;
+end;
+
+class procedure TFormEx.SetIniFile(const AFileName: String);
+var
+   LFileName: String;
+begin
+  if Assigned(TFormEx.FIniFile) then
+    TFormEx.FIniFile.Free;
+
+  if AFileName <> '' then
+     LFileName := AFileName
+  else
+     LFileName := ExtractFilePath( ParamStr( 0 ) ) + 'Config.ini';
+
+  TFormEx.FIniFile := TMemIniFileEx.Create( LFileName );
+end;
 
 procedure TFormEx.CreateParams(var AParams: TCreateParams);
 begin
@@ -233,7 +257,7 @@ begin
   Self.MakeFullyVisible(Self.Monitor);
 end;
 
-{ //OLD
+{//OLD
 procedure TFormEx.ForceShow( AFocus: boolean );
 var
   ForegroundThreadID: Cardinal;
@@ -318,10 +342,10 @@ end;
 //}
 
 initialization
-  TFormEx.FIniFile := TMemIniFileEx.Create( ExtractFilePath( ParamStr( 0 ) ) + 'Config.ini' );
 
-finalization
-  TFormEx.FIniFile.Free;
+finalization
+  if Assigned(TFormEx.FIniFile) then
+    TFormEx.FIniFile.Free;
   TFormEx.FIniFile:= nil;
 
 end.

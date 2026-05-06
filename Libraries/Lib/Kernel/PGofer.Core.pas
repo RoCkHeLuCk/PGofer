@@ -13,17 +13,19 @@ type
 
   TPGKernel = class
   private
-    //vars
+    //RTTI
     class var FRttiContext: TRttiContext;
+
+    //Environments
     class var FPathCurrent: String;
     class var FPathData: String;
-    class var FLanguageFile: String;
+    class var FPathIcon: String;
+
     class var FConsoleMessage: Boolean;
     class var FReplyFormat: String;
     class var FReplyPrefix: Boolean;
     class var FLoopLimit: Cardinal;
     class var FReportMemoryLeaks: Boolean;
-    class procedure SetLanguageFile(const AValue: String); static;
 
     //console
     type TConsoleBuffer = record
@@ -41,26 +43,32 @@ type
     class procedure ConsoleUnlocked();
 
     //translate
+    class var FLanguageFile: String;
+    class procedure SetLanguageFile(const AValue: String); static;
     class var FTranslate: TDictionary<string, string>;
-    //class var FTranslateLock: TCriticalSection;
   public
     class constructor Create();
     class destructor Destroy();
-    //vars
+    //RTTI
     class property RttiContext: TRttiContext read FRttiContext;
+
+    //Environments
     class property PathCurrent: String read FPathCurrent;
     class property PathData: String read FPathData;
+    class property PathIcon: String read FPathIcon;
     class property LanguageFile: String read FLanguageFile write SetLanguageFile;
     class property ReportMemoryLeaks: Boolean read FReportMemoryLeaks write FReportMemoryLeaks;
     class property LoopLimit: Cardinal read FLoopLimit write FLoopLimit;
     class property ReplyFormat: String read FReplyFormat write FReplyFormat;
     class property ReplyPrefix: Boolean read FReplyPrefix write FReplyPrefix;
     class property ConsoleMessage: Boolean read FConsoleMessage write FConsoleMessage;
-    //console
+
+    //Console
     class property ConsoleNotify: TPGConsoleNotify read FConsoleNotify write SetConsoleNotify;
     class procedure Console(const AValue: string; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
     class procedure Console(const AKey: string; const AArgs: array of const; ANewLine: Boolean = True; AShow: Boolean = True); overload; static;
-    //translate
+
+    //Translate
     class procedure LoadTranslateFile(const AFileName: string);
     class function Translate(const AValue: string): string; overload; static;
     class function Translate(const AKey: string; const AArgs: array of const): string; overload; static;
@@ -120,7 +128,16 @@ begin
   //var
   TPGKernel.FConsoleLock := TCriticalSection.Create();
   TPGKernel.FRttiContext := TRttiContext.Create;
-  TPGKernel.FPathCurrent:= IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));;
+  TPGKernel.FPathCurrent := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
+  TPGKernel.FPathData := TPGKernel.FPathCurrent + 'Data\';
+  if not DirectoryExistsEx(TPGKernel.FPathData) then
+     MkDir(TPGKernel.FPathData);
+
+  {$IFDEF DEBUG}
+    TPGKernel.FPathIcon := TPGKernel.FPathCurrent + '..\..\..\..\Documents\Imagens\Icons\';
+  {$ELSE}
+    TPGKernel.FPathIcon := TPGKernel.FPathCurrent + 'Icons\';
+  {$ENDIF}
   TPGKernel.FReportMemoryLeaks := False;
   TPGKernel.FLoopLimit := 1000000;
   TPGKernel.FReplyFormat := '';
@@ -134,7 +151,6 @@ begin
 
   //translate
   FTranslate := TDictionary<string, string>.Create;
-
   {$IFDEF DEBUG}
     TPGKernel.SetLanguageFile(FPathCurrent + '..\..\..\..\Documents\Languages\Language.json');
   {$ELSE}
@@ -408,7 +424,7 @@ begin
     for LIndex := Low(LAttrib) to High(LAttrib) do
     begin
       if LAttrib[LIndex] is TPGArgsAttribute then
-        Exit(TPGArgsAttribute(LAttrib[LIndex]).Args); // Retorna o array pronto!
+        Exit(TPGArgsAttribute(LAttrib[LIndex]).Args);
     end;
   end;
 end;
@@ -607,52 +623,12 @@ begin
       if ATargetType.Handle = TypeInfo(Boolean) then
         Result := TValue.From<Boolean>(ValueToBoolean(AValue))
       else
-        // Enums customizados (ex: TWindowState)
         Result := TValue.FromOrdinal(ATargetType.Handle, ValueToInt64(AValue));
     end;
   else
-    // Objetos, Records, Arrays e outros
     Result := AValue;
   end;
 end;
-
-//  case AValue.Kind of
-//    tkInteger, tkInt64:
-//    begin
-//
-//    end;
-//
-//    tkChar, tkWChar, tkString, tkLString, tkWString, tkUString:
-//    begin
-//
-//    end;
-//
-//    tkEnumeration:
-//    begin
-//
-//    end;
-//
-//    tkFloat:
-//    begin
-//
-//    end;
-//
-//    tkArray, tkDynArray:
-//    begin
-//
-//    end;
-//
-//    tkVariant:
-//    begin
-//
-//    end;
-//
-//    //tkUnknown, tkSet, tkClass, tkMethod, tkClassRef, tkPointer, tkProcedure, tkMRecord
-//    //  tkRecord, tkInterface:
-//  else
-//
-//  end;
-
 
 initialization
   FormatSettings.DecimalSeparator := '.';

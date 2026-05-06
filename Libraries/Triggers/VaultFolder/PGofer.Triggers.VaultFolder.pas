@@ -74,7 +74,7 @@ uses
 
 class constructor TPGVaultFolder.Create();
 begin
-  FKeyStoreFile := TPGKernel.PathCurrent + 'KeyStore.pgk';
+  FKeyStoreFile := TPGKernel.PathData + 'KeyStore.pgk';
   FVaultList := TList<TPGVaultFolder>.Create;
   FTimer := TTimer.Create(nil);
   FTimer.Interval := 30000;

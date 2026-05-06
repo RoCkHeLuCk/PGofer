@@ -30,6 +30,7 @@ function FileGetCreateTime(FileName: string): string;
 function FileGetModifyTime(FileName: string): string;
 function FileGetAcessTime(FileName: string): string;
 function FileExtractOnlyFileName(const FileName: string): string;
+function FileGetVersion(const AFileName:String): String;
 
 function FileCommitWithBackup(const AFileName: string; AMaxBackups: Integer = 10): Boolean;
 procedure FileDeleteBackups(const AFileName: string; AMaxBackups: Integer = 10);
@@ -489,6 +490,33 @@ begin
     LBackupFile := AFileName + '.bak' + IntToStr(LCount);
     if TFile.Exists(LBackupFile) then
       TFile.Delete(LBackupFile);
+  end;
+end;
+
+function FileGetVersion(const AFileName:String): String;
+var
+  Size, Dummy: DWORD;
+  Buffer: TBytes;
+  FixedFileInfo: PVSFixedFileInfo;
+  FileInfoLen: UINT;
+begin
+  Result := '0.0.0.0';
+  Size := GetFileVersionInfoSize(PChar(AFileName), Dummy);
+  if Size > 0 then
+  begin
+    SetLength(Buffer, Size);
+    if GetFileVersionInfo(PChar(AFileName), 0, Size, Buffer) then
+    begin
+      if VerQueryValue(Buffer, '\', Pointer(FixedFileInfo), FileInfoLen) then
+      begin
+        Result := Format('%d.%d.%d.%d', [
+          HiWord(FixedFileInfo.dwFileVersionMS), // Major
+          LoWord(FixedFileInfo.dwFileVersionMS), // Minor
+          HiWord(FixedFileInfo.dwFileVersionLS), // Release
+          LoWord(FixedFileInfo.dwFileVersionLS)  // Build
+        ]);
+      end;
+    end;
   end;
 end;
 

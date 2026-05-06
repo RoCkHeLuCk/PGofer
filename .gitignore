@@ -45,3 +45,7 @@ Win64/Debug/
 Win64/Release/
 KeyStore.pgk
 *.bak1
+/Binaries/Client/Win32/Debug/Data
+/Binaries/Client/Win64/Release/Data
+/Binaries/Client/Win32/Debug
+/Binaries/Client/Win32/Debug

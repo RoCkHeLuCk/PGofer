@@ -4,7 +4,7 @@
 uses
   Winapi.Windows,
   Winapi.MMSystem,
-  Vcl.Forms,
+  Vcl.Forms, Vcl.Themes, Vcl.Styles,
   PGofer.Component.IniFile in '..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas',
   Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.ComboBox in '..\..\Libraries\Componet\Source\Pgofer.Component.ComboBox.pas',
@@ -40,6 +40,8 @@ uses
   PGofer.Registry.Controls in '..\..\Libraries\Lib\Registry\PGofer.Registry.Controls.pas',
   PGofer.Registry.Environment in '..\..\Libraries\Lib\Registry\PGofer.Registry.Environment.pas',
   PGofer.Registry in '..\..\Libraries\Lib\Registry\PGofer.Registry.pas',
+  PGofer.Scheduler.Controls in '..\..\Libraries\Lib\Scheduler\PGofer.Scheduler.Controls.pas',
+  PGofer.Scheduler in '..\..\Libraries\Lib\Scheduler\PGofer.Scheduler.pas',
   PGofer.Services.Controls in '..\..\Libraries\Lib\Services\PGofer.Services.Controls.pas',
   PGofer.Services in '..\..\Libraries\Lib\Services\PGofer.Services.pas',
   PGofer.Sound.Controls in '..\..\Libraries\Lib\Sound\PGofer.Sound.Controls.pas',
@@ -87,9 +89,7 @@ uses
   PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
-  PGofer.Scheduler.Controls in '..\..\Libraries\Lib\Scheduler\PGofer.Scheduler.Controls.pas',
-  PGofer.Scheduler in '..\..\Libraries\Lib\Scheduler\PGofer.Scheduler.pas';
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
 
@@ -105,19 +105,20 @@ begin
     SetProcessWorkingSetSize(GetCurrentProcess, 32 * 1024 * 1024, 64 * 1024 * 1024);
     SetProcessShutdownParameters($4FF, 0);
     timeBeginPeriod(1);
-
+    TFormEx.SetIniFile(TPGKernel.PathData + 'Config.ini');
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
-    Application.Title := 'PGofer V3.0';
+    TStyleManager.TrySetStyle('Charcoal Dark Slate');
+  Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.FormCreate();
     TriggersCollect.FormCreate();
     TPGTask.Working( 0, False );
-    FormAfterInitialize();
+    FormAfterInitialize( );
 
     SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
     SetProcessPriorityBoost( GetCurrentProcess, False );

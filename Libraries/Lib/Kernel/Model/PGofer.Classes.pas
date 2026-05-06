@@ -23,8 +23,6 @@ type
     function GetCollectDad(): TPGItemCollect;
     class var FIconCache: TDictionary<TClass, Integer>;
     class var FImageList: TCustomImageList;
-    class var FIconPath: String;
-    class procedure SetIconPath(const Value: String); static;
   protected
     class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
 
@@ -41,7 +39,6 @@ type
     class destructor Destroy();
     class function ClassNameEx(): String; virtual;
     class function IconIndex(): Integer; virtual;
-    class property IconPath: String read FIconPath write SetIconPath;
 
     constructor Create(AParent: TPGItem; AName: string); overload; virtual;
     destructor Destroy(); override;
@@ -100,12 +97,6 @@ class constructor TPGItem.Create();
 begin
   FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
   FIconCache := TDictionary<TClass, Integer>.Create;
-  {$IFDEF DEBUG}
-    FIconPath := TPGKernel.PathCurrent + '..\..\..\..\Documents\Imagens\Icons\';
-  {$ELSE}
-    FIconPath := TPGKernel.PathCurrent + 'Icons\';
-  {$ENDIF}
-
   TPGItem.FImageList := TCustomImageList.Create(nil);
   TPGItem.FImageList.Width := 16;
   TPGItem.FImageList.Height := 16;
@@ -132,7 +123,7 @@ var
     LCurrentClass := LClass;
     while (LCurrentClass <> nil) and (LCurrentClass.InheritsFrom(TPGItem)) do
     begin
-      LIconFileName := FIconPath + TPGItemType(LCurrentClass).ClassNameEx + '.ico';
+      LIconFileName := TPGKernel.PathIcon + TPGItemType(LCurrentClass).ClassNameEx + '.ico';
       if FileExists(LIconFileName) then
       begin
         LIcon := TIcon.Create( );
@@ -217,15 +208,6 @@ begin
     FNode.Enabled := FEnabled;
 end;
 
-class procedure TPGItem.SetIconPath(const Value: String);
-begin
-  if SameText(FIconPath,Value) then Exit;
-
-  FIconPath := Value;
-  FIconCache.Clear;
-  FImageList.Clear;
-end;
-
 procedure TPGItem.SetNode(AValue: TTreeNode);
 var
   LIndex : Integer;
@@ -247,33 +229,20 @@ end;
 
 procedure TPGItem.SetParent(AParent: TPGItem);
 var
-  //LCollectDad,
   LNewCollectDad: TPGItemCollect;
 begin
   if (FParent = AParent) or (FSystemNode and Assigned(FParent)) then Exit;
 
-  //LCollectDad := GetCollectDad();
   LNewCollectDad := nil;
   if Assigned(AParent) then LNewCollectDad := AParent.CollectDad;
-
-//  // 1. Trava as listas em mem�ria
-//  if Assigned(LCollectDad) then
-//   LCollectDad.LockSection;
-//  if Assigned(LNewCollectDad) and (LNewCollectDad <> LCollectDad) then
-//   LNewCollectDad.LockSection;
 
   try
     if Assigned(FParent) then FParent.Extract(Self);
     if Assigned(AParent) then AParent.Add(Self);
   finally
     FParent := AParent;
-//    if Assigned(LNewCollectDad) and (LNewCollectDad <> LCollectDad) then
-//      LNewCollectDad.UnlockSection;
-//    if Assigned(LCollectDad) then
-//      LCollectDad.UnlockSection;
   end;
 
-  // 2. Atualiza��o VCL encapsulada na Main Thread
   RunInMainThread(
     procedure
     var

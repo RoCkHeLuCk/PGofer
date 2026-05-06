@@ -127,7 +127,7 @@ procedure TFrmAutoComplete.FormCreate(Sender: TObject);
 begin
   FItem := TPGFrmAutoComplete.Create(Self);
 
-  FMemoryIniFile := TMemIniFileEx.Create(TPGKernel.PathCurrent + 'AutoComplete.ini');
+  FMemoryIniFile := TMemIniFileEx.Create(TPGKernel.PathData + 'AutoComplete.ini');
   FMemoryNoCtrl := False;
   FMemoryPosition := 0;
   FMemoryList := TStringList.Create( );

@@ -175,13 +175,11 @@ object FrmController: TFrmController
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderWidth = 1
-      Color = clSilver
-      Ctl3D = True
+      Color = 2302755
       HideSelection = False
       Indent = 19
       MultiSelect = True
       MultiSelectStyle = [msControlSelect, msShiftSelect, msVisibleOnly, msSiblingOnly]
-      ParentCtl3D = False
       PopupMenu = PpmConttroler
       ReadOnly = True
       RightClickSelect = True

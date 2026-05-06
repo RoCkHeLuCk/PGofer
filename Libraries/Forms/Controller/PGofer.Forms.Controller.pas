@@ -357,6 +357,8 @@ begin
 
     if Item.ReadOnly then
       Sender.Canvas.Font.Color := clGray;
+
+    Sender.Canvas.Brush.Color := TrvController.Color;
   end;
 
 end;

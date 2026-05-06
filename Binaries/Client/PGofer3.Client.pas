@@ -79,7 +79,7 @@ implementation
 uses
   PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime, PGofer.Windows,
   PGofer.Forms.Controls, PGofer.Forms.Console, PGofer.Forms.Frame,
-  PGofer.Triggers.Tasks,
+  PGofer.Triggers.Tasks, PGofer.Files.Controls,
   PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
@@ -335,33 +335,8 @@ begin
 end;
 
 function TPGFrmPGofer.GetVersion(): string;
-var
-  Size, Dummy: DWORD;
-  Buffer: TBytes;
-  FixedFileInfo: PVSFixedFileInfo;
-  FileInfoLen: UINT;
-  FileName : String;
 begin
-  Result := '0.0.0.0';
-  // Pega o nome do execut�vel atual
-  FileName := ParamStr(0);
-  Size := GetFileVersionInfoSize(PChar(FileName), Dummy);
-  if Size > 0 then
-  begin
-    SetLength(Buffer, Size);
-    if GetFileVersionInfo(PChar(FileName), 0, Size, Buffer) then
-    begin
-      if VerQueryValue(Buffer, '\', Pointer(FixedFileInfo), FileInfoLen) then
-      begin
-        Result := Format('%d.%d.%d.%d', [
-          HiWord(FixedFileInfo.dwFileVersionMS), // Major
-          LoWord(FixedFileInfo.dwFileVersionMS), // Minor
-          HiWord(FixedFileInfo.dwFileVersionLS), // Release
-          LoWord(FixedFileInfo.dwFileVersionLS)  // Build
-        ]);
-      end;
-    end;
-  end;
+  Result := FileGetVersion( ParamStr(0) );
 end;
 
 
