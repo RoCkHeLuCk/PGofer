@@ -120,6 +120,7 @@ uses
   Winapi.Messages,
   Pgofer.ClipBoards.Controls,
   Pgofer.Services.Controls,
+  PGofer.Files.Controls,
   Services.Thread;
 
 { TFrmServices }
@@ -369,6 +370,7 @@ begin
   FColumn := 0;
   FSort := False;
   FHostName := 'LocalHost';
+  Self.Caption := 'PGofer Services V'+FileGetVersion( ParamStr(0) );
 end;
 
 procedure TFrmServices.FormDestroy( Sender: TObject );

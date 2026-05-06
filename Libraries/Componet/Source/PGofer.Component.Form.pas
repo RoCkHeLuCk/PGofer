@@ -63,8 +63,12 @@ begin
 
   if AFileName <> '' then
      LFileName := AFileName
-  else
-     LFileName := ExtractFilePath( ParamStr( 0 ) ) + 'Config.ini';
+  else begin
+     LFileName := ExtractFilePath( ParamStr( 0 ) ) + '\Data\';
+     if not DirectoryExists(LFileName) then
+        MkDir(LFileName);
+     LFileName :=  LFileName+ 'Config.ini';
+  end;
 
   TFormEx.FIniFile := TMemIniFileEx.Create( LFileName );
 end;

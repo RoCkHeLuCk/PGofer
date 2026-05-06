@@ -105,12 +105,12 @@ begin
     SetProcessWorkingSetSize(GetCurrentProcess, 32 * 1024 * 1024, 64 * 1024 * 1024);
     SetProcessShutdownParameters($4FF, 0);
     timeBeginPeriod(1);
-    TFormEx.SetIniFile(TPGKernel.PathData + 'Config.ini');
+
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
     TStyleManager.TrySetStyle('Charcoal Dark Slate');
-  Application.Title := 'PGofer V3.0';
+    Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
     Application.CreateForm(TFrmConsole, FrmConsole);
     Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
