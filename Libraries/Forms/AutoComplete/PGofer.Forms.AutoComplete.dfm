@@ -10,7 +10,7 @@ object FrmAutoComplete: TFrmAutoComplete
   Caption = 'FrmAutoComplete'
   ClientHeight = 134
   ClientWidth = 265
-  Color = clGray
+  Color = clBtnFace
   Constraints.MinHeight = 80
   Constraints.MinWidth = 260
   DefaultMonitor = dmDesktop
@@ -44,7 +44,6 @@ object FrmAutoComplete: TFrmAutoComplete
     AutoSnap = False
     Beveled = True
     MinSize = 20
-    StyleElements = [seFont, seClient]
     ExplicitTop = 5
     ExplicitWidth = 267
   end
@@ -56,7 +55,6 @@ object FrmAutoComplete: TFrmAutoComplete
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
-    Color = clSilver
     Columns = <
       item
         Caption = 'Command'
@@ -96,15 +94,15 @@ object FrmAutoComplete: TFrmAutoComplete
     BevelOuter = bvNone
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
-    Font.Name = 'Courier New'
+    Font.Height = -11
+    Font.Name = 'Tahoma'
     Font.Style = []
     Constraints.MinHeight = 20
-    ParentColor = True
     ParentFont = False
     ReadOnly = True
     TabOrder = 1
     StyleElements = [seFont, seClient]
+    ExplicitTop = 95
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

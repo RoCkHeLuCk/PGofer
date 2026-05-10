@@ -43,6 +43,7 @@ contains
   PGofer.Component.ListView in '..\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\Source\PGofer.Component.TreeView.pas',
   PGofer.Component.RichEdit in '..\Source\PGofer.Component.RichEdit.pas',
-  PGofer.Component.Form in '..\Source\PGofer.Component.Form.pas' {FormEx};
+  PGofer.Component.Form in '..\Source\PGofer.Component.Form.pas' {FormEx},
+  PGofer.Component.Memo in '..\Source\PGofer.Component.Memo.pas';
 
 end.

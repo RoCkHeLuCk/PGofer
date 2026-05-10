@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.Types,
   WinApi.Windows, WinApi.Messages,
-  Vcl.ComCtrls;
+  Vcl.ComCtrls, Vcl.StdCtrls;
 
 type
   TOnKeyDownUP = procedure( Sender: TObject; var Key: Word; Shift: TShiftState )
@@ -130,8 +130,13 @@ end;
 
 function TRichEditEx.GetDisplayXY: TPoint;
 var
+  //LRes: LongInt;
   Pt: TPoint;
 begin
+//  LRes := SendMessage(Self.Handle, EM_POSFROMCHAR, Self.SelStart, 0);
+//  Result.X := LoWord(LRes);
+//  Result.Y := HiWord(LRes);
+
   Winapi.Windows.SendMessage(
     Self.Handle,
     EM_POSFROMCHAR,

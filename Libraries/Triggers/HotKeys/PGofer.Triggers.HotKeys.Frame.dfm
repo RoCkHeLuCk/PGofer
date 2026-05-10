@@ -20,6 +20,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     ExplicitHeight = 62
     inherited rceAbout: TRichEdit
       Height = 45
+      ParentFont = True
       ExplicitHeight = 45
     end
   end
@@ -39,13 +40,13 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Width = 390
       Height = 57
       Align = alClient
-      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
+      Font.Height = -11
+      Font.Name = 'Tahoma'
       Font.Style = []
       HideSelection = False
+      ParentColor = True
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
@@ -69,7 +70,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Detect:'
-      StyleElements = [seFont, seClient]
     end
     object GrbHotKeys: TGroupBox [2]
       Left = 5
@@ -79,7 +79,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Anchors = [akLeft, akTop, akRight]
       Caption = 'HotKeys'
       TabOrder = 4
-      StyleElements = [seFont, seClient]
       object MmoHotKeys: TMemo
         Left = 2
         Top = 15
@@ -89,20 +88,13 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
         Alignment = taCenter
         BevelInner = bvNone
         BevelOuter = bvNone
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -19
-        Font.Name = 'Tahoma'
-        Font.Style = []
         Lines.Strings = (
           '')
         ParentColor = True
-        ParentFont = False
         ReadOnly = True
         TabOrder = 0
         WantReturns = False
         WordWrap = False
-        StyleElements = [seFont, seClient]
         OnEnter = MmoHotKeysEnter
         OnExit = MmoHotKeysExit
         OnMouseEnter = MmoHotKeysEnter
@@ -111,44 +103,45 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     end
     object BtnClean: TButton [3]
       Left = 10
-      Top = 113
+      Top = 111
       Width = 94
       Height = 26
       Caption = 'Clean'
       ImageIndex = 6
       TabOrder = 1
       TabStop = False
-      StyleElements = [seFont, seClient]
       OnClick = BtnCleanClick
     end
     object CmbDetect: TPGComboBox [4]
       Left = 175
-      Top = 115
+      Top = 111
       Width = 96
-      Height = 21
+      Height = 22
       Hint = 'Forma de detectar a HotKey'
-      Style = csDropDownList
-      Color = clSilver
-      ItemIndex = 0
+      ItemsEx = <
+        item
+          Caption = 'Press'
+        end
+        item
+          Caption = 'Down'
+        end
+        item
+          Caption = 'Up'
+        end>
+      Style = csExDropDownList
       TabOrder = 2
       Text = 'Down'
-      StyleElements = [seFont, seClient]
       OnChange = CmbDetectChange
-      Items.Strings = (
-        'Down'
-        'Press'
-        'Up'
-        'Wheel')
+      ItemIndex = 1
     end
     object CkbInhibit: TCheckBoxEx [5]
       Left = 295
-      Top = 109
+      Top = 111
       Width = 98
       Height = 17
       Hint = 'Bloqueia a tecla detectada'
       Caption = 'Inhibit last key'
       TabOrder = 3
-      StyleElements = [seFont, seClient]
       OnClick = CkbInhibitClick
     end
     object CkbEnable: TCheckBoxEx
@@ -158,7 +151,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       Height = 17
       Caption = 'Enable'
       TabOrder = 5
-      StyleElements = [seFont, seClient]
       OnClick = CkbEnableClick
     end
   end

@@ -68,6 +68,7 @@ type
     procedure Close(); override;
     property CanClose: Boolean read FCanClose write FCanClose;
     function GetVersion: string;
+    procedure StyleFromFile(const AFileName: String);
   end;
   {$TYPEINFO ON}
 
@@ -77,6 +78,7 @@ var
 implementation
 
 uses
+  Vcl.Themes, Vcl.Styles,
   PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime, PGofer.Windows,
   PGofer.Forms.Controls, PGofer.Forms.Console, PGofer.Forms.Frame,
   PGofer.Triggers.Tasks, PGofer.Files.Controls,
@@ -337,6 +339,40 @@ end;
 function TPGFrmPGofer.GetVersion(): string;
 begin
   Result := FileGetVersion( ParamStr(0) );
+end;
+
+
+procedure TPGFrmPGofer.StyleFromFile(const AFileName: String);
+var
+  LStyle:  TStyleInfo;
+begin
+  if not FileExists(AFileName) then Exit;
+
+  RunInMainThread(
+    procedure
+    begin
+      try
+        if TStyleManager.IsValidStyle(AFileName,LStyle) then
+        begin
+           TStyleManager.LoadFromFile(AFileName);
+           TStyleManager.TrySetStyle(LStyle.Name);
+
+           FrmPGofer.EdtScript.Lines.BeginUpdate;
+           FrmPGofer.EdtScript.Clear;
+           FrmPGofer.EdtScript.Font.Color := clWindowText;
+           FrmPGofer.EdtScript.DefAttributes.Color := clWindowText;
+           FrmPGofer.EdtScript.SelAttributes.Color := clWindowText;
+           FrmPGofer.EdtScript.Lines.EndUpdate;
+           FrmPGofer.EdtScript.ParentFont := True;
+           FrmPGofer.RecreateWnd;
+        end;
+      except
+        on E: Exception do
+          TPGKernel.ConsoleTr('Error_ThemeLoad',[E.Message, AFileName]);
+      end;
+    end,
+    True
+  );
 end;
 
 

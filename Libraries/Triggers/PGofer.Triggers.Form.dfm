@@ -23,7 +23,6 @@ inherited FrmTriggerController: TFrmTriggerController
         TabOrder = 2
         Visible = False
         WordWrap = True
-        StyleElements = [seFont, seClient]
       end
     end
     inherited TrvController: TTreeViewEx

@@ -85,11 +85,8 @@ implementation
 {$R *.dfm}
 
 uses
-  System.UITypes,
+  System.UITypes, Vcl.Themes,
   WinApi.Windows,
-
-
-
   PGofer.Component.RichEdit;
 
 { TFrmController }
@@ -351,6 +348,7 @@ begin
   if Assigned( Node.Data ) then
   begin
     Item := TPGItem( Node.Data );
+    Sender.Canvas.Font.Color := StyleServices.GetStyleColor(scWindow);
 
     if not Item.Enabled then
       Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsStrikeOut];
@@ -358,7 +356,8 @@ begin
     if Item.ReadOnly then
       Sender.Canvas.Font.Color := clGray;
 
-    Sender.Canvas.Brush.Color := TrvController.Color;
+    Sender.Canvas.Brush.Color := StyleServices.GetStyleColor(scTreeView);
+    Sender.Canvas.Brush.Style := bsSolid;
   end;
 
 end;

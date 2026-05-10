@@ -41,18 +41,16 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 43
       Align = alClient
       BorderWidth = 1
-      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
+      Font.Height = -11
+      Font.Name = 'Tahoma'
       Font.Style = []
       HideSelection = False
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
-      StyleElements = [seFont, seClient]
       OnKeyUp = EdtScriptAfterKeyUp
     end
   end
@@ -72,24 +70,22 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 390
       Height = 43
       Align = alClient
-      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
+      Font.Height = -11
+      Font.Name = 'Tahoma'
       Font.Style = []
       HideSelection = False
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
-      StyleElements = [seFont, seClient]
       OnKeyUp = EdtScriptBeforeKeyUp
     end
   end
   inherited grbAbout: TGroupBox
     Top = 317
-    TabOrder = 3
+    TabOrder = 4
     ExplicitTop = 317
   end
   inherited pnlItem: TPanel
@@ -104,7 +100,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'File:'
-      StyleElements = [seFont, seClient]
     end
     object LblParameter: TLabel [1]
       Left = 5
@@ -114,17 +109,15 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Parameter:'
-      StyleElements = [seFont, seClient]
     end
     object LblDirectory: TLabel [2]
       Left = 5
-      Top = 90
+      Top = 95
       Width = 59
       Height = 13
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Path:'
-      StyleElements = [seFont, seClient]
     end
     object LblState: TLabel [3]
       Left = 5
@@ -134,7 +127,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'State:'
-      StyleElements = [seFont, seClient]
     end
     object LblPriority: TLabel [4]
       Left = 5
@@ -144,7 +136,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Priority:'
-      StyleElements = [seFont, seClient]
     end
     object EdtFile: TEditEx [6]
       Left = 70
@@ -153,15 +144,14 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
-      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 1
-      StyleElements = [seFont, seClient]
       ValidationMode = vmOpenFile
       ActionButtonShow = True
       PathAutoUnExpand = True
       PathDialogFilter = 'All Files(*.*)|*.*'
       PathDialogTitle = 'File'
+      ValidationColorNormal = clWhite
       OnActionButtonClick = EdtFileActionButtonClick
       OnAfterValidate = EdtFileAfterValidate
     end
@@ -171,22 +161,18 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 3
-      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtPatameterAfterValidate
     end
     object EdtDiretory: TEditEx [8]
       Left = 70
-      Top = 87
+      Top = 89
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 4
-      StyleElements = [seFont, seClient]
       ValidationMode = vmPathExists
       ActionButtonShow = True
       PathAutoUnExpand = True
@@ -196,48 +182,63 @@ inherited PGLinkFrame: TPGLinkFrame
       Left = 70
       Top = 114
       Width = 119
-      Height = 21
-      Style = csDropDownList
-      Color = clSilver
-      ItemIndex = 1
+      Height = 22
+      ItemsEx = <
+        item
+          Caption = 'Hiden'
+        end
+        item
+          Caption = 'Normal'
+        end
+        item
+          Caption = 'Minimized'
+        end
+        item
+          Caption = 'Maxmized'
+        end>
+      Style = csExDropDownList
       TabOrder = 6
       Text = 'Normal'
-      StyleElements = [seFont, seClient]
       OnChange = CmbStateChange
-      Items.Strings = (
-        'Hiden'
-        'Normal'
-        'Minimized'
-        'Maxmized')
+      ItemIndex = 1
     end
     object CmbPriority: TPGComboBox [10]
       Left = 70
       Top = 141
       Width = 119
-      Height = 21
-      Style = csDropDownList
-      Color = clSilver
-      ItemIndex = 2
+      Height = 22
+      ItemsEx = <
+        item
+          Caption = 'Low'
+        end
+        item
+          Caption = 'Below Normal'
+        end
+        item
+          Caption = 'Normal'
+        end
+        item
+          Caption = 'Above Normal'
+        end
+        item
+          Caption = 'High'
+        end
+        item
+          Caption = 'Real time'
+        end>
+      Style = csExDropDownList
       TabOrder = 7
       Text = 'Normal'
-      StyleElements = [seFont, seClient]
       OnChange = CmbPriorityChange
-      Items.Strings = (
-        'Low'
-        'Below Normal'
-        'Normal'
-        'Above Normal'
-        'High'
-        'Real time')
+      ItemIndex = 2
     end
     object BtnTest: TButton [11]
       Left = 318
-      Top = 141
+      Top = 139
       Width = 61
       Height = 21
       Caption = 'Test'
       TabOrder = 10
-      StyleElements = [seFont, seClient]
       OnClick = BtnTestClick
     end
     object ckbCapture: TCheckBoxEx [12]
@@ -247,7 +248,6 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 17
       Caption = 'CaptureMsg'
       TabOrder = 9
-      StyleElements = [seFont, seClient]
       OnClick = ckbCaptureClick
     end
     object ckbAdministrator: TCheckBoxEx
@@ -257,23 +257,21 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 17
       Caption = 'Run Admintrator'
       TabOrder = 8
-      StyleElements = [seFont, seClient]
       OnClick = ckbAdministratorClick
     end
     object CkbSingleInstance: TCheckBoxEx
       Left = 199
-      Top = 143
+      Top = 141
       Width = 97
       Height = 17
       Caption = 'Single Instance'
       TabOrder = 11
-      StyleElements = [seFont, seClient]
       OnClick = CkbSingleInstanceClick
     end
   end
   inherited sptAbout: TPanel
     Top = 380
-    TabOrder = 4
+    TabOrder = 3
     ExplicitTop = 380
   end
 end

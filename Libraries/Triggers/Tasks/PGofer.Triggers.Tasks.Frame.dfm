@@ -20,7 +20,6 @@ inherited PGTaskFrame: TPGTaskFrame
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 2
-    StyleElements = [seFont, seClient]
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -34,18 +33,10 @@ inherited PGTaskFrame: TPGTaskFrame
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderWidth = 1
-      Color = clSilver
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
-      Font.Style = []
       HideSelection = False
-      ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
-      StyleElements = [seFont, seClient]
       OnKeyUp = EdtScriptKeyUp
     end
   end
@@ -67,7 +58,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Trigger:'
-      StyleElements = [seFont, seClient]
     end
     object LblOccurrence: TLabel [2]
       Left = 137
@@ -78,7 +68,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Occurrence:'
-      StyleElements = [seFont, seClient]
     end
     object LblRepeat: TLabel [3]
       Left = 13
@@ -89,45 +78,44 @@ inherited PGTaskFrame: TPGTaskFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Repeat:'
-      StyleElements = [seFont, seClient]
     end
     object CmbTrigger: TPGComboBox [4]
       Left = 70
       Top = 33
       Width = 100
-      Height = 21
-      Style = csDropDownList
-      Color = clSilver
-      ItemIndex = 0
+      Height = 22
+      ItemsEx = <
+        item
+          Caption = 'Initializing'
+        end
+        item
+          Caption = 'Finishing'
+        end
+        item
+          Caption = 'Shutdown'
+        end>
+      Style = csExDropDownList
       TabOrder = 4
       Text = 'Initializing'
-      StyleElements = [seFont, seClient]
       OnChange = CmbTriggerChange
-      Items.Strings = (
-        'Initializing'
-        'Finishing'
-        'Turning off')
+      ItemIndex = 0
     end
     object EdtOccurrence: TEditEx [5]
       Left = 202
       Top = 60
       Width = 45
       Height = 21
-      Color = clSilver
       ReadOnly = True
       TabOrder = 1
       Text = '0'
-      StyleElements = [seFont, seClient]
     end
     object EdtRepeat: TEditEx [6]
       Left = 70
       Top = 60
       Width = 45
       Height = 21
-      Color = clSilver
       TabOrder = 2
       Text = '0'
-      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtRepeatAfterValidate
     end
     object UpdRepeat: TUpDown [7]
@@ -138,7 +126,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Associate = EdtRepeat
       Max = 999999999
       TabOrder = 3
-      StyleElements = [seFont, seClient]
       OnChangingEx = UpdRepeatChangingEx
     end
     object CkbEnable: TCheckBoxEx
@@ -148,7 +135,6 @@ inherited PGTaskFrame: TPGTaskFrame
       Height = 17
       Caption = 'Enable'
       TabOrder = 5
-      StyleElements = [seFont, seClient]
       OnClick = CkbEnableClick
     end
   end

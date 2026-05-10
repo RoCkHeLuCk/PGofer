@@ -9,7 +9,7 @@ object FrmController: TFrmController
   Caption = 'Controller'
   ClientHeight = 261
   ClientWidth = 602
-  Color = clGray
+  Color = clBtnFace
   Constraints.MinHeight = 300
   Constraints.MinWidth = 195
   DefaultMonitor = dmDesktop
@@ -17,6 +17,7 @@ object FrmController: TFrmController
   OldCreateOrder = False
   Position = poDesigned
   ShowHint = True
+  StyleElements = [seFont, seClient]
   OnClose = FormClose
   OnResize = FormResize
   OnShow = FormShow
@@ -33,7 +34,6 @@ object FrmController: TFrmController
     Margins.Bottom = 0
     Beveled = True
     Visible = False
-    StyleElements = [seFont, seClient]
     ExplicitTop = 5
   end
   object PnlTreeView: TPanel
@@ -50,7 +50,6 @@ object FrmController: TFrmController
     Constraints.MinWidth = 180
     ParentColor = True
     TabOrder = 0
-    StyleElements = [seFont, seClient]
     OnResize = PnlTreeViewResize
     object PnlFind: TPanel
       Left = 0
@@ -61,7 +60,6 @@ object FrmController: TFrmController
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
-      StyleElements = [seFont, seClient]
       object EdtFind: TButtonedEdit
         AlignWithMargins = True
         Left = 2
@@ -75,7 +73,6 @@ object FrmController: TFrmController
         Align = alClient
         BevelInner = bvNone
         BevelOuter = bvNone
-        Color = clSilver
         LeftButton.DisabledImageIndex = 0
         LeftButton.Enabled = False
         LeftButton.HotImageIndex = 0
@@ -105,7 +102,6 @@ object FrmController: TFrmController
         Align = alRight
         Caption = '>>'
         TabOrder = 1
-        StyleElements = [seFont, seClient]
         OnClick = BtnRecallClick
       end
     end
@@ -122,7 +118,6 @@ object FrmController: TFrmController
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 1
-      StyleElements = [seFont, seClient]
       object BtnAlphaSort: TButton
         AlignWithMargins = True
         Left = 1
@@ -139,7 +134,6 @@ object FrmController: TFrmController
         Style = bsSplitButton
         TabOrder = 0
         WordWrap = True
-        StyleElements = [seFont, seClient]
         OnClick = MniAZClick
       end
       object BtnEdit: TButton
@@ -158,7 +152,6 @@ object FrmController: TFrmController
         Style = bsSplitButton
         TabOrder = 1
         WordWrap = True
-        StyleElements = [seFont, seClient]
       end
     end
     object TrvController: TTreeViewEx
@@ -175,7 +168,6 @@ object FrmController: TFrmController
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderWidth = 1
-      Color = 2302755
       HideSelection = False
       Indent = 19
       MultiSelect = True
@@ -215,7 +207,6 @@ object FrmController: TFrmController
     ParentBackground = True
     TabOrder = 1
     Visible = False
-    StyleElements = [seFont, seClient]
     OnMouseWheelDown = PnlFrameMouseWheelDown
     OnMouseWheelUp = PnlFrameMouseWheelUp
     OnResize = PnlFrameResize

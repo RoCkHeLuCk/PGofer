@@ -25,7 +25,6 @@ inherited PGFolderFrame: TPGFolderFrame
       Height = 17
       Caption = 'Namespace'
       TabOrder = 1
-      StyleElements = [seFont, seClient]
       OnClick = CkbNamespaceClick
     end
   end

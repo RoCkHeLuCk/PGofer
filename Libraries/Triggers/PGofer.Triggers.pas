@@ -19,6 +19,8 @@ type
   protected
     procedure SetName( AName: string ); override;
     procedure SetParent(AParent: TPGItem); override;
+    procedure SetEnabled(AValue: Boolean); override;
+    procedure Validated(); override;
     procedure ExecuteDefault(const AGrammar: TPGGrammar); override;
     class function GetFrameType: TPGTriggerFrameType; virtual;
   public
@@ -39,6 +41,8 @@ type
     class function GetTriggerType: TPGItemTriggerType; virtual;
     procedure SetName(AName: string); override;
     procedure SetParent(AParent: TPGItem); override;
+    function GetIsValid: Boolean; override;
+    procedure SetEnabled(AValue: Boolean); override;
   public
     constructor Create( AItemDad: TPGItem; AName: string ); reintroduce; virtual;
     destructor Destroy(); override;
@@ -129,6 +133,13 @@ begin
   inherited Destroy();
 end;
 
+procedure TPGItemTrigger.SetEnabled(AValue: Boolean);
+begin
+  inherited SetEnabled(AValue);
+  if Assigned(FItemMirror) and (FItemMirror.Enabled <> AValue) then
+    FItemMirror.Enabled := AValue;
+end;
+
 procedure TPGItemTrigger.SetName( AName: string );
 begin
   if Self.Name = AName then Exit;
@@ -174,6 +185,13 @@ begin
       LFound := FindID( GlobalCollection, Result );
     end;
   end;
+end;
+
+procedure TPGItemTrigger.Validated;
+begin
+  inherited Validated;
+  if Assigned(FItemMirror) then
+    FItemMirror.Validated;
 end;
 
 procedure TPGItemTrigger.SetParent(AParent: TPGItem);
@@ -259,6 +277,13 @@ begin
   inherited Destroy();
 end;
 
+procedure TPGItemMirror.SetEnabled(AValue: Boolean);
+begin
+  inherited SetEnabled(AValue);
+  if Assigned(FItemOriginal) and (FItemOriginal.Enabled <> AValue) then
+    FItemOriginal.Enabled := AValue;
+end;
+
 procedure TPGItemMirror.SetName(AName: string);
 begin
   Self.SetNameForced(AName);
@@ -276,6 +301,14 @@ begin
   begin
     FItemOriginal.Parent := FItemOriginal.GetParentNamespace();
   end;
+end;
+
+function TPGItemMirror.GetIsValid: Boolean;
+begin
+  if Assigned(FItemOriginal) then
+    Result := FItemOriginal.isValid
+  else
+    Result := inherited GetIsValid;
 end;
 
 procedure TPGItemMirror.Frame(AParent: TObject);

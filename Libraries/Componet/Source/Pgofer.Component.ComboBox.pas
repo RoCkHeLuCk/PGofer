@@ -3,16 +3,18 @@
 interface
 
 uses
-  Vcl.StdCtrls;
+  Vcl.StdCtrls, Vcl.ComCtrls;
 
 type
 
-  TPGComboBox = class( TComboBox )
+  TPGComboBox = class( TComboBoxEx )
   private
   protected
   public
     procedure SetIndexSilent(AValue: Integer);
   published
+    property ItemIndex;
+    property Style Default csExDropDownList;
   end;
 
 procedure Register;

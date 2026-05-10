@@ -41,11 +41,11 @@ type
       Shift: TShiftState );
     procedure ckbCaptureClick( Sender: TObject );
     procedure ckbAdministratorClick(Sender: TObject);
-    procedure EdtFileAfterValidate(Sender: TObject);
     procedure EdtPatameterAfterValidate(Sender: TObject);
     procedure EdtDiretoryAfterValidate(Sender: TObject);
     procedure EdtFileActionButtonClick(Sender: TObject);
     procedure CkbSingleInstanceClick(Sender: TObject);
+    procedure EdtFileAfterValidate(Sender: TObject);
   private
   protected
     procedure IniConfigSave( ); override;
@@ -144,75 +144,57 @@ end;
 
 procedure TPGLinkFrame.CmbStateChange( Sender: TObject );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.State := CmbState.ItemIndex;
 end;
 
 procedure TPGLinkFrame.CkbSingleInstanceClick(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.SingleInstance := CkbSingleInstance.Checked;
 end;
 
 procedure TPGLinkFrame.CmbPriorityChange( Sender: TObject );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Priority := CmbPriority.ItemIndex;
 end;
 
 procedure TPGLinkFrame.EdtFileActionButtonClick(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   EdtDiretory.Text := FileLimitPathExist( EdtFile.Text );
 end;
 
 procedure TPGLinkFrame.EdtFileAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.FileName := EdtFile.Text;
 end;
 
 procedure TPGLinkFrame.EdtDiretoryAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Directory := EdtDiretory.Text;
 end;
 
 procedure TPGLinkFrame.EdtPatameterAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Parameter := EdtPatameter.Text;
 end;
 
 procedure TPGLinkFrame.EdtScriptAfterKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.ScriptAfter := EdtScriptAfter.Lines.Text;
 end;
 
 procedure TPGLinkFrame.EdtScriptBeforeKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.ScriptBefor := EdtScriptBefore.Lines.Text;
 end;
 

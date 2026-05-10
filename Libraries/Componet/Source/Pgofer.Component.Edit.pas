@@ -100,7 +100,7 @@ type
 
     { Grupo: Validation / Appearance }
     property ValidationColorError: TColor read FValidationColorError write SetValidationColorError default clRed;
-    property ValidationColorNormal: TColor read FValidationColorNormal write SetValidationColorNormal default clSilver;
+    property ValidationColorNormal: TColor read FValidationColorNormal write SetValidationColorNormal default clWindow;
     property SelectAllOnFocus: Boolean read FSelectAllOnFocus write FSelectAllOnFocus default False;
 
     { Evento Customizado no Object Inspector }
@@ -137,7 +137,7 @@ begin
 
   FValidationMode := vmNone;
   FValidationColorError := clRed;
-  FValidationColorNormal := clSilver;
+  FValidationColorNormal := clWindow;
   FValidationIsValid := False;
   FSelectAllOnFocus := False;
 
@@ -152,7 +152,7 @@ begin
   FRegExExpression := '';
 
   { Configura��o de Estilo Visual }
-  Self.StyleElements := [seFont, seClient, seBorder];
+  Self.StyleElements := [seFont,  seClient, seBorder];
   Self.Color := FValidationColorNormal;
 end;
 
@@ -416,8 +416,10 @@ begin
     FValidationIsValid := AValue;
     if FValidationIsValid then
       Self.Color := FValidationColorNormal
-    else
+    else begin
+      Self.StyleElements := [seClient, seBorder];
       Self.Color := FValidationColorError;
+    end;
   end;
 end;
 

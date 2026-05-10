@@ -12,6 +12,7 @@
 
   "Error_VaultSave": "Erro: '%s' was not saved.",
   "Error_VaultLoad": "Erro: '%s' corrupt file or wrong password.",
+  "Error_ThemeLoad": "Erro: '%s' not load file: '%s'.",
 
   "Error_Interpreter_(": "'(' Esperado.",
   "Error_Interpreter_)": "')' Esperado.",

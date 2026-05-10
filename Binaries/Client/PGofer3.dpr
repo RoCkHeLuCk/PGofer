@@ -4,7 +4,7 @@
 uses
   Winapi.Windows,
   Winapi.MMSystem,
-  Vcl.Forms, Vcl.Themes, Vcl.Styles,
+  Vcl.Forms,
   PGofer.Component.IniFile in '..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas',
   Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.ComboBox in '..\..\Libraries\Componet\Source\Pgofer.Component.ComboBox.pas',
@@ -89,7 +89,8 @@ uses
   PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
+  PGofer.Component.Memo in '..\..\Libraries\Componet\Source\PGofer.Component.Memo.pas';
 
 {$R *.res}
 
@@ -109,12 +110,11 @@ begin
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
-    TStyleManager.TrySetStyle('Charcoal Dark Slate');
     Application.Title := 'PGofer V3.0';
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-    Application.CreateForm(TFrmConsole, FrmConsole);
-    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+  Application.CreateForm(TFrmConsole, FrmConsole);
+  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
     GlobalCollection.FormCreate();
     TriggersCollect.FormCreate();
     TPGTask.Working( 0, False );

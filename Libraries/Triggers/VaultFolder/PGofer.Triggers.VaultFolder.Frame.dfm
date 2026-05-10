@@ -22,7 +22,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'File:'
-      StyleElements = [seFont, seClient]
     end
     object LblRepeat: TLabel [2]
       Left = 5
@@ -33,7 +32,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Auto Lock:'
-      StyleElements = [seFont, seClient]
     end
     object LblMinute: TLabel [3]
       Left = 137
@@ -52,7 +50,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Checked = True
       State = cbChecked
       TabOrder = 2
-      StyleElements = [seFont, seClient]
       OnClick = CkbLockedClick
     end
     object EdtFile: TEditEx [5]
@@ -61,9 +58,7 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      Color = clSilver
       TabOrder = 0
-      StyleElements = [seFont, seClient]
       ValidationMode = vmSaveFile
       ActionButtonShow = True
       PathAutoUnExpand = True
@@ -83,11 +78,9 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Top = 83
       Width = 45
       Height = 21
-      Color = clSilver
       NumbersOnly = True
       TabOrder = 5
       Text = '0'
-      StyleElements = [seFont, seClient]
       OnAfterValidate = EdtAutoLockAfterValidate
     end
     object UpdAutoLock: TUpDown
@@ -98,8 +91,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Associate = EdtAutoLock
       Max = 999999999
       TabOrder = 6
-      StyleElements = [seFont, seClient]
-      OnChangingEx = UpdAutoLockChangingEx
     end
     object CkbSavePassword: TCheckBoxEx
       Left = 185
@@ -108,7 +99,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Height = 17
       Caption = 'Save Password'
       TabOrder = 7
-      StyleElements = [seFont, seClient]
       OnClick = CkbSavePasswordClick
     end
     object BtnPassword: TButton
@@ -119,7 +109,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Anchors = [akTop]
       Caption = 'Password'
       TabOrder = 8
-      StyleElements = [seFont, seClient]
       OnClick = BtnPasswordClick
     end
   end

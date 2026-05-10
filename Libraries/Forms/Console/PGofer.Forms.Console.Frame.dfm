@@ -2,22 +2,22 @@ inherited PGConsoleFrame: TPGConsoleFrame
   Height = 337
   ExplicitHeight = 337
   inherited grbAbout: TGroupBox
-    Top = 283
-    Height = 44
+    Top = 267
+    Height = 60
     Constraints.MinHeight = 44
     ExplicitTop = 283
     ExplicitHeight = 44
     inherited rceAbout: TRichEdit
-      Height = 27
+      Height = 43
       ExplicitHeight = 27
     end
   end
   inherited pnlItem: TPanel
-    Height = 280
-    ExplicitHeight = 280
+    Height = 264
+    ExplicitHeight = 264
     object lblDelay: TLabel [8]
       Left = 5
-      Top = 257
+      Top = 235
       Width = 59
       Height = 13
       Alignment = taRightJustify
@@ -28,49 +28,57 @@ inherited PGConsoleFrame: TPGConsoleFrame
       Width = 101
       ExplicitWidth = 101
     end
+    inherited PnlTransparentColor: TPanel
+      TabOrder = 18
+    end
     inherited CmbWindowState: TPGComboBox
       ParentColor = True
     end
-    object EdtDelay: TEditEx [23]
+    inherited EdtHeigth: TEditEx
+      TabOrder = 16
+    end
+    object EdtDelay: TEditEx [20]
       Left = 70
-      Top = 254
+      Top = 232
       Width = 51
       Height = 21
-      Color = clSilver
-      TabOrder = 14
+      TabOrder = 4
       Text = '0'
       OnExit = EdtDelayExit
     end
-    object updDelay: TUpDown [24]
+    object updDelay: TUpDown [21]
       Left = 121
-      Top = 254
+      Top = 232
       Width = 16
       Height = 21
       Associate = EdtDelay
       Max = 255
-      TabOrder = 15
+      TabOrder = 10
       OnChanging = updDelayChanging
     end
-    object ckbShowMessage: TCheckBoxEx [25]
+    object ckbShowMessage: TCheckBoxEx [22]
       Left = 160
-      Top = 256
+      Top = 234
       Width = 114
       Height = 17
       Caption = 'ShowMessage'
-      TabOrder = 16
+      TabOrder = 12
       OnClick = ckbShowMessageClick
     end
-    object ckbAutoClose: TCheckBoxEx [26]
+    object ckbAutoClose: TCheckBoxEx [23]
       Left = 294
-      Top = 256
+      Top = 234
       Width = 101
       Height = 17
       Caption = 'AutoClose'
-      TabOrder = 17
+      TabOrder = 14
       OnClick = ckbAutoCloseClick
     end
+    inherited EdtWidth: TEditEx
+      TabOrder = 17
+    end
     inherited EdtName: TEditEx
-      TabOrder = 18
+      TabOrder = 15
     end
   end
   inherited sptAbout: TPanel

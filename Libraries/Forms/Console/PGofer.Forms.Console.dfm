@@ -6,7 +6,7 @@ object FrmConsole: TFrmConsole
   Caption = 'Console'
   ClientHeight = 80
   ClientWidth = 200
-  Color = clGray
+  Color = clBtnFace
   Constraints.MinHeight = 80
   Constraints.MinWidth = 200
   DefaultMonitor = dmDesktop
@@ -35,7 +35,6 @@ object FrmConsole: TFrmConsole
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 0
-    StyleElements = [seFont, seClient]
     OnMouseDown = PnlArrastarMouseDown
     OnMouseMove = PnlArrastarMouseMove
     object PnlArrastar: TPanel
@@ -48,17 +47,17 @@ object FrmConsole: TFrmConsole
       Margins.Right = 0
       Margins.Bottom = 0
       Align = alTop
-      BevelOuter = bvNone
+      BevelInner = bvRaised
+      BevelOuter = bvLowered
       ParentColor = True
       TabOrder = 0
-      StyleElements = [seFont, seClient]
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
       object BtnFixed: TSpeedButton
-        Left = 180
-        Top = 0
+        Left = 178
+        Top = 2
         Width = 16
-        Height = 13
+        Height = 9
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
@@ -108,19 +107,20 @@ object FrmConsole: TFrmConsole
           07070707070707070000070707070707070707070000}
         Margin = 0
         Spacing = 0
-        StyleElements = [seFont, seClient]
         OnClick = BtnFixedClick
         ExplicitLeft = 179
+        ExplicitTop = 0
         ExplicitHeight = 12
       end
       object ShpDrag: TShape
         AlignWithMargins = True
-        Left = 3
-        Top = 3
-        Width = 174
-        Height = 7
+        Left = 5
+        Top = 5
+        Width = 170
+        Height = 3
         Align = alClient
-        Brush.Color = clSilver
+        Brush.Color = clWindowText
+        Pen.Color = clWindow
         Pen.Style = psClear
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
@@ -138,12 +138,11 @@ object FrmConsole: TFrmConsole
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
-      Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -16
-      Font.Name = 'Courier New'
-      Font.Style = [fsBold]
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
       HideSelection = False
       ParentFont = False
       PopupMenu = ppmConsole
@@ -151,7 +150,6 @@ object FrmConsole: TFrmConsole
       ScrollBars = ssBoth
       TabOrder = 1
       StyleElements = [seFont, seClient]
-      Zoom = 100
       OnKeyPress = FormKeyPress
     end
   end

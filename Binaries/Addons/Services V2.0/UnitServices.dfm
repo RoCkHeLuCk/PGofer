@@ -888,11 +888,23 @@ object FrmServices: TFrmServices
         Caption = 'Nome Interno'
         OnClick = MinNomeInternoClick
       end
+      object MinCaminho: TMenuItem
+        Caption = 'Caminho'
+        OnClick = MinCaminhoClick
+      end
     end
     object MniGerarScript: TMenuItem
       Caption = 'Gerar Script'
-      ShortCut = 123
-      OnClick = MniGerarScriptClick
+      object MniSalvarScript: TMenuItem
+        Caption = 'Salvar Script'
+        ShortCut = 123
+        OnClick = MniSalvarScriptClick
+      end
+      object MniCopiarScript: TMenuItem
+        Caption = 'Copiar Script'
+        ShortCut = 122
+        OnClick = MniCopiarScriptClick
+      end
     end
     object MniDeletar: TMenuItem
       Caption = 'Deletar'

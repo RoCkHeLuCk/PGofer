@@ -22,7 +22,6 @@ inherited PGFunctionFrame: TPGFunctionFrame
     Caption = 'Script (Run = F9)'
     Constraints.MinHeight = 60
     TabOrder = 3
-    StyleElements = [seFont, seClient]
     object EdtScript: TRichEditEx
       Left = 2
       Top = 15
@@ -30,18 +29,10 @@ inherited PGFunctionFrame: TPGFunctionFrame
       Height = 63
       Align = alClient
       BorderWidth = 1
-      Color = clSilver
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
-      Font.Style = []
       HideSelection = False
-      ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
-      StyleElements = [seFont, seClient]
       OnKeyUp = EdtScriptKeyUp
     end
   end

@@ -4,10 +4,11 @@ object FormEx: TFormEx
   Caption = 'FormEx'
   ClientHeight = 306
   ClientWidth = 641
-  Color = clGray
+  Color = clBtnFace
   ParentFont = True
   OldCreateOrder = False
   ShowHint = True
+  StyleElements = [seFont, seClient]
   PixelsPerInch = 96
   TextHeight = 13
 end

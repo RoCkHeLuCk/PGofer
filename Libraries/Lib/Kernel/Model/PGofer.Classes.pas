@@ -29,11 +29,13 @@ type
     function GetAbout(): String; virtual;
     function GetIsValid(): Boolean; virtual;
     function GetName(): String; virtual;
+    function GetEnabled():Boolean; virtual;
     procedure SetName(AName: string); virtual;
     procedure SetNameForced(AName: string); virtual;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure SetParent(AParent: TPGItem); virtual;
     procedure SetNode(AValue: TTreeNode); virtual;
+    procedure Validated(); virtual;
   public
     class constructor Create();
     class destructor Destroy();
@@ -46,7 +48,7 @@ type
 
     property About: string read GetAbout;
     property Name: string read GetName write SetName;
-    property Enabled: Boolean read FEnabled write SetEnabled;
+    property Enabled: Boolean read GetEnabled write SetEnabled;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
     property SystemNode: Boolean read FSystemNode write FSystemNode;
     property Parent: TPGItem read FParent write SetParent;
@@ -180,6 +182,7 @@ destructor TPGItem.Destroy;
 var
   LCollectDad: TPGItemCollect;
 begin
+  FDestroying := True;
   LCollectDad := GetCollectDad();
 
   if Assigned(LCollectDad) and (FParent <> nil) and (not FParent.Destroying) then
@@ -205,7 +208,10 @@ procedure TPGItem.SetEnabled(AValue: Boolean);
 begin
   FEnabled := AValue;
   if Assigned(FNode) then
+  begin
     FNode.Enabled := FEnabled;
+    FNode.TreeView.Invalidate;
+  end;
 end;
 
 procedure TPGItem.SetNode(AValue: TTreeNode);
@@ -269,6 +275,12 @@ begin
   );
 end;
 
+procedure TPGItem.Validated();
+begin
+  if Assigned(FNode) and Assigned(FNode.TreeView) then
+    FNode.TreeView.Invalidate;
+end;
+
 procedure TPGItem.SetName(AName: string);
 begin
   if FSystemNode then Exit;
@@ -296,6 +308,11 @@ begin
     Result := TPGItemCollect(Self)
   else
     Result := nil;
+end;
+
+function TPGItem.GetEnabled: Boolean;
+begin
+  Result := FEnabled;
 end;
 
 function TPGItem.GetIsValid(): Boolean;

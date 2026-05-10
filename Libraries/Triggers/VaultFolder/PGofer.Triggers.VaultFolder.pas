@@ -144,7 +144,6 @@ end;
 destructor TPGVaultFolder.Destroy();
 begin
   FVaultList.Remove(Self);
-  Self.SetLockedForced( False );
   FAutoLock := 0;
   FSavePassword := False;
   FPassword := '';
@@ -326,7 +325,7 @@ end;
 
 procedure TPGVaultFolder.SetLocked(const AValue: Boolean);
 begin
-  if AValue = Self._Locked then Exit;
+  if (AValue = Self._Locked) or Destroying then Exit;
 
   if FLoading then
   begin

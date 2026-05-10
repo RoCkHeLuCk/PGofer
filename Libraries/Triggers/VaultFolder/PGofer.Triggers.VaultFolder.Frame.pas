@@ -22,8 +22,6 @@ type
     procedure CkbLockedClick(Sender: TObject);
     procedure EdtFileAfterValidate(Sender: TObject);
     procedure EdtAutoLockAfterValidate(Sender: TObject);
-    procedure UpdAutoLockChangingEx(Sender: TObject; var AllowChange: Boolean; NewValue: Integer;
-      Direction: TUpDownDirection);
     procedure CkbSavePasswordClick(Sender: TObject);
     procedure BtnPasswordClick(Sender: TObject);
   private
@@ -56,51 +54,33 @@ begin
   Result := TPGVaultFolder(inherited Item);
 end;
 
-procedure TPGVaultFolderFrame.UpdAutoLockChangingEx(Sender: TObject; var AllowChange: Boolean;
-  NewValue: Integer; Direction: TUpDownDirection);
-begin
-//  if Self.Loading then
-//    Exit;
-//  Item.AutoLock := NewValue;
-end;
-
 procedure TPGVaultFolderFrame.EdtAutoLockAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.AutoLock := StrToIntDef(EdtAutoLock.Text,0);
 end;
 
 procedure TPGVaultFolderFrame.EdtFileAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.FileName := EdtFile.Text;
 end;
 
 procedure TPGVaultFolderFrame.CkbSavePasswordClick(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.SavePassword := CkbSavePassword.Checked;
 end;
 
 procedure TPGVaultFolderFrame.BtnPasswordClick(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.RequestPassword( Item.isPassword );
 end;
 
 procedure TPGVaultFolderFrame.CkbLockedClick(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   try
     Item._Locked := ckbLocked.Checked;
   finally

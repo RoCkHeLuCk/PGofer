@@ -40,7 +40,7 @@ type
     MniParar: TMenuItem;
     MniPausar: TMenuItem;
     MniN1: TMenuItem;
-    MniGerarScript: TMenuItem;
+    MniSalvarScript: TMenuItem;
     MniN2: TMenuItem;
     MniConectar: TMenuItem;
     MniDeletar: TMenuItem;
@@ -67,13 +67,16 @@ type
     GrbLog: TGroupBox;
     Splitter3: TSplitter;
     mmoLog: TMemo;
+    MniGerarScript: TMenuItem;
+    MniCopiarScript: TMenuItem;
+    MinCaminho: TMenuItem;
     procedure FormCreate( Sender: TObject );
     procedure FormShow( Sender: TObject );
     procedure MniUpdateClick( Sender: TObject );
     procedure MniIconsClick( Sender: TObject );
     procedure MniBootAutomaticoClick( Sender: TObject );
     procedure MniIniciarClick( Sender: TObject );
-    procedure MniGerarScriptClick( Sender: TObject );
+    procedure MniSalvarScriptClick( Sender: TObject );
     procedure MniConectarClick( Sender: TObject );
     procedure MniDeletarClick( Sender: TObject );
     procedure MniSelecionarTudoClick( Sender: TObject );
@@ -92,6 +95,8 @@ type
       Data: Integer; var Compare: Integer);
     procedure LtvServicesColumnClick(Sender: TObject; Column: TListColumn);
     procedure mmoLogDblClick(Sender: TObject);
+    procedure MinCaminhoClick(Sender: TObject);
+    procedure MniCopiarScriptClick(Sender: TObject);
   private
     FHostName: string;
     FHostHandle: SC_Handle;
@@ -101,6 +106,7 @@ type
     function FilterState( ): Cardinal;
     function FilterAcesso( ): Cardinal;
     function FilterConfig( Status: Cardinal ): Boolean;
+    function ScritpCreate( ): String;
     procedure ServiceUpdate( );
   protected
     procedure IniConfigSave( ); override;
@@ -254,6 +260,42 @@ begin
     MniDeletar.Enabled := True;
     MniCopiarValor.Enabled := True;
   end;
+end;
+
+function TFrmServices.ScritpCreate( ): String;
+var
+  c, d, e: Word;
+  Script: TStringList;
+begin
+  Script := TStringList.Create;
+  Script.Add( '//PGofer Script Services V1.2' );
+  Script.Add( '' );
+  Script.Add( 'Service.MachineName:='''+FHostName+''';' );
+  d := 0;
+  for c := 0 to LtvServices.Items.Count - 1 do
+  begin
+    if LtvServices.Items[ c ].Selected then
+    begin
+      Script.Add( '//Servi�o: ' + LtvServices.Items[ c ].Caption );
+
+      e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 2 ] );
+      Script.Add( 'Service.SetConfig( ''' +
+         LtvServices.Items[ c ].SubItems[ 4 ] + ''', ' + IntToStr( e ) +
+         ' ); //' + ServiceStatusToConfig( e ) );
+
+      e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 1 ] );
+      Script.Add( 'Service.SetState( ''' +
+         LtvServices.Items[ c ].SubItems[ 4 ] + ''', ' + IntToStr( e ) +
+         ' ); //' + ServiceStatusToState( e ) );
+
+      Script.Add( '' );
+      inc( d );
+    end; // if select
+  end; // for
+  Script.Add( '//Total services: ' + FormatFloat( '0', d ) );
+  Result := Script.Text;
+  Script.Free;
+  LogMessage('Ok: Script Done!');
 end;
 
 procedure TFrmServices.ServiceUpdate( );
@@ -458,6 +500,11 @@ begin
   inherited IniConfigSave( );
 end;
 
+procedure TFrmServices.MinCaminhoClick(Sender: TObject);
+begin
+  ClipBoardCopyFromText( LtvServices.ItemFocused.SubItems[ 8 ] );
+end;
+
 procedure TFrmServices.MinNomeInternoClick( Sender: TObject );
 begin
   ClipBoardCopyFromText( LtvServices.ItemFocused.SubItems[ 4 ] );
@@ -561,42 +608,16 @@ begin
   end; // for
 end;
 
-procedure TFrmServices.MniGerarScriptClick( Sender: TObject );
+procedure TFrmServices.MniSalvarScriptClick( Sender: TObject );
 var
-  c, d, e: Word;
   Script: TStringList;
 begin
   if SdgServices.Execute then
   begin
     Script := TStringList.Create;
-    Script.Add( '//PGofer Script Services V1.2' );
-    Script.Add( '' );
-    Script.Add( 'Service.MachineName:='''+FHostName+''';' );
-    d := 0;
-    for c := 0 to LtvServices.Items.Count - 1 do
-    begin
-      if LtvServices.Items[ c ].Selected then
-      begin
-        Script.Add( '//Servi�o: ' + LtvServices.Items[ c ].Caption );
-
-        e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 2 ] );
-        Script.Add( 'Service.SetConfig( ''' +
-           LtvServices.Items[ c ].SubItems[ 4 ] + ''', ' + IntToStr( e ) +
-           ' ); //' + ServiceStatusToConfig( e ) );
-
-        e := byte( LtvServices.Items[ c ].SubItems[ 9 ][ 1 ] );
-        Script.Add( 'Service.SetState( ''' +
-           LtvServices.Items[ c ].SubItems[ 4 ] + ''', ' + IntToStr( e ) +
-           ' ); //' + ServiceStatusToState( e ) );
-
-        Script.Add( '' );
-        inc( d );
-      end; // if select
-    end; // for
-    Script.Add( '//Total services: ' + FormatFloat( '0', d ) );
+    Script.Text := ScritpCreate();
     Script.SaveToFile( SdgServices.FileName );
     Script.Free;
-    ShowMessage( 'Ok: Script Done!' );
   end; // if save
 end;
 
@@ -641,6 +662,11 @@ begin
   FHostHandle := OpenSCManager( PChar( FHostName ), nil,
      SC_MANAGER_ENUMERATE_SERVICE );
   MniUpdate.Click;
+end;
+
+procedure TFrmServices.MniCopiarScriptClick(Sender: TObject);
+begin
+  ClipBoardCopyFromText( ScritpCreate() );
 end;
 
 end.

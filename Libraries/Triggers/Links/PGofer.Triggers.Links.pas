@@ -33,6 +33,7 @@ type
     procedure SetScriptBefor( AValue: string );
     function GetIsRunning: Boolean;
     class var FLinkList: TList<TPGLink>;
+    procedure SetFileName(const Value: string);
   protected
     function GetIsValid(): Boolean; override;
     class function GetFrameType: TPGTriggerFrameType; override;
@@ -48,7 +49,7 @@ type
     class procedure Auto(ADir: string; AMask: string);
     procedure WaitFor(AParameter: string = ''; AState: Byte = 1);
     function KillMe(): Boolean;
-    property FileName: string read FFileName write FFileName;
+    property FileName: string read FFileName write SetFileName;
     property Parameter: string read FParameter write FParameter;
     property Directory: string read FDirectory write FDirectory;
     property State: Byte read FState write FState;
@@ -188,6 +189,13 @@ end;
 function TPGLink.KillMe(): Boolean;
 begin
   Result := ProcessKill(ProcessFileToPID(ExtractFileName(FFileName)));
+end;
+
+procedure TPGLink.SetFileName(const Value: string);
+begin
+  if FFileName = Value then Exit;
+  FFileName := Value;
+  Self.Validated;
 end;
 
 procedure TPGLink.SetScriptAfter(AValue: string);

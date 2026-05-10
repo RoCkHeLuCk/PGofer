@@ -3,7 +3,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
   ExplicitHeight = 283
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 172
+    Top = 181
     Width = 400
     Height = 6
     Cursor = crVSplit
@@ -14,7 +14,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
   object GrbText: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
-    Top = 84
+    Top = 93
     Width = 394
     Height = 85
     Align = alTop
@@ -34,36 +34,34 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderWidth = 1
-      Color = clSilver
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = 'Courier New'
+      Font.Height = -11
+      Font.Name = 'Tahoma'
       Font.Style = []
       HideSelection = False
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
-      StyleElements = [seFont, seClient]
       OnKeyUp = EdtTextKeyUp
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 181
-    Height = 92
+    Top = 190
+    Height = 83
     TabOrder = 1
-    ExplicitTop = 181
-    ExplicitHeight = 92
+    ExplicitTop = 190
+    ExplicitHeight = 83
     inherited rceAbout: TRichEdit
-      Height = 75
-      ExplicitHeight = 75
+      Height = 66
+      ExplicitHeight = 66
     end
   end
   inherited pnlItem: TPanel
-    Height = 81
+    Height = 90
     Anchors = []
-    ExplicitHeight = 81
+    ExplicitHeight = 90
     object LblSpeed: TLabel [1]
       Left = 205
       Top = 36
@@ -72,7 +70,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Speed:'
-      StyleElements = [seFont, seClient]
     end
     object LblMode: TLabel [2]
       Left = 5
@@ -83,7 +80,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Mode:'
-      StyleElements = [seFont, seClient]
     end
     object LblDelay: TLabel [3]
       Left = 3
@@ -93,7 +89,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Alignment = taRightJustify
       AutoSize = False
       Caption = 'Delay:'
-      StyleElements = [seFont, seClient]
     end
     object Lblmilisec1: TLabel [4]
       Left = 367
@@ -101,7 +96,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Width = 13
       Height = 13
       Caption = 'ms'
-      StyleElements = [seFont, seClient]
     end
     object Lblmilisec2: TLabel [5]
       Left = 169
@@ -109,17 +103,14 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Width = 13
       Height = 13
       Caption = 'ms'
-      StyleElements = [seFont, seClient]
     end
     object EdtSpeed: TEditEx
       Left = 270
       Top = 33
       Width = 75
       Height = 21
-      Color = clSilver
       TabOrder = 3
       Text = '10'
-      StyleElements = [seFont, seClient]
       RegExExpression = '^\d*$'
       OnAfterValidate = EdtSpeedAfterValidate
     end
@@ -132,37 +123,42 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Max = 255
       Position = 10
       TabOrder = 4
-      StyleElements = [seFont, seClient]
       OnChangingEx = UpdSpeedChangingEx
     end
     object CmbMode: TPGComboBox
       Left = 70
       Top = 60
       Width = 147
-      Height = 21
-      Style = csDropDownList
-      Color = clSilver
-      ItemIndex = 0
+      Height = 22
+      ItemsEx = <
+        item
+          Caption = 'Write'
+        end
+        item
+          Caption = 'Send Point'
+        end
+        item
+          Caption = 'Copy'
+        end
+        item
+          Caption = 'Copy and Paste'
+        end
+        item
+          Caption = 'Script'
+        end>
+      Style = csExDropDownList
       TabOrder = 5
       Text = 'Write'
-      StyleElements = [seFont, seClient]
       OnChange = CmbModeChange
-      Items.Strings = (
-        'Write'
-        'Send Point'
-        'Copy'
-        'Copy and Paste'
-        'Script')
+      ItemIndex = 0
     end
     object EdtDelay: TEditEx
       Left = 70
       Top = 33
       Width = 75
       Height = 21
-      Color = clSilver
       TabOrder = 1
       Text = '200'
-      StyleElements = [seFont, seClient]
       RegExExpression = '^\d*$'
       OnAfterValidate = EdtDelayAfterValidate
     end
@@ -175,7 +171,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Max = 255
       Position = 200
       TabOrder = 2
-      StyleElements = [seFont, seClient]
       OnChangingEx = updDelayChangingEx
     end
   end
