@@ -7,9 +7,8 @@ inherited PGFolderFrame: TPGFolderFrame
     TabOrder = 1
     ExplicitTop = 59
     ExplicitHeight = 69
-    inherited rceAbout: TRichEdit
+    inherited mmoAbout: TMemoEx
       Height = 52
-      ExplicitHeight = 52
     end
   end
   inherited pnlItem: TPanel

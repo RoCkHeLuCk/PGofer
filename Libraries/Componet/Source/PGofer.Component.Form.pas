@@ -28,6 +28,7 @@ type
     class property IniFile: TMemIniFileEx read GetIniFile;
     class procedure SetIniFile(const AFileName: String);
     procedure ForceShow( AFocus: boolean ); virtual;
+    procedure RecreateWnd(); reintroduce;
   published
     property ForceResizable: boolean read FForceResizable write SetForceResizable
       default False;
@@ -130,6 +131,11 @@ begin
   else
     IniFile.WriteBool( Self.Name, 'Maximized', true );
   IniFile.UpdateFile;
+end;
+
+procedure TFormEx.RecreateWnd();
+begin
+  inherited RecreateWnd();
 end;
 
 procedure TFormEx.SetForceResizable(const Value: boolean);

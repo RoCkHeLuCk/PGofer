@@ -8,14 +8,14 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.Menus, Vcl.ComCtrls,
   PGofer.Component.Form,
-  PGofer.Component.RichEdit,
+  PGofer.Component.Memo,
   PGofer.Forms;
 
 type
   TPGFrmPGofer = class;
 
   TFrmPGofer = class( TFormEx )
-    EdtScript: TRichEditEx;
+    EdtScript: TMemoEx;
     TryPGofer: TTrayIcon;
     PpmMenu: TPopupMenu;
     PnlCommand: TPanel;
@@ -25,8 +25,6 @@ type
     mniGlobals: TMenuItem;
     mniTriggers: TMenuItem;
     shpDrag: TShape;
-    procedure EdtScriptKeyDown( Sender: TObject; var Key: Word;
-      Shift: TShiftState );
     procedure FormCreate( Sender: TObject );
     procedure FormDestroy( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
@@ -39,8 +37,9 @@ type
       X, Y: Integer );
     procedure TryPGoferClick( Sender: TObject );
     procedure EdtScriptChange( Sender: TObject );
+    procedure EdtScriptKeyDown( Sender: TObject; var Key: Word;
+      Shift: TShiftState );
     procedure EdtScriptKeyPress(Sender: TObject; var Key: Char);
-    procedure FormKeyPress(Sender: TObject; var Key: Char);
   private
     FMouse: TPoint;
     FItem: TPGFrmPGofer;
@@ -68,7 +67,6 @@ type
     procedure Close(); override;
     property CanClose: Boolean read FCanClose write FCanClose;
     function GetVersion: string;
-    procedure StyleFromFile(const AFileName: String);
   end;
   {$TYPEINFO ON}
 
@@ -78,7 +76,6 @@ var
 implementation
 
 uses
-  Vcl.Themes, Vcl.Styles,
   PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime, PGofer.Windows,
   PGofer.Forms.Controls, PGofer.Forms.Console, PGofer.Forms.Frame,
   PGofer.Triggers.Tasks, PGofer.Files.Controls,
@@ -109,9 +106,9 @@ end;
 
 procedure TFrmPGofer.WMPowerBroadcast(var Msg: TMessage);
 const
-  PBT_APMRESUMESUSPEND   = $0007; // Acordou pelo usuário (Mouse/Teclado/Botão)
+  PBT_APMRESUMESUSPEND   = $0007;
 begin
-  inherited; // Deixa o Windows processar o padrão
+  inherited;
   if (Msg.WParam = PBT_APMRESUMESUSPEND) then
   begin
     ScriptExec( 'MainMessage', 'HotKeyDef.InputRestart;' );
@@ -152,6 +149,7 @@ end;
 procedure TFrmPGofer.FormShow( Sender: TObject );
 begin
   Self.FormAutoSize( );
+  Self.EdtScript.SetFocus;
 end;
 
 procedure TFrmPGofer.FormCloseQuery( Sender: TObject; var CanClose: Boolean );
@@ -162,9 +160,9 @@ end;
 
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
+  FrmAutoComplete.EditCtrlRemove( FrmPGofer.EdtScript );
   TPGGrammar.WaitForAll(5000);
   Self.CloseAllForms();
-  FrmAutoComplete.EditCtrlRemove( FrmPGofer.EdtScript );
 end;
 
 procedure TFrmPGofer.FormDestroy( Sender: TObject );
@@ -180,14 +178,6 @@ begin
   begin
     if Screen.Forms[I] <> Application.MainForm then
       Screen.Forms[I].Close;
-  end;
-end;
-
-procedure TFrmPGofer.FormKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key = #27 then
-  begin
-     Self.Hide;
   end;
 end;
 
@@ -244,19 +234,17 @@ begin
             ScriptExec( 'Main', EdtScript.Text );
             EdtScript.Clear;
 
-            if FrmConsole.AutoClose then
-              Self.Hide;
+            if FrmConsole.AutoClose then Self.Hide;
             Key := 0;
-            EdtScript.OnChange( nil );
+            //EdtScript.OnChange( nil );
           end;
         end;
 
       VK_ESCAPE:
         begin
-          if FrmConsole.Visible then
-            FrmConsole.Hide;
-          if Self.Visible then
-            Self.Hide;
+          if FrmConsole.Visible then FrmConsole.Hide;
+          if Self.Visible then Self.Hide;
+          Key := 0;
         end;
     end;
   end;
@@ -340,40 +328,5 @@ function TPGFrmPGofer.GetVersion(): string;
 begin
   Result := FileGetVersion( ParamStr(0) );
 end;
-
-
-procedure TPGFrmPGofer.StyleFromFile(const AFileName: String);
-var
-  LStyle:  TStyleInfo;
-begin
-  if not FileExists(AFileName) then Exit;
-
-  RunInMainThread(
-    procedure
-    begin
-      try
-        if TStyleManager.IsValidStyle(AFileName,LStyle) then
-        begin
-           TStyleManager.LoadFromFile(AFileName);
-           TStyleManager.TrySetStyle(LStyle.Name);
-
-           FrmPGofer.EdtScript.Lines.BeginUpdate;
-           FrmPGofer.EdtScript.Clear;
-           FrmPGofer.EdtScript.Font.Color := clWindowText;
-           FrmPGofer.EdtScript.DefAttributes.Color := clWindowText;
-           FrmPGofer.EdtScript.SelAttributes.Color := clWindowText;
-           FrmPGofer.EdtScript.Lines.EndUpdate;
-           FrmPGofer.EdtScript.ParentFont := True;
-           FrmPGofer.RecreateWnd;
-        end;
-      except
-        on E: Exception do
-          TPGKernel.ConsoleTr('Error_ThemeLoad',[E.Message, AFileName]);
-      end;
-    end,
-    True
-  );
-end;
-
 
 end.

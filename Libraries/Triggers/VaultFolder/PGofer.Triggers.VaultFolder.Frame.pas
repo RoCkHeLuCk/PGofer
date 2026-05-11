@@ -6,7 +6,8 @@ uses
   System.Classes, System.SysUtils,
   Vcl.StdCtrls, Vcl.Controls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers.Folder.Frame, PGofer.Component.Edit,
-  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder, PGofer.Item.Frame, Vcl.ExtCtrls;
+  Pgofer.Component.Checkbox, PGofer.Triggers.VaultFolder, PGofer.Item.Frame, Vcl.ExtCtrls,
+  PGofer.Component.Memo;
 
 type
   TPGVaultFolderFrame = class( TPGFolderFrame )

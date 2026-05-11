@@ -6,11 +6,16 @@ object FrmConsole: TFrmConsole
   Caption = 'Console'
   ClientHeight = 80
   ClientWidth = 200
-  Color = clBtnFace
+  Color = clGray
   Constraints.MinHeight = 80
   Constraints.MinWidth = 200
+  Ctl3D = False
   DefaultMonitor = dmDesktop
-  ParentFont = True
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clBlack
+  Font.Height = -13
+  Font.Name = 'Courier New'
+  Font.Style = []
   KeyPreview = True
   Padding.Left = 2
   Padding.Top = 2
@@ -25,7 +30,7 @@ object FrmConsole: TFrmConsole
   OnKeyPress = FormKeyPress
   OnShow = FormShow
   PixelsPerInch = 96
-  TextHeight = 13
+  TextHeight = 16
   object PnlConsole: TPanel
     Left = 2
     Top = 2
@@ -41,23 +46,22 @@ object FrmConsole: TFrmConsole
       Left = 0
       Top = 0
       Width = 196
-      Height = 13
+      Height = 15
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
       Align = alTop
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
+      BevelOuter = bvNone
       ParentColor = True
-      TabOrder = 0
+      TabOrder = 1
       OnMouseDown = PnlArrastarMouseDown
       OnMouseMove = PnlArrastarMouseMove
       object BtnFixed: TSpeedButton
-        Left = 178
-        Top = 2
+        Left = 180
+        Top = 0
         Width = 16
-        Height = 9
+        Height = 15
         Margins.Left = 0
         Margins.Top = 0
         Margins.Right = 0
@@ -108,48 +112,48 @@ object FrmConsole: TFrmConsole
         Margin = 0
         Spacing = 0
         OnClick = BtnFixedClick
-        ExplicitLeft = 179
-        ExplicitTop = 0
-        ExplicitHeight = 12
+        ExplicitHeight = 16
       end
       object ShpDrag: TShape
         AlignWithMargins = True
-        Left = 5
-        Top = 5
-        Width = 170
-        Height = 3
+        Left = 3
+        Top = 4
+        Width = 174
+        Height = 7
+        Margins.Top = 4
+        Margins.Bottom = 4
         Align = alClient
-        Brush.Color = clWindowText
-        Pen.Color = clWindow
+        Brush.Color = clBlack
         Pen.Style = psClear
+        Shape = stRoundRect
         OnMouseDown = PnlArrastarMouseDown
         OnMouseMove = PnlArrastarMouseMove
-        ExplicitLeft = 24
-        ExplicitTop = 0
-        ExplicitWidth = 65
-        ExplicitHeight = 65
+        ExplicitLeft = 5
+        ExplicitTop = 5
+        ExplicitWidth = 170
+        ExplicitHeight = 5
       end
     end
-    object EdtConsole: TRichEditEx
+    object EdtConsole: TMemoEx
       Left = 0
-      Top = 13
+      Top = 15
       Width = 196
-      Height = 63
+      Height = 61
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
       Font.Style = []
       HideSelection = False
       ParentFont = False
       PopupMenu = ppmConsole
       ReadOnly = True
       ScrollBars = ssBoth
-      TabOrder = 1
-      StyleElements = [seFont, seClient]
+      TabOrder = 0
       OnKeyPress = FormKeyPress
     end
   end

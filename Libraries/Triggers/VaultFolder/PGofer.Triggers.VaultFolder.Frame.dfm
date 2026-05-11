@@ -6,9 +6,8 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
     Height = 71
     ExplicitTop = 141
     ExplicitHeight = 71
-    inherited rceAbout: TRichEdit
+    inherited mmoAbout: TMemoEx
       Height = 54
-      ExplicitHeight = 54
     end
   end
   inherited pnlItem: TPanel
@@ -58,6 +57,7 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       TabOrder = 0
       ValidationMode = vmSaveFile
       ActionButtonShow = True
@@ -68,48 +68,48 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       OnAfterValidate = EdtFileAfterValidate
     end
     inherited CkbNamespace: TCheckBoxEx
-      TabOrder = 4
-    end
-    inherited EdtName: TEditEx
       TabOrder = 3
     end
-    object EdtAutoLock: TEditEx
+    object EdtAutoLock: TEditEx [7]
       Left = 70
       Top = 83
       Width = 45
       Height = 21
       NumbersOnly = True
-      TabOrder = 5
+      TabOrder = 4
       Text = '0'
       OnAfterValidate = EdtAutoLockAfterValidate
     end
-    object UpdAutoLock: TUpDown
+    object UpdAutoLock: TUpDown [8]
       Left = 115
       Top = 83
       Width = 16
       Height = 21
       Associate = EdtAutoLock
       Max = 999999999
-      TabOrder = 6
+      TabOrder = 5
     end
-    object CkbSavePassword: TCheckBoxEx
+    object CkbSavePassword: TCheckBoxEx [9]
       Left = 185
       Top = 85
       Width = 110
       Height = 17
       Caption = 'Save Password'
-      TabOrder = 7
+      TabOrder = 6
       OnClick = CkbSavePasswordClick
     end
-    object BtnPassword: TButton
+    object BtnPassword: TButton [10]
       Left = 160
       Top = 107
       Width = 75
       Height = 25
       Anchors = [akTop]
       Caption = 'Password'
-      TabOrder = 8
+      TabOrder = 7
       OnClick = BtnPasswordClick
+    end
+    inherited EdtName: TEditEx
+      TabOrder = 8
     end
   end
   inherited sptAbout: TPanel

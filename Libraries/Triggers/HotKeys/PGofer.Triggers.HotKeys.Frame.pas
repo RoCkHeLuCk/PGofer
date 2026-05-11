@@ -7,7 +7,7 @@ uses
   Vcl.Forms, Vcl.StdCtrls, Vcl.Graphics,
   Vcl.Controls, Vcl.ExtCtrls,
   PGofer.Triggers.Frame, PGofer.Triggers.HotKeys,
-  PGofer.Component.RichEdit,
+  PGofer.Component.Memo,
   PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame,
   PGofer.Classes, Pgofer.Component.Checkbox, Pgofer.Component.ComboBox, PGofer.Component.Edit,
   Vcl.ComCtrls;
@@ -21,7 +21,7 @@ type
     CmbDetect: TPGComboBox;
     CkbInhibit: TCheckBoxEx;
     GrbScript: TGroupBox;
-    EdtScript: TRichEditEx;
+    EdtScript: TMemoEx;
     sptScript: TSplitter;
     CkbEnable: TCheckBoxEx;
     procedure CkbInhibitClick( Sender: TObject );
@@ -107,12 +107,13 @@ end;
 procedure TPGHotKeyFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
-  GrbScript.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Scritp',
-    GrbScript.Height );
+  EdtScript.Zoom := Self.IniFile.ReadInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
+  GrbScript.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Scritp', GrbScript.Height );
 end;
 
 procedure TPGHotKeyFrame.IniConfigSave;
 begin
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
   Self.IniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
   inherited IniConfigSave( );
 end;

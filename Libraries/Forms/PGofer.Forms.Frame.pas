@@ -7,7 +7,7 @@ uses
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
   Vcl.Dialogs,
   PGofer.Classes, PGofer.Forms, PGofer.Component.Edit, PGofer.Item.Frame,
-  Pgofer.Component.ComboBox, Pgofer.Component.Checkbox;
+  Pgofer.Component.ComboBox, Pgofer.Component.Checkbox, PGofer.Component.Memo;
 
 type
   TPGFormsFrame = class( TPGItemFrame )

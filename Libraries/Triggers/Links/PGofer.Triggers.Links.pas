@@ -195,7 +195,6 @@ procedure TPGLink.SetFileName(const Value: string);
 begin
   if FFileName = Value then Exit;
   FFileName := Value;
-  Self.Validated;
 end;
 
 procedure TPGLink.SetScriptAfter(AValue: string);

@@ -6,7 +6,8 @@ uses
   System.Classes,
   Vcl.Controls, Vcl.Forms, PGofer.Triggers.Frame, Vcl.StdCtrls,
   Pgofer.Component.Checkbox,
-  PGofer.Classes, PGofer.Triggers, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls;
+  PGofer.Classes, PGofer.Triggers, PGofer.Component.Edit, Vcl.ExtCtrls, Vcl.ComCtrls,
+  PGofer.Component.Memo;
 
 type
   TPGFolderFrame = class(TPGTriggerFrame)

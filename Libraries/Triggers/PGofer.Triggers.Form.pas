@@ -251,7 +251,7 @@ begin
       LPopUpItem := TMenuItem.Create( PpmCreate );
       PpmCreate.Items.Add( LPopUpItem );
       LPopUpItem.Caption := FCollectItem.ClassList[ LIndex ].Name;
-      LPopUpItem.ImageIndex := TPGItemType(FCollectItem.ClassList[ LIndex ].ClassType).IconIndex;
+      LPopUpItem.ImageIndex := TPGItemType(FCollectItem.ClassList[ LIndex ].ClassType).ClassIconIndex;
       LPopUpItem.ShortCut := TextToShortCut( 'ALT+' + IntToStr( LIndex + 1 ) );
       LPopUpItem.Tag := LIndex;
       LPopUpItem.OnClick := onCreateItemPopUpClick;

@@ -8,7 +8,8 @@ uses
 
   PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
   PGofer.Component.Edit, PGofer.Item.Frame,
-  Pgofer.Component.Checkbox, Vcl.Dialogs, Pgofer.Component.ComboBox, Vcl.ExtCtrls;
+  Pgofer.Component.Checkbox, Vcl.Dialogs, Pgofer.Component.ComboBox, Vcl.ExtCtrls,
+  PGofer.Component.Memo;
 
 type
   TPGConsoleFrame = class( TPGFormsFrame )

@@ -7,12 +7,12 @@ uses
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Controls,
   PGofer.Classes, PGofer.Item.Frame,
   PGofer.Standard.Functions,
-  PGofer.Component.RichEdit, PGofer.Component.Edit, Vcl.ComCtrls;
+  PGofer.Component.Memo, PGofer.Component.Edit, Vcl.ComCtrls;
 
 type
   TPGFunctionFrame = class( TPGItemFrame )
     GrbScript: TGroupBox;
-    EdtScript: TRichEditEx;
+    EdtScript: TMemoEx;
     sptScript: TSplitter;
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
@@ -61,11 +61,13 @@ end;
 procedure TPGFunctionFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
+  EdtScript.Zoom := Self.IniFile.ReadInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
   GrbScript.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Scritp', GrbScript.Height );
 end;
 
 procedure TPGFunctionFrame.IniConfigSave;
 begin
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
   Self.IniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
   inherited IniConfigSave( );
 end;

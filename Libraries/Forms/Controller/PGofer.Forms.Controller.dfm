@@ -8,10 +8,11 @@ object FrmController: TFrmController
   BorderIcons = [biSystemMenu]
   Caption = 'Controller'
   ClientHeight = 261
-  ClientWidth = 602
-  Color = clBtnFace
+  ClientWidth = 603
+  Color = clGray
   Constraints.MinHeight = 300
   Constraints.MinWidth = 195
+  Ctl3D = False
   DefaultMonitor = dmDesktop
   ParentFont = True
   OldCreateOrder = False
@@ -26,7 +27,7 @@ object FrmController: TFrmController
   object SptController: TSplitter
     Left = 180
     Top = 0
-    Width = 5
+    Width = 6
     Height = 261
     Margins.Left = 0
     Margins.Top = 0
@@ -34,7 +35,6 @@ object FrmController: TFrmController
     Margins.Bottom = 0
     Beveled = True
     Visible = False
-    ExplicitTop = 5
   end
   object PnlTreeView: TPanel
     Left = 0
@@ -56,23 +56,26 @@ object FrmController: TFrmController
       Top = 0
       Width = 180
       Height = 28
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
       Align = alTop
       BevelOuter = bvNone
       ParentColor = True
       TabOrder = 0
       object EdtFind: TButtonedEdit
         AlignWithMargins = True
-        Left = 2
-        Top = 2
-        Width = 152
+        Left = 3
+        Top = 3
+        Width = 147
         Height = 24
-        Margins.Left = 2
-        Margins.Top = 2
-        Margins.Right = 0
-        Margins.Bottom = 2
+        Margins.Right = 2
+        Margins.Bottom = 1
         Align = alClient
         BevelInner = bvNone
         BevelOuter = bvNone
+        Color = clSilver
         LeftButton.DisabledImageIndex = 0
         LeftButton.Enabled = False
         LeftButton.HotImageIndex = 0
@@ -85,24 +88,33 @@ object FrmController: TFrmController
         RightButton.PressedImageIndex = 1
         RightButton.Visible = True
         TabOrder = 0
-        StyleElements = [seFont, seClient]
         OnKeyPress = EdtFindKeyPress
-        ExplicitHeight = 21
+        ExplicitLeft = 2
+        ExplicitTop = 2
+        ExplicitWidth = 152
+        ExplicitHeight = 19
       end
       object BtnRecall: TButton
         AlignWithMargins = True
-        Left = 155
-        Top = 1
-        Width = 24
-        Height = 26
+        Left = 153
+        Top = 2
+        Width = 25
+        Height = 25
         Margins.Left = 1
-        Margins.Top = 1
-        Margins.Right = 1
+        Margins.Top = 2
+        Margins.Right = 2
         Margins.Bottom = 1
         Align = alRight
         Caption = '>>'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
         TabOrder = 1
         OnClick = BtnRecallClick
+        ExplicitLeft = 154
       end
     end
     object PnlButton: TPanel
@@ -168,6 +180,7 @@ object FrmController: TFrmController
       BevelInner = bvNone
       BevelOuter = bvNone
       BorderWidth = 1
+      Color = clSilver
       HideSelection = False
       Indent = 19
       MultiSelect = True
@@ -189,7 +202,7 @@ object FrmController: TFrmController
     end
   end
   object PnlFrame: TScrollBox
-    Left = 185
+    Left = 186
     Top = 0
     Width = 417
     Height = 261

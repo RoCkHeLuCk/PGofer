@@ -5,11 +5,10 @@ inherited PGConsoleFrame: TPGConsoleFrame
     Top = 267
     Height = 60
     Constraints.MinHeight = 44
-    ExplicitTop = 283
-    ExplicitHeight = 44
-    inherited rceAbout: TRichEdit
+    ExplicitTop = 267
+    ExplicitHeight = 60
+    inherited mmoAbout: TMemoEx
       Height = 43
-      ExplicitHeight = 27
     end
   end
   inherited pnlItem: TPanel
@@ -33,6 +32,8 @@ inherited PGConsoleFrame: TPGConsoleFrame
     end
     inherited CmbWindowState: TPGComboBox
       ParentColor = True
+      Text = ''
+      ItemIndex = -1
     end
     inherited EdtHeigth: TEditEx
       TabOrder = 16

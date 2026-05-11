@@ -10,9 +10,10 @@ object FrmAutoComplete: TFrmAutoComplete
   Caption = 'FrmAutoComplete'
   ClientHeight = 134
   ClientWidth = 265
-  Color = clBtnFace
+  Color = clGray
   Constraints.MinHeight = 80
   Constraints.MinWidth = 260
+  Ctl3D = False
   DefaultMonitor = dmDesktop
   ParentFont = True
   FormStyle = fsStayOnTop
@@ -36,25 +37,26 @@ object FrmAutoComplete: TFrmAutoComplete
   TextHeight = 13
   object sptAbout: TSplitter
     Left = 2
-    Top = 89
+    Top = 88
     Width = 261
-    Height = 5
+    Height = 6
     Cursor = crVSplit
     Align = alBottom
     AutoSnap = False
     Beveled = True
     MinSize = 20
-    ExplicitTop = 5
-    ExplicitWidth = 267
+    StyleElements = [seFont, seClient]
+    ExplicitTop = 86
   end
   object ltvAutoComplete: TListViewEx
     Left = 2
     Top = 2
     Width = 261
-    Height = 87
+    Height = 86
     Align = alClient
     BevelInner = bvNone
     BevelOuter = bvNone
+    Color = clSilver
     Columns = <
       item
         Caption = 'Command'
@@ -68,7 +70,6 @@ object FrmAutoComplete: TFrmAutoComplete
         Caption = 'Priority'
       end>
     HideSelection = False
-    StyleElements = [seFont, seClient]
     ReadOnly = True
     RowSelect = True
     PopupMenu = ppmAutoComplete
@@ -84,7 +85,7 @@ object FrmAutoComplete: TFrmAutoComplete
     OnMouseDown = ltvAutoCompleteMouseDown
     ColumnAlphaSort = True
   end
-  object rceAbout: TRichEditEx
+  object mmoAbout: TMemoEx
     Left = 2
     Top = 94
     Width = 261
@@ -92,17 +93,17 @@ object FrmAutoComplete: TFrmAutoComplete
     Align = alBottom
     BevelInner = bvNone
     BevelOuter = bvNone
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = []
     Constraints.MinHeight = 20
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -12
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentColor = True
     ParentFont = False
     ReadOnly = True
     TabOrder = 1
-    StyleElements = [seFont, seClient]
-    ExplicitTop = 95
+    OnClick = mmoAboutDblClick
   end
   object ppmAutoComplete: TPopupMenu
     Left = 24

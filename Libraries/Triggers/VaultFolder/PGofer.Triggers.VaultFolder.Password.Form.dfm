@@ -1,28 +1,27 @@
 inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
-  AutoSize = True
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Vault Folder Password'
   ClientHeight = 130
-  ClientWidth = 314
+  ClientWidth = 340
+  Color = clGray
   FormStyle = fsStayOnTop
   KeyPreview = True
   Position = poScreenCenter
-  StyleElements = [seFont, seClient]
   OnKeyDown = FormKeyDown
-  ExplicitWidth = 320
+  ExplicitWidth = 346
   ExplicitHeight = 159
   PixelsPerInch = 96
   TextHeight = 13
   object PnlCurrentPassword: TPanel
     Left = 0
     Top = 0
-    Width = 314
+    Width = 340
     Height = 27
     Align = alTop
     BevelOuter = bvNone
+    ParentColor = True
     TabOrder = 0
-    StyleElements = [seFont, seClient]
     object LblCurrentPassword: TLabel
       Left = 8
       Top = 8
@@ -34,13 +33,12 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
     end
     object EdtCurrentPassword: TEditEx
       Left = 107
-      Top = 6
+      Top = 5
       Width = 190
-      Height = 21
+      Height = 19
       Color = clSilver
       PasswordChar = '*'
       TabOrder = 0
-      StyleElements = [seFont, seClient]
       OnKeyDown = EdtCurrentPasswordKeyDown
       ValidationMode = vmPassword
       ActionButtonShow = True
@@ -51,12 +49,12 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
   object PnlNewPassword: TPanel
     Left = 0
     Top = 27
-    Width = 314
+    Width = 340
     Height = 65
     Align = alTop
     BevelOuter = bvNone
+    ParentColor = True
     TabOrder = 1
-    StyleElements = [seFont, seClient]
     object LblNewPassword: TLabel
       Left = 8
       Top = 7
@@ -70,11 +68,10 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       Left = 107
       Top = 4
       Width = 190
-      Height = 21
+      Height = 19
       Color = clSilver
       PasswordChar = '*'
       TabOrder = 0
-      StyleElements = [seFont, seClient]
       OnKeyDown = EdtNewPasswordKeyDown
       ValidationMode = vmPassword
       ActionButtonShow = True
@@ -84,40 +81,31 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       AlignWithMargins = True
       Left = 5
       Top = 31
-      Width = 304
+      Width = 330
       Height = 31
       Margins.Left = 5
       Margins.Right = 5
       Align = alBottom
       Alignment = taCenter
-      BevelInner = bvNone
-      BevelOuter = bvNone
       BorderStyle = bsNone
-      Color = clGray
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
       Lines.Strings = (
         'Caution: Changing your password will permanently erase all '
         'previous security backups.')
-      ParentFont = False
+      ParentColor = True
       ReadOnly = True
       TabOrder = 2
       WantReturns = False
-      StyleElements = [seFont, seClient]
     end
   end
   object PnlButtons: TPanel
     Left = 0
     Top = 92
-    Width = 314
+    Width = 340
     Height = 38
     Align = alTop
     BevelOuter = bvNone
+    ParentColor = True
     TabOrder = 2
-    StyleElements = [seFont, seClient]
     object BtnOk: TButton
       Left = 64
       Top = 6
@@ -126,7 +114,6 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       Caption = 'OK'
       ModalResult = 1
       TabOrder = 0
-      StyleElements = [seFont, seClient]
     end
     object BtnCancel: TButton
       Left = 207
@@ -137,7 +124,6 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       Caption = 'Cancel'
       ModalResult = 2
       TabOrder = 1
-      StyleElements = [seFont, seClient]
     end
   end
 end

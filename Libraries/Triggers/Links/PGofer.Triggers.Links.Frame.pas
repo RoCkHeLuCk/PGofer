@@ -7,7 +7,7 @@ uses
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
   Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers.Links, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Item.Frame, Pgofer.Component.Checkbox,
+  PGofer.Component.Edit, PGofer.Component.Memo, PGofer.Item.Frame, Pgofer.Component.Checkbox,
   Pgofer.Component.ComboBox;
 
 type
@@ -24,9 +24,9 @@ type
     CmbPriority: TPGComboBox;
     BtnTest: TButton;
     GrbScriptBefore: TGroupBox;
-    EdtScriptBefore: TRichEditEx;
+    EdtScriptBefore: TMemoEx;
     GrbScriptAfter: TGroupBox;
-    EdtScriptAfter: TRichEditEx;
+    EdtScriptAfter: TMemoEx;
     sptScriptBefore: TSplitter;
     ckbCapture: TCheckBoxEx;
     sptScriptAfter: TSplitter;
@@ -99,18 +99,18 @@ end;
 procedure TPGLinkFrame.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
-  Self.GrbScriptBefore.Height := Self.IniFile.ReadInteger( Self.ClassName,
-    'ScriptsBefore', Self.GrbScriptBefore.Height );
-  Self.GrbScriptAfter.Height := Self.IniFile.ReadInteger( Self.ClassName,
-    'ScriptsAfter', Self.GrbScriptAfter.Height );
+  Self.EdtScriptBefore.Zoom := Self.IniFile.ReadInteger( Self.ClassName, 'ScriptsBeforeZoom', Self.EdtScriptBefore.Zoom );
+  Self.EdtScriptAfter.Zoom := Self.IniFile.ReadInteger( Self.ClassName, 'ScriptsAfterZoom', Self.EdtScriptAfter.Zoom );
+  Self.GrbScriptBefore.Height := Self.IniFile.ReadInteger( Self.ClassName, 'ScriptsBefore', Self.GrbScriptBefore.Height );
+  Self.GrbScriptAfter.Height := Self.IniFile.ReadInteger( Self.ClassName, 'ScriptsAfter', Self.GrbScriptAfter.Height );
 end;
 
 procedure TPGLinkFrame.IniConfigSave( );
 begin
-  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsBefore',
-    Self.GrbScriptBefore.Height );
-  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsAfter',
-    Self.GrbScriptAfter.Height );
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsBeforeZoom', Self.EdtScriptBefore.Zoom );
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsAfterZoom', Self.EdtScriptAfter.Zoom );
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsBefore', Self.GrbScriptBefore.Height );
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsAfter', Self.GrbScriptAfter.Height );
   inherited IniConfigSave( );
 end;
 

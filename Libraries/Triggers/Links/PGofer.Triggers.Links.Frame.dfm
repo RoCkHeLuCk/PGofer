@@ -34,17 +34,17 @@ inherited PGLinkFrame: TPGLinkFrame
     Caption = 'Script After (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 1
-    object EdtScriptAfter: TRichEditEx
+    object EdtScriptAfter: TMemoEx
       Left = 2
       Top = 15
       Width = 390
       Height = 43
       Align = alClient
-      BorderWidth = 1
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
       Font.Style = []
       HideSelection = False
       ParentFont = False
@@ -64,16 +64,17 @@ inherited PGLinkFrame: TPGLinkFrame
     Caption = 'Script Before (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 2
-    object EdtScriptBefore: TRichEditEx
+    object EdtScriptBefore: TMemoEx
       Left = 2
       Top = 15
       Width = 390
       Height = 43
       Align = alClient
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
       Font.Style = []
       HideSelection = False
       ParentFont = False
@@ -112,7 +113,7 @@ inherited PGLinkFrame: TPGLinkFrame
     end
     object LblDirectory: TLabel [2]
       Left = 5
-      Top = 95
+      Top = 91
       Width = 59
       Height = 13
       Alignment = taRightJustify
@@ -144,6 +145,7 @@ inherited PGLinkFrame: TPGLinkFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
+      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 1
       ValidationMode = vmOpenFile
@@ -161,16 +163,18 @@ inherited PGLinkFrame: TPGLinkFrame
       Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       Constraints.MinWidth = 325
       TabOrder = 3
       OnAfterValidate = EdtPatameterAfterValidate
     end
     object EdtDiretory: TEditEx [8]
       Left = 70
-      Top = 89
+      Top = 88
       Width = 290
       Height = 21
       Anchors = [akLeft, akTop, akRight]
+      Color = clSilver
       Constraints.MinWidth = 290
       TabOrder = 4
       ValidationMode = vmPathExists
@@ -196,7 +200,8 @@ inherited PGLinkFrame: TPGLinkFrame
         item
           Caption = 'Maxmized'
         end>
-      Style = csExDropDownList
+      Style = csExDropDown
+      Color = clSilver
       TabOrder = 6
       Text = 'Normal'
       OnChange = CmbStateChange
@@ -226,7 +231,8 @@ inherited PGLinkFrame: TPGLinkFrame
         item
           Caption = 'Real time'
         end>
-      Style = csExDropDownList
+      Style = csExDropDown
+      Color = clSilver
       TabOrder = 7
       Text = 'Normal'
       OnChange = CmbPriorityChange

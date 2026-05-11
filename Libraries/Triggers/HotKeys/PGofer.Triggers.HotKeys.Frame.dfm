@@ -18,10 +18,8 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     TabOrder = 1
     ExplicitTop = 242
     ExplicitHeight = 62
-    inherited rceAbout: TRichEdit
+    inherited mmoAbout: TMemoEx
       Height = 45
-      ParentFont = True
-      ExplicitHeight = 45
     end
   end
   object GrbScript: TGroupBox [2]
@@ -34,19 +32,19 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 2
-    object EdtScript: TRichEditEx
+    object EdtScript: TMemoEx
       Left = 2
       Top = 15
       Width = 390
       Height = 57
       Align = alClient
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
       Font.Style = []
       HideSelection = False
-      ParentColor = True
       ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
@@ -128,7 +126,8 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
         item
           Caption = 'Up'
         end>
-      Style = csExDropDownList
+      Style = csExDropDown
+      Color = clSilver
       TabOrder = 2
       Text = 'Down'
       OnChange = CmbDetectChange

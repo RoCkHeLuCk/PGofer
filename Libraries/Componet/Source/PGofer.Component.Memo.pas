@@ -10,7 +10,7 @@ uses
 type
   TOnDropFile = procedure(Sender: TObject; AFiles: TStrings) of object;
 
-  TPGMemoEx = class(TMemo)
+  TMemoEx = class(TMemo)
   private
     FOnDropFiles: TOnDropFile;
     FCharHeight: Integer;
@@ -75,30 +75,30 @@ implementation
 
 procedure Register;
 begin
-  RegisterComponents('PGofer', [TPGMemoEx]);
+  RegisterComponents('PGofer', [TMemoEx]);
 end;
 
-{ TPGMemoEx }
+{ TMemoEx }
 
-constructor TPGMemoEx.Create(AOwner: TComponent);
+constructor TMemoEx.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FZoomValue := 100;
   FBaseFontSize := Font.Size;
 end;
 
-procedure TPGMemoEx.CreateWnd;
+procedure TMemoEx.CreateWnd;
 begin
   inherited;
   DragAcceptFiles(Handle, Assigned(FOnDropFiles));
 end;
 
-function TPGMemoEx.GetCaretX: Integer;
+function TMemoEx.GetCaretX: Integer;
 begin
   Result := SelStart - Perform(EM_LINEINDEX, WPARAM(-1), 0) + 1;
 end;
 
-procedure TPGMemoEx.SetCaretX(AValue: Integer);
+procedure TMemoEx.SetCaretX(AValue: Integer);
 var
   LineIdx: Integer;
 begin
@@ -106,69 +106,60 @@ begin
   SelStart := LineIdx + AValue - 1;
 end;
 
-function TPGMemoEx.GetCaretY: Integer;
+function TMemoEx.GetCaretY: Integer;
 begin
   Result := Perform(EM_LINEFROMCHAR, WPARAM(-1), 0) + 1;
 end;
 
-procedure TPGMemoEx.SetCaretY(AValue: Integer);
+procedure TMemoEx.SetCaretY(AValue: Integer);
 begin
   SelStart := Perform(EM_LINEINDEX, WPARAM(AValue - 1), 0);
   Perform(EM_SCROLLCARET, 0, 0);
 end;
 
-function TPGMemoEx.GetCharHeight: Integer;
+function TMemoEx.GetCharHeight: Integer;
 begin
   FCharHeight := GetTextMetric.tmHeight;
   Result := FCharHeight;
 end;
 
-function TPGMemoEx.GetCharWidth: Integer;
+function TMemoEx.GetCharWidth: Integer;
 begin
   FCharWidth := GetTextMetric.tmAveCharWidth;
   Result := FCharWidth;
 end;
 
-function TPGMemoEx.GetDisplayX: Integer;
+function TMemoEx.GetDisplayX: Integer;
 begin
   Result := GetDisplayXY.X;
 end;
 
-procedure TPGMemoEx.SetDisplayX(const Value: Integer);
+procedure TMemoEx.SetDisplayX(const Value: Integer);
 begin
   SetDisplayXY(Point(Value, GetDisplayY));
 end;
 
-function TPGMemoEx.GetDisplayY: Integer;
+function TMemoEx.GetDisplayY: Integer;
 begin
   Result := GetDisplayXY.Y;
 end;
 
-procedure TPGMemoEx.SetDisplayY(const Value: Integer);
+procedure TMemoEx.SetDisplayY(const Value: Integer);
 begin
   SetDisplayXY(Point(GetDisplayX, Value));
 end;
 
-function TPGMemoEx.GetDisplayXY: TPoint;
-var
-  LRes: LongInt;
+function TMemoEx.GetDisplayXY: TPoint;
 begin
-  LRes := SendMessage(Handle, EM_POSFROMCHAR, SelStart, 0);
-  if LRes <> -1 then
-  begin
-    Result.X := LoWord(LRes);
-    Result.Y := HiWord(LRes);
-  end
-  else
-    Result := Point(0, 0);
+  Winapi.Windows.GetCaretPos(Result);
 end;
 
-procedure TPGMemoEx.SetDisplayXY(const Value: TPoint);
+procedure TMemoEx.SetDisplayXY(const Value: TPoint);
 begin
   SelStart := Perform(EM_CHARFROMPOS, 0, MakeLParam(Value.X, Value.Y));
 end;
 
-function TPGMemoEx.GetTextMetric: TTextMetric;
+function TMemoEx.GetTextMetric: TTextMetric;
 var
   DC: HDC;
   OldFont: HFONT;
@@ -183,7 +174,7 @@ begin
   end;
 end;
 
-function TPGMemoEx.GetVerticalScrollPos: Integer;
+function TMemoEx.GetVerticalScrollPos: Integer;
 var
   SI: TScrollInfo;
 begin
@@ -193,7 +184,7 @@ begin
   Result := SI.nPos;
 end;
 
-procedure TPGMemoEx.SetVerticalScrollPos(const AValue: Integer);
+procedure TMemoEx.SetVerticalScrollPos(const AValue: Integer);
 var
   SI: TScrollInfo;
 begin
@@ -204,7 +195,7 @@ begin
   SendMessage(Handle, WM_VSCROLL, MakeWParam(SB_THUMBPOSITION, AValue), 0);
 end;
 
-function TPGMemoEx.GetVerticalScrollMax: Integer;
+function TMemoEx.GetVerticalScrollMax: Integer;
 var
   SI: TScrollInfo;
 begin
@@ -214,7 +205,7 @@ begin
   Result := SI.nMax - Integer(SI.nPage);
 end;
 
-procedure TPGMemoEx.WMMouseWheel(var Message: TWMMouseWheel);
+procedure TMemoEx.WMMouseWheel(var Message: TWMMouseWheel);
 begin
   if (GetKeyState(VK_CONTROL) < 0) then
   begin
@@ -228,12 +219,12 @@ begin
     inherited;
 end;
 
-function TPGMemoEx.GetZoomValue: Integer;
+function TMemoEx.GetZoomValue: Integer;
 begin
   Result := FZoomValue;
 end;
 
-procedure TPGMemoEx.SetZoomValue(AValue: Integer);
+procedure TMemoEx.SetZoomValue(AValue: Integer);
 var
   NewSize: Integer;
 begin
@@ -251,14 +242,14 @@ begin
     Font.Size := NewSize;
 end;
 
-procedure TPGMemoEx.SetOnDropFiles(AValue: TOnDropFile);
+procedure TMemoEx.SetOnDropFiles(AValue: TOnDropFile);
 begin
   FOnDropFiles := AValue;
   if HandleAllocated then
     DragAcceptFiles(Handle, Assigned(FOnDropFiles));
 end;
 
-procedure TPGMemoEx.DoDropFiles(var msg: TWMDropFiles);
+procedure TMemoEx.DoDropFiles(var msg: TWMDropFiles);
 var
   C, FileCount: Integer;
   FileName: array[0..MAX_PATH] of Char;
@@ -282,7 +273,7 @@ begin
   end;
 end;
 
-procedure TPGMemoEx.SetTextSilent(const AValue: String);
+procedure TMemoEx.SetTextSilent(const AValue: String);
 var
   OldEvent: TNotifyEvent;
 begin

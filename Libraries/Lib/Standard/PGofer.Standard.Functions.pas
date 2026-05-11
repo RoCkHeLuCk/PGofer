@@ -119,7 +119,7 @@ var
   LTempGrammar: TPGGrammar;
 begin
   // Este método reconstrói a lista de tokens a partir do FScriptSource
-  // Útil quando o usuário edita no RichEdit e salva ou aperta F9.
+  // Útil quando o usuário edita no Memo e salva ou aperta F9.
   LLexer := TPGLexer.Create;
   try
     // Usamos uma gramática temporária apenas para extrair a estrutura

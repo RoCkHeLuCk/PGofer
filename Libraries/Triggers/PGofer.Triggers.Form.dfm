@@ -32,8 +32,8 @@ inherited FrmTriggerController: TFrmTriggerController
     end
   end
   inherited PnlFrame: TScrollBox
-    Width = 487
-    ExplicitWidth = 487
+    Width = 486
+    ExplicitWidth = 486
   end
   inherited PpmEdit: TPopupMenu
     object N1: TMenuItem

@@ -7,7 +7,7 @@ uses
 
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Classes, PGofer.Triggers.Tasks, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit, Pgofer.Component.ComboBox,
+  PGofer.Component.Edit, PGofer.Component.Memo, Pgofer.Component.ComboBox,
   Pgofer.Component.Checkbox;
 
 type
@@ -19,7 +19,7 @@ type
     GrbScript: TGroupBox;
     UpdRepeat: TUpDown;
     EdtOccurrence: TEditEx;
-    EdtScript: TRichEditEx;
+    EdtScript: TMemoEx;
     EdtRepeat: TEditEx;
     sptScript: TSplitter;
     CkbEnable: TCheckBoxEx;
@@ -74,12 +74,13 @@ end;
 procedure TPGTaskFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
-  GrbScript.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Scritp',
-    GrbScript.Height );
+  EdtScript.Zoom := Self.IniFile.ReadInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
+  GrbScript.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Scritp', GrbScript.Height );
 end;
 
 procedure TPGTaskFrame.IniConfigSave;
 begin
+  Self.IniFile.WriteInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
   Self.IniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
   inherited IniConfigSave( );
 end;

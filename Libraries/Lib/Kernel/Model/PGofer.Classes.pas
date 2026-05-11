@@ -23,39 +23,43 @@ type
     function GetCollectDad(): TPGItemCollect;
     class var FIconCache: TDictionary<TClass, Integer>;
     class var FImageList: TCustomImageList;
+    class var FStateIconCache: TDictionary<String, Integer>;
+    class var FStateImageList: TCustomImageList;
   protected
     class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
-
     function GetAbout(): String; virtual;
     function GetIsValid(): Boolean; virtual;
     function GetName(): String; virtual;
-    function GetEnabled():Boolean; virtual;
+    function GetIconIndex(): Integer; virtual;
     procedure SetName(AName: string); virtual;
     procedure SetNameForced(AName: string); virtual;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure SetParent(AParent: TPGItem); virtual;
     procedure SetNode(AValue: TTreeNode); virtual;
-    procedure Validated(); virtual;
+    procedure UpdateStateIcon(); virtual;
   public
     class constructor Create();
     class destructor Destroy();
     class function ClassNameEx(): String; virtual;
-    class function IconIndex(): Integer; virtual;
+    class function ClassIconIndex(): Integer;
+    class function ClassStateIconIndex(AStateName: String): Integer;
 
     constructor Create(AParent: TPGItem; AName: string); overload; virtual;
     destructor Destroy(); override;
-    procedure BeforeDestruction; override;
+    procedure BeforeDestruction(); override;
 
-    property About: string read GetAbout;
+    property Destroying: Boolean read FDestroying;
     property Name: string read GetName write SetName;
-    property Enabled: Boolean read GetEnabled write SetEnabled;
-    property ReadOnly: Boolean read FReadOnly write FReadOnly;
+    property About: string read GetAbout;
     property SystemNode: Boolean read FSystemNode write FSystemNode;
+    property ReadOnly: Boolean read FReadOnly write FReadOnly;
+    property Enabled: Boolean read FEnabled write SetEnabled;
+    property isValid: Boolean read GetIsValid;
+    property IconIndex: Integer read GetIconIndex;
+
     property Parent: TPGItem read FParent write SetParent;
     property Node: TTreeNode read FNode write SetNode;
-    property isValid: Boolean read GetIsValid;
     property CollectDad: TPGItemCollect read GetCollectDad;
-    property Destroying: Boolean read FDestroying;
     procedure Frame(AParent: TObject); virtual;
     function FindName(AName: string): TPGItem;
     function FindNameList(AName: string; APartial: Boolean): TArray<TPGItem>;
@@ -68,6 +72,7 @@ type
     FTreeView: TTreeViewEx;
     FForm: TFormEx;
     class function GetImageList(): TCustomImageList;
+    class function GetStateImageList(): TCustomImageList;
   protected
     procedure SetTreeView(AValue: TTreeViewEx);
     procedure SetForm(AValue: TFormEx);
@@ -75,6 +80,7 @@ type
     constructor Create(AName: string); overload;
     destructor Destroy(); override;
     property ImageList: TCustomImageList read GetImageList;
+    property StateImageList: TCustomImageList read GetStateImageList;
     property TreeView: TTreeViewEx read FTreeView;
     property Form: TFormEx read FForm;
     property Attached: Boolean read FAttached;
@@ -99,19 +105,32 @@ class constructor TPGItem.Create();
 begin
   FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
   FIconCache := TDictionary<TClass, Integer>.Create;
-  TPGItem.FImageList := TCustomImageList.Create(nil);
-  TPGItem.FImageList.Width := 16;
-  TPGItem.FImageList.Height := 16;
+  FStateIconCache := TDictionary<String, Integer>.Create;
+
+  FImageList := TCustomImageList.Create(nil);
+  FImageList.Width := 16;
+  FImageList.Height := 16;
+
+  FStateImageList := TCustomImageList.Create(nil);
+  FStateImageList.Width := 16;
+  FStateImageList.Height := 16;
 end;
 
 class destructor TPGItem.Destroy();
 begin
+  FStateImageList.Free;
+  FStateImageList := nil;
   FImageList.Free;
+  FImageList := nil;
+  FStateIconCache.Free;
+  FStateIconCache := nil;
   FIconCache.Free;
+  FIconCache := nil;
   FAbout.Free;
+  FAbout := nil;
 end;
 
-class function TPGItem.IconIndex(): Integer;
+class function TPGItem.ClassIconIndex(): Integer;
 var
   LClass: TClass;
   function LLoadForClass(): Integer;
@@ -146,6 +165,30 @@ begin
   begin
     Result := LLoadForClass();
     FIconCache.Add( LClass , Result);
+  end;
+end;
+
+class function TPGItem.ClassStateIconIndex(AStateName: String): Integer;
+var
+  LIcon: TIcon;
+  LFileName: string;
+begin
+  if not FStateIconCache.TryGetValue(AStateName, Result) then
+  begin
+    Result := -1;
+    LFileName := TPGKernel.PathIcon + 'state\' + AStateName + '.ico';
+
+    if FileExists(LFileName) then
+    begin
+      LIcon := TIcon.Create;
+      try
+        LIcon.LoadFromFile(LFileName);
+        Result := FStateImageList.AddIcon(LIcon);
+        FStateIconCache.Add(AStateName, Result);
+      finally
+        LIcon.Free;
+      end;
+    end;
   end;
 end;
 
@@ -207,11 +250,6 @@ end;
 procedure TPGItem.SetEnabled(AValue: Boolean);
 begin
   FEnabled := AValue;
-  if Assigned(FNode) then
-  begin
-    FNode.Enabled := FEnabled;
-    FNode.TreeView.Invalidate;
-  end;
 end;
 
 procedure TPGItem.SetNode(AValue: TTreeNode);
@@ -225,7 +263,6 @@ begin
   begin
     FNode.Text := FName;
     FNode.Data := Self;
-    FNode.Enabled := FEnabled;
     LIndex := Self.IconIndex;
     FNode.ImageIndex := LIndex;
     FNode.SelectedIndex := LIndex;
@@ -275,10 +312,19 @@ begin
   );
 end;
 
-procedure TPGItem.Validated();
+procedure TPGItem.UpdateStateIcon;
+var
+  LIndex: Integer;
 begin
-  if Assigned(FNode) and Assigned(FNode.TreeView) then
-    FNode.TreeView.Invalidate;
+  if not Assigned(FNode) then Exit;
+
+  LIndex := -1;
+  if not GetIsValid then LIndex := ClassStateIconIndex('Invalid')
+  //else if GetIsLocked then LIndex := StateIconIndex('Locked')
+  else if not Enabled then LIndex := ClassStateIconIndex('Disabled')
+  else if ReadOnly then LIndex := ClassStateIconIndex('ReadOnly');
+
+  FNode.StateIndex := LIndex;
 end;
 
 procedure TPGItem.SetName(AName: string);
@@ -310,9 +356,9 @@ begin
     Result := nil;
 end;
 
-function TPGItem.GetEnabled: Boolean;
+function TPGItem.GetIconIndex: Integer;
 begin
-  Result := FEnabled;
+  Result := TPGItem.ClassIconIndex();
 end;
 
 function TPGItem.GetIsValid(): Boolean;
@@ -354,6 +400,16 @@ end;
 
 { TPGCollectItem }
 
+class function TPGItemCollect.GetImageList(): TCustomImageList;
+begin
+   Result := TPGItem.FImageList;
+end;
+
+class function TPGItemCollect.GetStateImageList(): TCustomImageList;
+begin
+   Result := TPGItem.FStateImageList;
+end;
+
 constructor TPGItemCollect.Create(AName: string);
 begin
   inherited Create(nil, AName);
@@ -364,13 +420,15 @@ destructor TPGItemCollect.Destroy();
 begin
   if FAttached then
     Self.TreeViewDetach();
-
   FTreeView := nil;
+
   if Assigned(FForm) then
     FForm.Free();
   FForm := nil;
 
   FCollectLock.Free;
+  FCollectLock := nil;
+
   inherited Destroy();
 end;
 
@@ -396,11 +454,6 @@ end;
 procedure TPGItemCollect.FormShow();
 begin
   FForm.ForceShow(True);
-end;
-
-class function TPGItemCollect.GetImageList(): TCustomImageList;
-begin
-   Result := TPGItem.FImageList;
 end;
 
 procedure TPGItemCollect.SetForm(AValue: TFormEx);

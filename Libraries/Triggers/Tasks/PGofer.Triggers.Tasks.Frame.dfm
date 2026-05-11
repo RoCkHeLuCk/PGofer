@@ -20,7 +20,7 @@ inherited PGTaskFrame: TPGTaskFrame
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 2
-    object EdtScript: TRichEditEx
+    object EdtScript: TMemoEx
       Left = 2
       Top = 15
       Width = 390
@@ -30,10 +30,14 @@ inherited PGTaskFrame: TPGTaskFrame
       Margins.Right = 0
       Margins.Bottom = 0
       Align = alClient
-      BevelInner = bvNone
-      BevelOuter = bvNone
-      BorderWidth = 1
+      Color = clSilver
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
+      Font.Style = []
       HideSelection = False
+      ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
@@ -94,7 +98,8 @@ inherited PGTaskFrame: TPGTaskFrame
         item
           Caption = 'Shutdown'
         end>
-      Style = csExDropDownList
+      Style = csExDropDown
+      Color = clSilver
       TabOrder = 4
       Text = 'Initializing'
       OnChange = CmbTriggerChange

@@ -4,19 +4,16 @@ inherited PGFormsFrame: TPGFormsFrame
   inherited grbAbout: TGroupBox
     Top = 236
     Height = 64
-    ExplicitTop = 236
-    ExplicitHeight = 64
-    inherited rceAbout: TRichEdit
+    inherited mmoAbout: TMemoEx
       Height = 47
-      BevelInner = bvRaised
-      BevelOuter = bvLowered
+      ExplicitLeft = 4
+      ExplicitTop = 17
       ExplicitHeight = 47
     end
   end
   inherited pnlItem: TPanel
     Height = 233
     Constraints.MinHeight = 230
-    ExplicitTop = -3
     ExplicitHeight = 233
     DesignSize = (
       400
@@ -90,6 +87,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 89
       Height = 17
       Caption = 'Alpha Blend'
+      Color = clBtnFace
+      ParentColor = False
       TabOrder = 0
       OnClick = CkbAlphaBlendClick
     end
@@ -109,6 +108,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 76
       Height = 17
       Caption = 'Enabled'
+      Color = clBtnFace
+      ParentColor = False
       TabOrder = 2
       OnClick = CkbEnabledClick
     end
@@ -118,6 +119,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 89
       Height = 17
       Caption = 'Transparent'
+      Color = clBtnFace
+      ParentColor = False
       TabOrder = 3
       OnClick = CkbTransparentClick
     end
@@ -138,6 +141,8 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 97
       Height = 17
       Caption = 'Visible'
+      Color = clBtnFace
+      ParentColor = False
       TabOrder = 5
       OnClick = CkbVisibleClick
     end
@@ -156,7 +161,8 @@ inherited PGFormsFrame: TPGFormsFrame
         item
           Caption = 'wsMaximized'
         end>
-      Style = csExDropDownList
+      Style = csExDropDown
+      Color = clSilver
       TabOrder = 6
       Text = 'wsNormal'
       OnChange = CmbWindowStateChange
@@ -194,6 +200,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Top = 118
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 10
       OnKeyUp = EdtHeigthKeyUp
     end
@@ -202,6 +209,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Top = 145
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 11
       OnKeyUp = EdtTopKeyUp
     end
@@ -210,6 +218,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Top = 118
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 12
       OnKeyUp = EdtWidthKeyUp
     end
@@ -218,6 +227,7 @@ inherited PGFormsFrame: TPGFormsFrame
       Top = 145
       Width = 76
       Height = 21
+      Color = clSilver
       TabOrder = 13
       OnKeyUp = EdtLeftKeyUp
     end

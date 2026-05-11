@@ -66,6 +66,7 @@ type
   protected
     procedure RttiCreateChildren; override;
     function GetAbout: string; override;
+    function GetIconIndex: Integer; override;
   public
     constructor Create(AClass: TPGItemClassType; const AName: string = ''); reintroduce;
     procedure Execute(const AGrammar: TPGGrammar); override;
@@ -565,6 +566,14 @@ end;
 function TPGItemDef.GetAbout: string;
 begin
   Result := 'Factory for ' + FTargetClass.ClassNameEx + #13 + TPGAboutAttribute.GetFromClass(FTargetClass);
+end;
+
+function TPGItemDef.GetIconIndex(): Integer;
+begin
+  if Assigned(FTargetClass) then
+    Result := TPGItemType(FTargetClass).ClassIconIndex
+  else
+    Result := inherited GetIconIndex;
 end;
 
 { TPGFolder }

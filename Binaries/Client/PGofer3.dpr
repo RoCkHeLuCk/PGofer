@@ -111,10 +111,12 @@ begin
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
     Application.Title := 'PGofer V3.0';
+
     Application.CreateForm(TFrmPGofer, FrmPGofer);
-  Application.CreateForm(TFrmConsole, FrmConsole);
-  Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    Application.CreateForm(TFrmConsole, FrmConsole);
+    Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
+    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+
     GlobalCollection.FormCreate();
     TriggersCollect.FormCreate();
     TPGTask.Working( 0, False );

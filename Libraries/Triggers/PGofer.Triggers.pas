@@ -20,7 +20,6 @@ type
     procedure SetName( AName: string ); override;
     procedure SetParent(AParent: TPGItem); override;
     procedure SetEnabled(AValue: Boolean); override;
-    procedure Validated(); override;
     procedure ExecuteDefault(const AGrammar: TPGGrammar); override;
     class function GetFrameType: TPGTriggerFrameType; virtual;
   public
@@ -185,13 +184,6 @@ begin
       LFound := FindID( GlobalCollection, Result );
     end;
   end;
-end;
-
-procedure TPGItemTrigger.Validated;
-begin
-  inherited Validated;
-  if Assigned(FItemMirror) then
-    FItemMirror.Validated;
 end;
 
 procedure TPGItemTrigger.SetParent(AParent: TPGItem);

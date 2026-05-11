@@ -5,12 +5,12 @@ interface
 uses
   System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Component.Edit, PGofer.Component.IniFile;
+  PGofer.Classes, PGofer.Component.Edit, PGofer.Component.IniFile, PGofer.Component.Memo;
 
 type
   TPGItemFrame = class( TFrame )
     grbAbout: TGroupBox;
-    rceAbout: TRichEdit;
+    mmoAbout: TMemoEx;
     pnlItem: TPanel;
     LblName: TLabel;
     EdtName: TEditEx;
@@ -57,7 +57,7 @@ begin
   FAboutSplitter := False;
   EdtName.SetTextSilent( FItem.Name );
   EdtName.ReadOnly := FItem.SystemNode;
-  rceAbout.Lines.Text := FItem.About;
+  mmoAbout.Lines.Text := FItem.About;
   Self.IniConfigLoad( );
 end;
 
@@ -76,11 +76,13 @@ end;
 
 procedure TPGItemFrame.IniConfigLoad( );
 begin
+  Self.mmoAbout.Zoom := IniFile.ReadInteger( Self.ClassName, 'AboutZoom', Self.mmoAbout.Zoom );
   Self.Height := IniFile.ReadInteger( Self.ClassName, 'Height', Self.Height );
 end;
 
 procedure TPGItemFrame.IniConfigSave( );
 begin
+  IniFile.WriteInteger( Self.ClassName, 'AboutZoom', Self.mmoAbout.Zoom );
   IniFile.WriteInteger( Self.ClassName, 'Height', Self.Height );
   IniFile.UpdateFile();
 end;

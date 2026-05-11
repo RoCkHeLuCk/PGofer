@@ -21,7 +21,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     Caption = 'Text'
     Constraints.MinHeight = 60
     TabOrder = 2
-    object EdtText: TRichEditEx
+    object EdtText: TMemoEx
       Left = 2
       Top = 15
       Width = 390
@@ -33,11 +33,11 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Align = alClient
       BevelInner = bvNone
       BevelOuter = bvNone
-      BorderWidth = 1
+      Color = clSilver
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
       Font.Style = []
       HideSelection = False
       ParentFont = False
@@ -53,9 +53,8 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     TabOrder = 1
     ExplicitTop = 190
     ExplicitHeight = 83
-    inherited rceAbout: TRichEdit
+    inherited mmoAbout: TMemoEx
       Height = 66
-      ExplicitHeight = 66
     end
   end
   inherited pnlItem: TPanel
@@ -104,17 +103,17 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Height = 13
       Caption = 'ms'
     end
-    object EdtSpeed: TEditEx
+    object EdtSpeed: TEditEx [6]
       Left = 270
       Top = 33
       Width = 75
       Height = 21
-      TabOrder = 3
+      TabOrder = 2
       Text = '10'
       RegExExpression = '^\d*$'
       OnAfterValidate = EdtSpeedAfterValidate
     end
-    object UpdSpeed: TUpDown
+    object UpdSpeed: TUpDown [7]
       Left = 345
       Top = 33
       Width = 16
@@ -122,10 +121,10 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Associate = EdtSpeed
       Max = 255
       Position = 10
-      TabOrder = 4
+      TabOrder = 3
       OnChangingEx = UpdSpeedChangingEx
     end
-    object CmbMode: TPGComboBox
+    object CmbMode: TPGComboBox [8]
       Left = 70
       Top = 60
       Width = 147
@@ -146,23 +145,24 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
         item
           Caption = 'Script'
         end>
-      Style = csExDropDownList
-      TabOrder = 5
+      Style = csExDropDown
+      Color = clSilver
+      TabOrder = 4
       Text = 'Write'
       OnChange = CmbModeChange
       ItemIndex = 0
     end
-    object EdtDelay: TEditEx
+    object EdtDelay: TEditEx [9]
       Left = 70
       Top = 33
       Width = 75
       Height = 21
-      TabOrder = 1
+      TabOrder = 0
       Text = '200'
       RegExExpression = '^\d*$'
       OnAfterValidate = EdtDelayAfterValidate
     end
-    object updDelay: TUpDown
+    object updDelay: TUpDown [10]
       Left = 145
       Top = 33
       Width = 16
@@ -170,8 +170,11 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Associate = EdtDelay
       Max = 255
       Position = 200
-      TabOrder = 2
+      TabOrder = 1
       OnChangingEx = updDelayChangingEx
+    end
+    inherited EdtName: TEditEx
+      TabOrder = 5
     end
   end
   inherited sptAbout: TPanel

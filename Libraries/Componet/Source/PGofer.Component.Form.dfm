@@ -4,7 +4,8 @@ object FormEx: TFormEx
   Caption = 'FormEx'
   ClientHeight = 306
   ClientWidth = 641
-  Color = clBtnFace
+  Color = clWindow
+  Ctl3D = False
   ParentFont = True
   OldCreateOrder = False
   ShowHint = True

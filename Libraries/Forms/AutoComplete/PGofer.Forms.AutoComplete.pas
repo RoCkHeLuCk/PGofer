@@ -1,12 +1,14 @@
 ﻿unit PGofer.Forms.AutoComplete;
-
+
+
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils, System.IniFiles,
-  System.Generics.Collections, Vcl.Controls, Vcl.ComCtrls, Vcl.Forms, Vcl.Menus,
+  System.Generics.Collections, Vcl.Controls, Vcl.ComCtrls, Vcl.Forms,
   Vcl.ExtCtrls, Vcl.StdCtrls, PGofer.Component.ListView, PGofer.Component.RichEdit,
-  PGofer.Component.Form, PGofer.Component.IniFile, PGofer.Classes, PGofer.Forms;
+  PGofer.Component.Form, PGofer.Component.IniFile, PGofer.Classes, PGofer.Forms, Vcl.Menus,
+  PGofer.Component.Memo;
 
 type
   TSelectCMD = (selClick, selUp, selDown, selEnter);
@@ -25,7 +27,7 @@ type
     ppmAutoComplete: TPopupMenu;
     mniPriority: TMenuItem;
     trmAutoComplete: TTimer;
-    rceAbout: TRichEditEx;
+    mmoAbout: TMemoEx;
     sptAbout: TSplitter;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -40,12 +42,12 @@ type
     procedure ltvAutoCompleteDblClick(Sender: TObject);
     procedure ltvAutoCompleteCompare( Sender: TObject; Item1, Item2: TListItem;
       Data: Integer; var Compare: Integer );
-    procedure rceAboutDblClick(Sender: TObject);
+    procedure mmoAboutDblClick(Sender: TObject);
     procedure ltvAutoCompleteMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer);
   private
-    FEditList: TDictionary<TRichEditEx, TEditOnCtrl>;
-    FEditCtrl: TRichEditEx;
+    FEditList: TDictionary<TMemoEx, TEditOnCtrl>;
+    FEditCtrl: TMemoEx;
     FMemoryIniFile: TMemIniFileEx;
     FMemoryNoCtrl: Boolean;
     FMemoryList: TStringList;
@@ -54,7 +56,7 @@ type
     FCommandCompareLength: Integer;
     FItem: TPGFrmAutoComplete;
 
-    procedure ListViewAdd(const ACaption, AOrigin: string; AData: Pointer = nil); overload;
+    procedure ListViewAdd(const ACaption, AOrigin: string; AItem: TPGItem = nil); overload;
     procedure ListViewAdd(AItem: TPGItem); overload;
     procedure PriorityStep();
     procedure SetPriority( AValue: FixedInt );
@@ -72,8 +74,8 @@ type
     procedure IniConfigLoad; override;
   public
     property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl default True;
-    procedure EditCtrlAdd(AValue: TRichEditEx);
-    procedure EditCtrlRemove(AValue: TRichEditEx);
+    procedure EditCtrlAdd(AValue: TMemoEx);
+    procedure EditCtrlRemove(AValue: TMemoEx);
   end;
 
 {$M+}
@@ -132,8 +134,10 @@ begin
   FMemoryPosition := 0;
   FMemoryList := TStringList.Create( );
 
-  FEditList := TDictionary<TRichEditEx, TEditOnCtrl>.Create( );
+  FEditList := TDictionary<TMemoEx, TEditOnCtrl>.Create( );
   FEditCtrl := nil;
+
+  ltvAutoComplete.SmallImages := GlobalCollection.ImageList;
 end;
 
 procedure TFrmAutoComplete.FormDestroy(Sender: TObject);
@@ -150,7 +154,7 @@ begin
   FMemoryNoCtrl := False;
 end;
 
-procedure TFrmAutoComplete.EditCtrlAdd(AValue: TRichEditEx);
+procedure TFrmAutoComplete.EditCtrlAdd(AValue: TMemoEx);
 var
   LOnCtrl: TEditOnCtrl;
 begin
@@ -171,7 +175,7 @@ begin
   end;
 end;
 
-procedure TFrmAutoComplete.EditCtrlRemove(AValue: TRichEditEx);
+procedure TFrmAutoComplete.EditCtrlRemove(AValue: TMemoEx);
 var
   LOnCtrl: TEditOnCtrl;
 begin
@@ -224,10 +228,10 @@ begin
         end;
     end;
   end else begin
-    if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+    if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
       exit;
 
-    FEditCtrl := TRichEditEx( Sender );
+    FEditCtrl := TMemoEx( Sender );
     // not visible
     case Key of
 
@@ -282,9 +286,13 @@ begin
           end;
         end;
     end;
-    OnKeyDown := FEditList.Items[ FEditCtrl ].OnKeyDown;
-    if Assigned( OnKeyDown ) then
-      OnKeyDown( Sender, Key, Shift );
+
+    if Key <> 0 then
+    begin
+      OnKeyDown := FEditList.Items[FEditCtrl].OnKeyDown;
+      if Assigned(OnKeyDown) then
+        OnKeyDown(Sender, Key, Shift);
+    end;
   end;
 end;
 
@@ -292,17 +300,22 @@ procedure TFrmAutoComplete.FormKeyPress( Sender: TObject; var Key: Char );
 var
   OnKeyPress: TOnKeyPress;
 begin
-  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
-    exit;
+  if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then Exit;
 
-  FEditCtrl := TRichEditEx( Sender );
+  FEditCtrl := TMemoEx( Sender );
+  if (Key = #13) or (Key = #27) then Key := #0;
+
   if ( Key = ' ' ) and ( GetKeyState( VK_CONTROL ) < 0 ) then
   begin
     Key := #0;
   end;
-  OnKeyPress := FEditList.Items[ FEditCtrl ].OnKeyPress;
-  if Assigned( OnKeyPress ) then
-    OnKeyPress( Sender, Key );
+
+  if Key <> #0 then
+  begin
+    OnKeyPress := FEditList.Items[FEditCtrl].OnKeyPress;
+    if Assigned(OnKeyPress) then
+      OnKeyPress(Sender, Key);
+  end;
 end;
 
 procedure TFrmAutoComplete.FormKeyUp( Sender: TObject; var Key: Word;
@@ -310,10 +323,10 @@ procedure TFrmAutoComplete.FormKeyUp( Sender: TObject; var Key: Word;
 var
   OnKeyUp: TOnKeyDownUP;
 begin
-  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+  if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
     exit;
 
-  FEditCtrl := TRichEditEx( Sender );
+  FEditCtrl := TMemoEx( Sender );
   if Shift = [ ] then
     case Key of
       8 { bcks } , // backspace
@@ -357,8 +370,6 @@ begin
   LLineIndex := FEditCtrl.CaretY - 1;
   LTextLine := FEditCtrl.Lines[LLineIndex];
   LCharPos := FEditCtrl.SelStart - FEditCtrl.Perform(EM_LINEINDEX, LLineIndex, 0);
-
-  // Se a linha estiver vazia e não for o prompt, sai
   if (LTextLine = '') and (FEditCtrl.Owner.Name <> 'FrmPGofer') then
   begin
     Self.Close;
@@ -401,25 +412,18 @@ begin
           end;
         end;
 
-        // --- LÓGICA DO SISTEMA ANTIGO (RESTURADA E MELHORADA) ---
         LDiretorio := '';
-
-        // Se for uma string, verificamos se ela aponta para um diretório real
         if (LKind = pgkString) and (Length(LComando) > 0) then
         begin
-          // FileExpandPath resolve ./ e ../ e nomes de drivers
           LDiretorio := ExtractFilePath(FileExpandPath(LComando));
         end;
 
-        // REGRA: Se o diretório existe (ex: 'C:\', './'), lista arquivos.
-        // CASO CONTRÁRIO (mesmo que seja string), sugere comandos/objetos.
         if (LDiretorio <> '') and DirectoryExists(LDiretorio) then
         begin
           FileNameList(LComando);
         end
         else
         begin
-          // Se não for número ou comentário, procura comandos
           if not (LKind in [pgkNumber]) then
             ProcurarComandos(LComando);
         end;
@@ -431,7 +435,6 @@ begin
       LLexer.Free;
     end;
 
-    // ... Lógica de Exibição VCL (Inalterada) ...
     if ltvAutoComplete.Items.Count > 0 then
     begin
       ltvAutoComplete.OnCompare := ltvAutoCompleteCompare;
@@ -453,67 +456,52 @@ begin
   end;
 end;
 
-procedure TFrmAutoComplete.SelectCMD( ASelected: TSelectCMD );
+procedure TFrmAutoComplete.SelectCMD(ASelected: TSelectCMD);
 var
-  SelStart, SelConvert, SelInicio, SelFinal, LengthText: Integer;
-  SuperSelect : Boolean;
+  SelAtual, SelInicio, SelFinal: Integer;
+  Texto: string;
+  SuperSelect: Boolean;
 begin
-  SuperSelect := true;
-  if ( Self.Visible ) and ( ltvAutoComplete.Items.Count > 0 ) then
+  SuperSelect := True;
+  if (Self.Visible) and (ltvAutoComplete.Items.Count > 0) then
   begin
-    LengthText := Length( FEditCtrl.Lines.Text );
-    SelConvert := FEditCtrl.CaretY - 1;
-    SelStart := FEditCtrl.SelStart + SelConvert;
+    SelAtual := FEditCtrl.SelStart;
+    Texto := FEditCtrl.Text;
 
-    // localiza o final
-    SelFinal := SelStart;
-    while ( SelFinal < LengthText ) and
-      ( not CharInSet( FEditCtrl.Lines.Text[ SelFinal ], Caracteres ) ) do
-      Inc( SelFinal );
-    SelFinal := SelFinal - SelConvert;
+    SelInicio := SelAtual;
+    while (SelInicio > 0) and (not CharInSet(Texto[SelInicio], Caracteres)) do
+      Dec(SelInicio);
 
-    // localiza o inicio
-    SelInicio := SelStart;
-    while ( SelInicio > 0 ) and
-      ( not CharInSet( FEditCtrl.Lines.Text[ SelInicio ], Caracteres ) ) do
-      Dec( SelInicio );
+    SelFinal := SelAtual;
+    while (SelFinal < Length(Texto)) and (not CharInSet(Texto[SelFinal + 1], Caracteres)) do
+      Inc(SelFinal);
 
-    SelInicio := SelInicio - SelConvert;
-
-    // move selecao
     case ASelected of
-      selClick:
-      begin
-          SuperSelect := False;
-      end;
+      selClick: SuperSelect := False;
 
       selUp:
-        begin
-          if ltvAutoComplete.ItemIndex > 0 then
-            ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex - 1;
-        end;
+        if ltvAutoComplete.ItemIndex > 0 then
+          ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex - 1;
 
       selDown:
-        begin
-          if ltvAutoComplete.ItemIndex < ltvAutoComplete.Items.Count - 1 then
-            ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex + 1;
-        end;
+        if ltvAutoComplete.ItemIndex < ltvAutoComplete.Items.Count - 1 then
+          ltvAutoComplete.ItemIndex := ltvAutoComplete.ItemIndex + 1;
 
       selEnter:
         begin
           FEditCtrl.SelStart := SelInicio;
-          if SelFinal > SelInicio then
-            FEditCtrl.SelLength := SelFinal - SelInicio - 1;
+          FEditCtrl.SelLength := SelFinal - SelInicio;
           FEditCtrl.SelText := ltvAutoComplete.ItemFocused.Caption;
-          Self.PriorityStep( );
+
+          Self.PriorityStep;
           Self.Close;
         end;
     end;
 
     if SuperSelect then
-       ltvAutoComplete.SuperSelected( );
-    Self.About();
-  end; // if count > 0
+      ltvAutoComplete.SuperSelected;
+    Self.About;
+  end;
 end;
 
 procedure TFrmAutoComplete.ProcurarComandos(const ACommand: string);
@@ -524,33 +512,20 @@ var
   LKeyword: string;
   LSearchText: string;
 begin
-  // 1. PROTEÇÃO INICIAL: Se não houver o que pesquisar, limpa e sai
   LSubCMD := ACommand.Split(['.']);
+  if Length(LSubCMD) = 0 then Exit;
 
-  if Length(LSubCMD) = 0 then
-  begin
-    //CommandCompare := '';
-    //LSearchText := '';
-    Exit;
-  end;
-
-  // Pega o último fragmento com segurança
   LSearchText := LSubCMD[High(LSubCMD)];
   CommandCompare := LSearchText;
 
-  // 2. PESQUISA RAIZ (Keywords + Globais)
-  // Ocorre quando não há pontos no comando OU quando o array tem apenas 1 elemento
   if Length(LSubCMD) <= 1 then
   begin
-    // Busca parcial em Keywords
     for LKeyword in TPGLexicalRegistry.Keywords.Keys do
     begin
-      // Se ACommand for vazio (Ctrl+Space puro), mostra todas as Keywords
       if (LSearchText = '') or (Pos(LowerCase(LSearchText), LowerCase(LKeyword)) > 0) then
         ListViewAdd(LKeyword, 'Keyword');
     end;
 
-    // Busca em Itens Globais
     if Assigned(GlobalCollection) then
     begin
       for LItem in GlobalCollection do
@@ -560,13 +535,8 @@ begin
             ListViewAdd(LItemAux);
       end;
     end;
-  end
-  // 3. PESQUISA HIERÁRQUICA (Ex: Link1.Prop)
-  else
-  begin
+  end else begin
     LItem := GlobalCollection;
-
-    // Navega com segurança até o penúltimo nível
     for I := 0 to High(LSubCMD) - 1 do
     begin
       if Assigned(LItem) then
@@ -576,7 +546,6 @@ begin
         Break;
     end;
 
-    // Se encontrou o objeto pai, lista o que tem dentro dele
     if Assigned(LItem) then
     begin
       if Assigned(LItem) and (LItem is TPGItemExecute) then
@@ -589,7 +558,7 @@ begin
   end;
 end;
 
-procedure TFrmAutoComplete.ListViewAdd(const ACaption, AOrigin: string; AData: Pointer);
+procedure TFrmAutoComplete.ListViewAdd(const ACaption, AOrigin: string; AItem: TPGItem = nil);
 var
   ListItem: TListItem;
   LOrigin : String;
@@ -601,7 +570,9 @@ begin
   ListItem.SubItems.Add(AOrigin);
   LOrigin := FMemoryIniFile.ReadString('AutoComplete', AOrigin + '.' + ACaption, '0');
   ListItem.SubItems.Add(LOrigin);
-  ListItem.Data := AData;
+  if Assigned(AItem) then
+     ListItem.ImageIndex := AItem.iconIndex;
+  ListItem.Data := AItem;
 end;
 
 procedure TFrmAutoComplete.ListViewAdd(AItem: TPGItem);
@@ -620,10 +591,10 @@ procedure TFrmAutoComplete.FormDropFile(Sender: TObject; AFiles: TStrings);
 var
   OnDrop: TOnDropFile;
 begin
-  if (not Assigned(Sender)) or (not (Sender is TRichEditEx)) then
+  if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
     Exit;
 
-  FEditCtrl := TRichEditEx( Sender );
+  FEditCtrl := TMemoEx( Sender );
 
   if AFiles.Text <> '' then
   begin
@@ -650,7 +621,7 @@ end;
 procedure TFrmAutoComplete.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   trmAutoComplete.Enabled := False;
-  rceAbout.Text :=  '';
+  mmoAbout.Text :=  '';
   //inherited FormClose( Sender, Action );
 end;
 
@@ -658,17 +629,19 @@ procedure TFrmAutoComplete.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
   ltvAutoComplete.IniConfigLoad( IniFile, Self.Name, 'List' );
-  rceAbout.Height := IniFile.ReadInteger(Self.Name, 'AboutHeight', 20);
+  mmoAbout.Zoom := IniFile.ReadInteger(Self.Name, 'AboutZoom', mmoAbout.Zoom);
+  mmoAbout.Height := IniFile.ReadInteger(Self.Name, 'AboutHeight', mmoAbout.Height);
 end;
 
 procedure TFrmAutoComplete.IniConfigSave;
 begin
-  IniFile.WriteInteger(Self.Name, 'AboutHeight', rceAbout.Height);
+  IniFile.WriteInteger(Self.Name, 'AboutZoom', mmoAbout.Zoom);
+  IniFile.WriteInteger(Self.Name, 'AboutHeight', mmoAbout.Height);
   ltvAutoComplete.IniConfigSave( IniFile, Self.Name, 'List' );
   inherited IniConfigSave( );
 end;
 
-procedure TFrmAutoComplete.rceAboutDblClick(Sender: TObject);
+procedure TFrmAutoComplete.mmoAboutDblClick(Sender: TObject);
 begin
   inherited;
   // autocompleta com parametros
@@ -762,11 +735,11 @@ end;
 
 procedure TFrmAutoComplete.About();
 begin
-  rceAbout.Text := '';
+  mmoAbout.Text := '';
 
   if Assigned(ltvAutoComplete.ItemFocused)
   and Assigned(ltvAutoComplete.ItemFocused.Data) then
-    rceAbout.Text := TPGItem(ltvAutoComplete.ItemFocused.Data).About;
+    mmoAbout.Text := TPGItem(ltvAutoComplete.ItemFocused.Data).About;
 end;
 
 procedure TFrmAutoComplete.SetCommandCompare(const AValue: string);
@@ -782,22 +755,18 @@ var
   LPath, LFilter: string;
 begin
   ChDir( TPGKernel.PathCurrent );
-  // Resolve o caminho completo para a busca
   LPath := FileExpandPath(AFileName);
 
-  LFilter := ExtractFileName(LPath); // O que o usuário já começou a digitar do nome
-  LPath := ExtractFilePath(LPath);   // A pasta onde vamos buscar
-
-  // Se o caminho estiver vazio após o expand, usa a pasta atual do PGofer
+  LFilter := ExtractFileName(LPath);
+  LPath := ExtractFilePath(LPath);
   if LPath = '' then LPath := TPGKernel.PathCurrent;
 
-  CommandCompare := LFilter; // Define para o ltvAutoCompleteCompare priorizar o texto
+  CommandCompare := LFilter;
   LCount := 0;
   if FindFirst(LPath + LFilter + '*', faAnyFile, LSearchRec) = 0 then
   begin
     repeat
-      // FILTRO: Ignora "." e ".." para não sujar a lista
-      if (LSearchRec.Name = '.') or (LSearchRec.Name = '..') then
+      if (LSearchRec.Name = '.') then //or (LSearchRec.Name = '..')
         Continue;
 
       if (LSearchRec.Attr and faDirectory) = faDirectory then
@@ -828,4 +797,4 @@ begin
 end;
 
 end.
-
+

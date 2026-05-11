@@ -87,7 +87,7 @@ implementation
 uses
   System.UITypes, Vcl.Themes,
   WinApi.Windows,
-  PGofer.Component.RichEdit;
+  PGofer.Component.Memo;
 
 { TFrmController }
 
@@ -110,6 +110,7 @@ begin
   Self.Caption := FCollectItem.Name;
   TPGForm.Create( Self );
   TrvController.Images := ACollectItem.ImageList;
+  TrvController.StateImages := ACollectItem.StateImageList;
   PpmConttroler.Images := ACollectItem.ImageList;
 end;
 
@@ -230,9 +231,9 @@ var
   Control: TWinControl;
 begin
   Control := FindVCLWindow( MousePos );
-  if ( Control is TRichEditEx ) then
+  if ( Control is TMemoEx ) then
   begin
-    with TRichEditEx( Control ) do
+    with TMemoEx( Control ) do
     begin
       if VerticalScrollPos < VerticalScrollMax then
         exit;
@@ -248,9 +249,9 @@ var
   Control: TWinControl;
 begin
   Control := FindVCLWindow( MousePos );
-  if ( Control is TRichEditEx ) then
+  if ( Control is TMemoEx ) then
   begin
-    if TRichEditEx( Control ).VerticalScrollPos > 0 then
+    if TMemoEx( Control ).VerticalScrollPos > 0 then
       exit;
   end;
   PnlFrame.VertScrollBar.Position := PnlFrame.VertScrollBar.ScrollPos -
@@ -348,16 +349,12 @@ begin
   if Assigned( Node.Data ) then
   begin
     Item := TPGItem( Node.Data );
-    Sender.Canvas.Font.Color := StyleServices.GetStyleColor(scWindow);
 
     if not Item.Enabled then
       Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsStrikeOut];
 
     if Item.ReadOnly then
       Sender.Canvas.Font.Color := clGray;
-
-    Sender.Canvas.Brush.Color := StyleServices.GetStyleColor(scTreeView);
-    Sender.Canvas.Brush.Style := bsSolid;
   end;
 
 end;

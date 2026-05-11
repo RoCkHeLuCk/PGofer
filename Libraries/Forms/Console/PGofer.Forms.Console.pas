@@ -6,7 +6,7 @@ uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
   Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Component.RichEdit, PGofer.Component.Form, PGofer.Forms, Vcl.Menus;
+  PGofer.Component.Memo, PGofer.Component.Form, PGofer.Forms, Vcl.Menus;
 
 type
   TPGFrmConsole = class;
@@ -16,7 +16,7 @@ type
     PnlArrastar: TPanel;
     BtnFixed: TSpeedButton;
     TmrConsole: TTimer;
-    EdtConsole: TRichEditEx;
+    EdtConsole: TMemoEx;
     ShpDrag: TShape;
     ppmConsole: TPopupMenu;
     mniCopy: TMenuItem;
@@ -143,6 +143,7 @@ end;
 procedure TFrmConsole.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
+  EdtConsole.Zoom := IniFile.ReadInteger( Self.Name, 'Zoom', EdtConsole.Zoom);
   FItem.Delay := IniFile.ReadInteger( Self.Name, 'Delay', FItem.Delay );
   FItem.ShowMessage := IniFile.ReadBool( Self.Name, 'ShowMessage',
     FItem.ShowMessage );
@@ -152,6 +153,7 @@ end;
 
 procedure TFrmConsole.IniConfigSave( );
 begin
+  IniFile.WriteInteger( Self.Name, 'Zoom', EdtConsole.Zoom);
   IniFile.WriteInteger( Self.Name, 'Delay', FItem.Delay );
   IniFile.WriteBool( Self.Name, 'ShowMessage', FItem.ShowMessage );
   IniFile.WriteBool( Self.Name, 'AutoClose', FItem.AutoClose );

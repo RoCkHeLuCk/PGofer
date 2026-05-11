@@ -9,6 +9,7 @@ object PGItemFrame: TPGItemFrame
   Margins.Bottom = 0
   Anchors = [akLeft, akTop, akRight]
   Constraints.MinWidth = 400
+  ParentBackground = False
   TabOrder = 0
   object grbAbout: TGroupBox
     AlignWithMargins = True
@@ -20,7 +21,8 @@ object PGItemFrame: TPGItemFrame
     Caption = 'About'
     Constraints.MinHeight = 60
     TabOrder = 2
-    object rceAbout: TRichEdit
+    ExplicitTop = 38
+    object mmoAbout: TMemoEx
       Left = 2
       Top = 15
       Width = 390
@@ -34,16 +36,14 @@ object PGItemFrame: TPGItemFrame
       BevelOuter = bvNone
       BorderStyle = bsNone
       Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Color = clBlack
+      Font.Height = -12
+      Font.Name = 'Courier New'
       Font.Style = []
       ParentColor = True
       ParentFont = False
-      PlainText = True
       ReadOnly = True
       TabOrder = 0
-      Zoom = 100
     end
   end
   object pnlItem: TPanel
@@ -76,6 +76,7 @@ object PGItemFrame: TPGItemFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
+      Color = clSilver
       TabOrder = 0
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'

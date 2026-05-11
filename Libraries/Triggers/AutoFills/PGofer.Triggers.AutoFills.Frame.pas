@@ -7,13 +7,13 @@ uses
 
   Vcl.Forms, Vcl.StdCtrls, Vcl.Controls,Vcl.ExtCtrls, Vcl.ComCtrls,
   PGofer.Triggers.AutoFills, PGofer.Triggers.Frame,
-  PGofer.Component.Edit, PGofer.Component.RichEdit, PGofer.Classes,
+  PGofer.Component.Edit, PGofer.Component.Memo, PGofer.Classes,
   Pgofer.Component.ComboBox;
 
 type
   TPGAutoFillsFrame = class( TPGTriggerFrame )
     GrbText: TGroupBox;
-    EdtText: TRichEditEx;
+    EdtText: TMemoEx;
     sptScript: TSplitter;
     LblSpeed: TLabel;
     EdtSpeed: TEditEx;
@@ -131,12 +131,13 @@ end;
 procedure TPGAutoFillsFrame.IniConfigLoad;
 begin
   inherited IniConfigLoad( );
-  GrbText.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Text',
-    GrbText.Height );
+  EdtText.Zoom := Self.IniFile.ReadInteger( Self.ClassName, 'TextZoom', EdtText.Zoom );
+  GrbText.Height := Self.IniFile.ReadInteger( Self.ClassName, 'Text', GrbText.Height );
 end;
 
 procedure TPGAutoFillsFrame.IniConfigSave;
 begin
+  Self.IniFile.WriteInteger( Self.ClassName, 'TextZoom', EdtText.Zoom );
   Self.IniFile.WriteInteger( Self.ClassName, 'Text', GrbText.Height );
   inherited IniConfigSave( );
 end;

@@ -21,15 +21,21 @@ inherited PGFunctionFrame: TPGFunctionFrame
     Align = alTop
     Caption = 'Script (Run = F9)'
     Constraints.MinHeight = 60
-    TabOrder = 3
-    object EdtScript: TRichEditEx
+    TabOrder = 2
+    object EdtScript: TMemoEx
       Left = 2
       Top = 15
       Width = 390
       Height = 63
       Align = alClient
-      BorderWidth = 1
+      Color = clSilver
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -13
+      Font.Name = 'Courier New'
+      Font.Style = []
       HideSelection = False
+      ParentFont = False
       ScrollBars = ssBoth
       TabOrder = 0
       WantTabs = True
@@ -38,7 +44,12 @@ inherited PGFunctionFrame: TPGFunctionFrame
   end
   inherited grbAbout: TGroupBox
     Top = 126
-    ExplicitTop = 126
+    TabOrder = 3
+  end
+  inherited pnlItem: TPanel
+    inherited EdtName: TEditEx
+      StyleElements = [seFont, seClient]
+    end
   end
   inherited sptAbout: TPanel
     Top = 189
