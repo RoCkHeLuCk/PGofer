@@ -110,17 +110,33 @@ inherited PGTaskFrame: TPGTaskFrame
       Top = 60
       Width = 45
       Height = 21
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       ReadOnly = True
       TabOrder = 1
       Text = '0'
+      ValidationColorNormal = clSilver
     end
     object EdtRepeat: TEditEx [6]
       Left = 70
       Top = 60
       Width = 45
       Height = 21
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 2
       Text = '0'
+      ValidationColorNormal = clSilver
       OnAfterValidate = EdtRepeatAfterValidate
     end
     object UpdRepeat: TUpDown [7]

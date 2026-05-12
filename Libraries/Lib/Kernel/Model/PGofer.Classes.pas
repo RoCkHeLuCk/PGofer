@@ -358,7 +358,7 @@ end;
 
 function TPGItem.GetIconIndex: Integer;
 begin
-  Result := TPGItem.ClassIconIndex();
+  Result := TPGItemType(Self.ClassType).ClassIconIndex();
 end;
 
 function TPGItem.GetIsValid(): Boolean;

@@ -55,6 +55,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     ExplicitHeight = 83
     inherited mmoAbout: TMemoEx
       Height = 66
+      ExplicitHeight = 66
     end
   end
   inherited pnlItem: TPanel
@@ -108,6 +109,13 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Top = 33
       Width = 75
       Height = 21
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 2
       Text = '10'
       RegExExpression = '^\d*$'
@@ -122,7 +130,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Max = 255
       Position = 10
       TabOrder = 3
-      OnChangingEx = UpdSpeedChangingEx
     end
     object CmbMode: TPGComboBox [8]
       Left = 70
@@ -157,6 +164,13 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Top = 33
       Width = 75
       Height = 21
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       Text = '200'
       RegExExpression = '^\d*$'
@@ -171,7 +185,6 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Max = 255
       Position = 200
       TabOrder = 1
-      OnChangingEx = updDelayChangingEx
     end
     inherited EdtName: TEditEx
       TabOrder = 5

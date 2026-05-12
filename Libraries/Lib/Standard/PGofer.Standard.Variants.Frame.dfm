@@ -3,6 +3,7 @@ inherited PGVariantsFrame: TPGVariantsFrame
   ExplicitHeight = 133
   inherited grbAbout: TGroupBox
     Top = 63
+    ExplicitTop = 63
   end
   inherited pnlItem: TPanel
     Height = 60

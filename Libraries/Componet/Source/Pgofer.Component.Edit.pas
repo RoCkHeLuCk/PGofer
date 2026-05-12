@@ -100,7 +100,7 @@ type
 
     { Grupo: Validation / Appearance }
     property ValidationColorError: TColor read FValidationColorError write SetValidationColorError default clRed;
-    property ValidationColorNormal: TColor read FValidationColorNormal write SetValidationColorNormal default clWindow;
+    property ValidationColorNormal: TColor read FValidationColorNormal write SetValidationColorNormal default clBlack;
     property SelectAllOnFocus: Boolean read FSelectAllOnFocus write FSelectAllOnFocus default False;
 
     { Evento Customizado no Object Inspector }
@@ -137,7 +137,7 @@ begin
 
   FValidationMode := vmNone;
   FValidationColorError := clRed;
-  FValidationColorNormal := clWindow;
+  FValidationColorNormal := clBlack;
   FValidationIsValid := False;
   FSelectAllOnFocus := False;
 
@@ -152,8 +152,7 @@ begin
   FRegExExpression := '';
 
   { Configura��o de Estilo Visual }
-  Self.StyleElements := [seFont,  seClient, seBorder];
-  Self.Color := FValidationColorNormal;
+  Self.Font.Color := FValidationColorNormal;
 end;
 
 procedure TEditEx.Loaded( );
@@ -415,10 +414,9 @@ begin
   begin
     FValidationIsValid := AValue;
     if FValidationIsValid then
-      Self.Color := FValidationColorNormal
+      Self.Font.Color := FValidationColorNormal
     else begin
-      Self.StyleElements := [seClient, seBorder];
-      Self.Color := FValidationColorError;
+      Self.Font.Color := FValidationColorError;
     end;
   end;
 end;

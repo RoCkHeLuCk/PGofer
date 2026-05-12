@@ -4,10 +4,10 @@ inherited PGFormsFrame: TPGFormsFrame
   inherited grbAbout: TGroupBox
     Top = 236
     Height = 64
+    ExplicitTop = 236
+    ExplicitHeight = 64
     inherited mmoAbout: TMemoEx
       Height = 47
-      ExplicitLeft = 4
-      ExplicitTop = 17
       ExplicitHeight = 47
     end
   end
@@ -100,7 +100,6 @@ inherited PGFormsFrame: TPGFormsFrame
       Associate = EdtAlphaBlendValue
       Max = 255
       TabOrder = 1
-      OnChangingEx = UpdAlphaBlendValueChangingEx
     end
     object CkbEnabled: TCheckBoxEx [10]
       Left = 244
@@ -191,9 +190,17 @@ inherited PGFormsFrame: TPGFormsFrame
       Top = 37
       Width = 51
       Height = 21
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 9
       Text = '0'
-      OnKeyUp = EdtAlphaBlendValueKeyUp
+      ValidationColorNormal = clSilver
+      OnAfterValidate = EdtAlphaBlendValueAfterValidate
     end
     object EdtHeigth: TEditEx [18]
       Left = 70
@@ -201,17 +208,29 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 76
       Height = 21
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 10
-      OnKeyUp = EdtHeigthKeyUp
+      OnAfterValidate = EdtHeigthAfterValidate
     end
     object EdtTop: TEditEx [19]
       Left = 70
-      Top = 145
+      Top = 147
       Width = 76
       Height = 21
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 11
-      OnKeyUp = EdtTopKeyUp
+      OnAfterValidate = EdtTopAfterValidate
     end
     object EdtWidth: TEditEx [20]
       Left = 253
@@ -219,8 +238,14 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 76
       Height = 21
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 12
-      OnKeyUp = EdtWidthKeyUp
+      OnAfterValidate = EdtWidthAfterValidate
     end
     object EdtLeft: TEditEx [21]
       Left = 253
@@ -228,8 +253,14 @@ inherited PGFormsFrame: TPGFormsFrame
       Width = 76
       Height = 21
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 13
-      OnKeyUp = EdtLeftKeyUp
+      OnAfterValidate = EdtLeftAfterValidate
     end
     inherited EdtName: TEditEx
       TabOrder = 14

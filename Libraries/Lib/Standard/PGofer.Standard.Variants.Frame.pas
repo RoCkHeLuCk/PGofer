@@ -68,9 +68,7 @@ end;
 
 procedure TPGVariantsFrame.EdtValueAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Value := EdtValue.Text;
 end;
 

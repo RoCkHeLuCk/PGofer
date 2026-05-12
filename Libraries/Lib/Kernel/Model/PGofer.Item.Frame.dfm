@@ -77,6 +77,12 @@ object PGItemFrame: TPGItemFrame
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clSilver
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'

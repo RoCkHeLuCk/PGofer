@@ -44,7 +44,7 @@ type
 implementation
 
 uses
-  PGofer.Forms.AutoComplete;
+  PGofer.Forms.AutoComplete, Vcl.Graphics;
 
 {$R *.dfm}
 { TPGTaskFrame }

@@ -8,6 +8,7 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
     ExplicitHeight = 71
     inherited mmoAbout: TMemoEx
       Height = 54
+      ExplicitHeight = 54
     end
   end
   inherited pnlItem: TPanel
@@ -58,6 +59,12 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 0
       ValidationMode = vmSaveFile
       ActionButtonShow = True
@@ -75,7 +82,14 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
       Top = 83
       Width = 45
       Height = 21
+      Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
       NumbersOnly = True
+      ParentFont = False
       TabOrder = 4
       Text = '0'
       OnAfterValidate = EdtAutoLockAfterValidate

@@ -75,9 +75,7 @@ end;
 procedure TPGFunctionFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Script := EdtScript.Text;
 end;
 

@@ -20,8 +20,7 @@ type
     ckbAutoClose: TCheckBoxEx;
     procedure ckbShowMessageClick( Sender: TObject );
     procedure ckbAutoCloseClick( Sender: TObject );
-    procedure EdtDelayExit( Sender: TObject );
-    procedure updDelayChanging( Sender: TObject; var AllowChange: Boolean );
+    procedure EdtDelayAfterValidate(Sender: TObject);
   private
     FItem: TPGFrmConsole;
   public
@@ -32,7 +31,7 @@ type
 implementation
 
 uses
-  System.SysUtils;
+  System.SysUtils, Vcl.Graphics;
 
 {$R *.dfm}
 { TPGFrameConsole }
@@ -52,37 +51,22 @@ begin
   inherited Destroy;
 end;
 
+procedure TPGConsoleFrame.EdtDelayAfterValidate(Sender: TObject);
+begin
+  if Self.Loading then Exit;
+  FItem.Delay := StrToIntDef( EdtDelay.Text, 0);
+end;
+
 procedure TPGConsoleFrame.ckbAutoCloseClick( Sender: TObject );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   FItem.AutoClose := ckbAutoClose.Checked;
 end;
 
 procedure TPGConsoleFrame.ckbShowMessageClick( Sender: TObject );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   FItem.ShowMessage := ckbShowMessage.Checked;
-end;
-
-procedure TPGConsoleFrame.EdtDelayExit( Sender: TObject );
-begin
-  if Self.Loading then
-    Exit;
-
-  FItem.Delay := StrToIntDef( EdtDelay.Text, 0);
-end;
-
-procedure TPGConsoleFrame.updDelayChanging( Sender: TObject;
-  var AllowChange: Boolean );
-begin
-  if Self.Loading then
-    Exit;
-
-  EdtDelayExit( Sender );
 end;
 
 end.

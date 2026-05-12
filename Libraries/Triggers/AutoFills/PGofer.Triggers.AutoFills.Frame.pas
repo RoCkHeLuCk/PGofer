@@ -26,11 +26,7 @@ type
     Lblmilisec1: TLabel;
     Lblmilisec2: TLabel;
     procedure CmbModeChange(Sender: TObject);
-    procedure UpdSpeedChangingEx(Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection);
     procedure EdtTextKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
-    procedure updDelayChangingEx(Sender: TObject; var AllowChange: Boolean; NewValue: Integer;
-      Direction: TUpDownDirection);
     procedure EdtDelayAfterValidate(Sender: TObject);
     procedure EdtSpeedAfterValidate(Sender: TObject);
   private
@@ -74,51 +70,26 @@ end;
 
 procedure TPGAutoFillsFrame.EdtDelayAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Delay := StrToIntDef(EdtDelay.Text,0);
-end;
-
-procedure TPGAutoFillsFrame.updDelayChangingEx(Sender: TObject; var AllowChange: Boolean;
-  NewValue: Integer; Direction: TUpDownDirection);
-begin
-//  if Self.Loading then
-//    Exit;
-//  Item.Delay := NewValue;
-end;
-
-procedure TPGAutoFillsFrame.UpdSpeedChangingEx(Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection);
-begin
-//  if Self.Loading then
-//    Exit;
-//
-//  Item.Speed := NewValue;
 end;
 
 procedure TPGAutoFillsFrame.EdtSpeedAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Speed := StrToIntDef(EdtSpeed.Text,0);
 end;
 
 procedure TPGAutoFillsFrame.EdtTextKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Text := EdtText.Text;
 end;
 
 procedure TPGAutoFillsFrame.CmbModeChange(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Mode := CmbMode.ItemIndex;
   if Item.Mode = 4 then
   begin

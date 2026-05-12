@@ -45,6 +45,7 @@ inherited PGFunctionFrame: TPGFunctionFrame
   inherited grbAbout: TGroupBox
     Top = 126
     TabOrder = 3
+    ExplicitTop = 126
   end
   inherited pnlItem: TPanel
     inherited EdtName: TEditEx
