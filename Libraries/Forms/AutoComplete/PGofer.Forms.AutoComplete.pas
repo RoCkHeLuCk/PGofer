@@ -571,7 +571,10 @@ begin
   LOrigin := FMemoryIniFile.ReadString('AutoComplete', AOrigin + '.' + ACaption, '0');
   ListItem.SubItems.Add(LOrigin);
   if Assigned(AItem) then
-     ListItem.ImageIndex := AItem.iconIndex;
+  begin
+     ListItem.ImageIndex := AItem.IconIndex;
+     ListItem.StateIndex := AItem.StateIndex;
+  end;
   ListItem.Data := AItem;
 end;
 

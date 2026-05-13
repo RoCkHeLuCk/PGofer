@@ -19,8 +19,6 @@ type
     procedure MniDeleteClick( Sender: TObject );
     procedure TrvControllerCompare( Sender: TObject; Node1, Node2: TTreeNode;
       Data: Integer; var Compare: Integer );
-    procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
-      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
     procedure TrvControllerDragOver( Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean );
     procedure TrvControllerDragDrop( Sender, Source: TObject; X, Y: Integer );
@@ -205,30 +203,6 @@ begin
     if ( not FolderNode1 ) and ( FolderNode2 ) then
     begin
       Compare := 1;
-    end;
-  end;
-end;
-
-
-procedure TFrmTriggerController.TrvControllerCustomDrawItem(Sender: TCustomTreeView;
-  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
-var
-  Item: TPGItem;
-begin
-  inherited;
-  if Assigned(Node.Data) then
-  begin
-    Item := TPGItem(Node.Data);
-
-    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item)._Locked) then
-        Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsItalic];
-
-    if (not Item.isValid) then
-    begin
-       if Item.ReadOnly then
-         Sender.Canvas.Font.Color := clWebLightSalmon
-       else
-        Sender.Canvas.Font.Color := clRed;
     end;
   end;
 end;

@@ -89,9 +89,6 @@ object FrmController: TFrmController
         RightButton.Visible = True
         TabOrder = 0
         OnKeyPress = EdtFindKeyPress
-        ExplicitLeft = 2
-        ExplicitTop = 2
-        ExplicitWidth = 152
         ExplicitHeight = 19
       end
       object BtnRecall: TButton
@@ -114,7 +111,6 @@ object FrmController: TFrmController
         ParentFont = False
         TabOrder = 1
         OnClick = BtnRecallClick
-        ExplicitLeft = 154
       end
     end
     object PnlButton: TPanel
@@ -192,7 +188,6 @@ object FrmController: TFrmController
       TabOrder = 2
       StyleElements = [seFont, seClient]
       OnCompare = TrvControllerCompare
-      OnCustomDrawItem = TrvControllerCustomDrawItem
       OnExpanding = TrvControllerExpanding
       OnGetSelectedIndex = TrvControllerGetSelectedIndex
       OnKeyUp = TrvControllerKeyUp

@@ -41,8 +41,6 @@ type
       Shift: TShiftState );
     procedure TrvControllerMouseDown( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer );
-    procedure TrvControllerCustomDrawItem( Sender: TCustomTreeView;
-      Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
     procedure MniAZClick( Sender: TObject );
     procedure MniZAClick( Sender: TObject );
     procedure MniAlphaSortFolderClick( Sender: TObject );
@@ -338,25 +336,6 @@ begin
       Compare := 1;
     end;
   end;
-end;
-
-procedure TFrmController.TrvControllerCustomDrawItem( Sender: TCustomTreeView;
-  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean );
-var
-  Item: TPGItem;
-begin
-  inherited;
-  if Assigned( Node.Data ) then
-  begin
-    Item := TPGItem( Node.Data );
-
-    if not Item.Enabled then
-      Sender.Canvas.Font.Style := Sender.Canvas.Font.Style + [fsStrikeOut];
-
-    if Item.ReadOnly then
-      Sender.Canvas.Font.Color := clGray;
-  end;
-
 end;
 
 procedure TFrmController.TrvControllerExpanding(Sender: TObject;

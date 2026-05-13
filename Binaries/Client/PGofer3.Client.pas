@@ -236,7 +236,6 @@ begin
 
             if FrmConsole.AutoClose then Self.Hide;
             Key := 0;
-            //EdtScript.OnChange( nil );
           end;
         end;
 

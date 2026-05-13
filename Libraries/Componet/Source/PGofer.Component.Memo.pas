@@ -240,6 +240,9 @@ begin
 
   if Font.Size <> NewSize then
     Font.Size := NewSize;
+
+  if Assigned(Self.OnChange) then
+    Self.OnChange(Self);
 end;
 
 procedure TMemoEx.SetOnDropFiles(AValue: TOnDropFile);

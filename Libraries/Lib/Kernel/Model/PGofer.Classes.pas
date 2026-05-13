@@ -22,21 +22,24 @@ type
     FNode: TTreeNode;
     function GetCollectDad(): TPGItemCollect;
     class var FIconCache: TDictionary<TClass, Integer>;
-    class var FImageList: TCustomImageList;
-    class var FStateIconCache: TDictionary<String, Integer>;
-    class var FStateImageList: TCustomImageList;
+    class var FIconList: TCustomImageList;
+    class var FStateCache: TDictionary<String, Integer>;
+    class var FStateList: TCustomImageList;
+    procedure SetSystemNode(const Value: Boolean);
+    procedure SetReadOnly(const Value: Boolean);
   protected
     class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
     function GetAbout(): String; virtual;
     function GetIsValid(): Boolean; virtual;
     function GetName(): String; virtual;
     function GetIconIndex(): Integer; virtual;
+    function GetStateIndex: Integer; virtual;
     procedure SetName(AName: string); virtual;
     procedure SetNameForced(AName: string); virtual;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure SetParent(AParent: TPGItem); virtual;
     procedure SetNode(AValue: TTreeNode); virtual;
-    procedure UpdateStateIcon(); virtual;
+    procedure UpdateStateIcon();
   public
     class constructor Create();
     class destructor Destroy();
@@ -47,15 +50,18 @@ type
     constructor Create(AParent: TPGItem; AName: string); overload; virtual;
     destructor Destroy(); override;
     procedure BeforeDestruction(); override;
-
     property Destroying: Boolean read FDestroying;
+
     property Name: string read GetName write SetName;
     property About: string read GetAbout;
-    property SystemNode: Boolean read FSystemNode write FSystemNode;
-    property ReadOnly: Boolean read FReadOnly write FReadOnly;
+
+    property SystemNode: Boolean read FSystemNode write SetSystemNode;
+    property ReadOnly: Boolean read FReadOnly write SetReadOnly;
     property Enabled: Boolean read FEnabled write SetEnabled;
-    property isValid: Boolean read GetIsValid;
+    property IsValid: Boolean read GetIsValid;
+
     property IconIndex: Integer read GetIconIndex;
+    property StateIndex: Integer read GetStateIndex;
 
     property Parent: TPGItem read FParent write SetParent;
     property Node: TTreeNode read FNode write SetNode;
@@ -105,25 +111,25 @@ class constructor TPGItem.Create();
 begin
   FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
   FIconCache := TDictionary<TClass, Integer>.Create;
-  FStateIconCache := TDictionary<String, Integer>.Create;
+  FStateCache := TDictionary<String, Integer>.Create;
 
-  FImageList := TCustomImageList.Create(nil);
-  FImageList.Width := 16;
-  FImageList.Height := 16;
+  FIconList := TCustomImageList.Create(nil);
+  FIconList.Width := 16;
+  FIconList.Height := 16;
 
-  FStateImageList := TCustomImageList.Create(nil);
-  FStateImageList.Width := 16;
-  FStateImageList.Height := 16;
+  FStateList := TCustomImageList.Create(nil);
+  FStateList.Width := 16;
+  FStateList.Height := 16;
 end;
 
 class destructor TPGItem.Destroy();
 begin
-  FStateImageList.Free;
-  FStateImageList := nil;
-  FImageList.Free;
-  FImageList := nil;
-  FStateIconCache.Free;
-  FStateIconCache := nil;
+  FStateList.Free;
+  FStateList := nil;
+  FIconList.Free;
+  FIconList := nil;
+  FStateCache.Free;
+  FStateCache := nil;
   FIconCache.Free;
   FIconCache := nil;
   FAbout.Free;
@@ -150,7 +156,7 @@ var
         LIcon := TIcon.Create( );
         try
           LIcon.LoadFromFile( LIconFileName );
-          Result := FImageList.AddIcon( LIcon );
+          Result := FIconList.AddIcon( LIcon );
         finally
           LIcon.Free( );
         end;
@@ -173,7 +179,7 @@ var
   LIcon: TIcon;
   LFileName: string;
 begin
-  if not FStateIconCache.TryGetValue(AStateName, Result) then
+  if not FStateCache.TryGetValue(AStateName, Result) then
   begin
     Result := -1;
     LFileName := TPGKernel.PathIcon + 'state\' + AStateName + '.ico';
@@ -183,8 +189,8 @@ begin
       LIcon := TIcon.Create;
       try
         LIcon.LoadFromFile(LFileName);
-        Result := FStateImageList.AddIcon(LIcon);
-        FStateIconCache.Add(AStateName, Result);
+        Result := FStateList.AddIcon(LIcon);
+        FStateCache.Add(AStateName, Result);
       finally
         LIcon.Free;
       end;
@@ -250,6 +256,7 @@ end;
 procedure TPGItem.SetEnabled(AValue: Boolean);
 begin
   FEnabled := AValue;
+  Self.UpdateStateIcon();
 end;
 
 procedure TPGItem.SetNode(AValue: TTreeNode);
@@ -267,6 +274,7 @@ begin
     FNode.ImageIndex := LIndex;
     FNode.SelectedIndex := LIndex;
     FNode.ExpandedImageIndex := LIndex;
+    FNode.StateIndex := Self.StateIndex;
   end;
 end;
 
@@ -312,19 +320,16 @@ begin
   );
 end;
 
-procedure TPGItem.UpdateStateIcon;
-var
-  LIndex: Integer;
+procedure TPGItem.SetReadOnly(const Value: Boolean);
 begin
-  if not Assigned(FNode) then Exit;
+  FReadOnly := Value;
+  Self.UpdateStateIcon();
+end;
 
-  LIndex := -1;
-  if not GetIsValid then LIndex := ClassStateIconIndex('Invalid')
-  //else if GetIsLocked then LIndex := StateIconIndex('Locked')
-  else if not Enabled then LIndex := ClassStateIconIndex('Disabled')
-  else if ReadOnly then LIndex := ClassStateIconIndex('ReadOnly');
-
-  FNode.StateIndex := LIndex;
+procedure TPGItem.SetSystemNode(const Value: Boolean);
+begin
+  FSystemNode := Value;
+  Self.UpdateStateIcon();
 end;
 
 procedure TPGItem.SetName(AName: string);
@@ -371,6 +376,17 @@ begin
    Result := FName;
 end;
 
+function TPGItem.GetStateIndex: Integer;
+begin
+  Result := -1;
+end;
+
+procedure TPGItem.UpdateStateIcon();
+begin
+  if Assigned(FNode) then
+    FNode.StateIndex := Self.StateIndex;
+end;
+
 function TPGItem.FindName(AName: string): TPGItem;
 var
   LItem : TPGItem;
@@ -402,12 +418,12 @@ end;
 
 class function TPGItemCollect.GetImageList(): TCustomImageList;
 begin
-   Result := TPGItem.FImageList;
+   Result := TPGItem.FIconList;
 end;
 
 class function TPGItemCollect.GetStateImageList(): TCustomImageList;
 begin
-   Result := TPGItem.FStateImageList;
+   Result := TPGItem.FStateList;
 end;
 
 constructor TPGItemCollect.Create(AName: string);
