@@ -57,13 +57,25 @@ begin
     // O Hook separa bot�es em mensagens WM dedicadas. Traduzimos!
     // -------------------------------------------------------------
     WM_LBUTTONDOWN: Result.wKey := VK_LBUTTON;
-    WM_LBUTTONUP:   begin Result.bDetect := kd_Up; Result.wKey := VK_LBUTTON; end;
+    WM_LBUTTONUP:
+    begin
+      Result.bDetect := kd_Up;
+      Result.wKey := VK_LBUTTON;
+    end;
 
     WM_RBUTTONDOWN: Result.wKey := VK_RBUTTON;
-    WM_RBUTTONUP:   begin Result.bDetect := kd_Up; Result.wKey := VK_RBUTTON; end;
+    WM_RBUTTONUP:
+    begin
+      Result.bDetect := kd_Up;
+      Result.wKey := VK_RBUTTON;
+    end;
 
     WM_MBUTTONDOWN: Result.wKey := VK_MBUTTON;
-    WM_MBUTTONUP:   begin Result.bDetect := kd_Up; Result.wKey := VK_MBUTTON; end;
+    WM_MBUTTONUP:
+    begin
+      Result.bDetect := kd_Up;
+      Result.wKey := VK_MBUTTON;
+    end;
 
     WM_XBUTTONDOWN:
     begin

@@ -1,15 +1,14 @@
 ﻿program PGofer3;
 {$DEFINE MSWINDOWS}
+{$STRONGLINKTYPES ON}
 
 uses
-  Winapi.Windows,
-  Winapi.MMSystem,
   Vcl.Forms,
   PGofer.Component.IniFile in '..\..\Libraries\Componet\Source\PGofer.Component.IniFile.pas',
   Pgofer.Component.Checkbox in '..\..\Libraries\Componet\Source\Pgofer.Component.Checkbox.pas',
   Pgofer.Component.ComboBox in '..\..\Libraries\Componet\Source\Pgofer.Component.ComboBox.pas',
   Pgofer.Component.Edit in '..\..\Libraries\Componet\Source\Pgofer.Component.Edit.pas',
-  PGofer.Component.RichEdit in '..\..\Libraries\Componet\Source\PGofer.Component.RichEdit.pas',
+  PGofer.Component.Memo in '..\..\Libraries\Componet\Source\PGofer.Component.Memo.pas',
   PGofer.Component.ListView in '..\..\Libraries\Componet\Source\PGofer.Component.ListView.pas',
   PGofer.Component.TreeView in '..\..\Libraries\Componet\Source\PGofer.Component.TreeView.pas',
   PGofer.Component.Form in '..\..\Libraries\Componet\Source\PGofer.Component.Form.pas' {FormEx},
@@ -89,24 +88,14 @@ uses
   PGofer.Triggers.Links in '..\..\Libraries\Triggers\Links\PGofer.Triggers.Links.pas',
   PGofer.Triggers.Tasks.Frame in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.Frame.pas' {PGTaskFrame: TFrame},
   PGofer.Triggers.Tasks in '..\..\Libraries\Triggers\Tasks\PGofer.Triggers.Tasks.pas',
-  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer},
-  PGofer.Component.Memo in '..\..\Libraries\Componet\Source\PGofer.Component.Memo.pas';
+  PGofer3.AutoLoading in 'PGofer3.AutoLoading.pas',
+  PGofer3.Client in 'PGofer3.Client.pas' {FrmPGofer};
 
 {$R *.res}
 
 begin
-  if FormBeforeInitialize( 'TFrmPGofer' ) then
-  begin
-    {$IFDEF DEBUG}
-    ReportMemoryLeaksOnShutdown := True;
-    {$ENDIF}
-
-    SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
-    SetProcessPriorityBoost( GetCurrentProcess, False );
-    SetProcessWorkingSetSize(GetCurrentProcess, 32 * 1024 * 1024, 64 * 1024 * 1024);
-    SetProcessShutdownParameters($4FF, 0);
-    timeBeginPeriod(1);
-
+  PGofer3.AutoLoading.Initialize;
+  try
     Application.Initialize;
     Application.MainFormOnTaskbar := True;
     Application.ModalPopupMode := pmAuto;
@@ -115,17 +104,13 @@ begin
     Application.CreateForm(TFrmPGofer, FrmPGofer);
     Application.CreateForm(TFrmConsole, FrmConsole);
     Application.CreateForm(TFrmAutoComplete, FrmAutoComplete);
-    FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
+    Application.CreateForm(TFrmController, FrmController);
+    Application.CreateForm(TFrmTriggerController, FrmTriggerController);
 
-    GlobalCollection.FormCreate();
-    TriggersCollect.FormCreate();
-    TPGTask.Working( 0, False );
-    FormAfterInitialize( );
-
-    SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
-    SetProcessPriorityBoost( GetCurrentProcess, False );
-
+    PGofer3.AutoLoading.AfterInitialize;
     Application.Run;
+    PGofer3.AutoLoading.BeforeFinalize;
+  finally
+    PGofer3.AutoLoading.Finalize;
   end;
-
 end.

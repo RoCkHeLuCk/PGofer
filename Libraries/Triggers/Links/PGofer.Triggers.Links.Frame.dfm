@@ -1,6 +1,6 @@
 inherited PGLinkFrame: TPGLinkFrame
-  Height = 387
-  ExplicitHeight = 387
+  Height = 407
+  ExplicitHeight = 407
   object sptScriptBefore: TSplitter [0]
     Left = 0
     Top = 236
@@ -33,7 +33,8 @@ inherited PGLinkFrame: TPGLinkFrame
     Align = alTop
     Caption = 'Script After (Run: F9)'
     Constraints.MinHeight = 60
-    TabOrder = 1
+    TabOrder = 3
+    ExplicitTop = 265
     object EdtScriptAfter: TMemoEx
       Left = 2
       Top = 15
@@ -63,7 +64,8 @@ inherited PGLinkFrame: TPGLinkFrame
     Align = alTop
     Caption = 'Script Before (Run: F9)'
     Constraints.MinHeight = 60
-    TabOrder = 2
+    TabOrder = 1
+    ExplicitTop = 193
     object EdtScriptBefore: TMemoEx
       Left = 2
       Top = 15
@@ -86,8 +88,14 @@ inherited PGLinkFrame: TPGLinkFrame
   end
   inherited grbAbout: TGroupBox
     Top = 317
+    Height = 80
     TabOrder = 4
-    ExplicitTop = 317
+    ExplicitTop = 337
+    ExplicitHeight = 60
+    inherited mmoAbout: TMemoEx
+      Height = 43
+      ExplicitHeight = 43
+    end
   end
   inherited pnlItem: TPanel
     Height = 170
@@ -147,13 +155,18 @@ inherited PGLinkFrame: TPGLinkFrame
       AutoSize = False
       Color = clSilver
       Constraints.MinWidth = 290
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 1
       ValidationMode = vmOpenFile
       ActionButtonShow = True
       PathAutoUnExpand = True
       PathDialogFilter = 'All Files(*.*)|*.*'
       PathDialogTitle = 'File'
-      ValidationColorNormal = clWhite
       OnActionButtonClick = EdtFileActionButtonClick
       OnAfterValidate = EdtFileAfterValidate
     end
@@ -165,6 +178,12 @@ inherited PGLinkFrame: TPGLinkFrame
       Anchors = [akLeft, akTop, akRight]
       Color = clSilver
       Constraints.MinWidth = 325
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 3
       OnAfterValidate = EdtPatameterAfterValidate
     end
@@ -176,6 +195,12 @@ inherited PGLinkFrame: TPGLinkFrame
       Anchors = [akLeft, akTop, akRight]
       Color = clSilver
       Constraints.MinWidth = 290
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       TabOrder = 4
       ValidationMode = vmPathExists
       ActionButtonShow = True
@@ -276,8 +301,8 @@ inherited PGLinkFrame: TPGLinkFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 380
-    TabOrder = 3
-    ExplicitTop = 380
+    Top = 400
+    TabOrder = 2
+    ExplicitTop = 400
   end
 end

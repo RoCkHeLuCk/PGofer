@@ -1,19 +1,20 @@
-inherited PGTaskFrame: TPGTaskFrame
-  Height = 255
-  ExplicitHeight = 255
+﻿inherited PGTaskFrame: TPGTaskFrame
+  Height = 275
+  ExplicitHeight = 275
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 176
+    Top = 196
     Width = 400
     Height = 6
     Cursor = crVSplit
     Align = alTop
     Beveled = True
+    ExplicitTop = 176
   end
   object GrbScript: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
-    Top = 93
+    Top = 113
     Width = 394
     Height = 80
     Align = alTop
@@ -45,9 +46,15 @@ inherited PGTaskFrame: TPGTaskFrame
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 185
-    TabOrder = 1
-    ExplicitTop = 185
+    Top = 205
+    Height = 60
+    TabOrder = 4
+    ExplicitTop = 205
+    ExplicitHeight = 60
+    inherited mmoAbout: TMemoEx
+      Height = 43
+      ExplicitHeight = 43
+    end
   end
   inherited pnlItem: TPanel
     Height = 90
@@ -147,21 +154,20 @@ inherited PGTaskFrame: TPGTaskFrame
       Associate = EdtRepeat
       Max = 999999999
       TabOrder = 3
-      OnChangingEx = UpdRepeatChangingEx
     end
-    object CkbEnable: TCheckBoxEx
+    object CkbDisabled: TCheckBoxEx
       Left = 202
       Top = 33
       Width = 97
       Height = 17
-      Caption = 'Enable'
+      Caption = 'Disabled'
       TabOrder = 5
-      OnClick = CkbEnableClick
+      OnClick = CkbDisabledClick
     end
   end
   inherited sptAbout: TPanel
-    Top = 248
+    Top = 268
     TabOrder = 3
-    ExplicitTop = 248
+    ExplicitTop = 268
   end
 end

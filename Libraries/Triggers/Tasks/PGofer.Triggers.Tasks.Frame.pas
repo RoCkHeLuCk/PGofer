@@ -22,14 +22,12 @@ type
     EdtScript: TMemoEx;
     EdtRepeat: TEditEx;
     sptScript: TSplitter;
-    CkbEnable: TCheckBoxEx;
+    CkbDisabled: TCheckBoxEx;
     procedure CmbTriggerChange( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
-    procedure UpdRepeatChangingEx( Sender: TObject; var AllowChange: Boolean;
-      NewValue: Integer; Direction: TUpDownDirection );
     procedure EdtRepeatAfterValidate(Sender: TObject);
-    procedure CkbEnableClick(Sender: TObject);
+    procedure CkbDisabledClick(Sender: TObject);
   private
   protected
     procedure IniConfigSave( ); override;
@@ -37,26 +35,26 @@ type
     function GetItem( ): TPGTask; reintroduce;
     property Item: TPGTask read GetItem;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); override;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
 implementation
 
 uses
-  PGofer.Forms.AutoComplete, Vcl.Graphics;
+  PGofer.Forms.AutoComplete;
 
 {$R *.dfm}
 { TPGTaskFrame }
 
-constructor TPGTaskFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGTaskFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   EdtScript.SetTextSilent( Item.Script );
   EdtRepeat.SetTextSilent( Item.Repeats.ToString() );
   EdtOccurrence.SetTextSilent( Item.Occurrence.ToString() );
   CmbTrigger.SetIndexSilent( Item.Trigger );
-  CkbEnable.SetCheckedSilent( Item.Enabled );
+  CkbDisabled.SetCheckedSilent( Item.Disabled );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
@@ -87,40 +85,28 @@ end;
 
 procedure TPGTaskFrame.EdtRepeatAfterValidate(Sender: TObject);
 begin
-  if Self.Loading then
-    Exit;
+  if Self.Loading then Exit;
   Item.Repeats := StrToIntDef( EdtRepeat.Text, 0);
 end;
 
 procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
   Shift: TShiftState );
 begin
-  if Self.Loading then
-    Exit;
+  if Self.Loading then Exit;
   Item.Script := EdtScript.Text;
+  Self.UpdateStatusBadges();
 end;
 
-procedure TPGTaskFrame.UpdRepeatChangingEx( Sender: TObject;
-  var AllowChange: Boolean; NewValue: Integer; Direction: TUpDownDirection );
+procedure TPGTaskFrame.CkbDisabledClick(Sender: TObject);
 begin
-//  if Self.Loading then
-//    Exit;
-//  Item.Repeats := NewValue;
-end;
-
-procedure TPGTaskFrame.CkbEnableClick(Sender: TObject);
-begin
-  if Self.Loading then
-    Exit;
-
-  Item.Enabled := CkbEnable.Checked;
+  if Self.Loading then  Exit;
+  Item.Disabled := CkbDisabled.Checked;
+  Self.UpdateStatusBadges();
 end;
 
 procedure TPGTaskFrame.CmbTriggerChange( Sender: TObject );
 begin
-  if Self.Loading then
-    Exit;
-
+  if Self.Loading then Exit;
   Item.Trigger := CmbTrigger.ItemIndex;
 end;
 

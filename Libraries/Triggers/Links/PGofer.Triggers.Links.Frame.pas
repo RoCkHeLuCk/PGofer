@@ -5,10 +5,10 @@ interface
 uses
   System.Classes,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.ComCtrls,
+  Vcl.ExtCtrls,
   PGofer.Classes, PGofer.Triggers.Links, PGofer.Triggers.Frame,
   PGofer.Component.Edit, PGofer.Component.Memo, PGofer.Item.Frame, Pgofer.Component.Checkbox,
-  Pgofer.Component.ComboBox;
+  Pgofer.Component.ComboBox, Vcl.ComCtrls;
 
 type
   TPGLinkFrame = class( TPGTriggerFrame )
@@ -53,7 +53,7 @@ type
     function GetItem( ): TPGLink; reintroduce;
     property Item: TPGLink read GetItem;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); override;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -67,7 +67,7 @@ uses
 {$R *.dfm}
 { TPGFrame1 }
 
-constructor TPGLinkFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGLinkFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   EdtFile.SetTextSilent( Item.FileName );
@@ -164,12 +164,14 @@ procedure TPGLinkFrame.EdtFileActionButtonClick(Sender: TObject);
 begin
   if Self.Loading then Exit;
   EdtDiretory.Text := FileLimitPathExist( EdtFile.Text );
+  Self.UpdateStatusBadges();
 end;
 
 procedure TPGLinkFrame.EdtFileAfterValidate(Sender: TObject);
 begin
   if Self.Loading then Exit;
   Item.FileName := EdtFile.Text;
+  Self.UpdateStatusBadges();
 end;
 
 procedure TPGLinkFrame.EdtDiretoryAfterValidate(Sender: TObject);

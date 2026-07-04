@@ -7,15 +7,16 @@ uses
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   [TPGAboutAttribute('Advanced Windows Service Management')]
   [TPGAboutAttribute('Allows control of local or remote services.')]
   TPGService = class( TPGItemClass )
   private
     FMachineName: string;
     FLastError: string;
-    procedure CheckResult(ASuccess: Boolean; const AService: string);
+    procedure CheckResult(const ASuccess: Boolean; const AService: string);
   public
-    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
+    constructor Create(const AItemDad: TPGItem; const AName: string = '' ); override;
   published
     property LastError: string read FLastError;
 
@@ -56,9 +57,6 @@ type
   end;
   {$TYPEINFO ON}
 
-var
-  PGService: TPGService;
-
 implementation
 
 uses
@@ -67,14 +65,14 @@ uses
 
 { TPGService }
 
-constructor TPGService.Create( AItemDad: TPGItem; const AName: string = '' );
+constructor TPGService.Create(const AItemDad: TPGItem; const AName: string = '' );
 begin
   inherited Create( AItemDad, AName );
   FMachineName := '';
   FLastError := '';
 end;
 
-procedure TPGService.CheckResult(ASuccess: Boolean; const AService: string);
+procedure TPGService.CheckResult(const ASuccess: Boolean; const AService: string);
 begin
   if not ASuccess then
   begin
@@ -273,10 +271,6 @@ end;
 
 initialization
 
-  PGService := TPGService.Create( GlobalItemCommand );
-
 finalization
-
-  PGService := nil;
 
 end.

@@ -23,9 +23,9 @@ type
     procedure OnClientError( Sender: TObject; Socket: TCustomWinSocket;
       ErrorEvent: TErrorEvent; var ErrorCode: Integer );
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
-    procedure ConsoleSendMSG( Value: string );
+    procedure ConsoleSendMSG(const Value: string );
   public
-    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
+    constructor Create(const AItemDad: TPGItem; const AName: string = '' ); override;
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -34,7 +34,7 @@ type
     property MaxConnect: Word read FMaxConnect write FMaxConnect;
     property PassWord: string read FPassWord write FPassWord;
     property Port: Word read GetPort write SetPort;
-    function SendMessage( AText: string ): Integer;
+    function SendMessage(const AText: string ): Integer;
   end;
   {$TYPEINFO ON}
   {$M+}
@@ -56,9 +56,9 @@ type
     procedure OnClientError( Sender: TObject; Socket: TCustomWinSocket;
       ErrorEvent: TErrorEvent; var ErrorCode: Integer );
     procedure OnClientRead( Sender: TObject; Socket: TCustomWinSocket );
-    procedure ConsoleSendMSG( Value: string );
+    procedure ConsoleSendMSG(const Value: string );
   public
-    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
+    constructor Create(const AItemDad: TPGItem; const AName: string = '' ); override;
     destructor Destroy( ); override;
   published
     property Active: Boolean read GetActive write SetActive;
@@ -66,7 +66,7 @@ type
     property ConsoleMessage: Boolean read FConsoleMessage write FConsoleMessage;
     property PassWord: string read FPassWord write FPassWord;
     property Port: Word read GetPort write SetPort;
-    function SendCommand( AText: string ): Integer;
+    function SendCommand(const AText: string ): Integer;
   end;
   {$TYPEINFO ON}
 
@@ -78,12 +78,12 @@ uses
 
 { TPGNetServer }
 
-procedure TPGNetServer.ConsoleSendMSG( Value: string );
+procedure TPGNetServer.ConsoleSendMSG(const Value: string );
 begin
     TPGKernel.Console( Value, True, ConsoleMessage );
 end;
 
-constructor TPGNetServer.Create( AItemDad: TPGItem; const AName: string = '' );
+constructor TPGNetServer.Create(const AItemDad: TPGItem; const AName: string = '' );
 begin
   inherited Create( AItemDad, 'Server' );
 
@@ -126,7 +126,7 @@ begin
   FServer.Port := Port;
 end;
 
-function TPGNetServer.SendMessage( AText: string ): Integer;
+function TPGNetServer.SendMessage(const AText: string ): Integer;
 begin
   Result := FServer.Socket.SendText( AnsiString( AText ) );
 end;
@@ -218,12 +218,12 @@ end;
 
 { TPGNetClient }
 
-procedure TPGNetClient.ConsoleSendMSG( Value: string );
+procedure TPGNetClient.ConsoleSendMSG(const Value: string);
 begin
     TPGKernel.Console( Value, True, ConsoleMessage );
 end;
 
-constructor TPGNetClient.Create( AItemDad: TPGItem; const AName: string );
+constructor TPGNetClient.Create(const AItemDad: TPGItem; const AName: string );
 begin
   inherited Create( AItemDad, 'Client' );
 
@@ -279,7 +279,7 @@ begin
   FClient.Port := Port;
 end;
 
-function TPGNetClient.SendCommand( AText: string ): Integer;
+function TPGNetClient.SendCommand(const AText: string ): Integer;
 begin
   Result := FClient.Socket.SendText( AnsiString( AText ) );
 end;

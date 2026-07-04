@@ -3,10 +3,11 @@
 interface
 
 uses
-  PGofer.Runtime;
+  PGofer.Core, PGofer.Runtime;
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   TPGSound = class( TPGItemClass )
   private
   public
@@ -21,9 +22,6 @@ type
     function VolumeStepDown( SoundDriver: Cardinal ): Integer;
   end;
   {$TYPEINFO ON}
-
-var
-  PGSound: TPGSound;
 
 implementation
 
@@ -74,10 +72,6 @@ end;
 
 initialization
 
-  PGSound := TPGSound.Create( GlobalItemCommand );
-
 finalization
-
-  PGSound := nil;
 
 end.

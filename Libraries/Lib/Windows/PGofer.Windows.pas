@@ -3,11 +3,12 @@
 interface
 
 uses
-  PGofer.Runtime, PGofer.Windows.Input;
+  PGofer.Core, PGofer.Classes, PGofer.Runtime, PGofer.Windows.Input;
 
 type
 
-{$M+}
+  {$M+}
+  [TPGClassReg('Commands')]
   TPGWindows = class(TPGItemClass)
   private
     FCanOff: Boolean;
@@ -15,6 +16,8 @@ type
     procedure SetCanOff(Value: Boolean);
   protected
   public
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
+    destructor Destroy(); override;
   published
     property CanOff: Boolean read FCanOff write SetCanOff;
     property Mouse: TPGMouse read FMouse;
@@ -31,7 +34,7 @@ type
     function ShutDown(Valor: Cardinal): Boolean;
     procedure MoveToCurrentDesktop();
   end;
-{$TYPEINFO ON}
+  {$TYPEINFO ON}
 
 var
    PGWindows: TPGWindows;
@@ -42,9 +45,22 @@ uses
   WinApi.Windows,
   System.SysUtils, System.Classes,
   Vcl.Forms, Vcl.Dialogs,
-  PGofer.Core, PGofer.Windows.Controls, PGofer.Windows.VirtualDesktop;
+  PGofer.Windows.Controls, PGofer.Windows.VirtualDesktop;
 
 { TPGWindows }
+
+constructor TPGWindows.Create(const AItemDad: TPGItem; const AName: string);
+begin
+  inherited;
+  PGWindows := Self;
+end;
+
+destructor TPGWindows.Destroy;
+begin
+  PGWindows := nil;
+  inherited;
+end;
+
 
 function TPGWindows.FindWindow(Valor: string): NativeUInt;
 begin
@@ -141,10 +157,6 @@ end;
 
 initialization
 
-PGWindows := TPGWindows.Create(GlobalItemCommand);
-
 finalization
-
-PGWindows := nil;
 
 end.

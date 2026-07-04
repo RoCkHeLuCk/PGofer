@@ -7,12 +7,12 @@ uses
 const
   GUID_SIZE = SizeOf(TGUID);
 
-  function KeyStoreIDFromFile(AFileName: string):TGUID;
-  function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string; AFileID: TGUID):Boolean;
-  function KeyStoreXMLFromAES(AFileName, APassword: string): TStream;
-  function KeyStoreSavePassword(AFileID: TGUID; APassword: string): TGUID;
-  function KeyStoreLoadPassoword(AFileID: TGUID): string;
-  function KeyStoreChangeFilePassword(AFileName, AOldPassword, ANewPassword: string; AFileID: TGUID): Boolean;
+  function KeyStoreIDFromFile(const AFileName: string):TGUID;
+  function KeyStoreXMLToAES(const AXMLStream: TStream; const AFileName, APassword: string; const AFileID: TGUID):Boolean;
+  function KeyStoreXMLFromAES(const AFileName, APassword: string): TStream;
+  function KeyStoreSavePassword(const AFileID: TGUID; const APassword: string): TGUID;
+  function KeyStoreLoadPassoword(const AFileID: TGUID): string;
+  function KeyStoreChangeFilePassword(const AFileName, AOldPassword, ANewPassword: string; const AFileID: TGUID): Boolean;
 
 implementation
 
@@ -48,23 +48,25 @@ begin
   end;
 end;
 
-function KeyStoreIDFromFile(AFileName: string):TGUID;
+function KeyStoreIDFromFile(const AFileName: string):TGUID;
 var
   Stream: TStream;
 begin
+  Result := TGUID.Empty;
   if FileExists(AFileName) then
   begin
     Stream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
     try
       Stream.Position := 0;
-      Stream.Read( Result, GUID_SIZE);
+      if Stream.Size >= GUID_SIZE then
+         Stream.Read( Result, GUID_SIZE);
     finally
       Stream.Free;
     end;
   end;
 end;
 
-function KeyStoreXMLToAES(AXMLStream: TStream; AFileName, APassword: string; AFileID: TGUID):Boolean;
+function KeyStoreXMLToAES(const AXMLStream: TStream; const AFileName, APassword: string; const AFileID: TGUID):Boolean;
 var
   AESStream: TStream;
   LTempFile: string;
@@ -89,7 +91,7 @@ begin
   Result := FileCommitWithBackup(AFileName);
 end;
 
-function KeyStoreXMLFromAES(AFileName, APassword: string): TStream;
+function KeyStoreXMLFromAES(const AFileName, APassword: string): TStream;
 var
   AESStream: TStream;
 begin
@@ -102,17 +104,16 @@ begin
   end;
 end;
 
-function KeyStoreSavePassword(AFileID: TGUID; APassword: string): TGUID;
+function KeyStoreSavePassword(const AFileID: TGUID; const APassword: string): TGUID;
 var
   JSONObject: TJSONObject;
   JSONPair: TJSONPair;
   Content : string;
 begin
   if AFileID = TGUID.Empty then
-  begin
-    CreateGUID(AFileID);
-  end;
-  Result := AFileID;
+    CreateGUID(Result)
+  else
+    Result := AFileID;
 
   JSONObject := _KeyStoreLoadFile();
   if Assigned( JSONObject ) then
@@ -132,7 +133,7 @@ begin
   end;
 end;
 
-function KeyStoreLoadPassoword(AFileID: TGUID): string;
+function KeyStoreLoadPassoword(const AFileID: TGUID): string;
 var
   JSONObject: TJSONObject;
   JSONValue: TJSONValue;
@@ -154,7 +155,7 @@ begin
   end;
 end;
 
-function KeyStoreChangeFilePassword(AFileName, AOldPassword, ANewPassword: string; AFileID: TGUID): Boolean;
+function KeyStoreChangeFilePassword(const AFileName, AOldPassword, ANewPassword: string; const AFileID: TGUID): Boolean;
 var
   XMLStream: TStream;
 begin

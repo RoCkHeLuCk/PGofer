@@ -1,4 +1,4 @@
-unit PGofer.Scheduler;
+ï»¿unit PGofer.Scheduler;
 
 interface
 
@@ -7,14 +7,15 @@ uses
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   [TPGAboutAttribute('Windows Task Scheduler Management')]
   [TPGAboutAttribute('Controls scheduled tasks locally or remotely.')]
   TPGScheduler = class( TPGItemClass )
   private
     FMachineName: string;
-    procedure CheckResult(ASuccess: Boolean; const ATask: string);
+    procedure CheckResult(const ASuccess: Boolean; const ATask: string);
   public
-    constructor Create( AItemDad: TPGItem; const AName: string = '' ); override;
+    constructor Create(const AItemDad: TPGItem; const AName: string = '' ); override;
   published
     [TPGAboutAttribute('Target Computer Name or IP Address.')]
     property MachineName: string read FMachineName write FMachineName;
@@ -45,9 +46,6 @@ type
   end;
   {$TYPEINFO ON}
 
-var
-  PGScheduler: TPGScheduler;
-
 implementation
 
 uses
@@ -55,13 +53,13 @@ uses
 
 { TPGScheduler }
 
-constructor TPGScheduler.Create(AItemDad: TPGItem; const AName: string);
+constructor TPGScheduler.Create(const AItemDad: TPGItem; const AName: string);
 begin
   inherited Create(AItemDad, AName);
   FMachineName := '';
 end;
 
-procedure TPGScheduler.CheckResult(ASuccess: Boolean; const ATask: string);
+procedure TPGScheduler.CheckResult(const ASuccess: Boolean; const ATask: string);
 var
   LError: string;
 begin
@@ -117,7 +115,7 @@ begin
   Result := True;
   Lista := SchedulerResolveMask(FMachineName, ATaskMask);
 
-  // NOVO: Feedback se a máscara foi inútil
+  // NOVO: Feedback se a mÃ¡scara foi inÃºtil
   if Length(Lista) = 0 then
   begin
     TPGKernel.Console('Scheduler Warning: No tasks found matching mask [' + ATaskMask + ']');
@@ -207,9 +205,7 @@ begin
 end;
 
 initialization
-  PGScheduler := TPGScheduler.Create( GlobalItemCommand );
 
 finalization
-  PGScheduler := nil;
 
 end.

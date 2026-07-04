@@ -1,4 +1,4 @@
-﻿object FrmPGofer: TFrmPGofer
+object FrmPGofer: TFrmPGofer
   Left = 80
   Top = 0
   Margins.Left = 0
@@ -4144,7 +4144,6 @@
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
-  OnDestroy = FormDestroy
   OnMouseDown = FormMouseDown
   OnMouseMove = FormMouseMove
   OnShow = FormShow

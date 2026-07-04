@@ -6,10 +6,10 @@ uses
   Winapi.Windows, Winapi.Messages,
   System.SysUtils, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.StdCtrls,
-  Vcl.ExtCtrls, Vcl.Menus, Vcl.ComCtrls,
+  Vcl.ExtCtrls, Vcl.Menus,
   PGofer.Component.Form,
   PGofer.Component.Memo,
-  PGofer.Forms;
+  PGofer.Core, PGofer.Classes, PGofer.Forms;
 
 type
   TPGFrmPGofer = class;
@@ -26,7 +26,6 @@ type
     mniTriggers: TMenuItem;
     shpDrag: TShape;
     procedure FormCreate( Sender: TObject );
-    procedure FormDestroy( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormShow( Sender: TObject );
     procedure FormCloseQuery( Sender: TObject; var CanClose: Boolean );
@@ -42,7 +41,7 @@ type
     procedure EdtScriptKeyPress(Sender: TObject; var Key: Char);
   private
     FMouse: TPoint;
-    FItem: TPGFrmPGofer;
+    FCanClose: Boolean;
     procedure FormAutoSize();
     procedure CloseAllForms();
   protected
@@ -53,19 +52,23 @@ type
     procedure WndProc( var Msg: TMessage ); override;
     procedure WMPowerBroadcast(var Msg: TMessage); message WM_POWERBROADCAST;
   public
+    property CanClose: Boolean read FCanClose write FCanClose;
   end;
 
   {$M+}
+  [TPGClassReg('Forms', 'FrmPGofer')]
   TPGFrmPGofer = class( TPGForm )
   private
-    FCanClose: Boolean;
+    function GetCanClose: Boolean;
+    procedure SetCanClose(const AValue: Boolean);
+  protected
+    function GetForm( ): TFrmPGofer; reintroduce;
+    property Form: TFrmPGofer read GetForm;
   public
-    constructor Create( AForm: TForm ); reintroduce;
-    destructor Destroy( ); override;
-    procedure Frame( AParent: TObject ); override;
+    procedure Frame(const AParent: TObject ); override;
   published
     procedure Close(); override;
-    property CanClose: Boolean read FCanClose write FCanClose;
+    property CanClose: Boolean read GetCanClose write SetCanClose;
     function GetVersion: string;
   end;
   {$TYPEINFO ON}
@@ -76,7 +79,7 @@ var
 implementation
 
 uses
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime, PGofer.Windows,
+  PGofer.Sintatico, PGofer.Runtime, PGofer.Windows,
   PGofer.Forms.Controls, PGofer.Forms.Console, PGofer.Forms.Frame,
   PGofer.Triggers.Tasks, PGofer.Files.Controls,
   PGofer.Forms.AutoComplete;
@@ -137,8 +140,8 @@ end;
 
 procedure TFrmPGofer.FormCreate( Sender: TObject );
 begin
-  FItem := TPGFrmPGofer.Create( Self );
-  Self.Caption := 'PGofer V'+ FItem.GetVersion;
+  FCanClose := True;
+  Self.Caption := 'PGofer V'+ FileGetVersion( ParamStr(0) );
   Self.TryPGofer.Hint := Self.Caption;
   Application.Title := Self.Caption;
 
@@ -148,6 +151,7 @@ end;
 
 procedure TFrmPGofer.FormShow( Sender: TObject );
 begin
+  FCanClose := True;
   Self.FormAutoSize( );
   Self.EdtScript.SetFocus;
 end;
@@ -155,7 +159,7 @@ end;
 procedure TFrmPGofer.FormCloseQuery( Sender: TObject; var CanClose: Boolean );
 begin
   TPGTask.Working( 1, True );
-  CanClose := FItem.CanClose;
+  CanClose := FCanClose;
 end;
 
 procedure TFrmPGofer.FormClose( Sender: TObject; var Action: TCloseAction );
@@ -163,11 +167,6 @@ begin
   FrmAutoComplete.EditCtrlRemove( FrmPGofer.EdtScript );
   TPGGrammar.WaitForAll(5000);
   Self.CloseAllForms();
-end;
-
-procedure TFrmPGofer.FormDestroy( Sender: TObject );
-begin
-  FItem := nil;
 end;
 
 procedure TFrmPGofer.CloseAllForms();
@@ -178,6 +177,7 @@ begin
   begin
     if Screen.Forms[I] <> Application.MainForm then
       Screen.Forms[I].Close;
+    Application.ProcessMessages;
   end;
 end;
 
@@ -289,18 +289,6 @@ end;
 
 { TPGFrmPGofer }
 
-constructor TPGFrmPGofer.Create( AForm: TForm );
-begin
-  inherited Create( AForm );
-  FCanClose := True;
-end;
-
-destructor TPGFrmPGofer.Destroy( );
-begin
-  FCanClose := True;
-  inherited Destroy( );
-end;
-
 procedure TPGFrmPGofer.Close( );
 begin
   TThread.CreateAnonymousThread(
@@ -318,14 +306,29 @@ begin
   ).Start;
 end;
 
-procedure TPGFrmPGofer.Frame( AParent: TObject );
+procedure TPGFrmPGofer.Frame(const AParent: TObject );
 begin
   TPGFormsFrame.Create( Self, AParent );
+end;
+
+function TPGFrmPGofer.GetCanClose: Boolean;
+begin
+  Result := Self.form.CanClose;
+end;
+
+function TPGFrmPGofer.GetForm: TFrmPGofer;
+begin
+  Result := TFrmPGofer(inherited Form);
 end;
 
 function TPGFrmPGofer.GetVersion(): string;
 begin
   Result := FileGetVersion( ParamStr(0) );
+end;
+
+procedure TPGFrmPGofer.SetCanClose(const AValue: Boolean);
+begin
+  Self.Form.CanClose := AValue;
 end;
 
 end.

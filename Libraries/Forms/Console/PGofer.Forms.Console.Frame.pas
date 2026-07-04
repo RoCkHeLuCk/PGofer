@@ -8,7 +8,7 @@ uses
 
   PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
   PGofer.Component.Edit, PGofer.Item.Frame,
-  Pgofer.Component.Checkbox, Vcl.Dialogs, Pgofer.Component.ComboBox, Vcl.ExtCtrls,
+  Pgofer.Component.Checkbox, Vcl.Dialogs, Vcl.ExtCtrls, Pgofer.Component.ComboBox,
   PGofer.Component.Memo;
 
 type
@@ -31,7 +31,7 @@ type
 implementation
 
 uses
-  System.SysUtils, Vcl.Graphics;
+  System.SysUtils;
 
 {$R *.dfm}
 { TPGFrameConsole }

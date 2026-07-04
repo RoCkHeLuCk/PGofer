@@ -1,7 +1,7 @@
-inherited PGHotKeyFrame: TPGHotKeyFrame
-  Height = 314
+﻿inherited PGHotKeyFrame: TPGHotKeyFrame
+  Height = 332
   OnExit = MmoHotKeysExit
-  ExplicitHeight = 314
+  ExplicitHeight = 332
   object sptScript: TSplitter [0]
     Left = 0
     Top = 233
@@ -14,12 +14,12 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
   end
   inherited grbAbout: TGroupBox
     Top = 242
-    Height = 62
-    TabOrder = 1
+    Height = 80
     ExplicitTop = 242
-    ExplicitHeight = 62
+    ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
-      Height = 45
+      Height = 43
+      ExplicitHeight = 43
     end
   end
   object GrbScript: TGroupBox [2]
@@ -31,7 +31,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     Align = alTop
     Caption = 'Script (Run: F9)'
     Constraints.MinHeight = 60
-    TabOrder = 2
+    TabOrder = 1
     object EdtScript: TMemoEx
       Left = 2
       Top = 15
@@ -112,16 +112,16 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     end
     object CmbDetect: TPGComboBox [4]
       Left = 175
-      Top = 111
+      Top = 113
       Width = 96
       Height = 22
       Hint = 'Forma de detectar a HotKey'
       ItemsEx = <
         item
-          Caption = 'Press'
+          Caption = 'Down'
         end
         item
-          Caption = 'Down'
+          Caption = 'Press'
         end
         item
           Caption = 'Up'
@@ -143,19 +143,19 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       TabOrder = 3
       OnClick = CkbInhibitClick
     end
-    object CkbEnable: TCheckBoxEx
+    object CkbDisabled: TCheckBoxEx
       Left = 295
       Top = 129
       Width = 97
       Height = 17
-      Caption = 'Enable'
+      Caption = 'Disabled'
       TabOrder = 5
-      OnClick = CkbEnableClick
+      OnClick = CkbDisabledClick
     end
   end
   inherited sptAbout: TPanel
-    Top = 307
+    Top = 325
     TabOrder = 3
-    ExplicitTop = 307
+    ExplicitTop = 325
   end
 end

@@ -5,8 +5,9 @@ interface
 uses
   System.Classes, Winapi.Windows,
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
-  Vcl.StdCtrls, Vcl.ComCtrls,
-  PGofer.Component.Memo, PGofer.Component.Form, PGofer.Forms, Vcl.Menus;
+  Vcl.StdCtrls,
+  PGofer.Component.Memo, PGofer.Component.Form, PGofer.Core,
+  PGofer.Classes, PGofer.Forms, Vcl.Menus;
 
 type
   TPGFrmConsole = class;
@@ -39,37 +40,44 @@ type
   private
     { Private declarations }
     FMouseA: TPoint;
-    FItem: TPGFrmConsole;
-    function GetAutoClose( ): Boolean;
+    FDelay: Cardinal;
+    FShowMessage: Boolean;
+    FAutoClose: Boolean;
     procedure TimerReset();
+    procedure SetDelay(const AValue: Cardinal);
+    procedure SetAutoClose(const AValue: Boolean);
   protected
     procedure CreateParams( var AParams: TCreateParams ); override;
     procedure CreateWindowHandle(const Params: TCreateParams); override;
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
   public
-    property AutoClose: Boolean read GetAutoClose;
-    procedure ConsoleNotifyMessage(const AValue: string;
-      const ANewLine, AShow: Boolean );
+    property AutoClose: Boolean read FAutoClose write SetAutoClose;
+    property ShowMessage: Boolean read FShowMessage write FShowMessage;
+    property Delay: Cardinal read FDelay write SetDelay;
+    procedure ConsoleNotifyMessage(const AValue: string; const ANewLine, AShow: Boolean );
   end;
 
   {$M+}
+  [TPGClassReg('Forms', 'FrmConsole')]
   TPGFrmConsole = class( TPGForm )
   private
-    FDelay: Cardinal;
-    FShowMessage: Boolean;
-    FAutoClose: Boolean;
-    procedure SetAutoClose( AValue: Boolean );
-    procedure SetDelay( AValue: Cardinal );
+    procedure SetAutoClose(const AValue: Boolean );
+    procedure SetDelay(const AValue: Cardinal );
+    function GetAutoClose: Boolean;
+    function GetDelay: Cardinal;
+    function GetShowMessage: Boolean;
+    procedure SetShowMessage(const AValue: Boolean);
+  protected
+    function GetForm( ): TFrmConsole; reintroduce;
+    property Form: TFrmConsole read GetForm;
   public
-    constructor Create( AForm: TForm ); reintroduce;
-    destructor Destroy( ); override;
-    procedure Frame( AParent: TObject ); override;
+    procedure Frame(const AParent: TObject ); override;
   published
-    property AutoClose: Boolean read FAutoClose write SetAutoClose;
+    property AutoClose: Boolean read GetAutoClose write SetAutoClose;
     procedure Clear( );
-    property Delay: Cardinal read FDelay write SetDelay;
-    property ShowMessage: Boolean read FShowMessage write FShowMessage;
+    property Delay: Cardinal read GetDelay write SetDelay;
+    property ShowMessage: Boolean read GetShowMessage write SetShowMessage;
   end;
   {$TYPEINFO ON}
 
@@ -83,8 +91,6 @@ implementation
 uses
   Winapi.Messages,
   System.SysUtils,
-  PGofer.Core,
-  PGofer.Classes,
   PGofer.Forms.Console.Frame;
 
 { TFrmConsole }
@@ -100,13 +106,18 @@ end;
 procedure TFrmConsole.CreateWindowHandle(const Params: TCreateParams);
 begin
   inherited;
-  SetWindowLong(Handle, GWL_EXSTYLE, WS_EX_NOACTIVATE
-                or WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW);
+  SetWindowLong(
+    Application.Handle,
+    GWL_EXSTYLE, WS_EX_NOACTIVATE
+    or WS_EX_TOOLWINDOW and not WS_EX_APPWINDOW
+  );
 end;
 
 procedure TFrmConsole.FormCreate( Sender: TObject );
 begin
-  FItem := TPGFrmConsole.Create( Self );
+  FDelay := 2000;
+  FShowMessage := True;
+  FAutoClose := True;
   TPGKernel.ConsoleNotify := Self.ConsoleNotifyMessage;
 end;
 
@@ -126,7 +137,9 @@ procedure TFrmConsole.FormDestroy( Sender: TObject );
 begin
   TmrConsole.Enabled := False;
   TPGKernel.ConsoleNotify := nil;
-  FItem := nil;
+  FDelay := 0;
+  FShowMessage := False;
+  FAutoClose := False;
 end;
 
 procedure TFrmConsole.FormKeyPress( Sender: TObject; var Key: Char );
@@ -135,28 +148,23 @@ begin
     Self.Close();
 end;
 
-function TFrmConsole.GetAutoClose: Boolean;
-begin
-  Result := FItem.AutoClose;
-end;
-
 procedure TFrmConsole.IniConfigLoad( );
 begin
   inherited IniConfigLoad( );
   EdtConsole.Zoom := IniFile.ReadInteger( Self.Name, 'Zoom', EdtConsole.Zoom);
-  FItem.Delay := IniFile.ReadInteger( Self.Name, 'Delay', FItem.Delay );
-  FItem.ShowMessage := IniFile.ReadBool( Self.Name, 'ShowMessage',
-    FItem.ShowMessage );
-  FItem.AutoClose := IniFile.ReadBool( Self.Name, 'AutoClose',
-    FItem.AutoClose );
+  FDelay := IniFile.ReadInteger( Self.Name, 'Delay', FDelay );
+  FShowMessage := IniFile.ReadBool( Self.Name, 'ShowMessage',
+    FShowMessage );
+  FAutoClose := IniFile.ReadBool( Self.Name, 'AutoClose',
+    FAutoClose );
 end;
 
 procedure TFrmConsole.IniConfigSave( );
 begin
   IniFile.WriteInteger( Self.Name, 'Zoom', EdtConsole.Zoom);
-  IniFile.WriteInteger( Self.Name, 'Delay', FItem.Delay );
-  IniFile.WriteBool( Self.Name, 'ShowMessage', FItem.ShowMessage );
-  IniFile.WriteBool( Self.Name, 'AutoClose', FItem.AutoClose );
+  IniFile.WriteInteger( Self.Name, 'Delay', FDelay );
+  IniFile.WriteBool( Self.Name, 'ShowMessage', FShowMessage );
+  IniFile.WriteBool( Self.Name, 'AutoClose', FAutoClose );
   inherited IniConfigSave( );
 end;
 
@@ -179,12 +187,12 @@ procedure TFrmConsole.BtnFixedClick( Sender: TObject );
 begin
   // trava o console
   TmrConsole.Enabled := ( not BtnFixed.Down );
-  FItem.AutoClose := TmrConsole.Enabled;
+  FAutoClose := TmrConsole.Enabled;
 end;
 
 procedure TFrmConsole.TimerReset();
 begin
-  Self.TmrConsole.Interval := FItem.Delay;
+  Self.TmrConsole.Interval := FDelay;
   Self.TmrConsole.Enabled := False;
   Self.TmrConsole.Enabled := ( not Self.BtnFixed.Down );
 end;
@@ -220,6 +228,18 @@ begin
   end;
 end;
 
+procedure TFrmConsole.SetAutoClose(const AValue: Boolean);
+begin
+  FAutoClose := AValue;
+  Self.BtnFixed.Down := ( not FAutoClose );
+end;
+
+procedure TFrmConsole.SetDelay(const AValue: Cardinal);
+begin
+  if (AValue > 500) then
+     FDelay := AValue;
+end;
+
 procedure TFrmConsole.ConsoleNotifyMessage(const AValue: string;
   const ANewLine, AShow: Boolean );
 begin
@@ -246,38 +266,44 @@ begin
 end;
 
 { TPGFrmConsole }
-constructor TPGFrmConsole.Create( AForm: TForm );
-begin
-  inherited Create( AForm );
-  FDelay := 2000;
-  FShowMessage := True;
-  FAutoClose := True;
-end;
-
-destructor TPGFrmConsole.Destroy( );
-begin
-  FDelay := 0;
-  FShowMessage := False;
-  FAutoClose := False;
-  inherited Destroy( );
-end;
-
-procedure TPGFrmConsole.Frame( AParent: TObject );
+procedure TPGFrmConsole.Frame(const AParent: TObject );
 begin
   TPGConsoleFrame.Create( Self, AParent );
 end;
 
-procedure TPGFrmConsole.SetAutoClose( AValue: Boolean );
+function TPGFrmConsole.GetAutoClose(): Boolean;
 begin
-  FAutoClose := AValue;
-  if Assigned( Self.Form) then
-    TFrmConsole( Self.Form ).BtnFixed.Down := ( not FAutoClose );
+  Result := Self.Form.AutoClose;
 end;
 
-procedure TPGFrmConsole.SetDelay(AValue: Cardinal);
+function TPGFrmConsole.GetDelay(): Cardinal;
 begin
-   if (AValue > 500) then
-     FDelay := AValue;
+  Result := Self.Form.Delay;
+end;
+
+function TPGFrmConsole.GetForm: TFrmConsole;
+begin
+  Result := TFrmConsole(inherited Form);
+end;
+
+function TPGFrmConsole.GetShowMessage(): Boolean;
+begin
+  Result := Self.Form.ShowMessage;
+end;
+
+procedure TPGFrmConsole.SetAutoClose(const AValue: Boolean );
+begin
+  Self.Form.AutoClose := AValue;
+end;
+
+procedure TPGFrmConsole.SetDelay(const AValue: Cardinal);
+begin
+  Self.Form.Delay := AValue;
+end;
+
+procedure TPGFrmConsole.SetShowMessage(const AValue: Boolean);
+begin
+  Self.Form.ShowMessage := AValue;
 end;
 
 procedure TPGFrmConsole.Clear;

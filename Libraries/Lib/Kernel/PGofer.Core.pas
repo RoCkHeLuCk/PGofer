@@ -21,13 +21,14 @@ type
     class var FPathData: String;
     class var FPathIcon: String;
 
+    class var FFinalized: Boolean;
     class var FConsoleMessage: Boolean;
     class var FReplyFormat: String;
     class var FReplyPrefix: Boolean;
     class var FLoopLimit: Cardinal;
     class var FReportMemoryLeaks: Boolean;
 
-    //console
+    //Console
     type TConsoleBuffer = record
       Msg: string;
       IsNewLine: Boolean;
@@ -42,17 +43,16 @@ type
     class procedure ConsoleLocked();
     class procedure ConsoleUnlocked();
 
-    //translate
+    //Translate
     class var FLanguageFile: String;
     class procedure SetLanguageFile(const AValue: String); static;
     class var FTranslate: TDictionary<string, string>;
   public
-    class constructor Create();
-    class destructor Destroy();
     //RTTI
     class property RttiContext: TRttiContext read FRttiContext;
 
     //Environments
+    class property Finalized: Boolean read FFinalized;
     class property PathCurrent: String read FPathCurrent;
     class property PathData: String read FPathData;
     class property PathIcon: String read FPathIcon;
@@ -79,6 +79,18 @@ type
     class function IfThen<T>(const ACondition: Boolean; const ATrue, AFalse: T): T; static; inline;
   end;
 
+  TPGClassRegAttribute = class(TCustomAttribute)
+  private
+    FPath: string;
+    FName: string;
+    FFactory: Boolean;
+  public
+    constructor Create(const APath: string; const AName: string = ''; const AFactory: Boolean = False);
+    property Path: string read FPath;
+    property Name: string read FName;
+    property Factory: Boolean read FFactory;
+  end;
+
   TPGAboutAttribute = class(TCustomAttribute)
   private
     FText: string;
@@ -102,6 +114,10 @@ type
     class function GetFromClass(AClass: TClass): TArray<string>; static;
   end;
 
+  procedure Initialize();
+  procedure BeforeFinalize();
+  procedure Finalize();
+
   procedure RunInMainThread(AMethod: TThreadMethod; Sync:Boolean = True); overload;
   procedure RunInMainThread(AProc: TThreadProcedure; Sync:Boolean = True); overload;
 
@@ -118,13 +134,12 @@ implementation
 uses
   System.SysUtils, System.IOUtils, System.JSON, System.TypInfo,
   Winapi.Windows,
-
   PGofer.Files.Controls;
 
-{ TPGKernel }
-
-class constructor TPGKernel.Create();
+procedure Initialize();
 begin
+  TPGKernel.FFinalized := False;
+  System.SysUtils.FormatSettings.DecimalSeparator := '.';
   //var
   TPGKernel.FConsoleLock := TCriticalSection.Create();
   TPGKernel.FRttiContext := TRttiContext.Create;
@@ -145,38 +160,58 @@ begin
   TPGKernel.FConsoleMessage := True;
 
   //console
-  FConsoleBuffer := TQueue<TConsoleBuffer>.Create;
-  FConsoleFlush := False;
-  FConsoleNotify := nil;
+  TPGKernel.FConsoleBuffer := TQueue<TPGKernel.TConsoleBuffer>.Create;
+  TPGKernel.FConsoleFlush := False;
+  TPGKernel.FConsoleNotify := nil;
 
   //translate
-  FTranslate := TDictionary<string, string>.Create;
+  TPGKernel.FTranslate := TDictionary<string, string>.Create;
   {$IFDEF DEBUG}
-    TPGKernel.SetLanguageFile(FPathCurrent + '..\..\..\..\Documents\Languages\Language.json');
+    TPGKernel.SetLanguageFile(TPGKernel.FPathCurrent + '..\..\..\..\Documents\Languages\Language.json');
   {$ELSE}
-    TPGKernel.SetLanguageFile(FPathCurrent + 'Language.json');
+    TPGKernel.SetLanguageFile(TPGKernel.FPathCurrent + 'Language.json');
   {$ENDIF}
-
 end;
 
-class destructor TPGKernel.Destroy();
+procedure BeforeFinalize();
+begin
+  TPGKernel.FFinalized := True;
+end;
+
+procedure Finalize();
 begin
   TPGKernel.FConsoleFlush := False;
   TPGKernel.FConsoleNotify := nil;
   TPGKernel.FConsoleBuffer.Free;
+  TPGKernel.FConsoleBuffer := nil;
   TPGKernel.FConsoleLock.Free;
-
+  TPGKernel.FConsoleLock := nil;
   TPGKernel.FTranslate.Free;
-  //TPGKernel.FRttiContext.Free;
+  TPGKernel.FTranslate := nil;
+  TPGKernel.FRttiContext.Free;
+
+  {$IFDEF DEBUG}
+    TPGKernel.FRttiContext := Default(TRttiContext);
+  {$ENDIF}
 end;
+
+{ TPGKernel }
 
 class procedure TPGKernel.ConsoleLocked;
 begin
+  if TPGKernel.FFinalized
+  or (not Assigned(TPGKernel.FConsoleLock)) then
+    Exit;
+
   TPGKernel.FConsoleLock.Acquire;
 end;
 
 class procedure TPGKernel.ConsoleUnlocked;
 begin
+  if TPGKernel.FFinalized
+  or (not Assigned(TPGKernel.FConsoleLock)) then
+    Exit;
+
   TPGKernel.FConsoleLock.Release;
 end;
 
@@ -186,6 +221,13 @@ var
   LItem: TConsoleBuffer;
   LCount: Integer;
 begin
+  if TPGKernel.FFinalized or (not Assigned(FConsoleNotify)) or
+     (not Assigned(FConsoleLock)) then
+  begin
+    FConsoleFlush := False;
+    Exit;
+  end;
+
   LBatchText := TStringBuilder.Create;
   try
     TPGKernel.ConsoleLocked;
@@ -211,7 +253,7 @@ begin
       TPGKernel.ConsoleUnlocked;
     end;
 
-    if (LBatchText.Length > 0) and Assigned(FConsoleNotify) then
+    if (LBatchText.Length > 0) then
       FConsoleNotify(LBatchText.ToString, False, True);
 
   finally
@@ -221,6 +263,13 @@ end;
 
 class procedure TPGKernel.SetConsoleNotify(AValue: TPGConsoleNotify);
 begin
+  if TPGKernel.FFinalized
+  or (not Assigned(TPGKernel.FConsoleLock)) then
+  begin
+    FConsoleNotify := AValue;
+    Exit;
+  end;
+
   TPGKernel.ConsoleLocked;
   try
     FConsoleNotify := AValue;
@@ -241,16 +290,21 @@ class procedure TPGKernel.Console(const AValue: string; ANewLine, AShow: Boolean
 var
   LItem: TConsoleBuffer;
 begin
+  if TPGKernel.FFinalized
+  or (not Assigned(TPGKernel.FConsoleLock))
+  or (not Assigned(TPGKernel.FConsoleBuffer)) then
+    Exit;
+
   LItem.Msg := AValue;
   LItem.IsNewLine := ANewLine;
   LItem.IsShow := AShow;
 
   TPGKernel.ConsoleLocked;
   try
-    FConsoleBuffer.Enqueue(LItem);
-    if not FConsoleFlush then
+    TPGKernel.FConsoleBuffer.Enqueue(LItem);
+    if not TPGKernel.FConsoleFlush then
     begin
-      FConsoleFlush := True;
+      TPGKernel.FConsoleFlush := True;
       RunInMainThread(ConsoleFlush, False);
     end;
   finally
@@ -265,7 +319,7 @@ begin
   try
     LValue := Format(AKey, AArgs);
   except
-    TPGKernel.Console('Error Kernel: Format Key "%s"!',[AKey]);
+    TPGKernel.Console('Error Kernel: Format Key "'+AKey+'"!');
   end;
   TPGKernel.Console(LValue, ANewLine, AShow);
 end;
@@ -294,6 +348,10 @@ var
   JSONPair: TJSONPair;
   Content: string;
 begin
+  if TPGKernel.FFinalized
+  or (not Assigned(TPGKernel.FTranslate)) then
+    Exit;
+
   FTranslate.Clear;
   if FileExistsEx(AFileName) then
   begin
@@ -326,7 +384,9 @@ end;
 
 class function TPGKernel.Translate(const AValue: string): string;
 begin
-  if not FTranslate.TryGetValue(AValue, Result) then
+  if TPGKernel.FFinalized
+  or (not Assigned(TPGKernel.FTranslate))
+  or (not FTranslate.TryGetValue(AValue, Result)) then
     Result := AValue;
 end;
 
@@ -349,6 +409,15 @@ begin
     Result := ATrue
   else
     Result := AFalse;
+end;
+
+{ TPGClassRegAttribute }
+
+constructor TPGClassRegAttribute.Create(const APath: string; const AName: string; const AFactory: Boolean);
+begin
+  FPath := APath;
+  FName := AName;
+  FFactory := AFactory;
 end;
 
 { TPGAboutAttribute }
@@ -631,7 +700,7 @@ begin
 end;
 
 initialization
-  FormatSettings.DecimalSeparator := '.';
+
 finalization
 
 end.

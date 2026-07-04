@@ -1,14 +1,13 @@
 ﻿unit PGofer.Forms.AutoComplete;
 
-
 interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils, System.IniFiles,
   System.Generics.Collections, Vcl.Controls, Vcl.ComCtrls, Vcl.Forms,
-  Vcl.ExtCtrls, Vcl.StdCtrls, PGofer.Component.ListView, PGofer.Component.RichEdit,
-  PGofer.Component.Form, PGofer.Component.IniFile, PGofer.Classes, PGofer.Forms, Vcl.Menus,
-  PGofer.Component.Memo;
+  Vcl.ExtCtrls, Vcl.StdCtrls, PGofer.Component.ListView,
+  PGofer.Component.Form, PGofer.Component.IniFile,
+  PGofer.Component.Memo, PGofer.Core, PGofer.Classes, PGofer.Forms, Vcl.Menus;
 
 type
   TSelectCMD = (selClick, selUp, selDown, selEnter);
@@ -18,6 +17,7 @@ type
     OnKeyPress: TOnKeyPress;
     OnKeyUp: TOnKeyDownUP;
     OnDropFile: TOnDropFile;
+    OnMouseUp: TMouseEvent;
   end;
 
   TPGFrmAutoComplete = class;
@@ -45,6 +45,7 @@ type
     procedure mmoAboutDblClick(Sender: TObject);
     procedure ltvAutoCompleteMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer);
+    procedure FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
   private
     FEditList: TDictionary<TMemoEx, TEditOnCtrl>;
     FEditCtrl: TMemoEx;
@@ -54,7 +55,8 @@ type
     FMemoryPosition: Integer;
     FCommandCompare: string;
     FCommandCompareLength: Integer;
-    FItem: TPGFrmAutoComplete;
+    FFileListMax: Cardinal;
+    FKeyConsumed: Boolean;
 
     procedure ListViewAdd(const ACaption, AOrigin: string; AItem: TPGItem = nil); overload;
     procedure ListViewAdd(AItem: TPGItem); overload;
@@ -73,24 +75,27 @@ type
     procedure IniConfigSave; override;
     procedure IniConfigLoad; override;
   public
-    property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl default True;
+    property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl;
+    property FileListMax: Cardinal read FFileListMax write FFileListMax;
     procedure EditCtrlAdd(AValue: TMemoEx);
     procedure EditCtrlRemove(AValue: TMemoEx);
   end;
 
-{$M+}
-
+  {$M+}
+  [TPGClassReg('Forms', 'FrmAutoComplete')]
   TPGFrmAutoComplete = class(TPGForm)
   private
-    FFileListMax: Cardinal;
+    function GetFileListMax: Cardinal;
+    procedure SetFileListMax(const AValue: Cardinal);
+  protected
+    function GetForm( ): TFrmAutoComplete; reintroduce;
+    property Form: TFrmAutoComplete read GetForm;
   public
-    constructor Create(AForm: TForm); reintroduce;
-    destructor Destroy; override;
-    procedure Frame( AParent: TObject ); override;
+    procedure Frame(const AParent: TObject ); override;
   published
-    property FileListMax: Cardinal read FFileListMax write FFileListMax;
+    property FileListMax: Cardinal read GetFileListMax write SetFileListMax;
   end;
-{$TYPEINFO ON}
+ {$TYPEINFO ON}
 
 var
   FrmAutoComplete: TFrmAutoComplete;
@@ -99,8 +104,9 @@ implementation
 
 uses
   Vcl.Dialogs,
-  PGofer.Core, PGofer.Lexico, PGofer.Runtime,
-  PGofer.Sintatico.Controls, PGofer.Files.Controls, PGofer.Forms.Frame;
+  PGofer.Lexico, PGofer.Runtime,
+  PGofer.Sintatico.Controls, PGofer.Files.Controls, PGofer.Forms.Frame,
+  PGofer3.Client;
 
 {$R *.dfm}
 
@@ -122,22 +128,26 @@ end;
 procedure TFrmAutoComplete.CreateWindowHandle(const Params: TCreateParams);
 begin
   inherited;
-  SetWindowLong(Handle, GWL_EXSTYLE, GetWindowLong(Handle, GWL_EXSTYLE) or WS_EX_NOACTIVATE);
+  SetWindowLong(
+    Application.Handle,
+    GWL_EXSTYLE,
+    GetWindowLong(Application.Handle, GWL_EXSTYLE) or WS_EX_NOACTIVATE
+  );
 end;
 
 procedure TFrmAutoComplete.FormCreate(Sender: TObject);
 begin
-  FItem := TPGFrmAutoComplete.Create(Self);
-
   FMemoryIniFile := TMemIniFileEx.Create(TPGKernel.PathData + 'AutoComplete.ini');
   FMemoryNoCtrl := False;
   FMemoryPosition := 0;
   FMemoryList := TStringList.Create( );
+  FFileListMax := 100;
 
   FEditList := TDictionary<TMemoEx, TEditOnCtrl>.Create( );
   FEditCtrl := nil;
 
-  ltvAutoComplete.SmallImages := GlobalCollection.ImageList;
+  ltvAutoComplete.SmallImages := TPGItem.IconList;
+  FrmAutoComplete.EditCtrlAdd( FrmPGofer.EdtScript );
 end;
 
 procedure TFrmAutoComplete.FormDestroy(Sender: TObject);
@@ -165,11 +175,13 @@ begin
     LOnCtrl.OnKeyPress := AValue.OnKeyPress;
     LOnCtrl.OnKeyUp := AValue.OnKeyUp;
     LOnCtrl.OnDropFile := AValue.OnDropFiles;
+    LOnCtrl.OnMouseUp := AValue.OnMouseUp;
 
     AValue.OnKeyDown := FormKeyDown;
     AValue.OnKeyPress := FormKeyPress;
     AValue.OnKeyUp := FormKeyUp;
     AValue.OnDropFiles := FormDropFile;
+    AValue.OnMouseUp := FormMouseUp;
 
     FEditList.Add(AValue, LOnCtrl);
   end;
@@ -185,6 +197,8 @@ begin
     AValue.OnKeyPress := LOnCtrl.OnKeyPress;
     AValue.OnKeyUp := LOnCtrl.OnKeyUp;
     AValue.OnDropFiles := LOnCtrl.OnDropFile;
+    AValue.OnMouseUp := LOnCtrl.OnMouseUp;
+
     FEditList.Remove(AValue);
   end;
 end;
@@ -195,37 +209,39 @@ var
   c: Word;
   OnKeyDown: TOnKeyDownUP;
 begin
+  FKeyConsumed := False;
+
   if Self.Visible then
   begin
     case Key of
       VK_RETURN:
         begin
           Self.SelectCMD( selEnter );
-          Key := 0;
+          FKeyConsumed := True;
         end;
 
       VK_ESCAPE:
         begin
           Self.Close;
-          Key := 0;
+          FKeyConsumed := True;
         end;
 
       VK_UP:
         begin
           Self.SelectCMD( selUp );
-          Key := 0;
+          FKeyConsumed := True;
         end;
 
       VK_DOWN:
         begin
           Self.SelectCMD( selDown );
-          Key := 0;
+          FKeyConsumed := True;
         end;
 
-      VK_LEFT, VK_RIGHT:
-        begin
-          Self.FindCMD( );
-        end;
+//      VK_LEFT, VK_RIGHT:
+//        begin
+//          Self.FindCMD( );
+//        end;
     end;
   end else begin
     if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
@@ -251,7 +267,7 @@ begin
           if ( Shift = [ ssCtrl ] ) then
           begin
             Self.FindCMD( );
-            Key := 0;
+            FKeyConsumed := True;
           end;
         end;
 
@@ -281,34 +297,56 @@ begin
               // escreve no edit
               FEditCtrl.Lines[ FEditCtrl.CaretY - 1 ] :=
                 FMemoryList[ FMemoryPosition ];
-              Key := 0;
+              FKeyConsumed := True;
             end;
           end;
         end;
     end;
 
-    if Key <> 0 then
+    if not FKeyConsumed then
     begin
       OnKeyDown := FEditList.Items[FEditCtrl].OnKeyDown;
       if Assigned(OnKeyDown) then
         OnKeyDown(Sender, Key, Shift);
     end;
   end;
+
+  if FKeyConsumed then
+    Key := 0;
+
 end;
 
 procedure TFrmAutoComplete.FormKeyPress( Sender: TObject; var Key: Char );
 var
   OnKeyPress: TOnKeyPress;
 begin
-  if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then Exit;
+  if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
+    Exit;
 
   FEditCtrl := TMemoEx( Sender );
-  if (Key = #13) or (Key = #27) then Key := #0;
 
-  if ( Key = ' ' ) and ( GetKeyState( VK_CONTROL ) < 0 ) then
+  if FKeyConsumed then
   begin
     Key := #0;
+    Exit;
   end;
+
+  if (Key = #13) and SameText(FEditCtrl.Owner.Name, 'FrmPGofer') then
+  begin
+    FKeyConsumed := True;
+    Key := #0;
+    Exit;
+  end;
+
+//  if (Key = #13) or (Key = #27) then
+//  begin
+//    Key := #0;
+//  end;
+//
+//  if ( Key = ' ' ) and ( GetKeyState( VK_CONTROL ) < 0 ) then
+//  begin
+//    Key := #0;
+//  end;
 
   if Key <> #0 then
   begin
@@ -324,9 +362,17 @@ var
   OnKeyUp: TOnKeyDownUP;
 begin
   if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
-    exit;
+    Exit;
 
   FEditCtrl := TMemoEx( Sender );
+
+  if FKeyConsumed then
+  begin
+    Key := 0;
+    FKeyConsumed := False;
+    Exit;
+  end;
+
   if Shift = [ ] then
     case Key of
       8 { bcks } , // backspace
@@ -347,11 +393,37 @@ begin
         begin
           ScriptExec( 'Test', FEditCtrl.Lines.Text, nil, False );
         end;
+
+      VK_LEFT, VK_RIGHT:
+        begin
+          Self.FindCMD();
+        end;
     end; // case
 
-  OnKeyUp := FEditList.Items[ FEditCtrl ].OnKeyUp;
-  if Assigned( OnKeyUp ) then
-    OnKeyUp( Sender, Key, Shift );
+  if Key <> 0  then
+  begin
+    OnKeyUp := FEditList.Items[ FEditCtrl ].OnKeyUp;
+    if Assigned( OnKeyUp ) then
+      OnKeyUp( Sender, Key, Shift );
+  end;
+end;
+
+procedure TFrmAutoComplete.FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+var
+  OnMouseUp: TMouseEvent;
+begin
+  if (not Assigned(Sender)) or (not (Sender is TMemoEx)) then
+    Exit;
+
+  FEditCtrl := TMemoEx(Sender);
+
+  //Self.FindCMD();
+  Self.Close;
+
+  OnMouseUp := FEditList.Items[FEditCtrl].OnMouseUp;
+  if Assigned(OnMouseUp) then
+    OnMouseUp(Sender, Button, Shift, X, Y);
 end;
 
 procedure TFrmAutoComplete.FindCMD;
@@ -507,10 +579,11 @@ end;
 procedure TFrmAutoComplete.ProcurarComandos(const ACommand: string);
 var
   LSubCMD: TArray<string>;
-  LItem, LItemAux: TPGItem;
-  I: Integer;
-  LKeyword: string;
   LSearchText: string;
+  LItem: TPGItem;
+  LFound: TPGItem;
+  LKeyword: string;
+  Index: Integer;
 begin
   LSubCMD := ACommand.Split(['.']);
   if Length(LSubCMD) = 0 then Exit;
@@ -518,43 +591,33 @@ begin
   LSearchText := LSubCMD[High(LSubCMD)];
   CommandCompare := LSearchText;
 
-  if Length(LSubCMD) <= 1 then
-  begin
-    for LKeyword in TPGLexicalRegistry.Keywords.Keys do
+  ltvAutoComplete.Items.BeginUpdate;
+  try
+    if Length(LSubCMD) <= 1 then
     begin
-      if (LSearchText = '') or (Pos(LowerCase(LSearchText), LowerCase(LKeyword)) > 0) then
-        ListViewAdd(LKeyword, 'Keyword');
-    end;
-
-    if Assigned(GlobalCollection) then
-    begin
-      for LItem in GlobalCollection do
+      for LKeyword in TPGLexicalRegistry.Keywords.Keys do
       begin
-        if Assigned(LItem) then
-          for LItemAux in LItem.FindNameList(LSearchText, True) do
-            ListViewAdd(LItemAux);
+        if (LSearchText = '') or (Pos(LowerCase(LSearchText), LowerCase(LKeyword)) > 0) then
+          ListViewAdd(LKeyword, 'Keyword');
+      end;
+
+      for LItem in TPGItem.FindNameList(nil, LSearchText) do
+        ListViewAdd(LItem);
+
+    end else begin
+      LFound := TPGItem.FindName(nil, LSubCMD[0]);
+      for Index := 1 to High(LSubCMD) - 1 do
+        if Assigned(LFound) then LFound := LFound.FindName(LSubCMD[Index]);
+
+      if Assigned(LFound) then
+      begin
+        if LFound is TPGItemExecute then TPGItemExecute(LFound).BeforeAccess;
+        for LItem in LFound.FindNameList(LSearchText) do
+          ListViewAdd(LItem);
       end;
     end;
-  end else begin
-    LItem := GlobalCollection;
-    for I := 0 to High(LSubCMD) - 1 do
-    begin
-      if Assigned(LItem) then
-      begin
-        LItem := FindID(LItem, LSubCMD[I]);
-      end else
-        Break;
-    end;
-
-    if Assigned(LItem) then
-    begin
-      if Assigned(LItem) and (LItem is TPGItemExecute) then
-         TPGItemExecute(LItem).BeforeAccess;
-
-      for LItemAux in LItem.FindNameList(LSearchText, True) do
-        if LItemAux <> LItem then
-          ListViewAdd(LItemAux);
-    end;
+  finally
+    ltvAutoComplete.Items.EndUpdate;
   end;
 end;
 
@@ -573,7 +636,7 @@ begin
   if Assigned(AItem) then
   begin
      ListItem.ImageIndex := AItem.IconIndex;
-     ListItem.StateIndex := AItem.StateIndex;
+     ListItem.OverlayIndex := AItem.OverlayIndex;
   end;
   ListItem.Data := AItem;
 end;
@@ -778,25 +841,29 @@ begin
         ListViewAdd(LSearchRec.Name, 'File');
 
       Inc(LCount);
-    until (FindNext(LSearchRec) <> 0) or (LCount >= FItem.FileListMax);
+    until (FindNext(LSearchRec) <> 0) or (LCount >= FFileListMax);
     FindClose(LSearchRec);
   end;
 end;
 
-constructor TPGFrmAutoComplete.Create(AForm: TForm);
-begin
-  inherited Create(AForm);
-  FFileListMax := 100;
-end;
-
-destructor TPGFrmAutoComplete.Destroy;
-begin
-  inherited;
-end;
-
-procedure TPGFrmAutoComplete.Frame( AParent: TObject );
+procedure TPGFrmAutoComplete.Frame(const AParent: TObject );
 begin
   TPGFormsFrame.Create( Self, AParent );
+end;
+
+function TPGFrmAutoComplete.GetFileListMax(): Cardinal;
+begin
+  Result := Self.Form.FileListMax;
+end;
+
+function TPGFrmAutoComplete.GetForm: TFrmAutoComplete;
+begin
+  Result := TFrmAutoComplete(inherited Form);
+end;
+
+procedure TPGFrmAutoComplete.SetFileListMax(const AValue: Cardinal);
+begin
+  Self.Form.FileListMax := AValue;
 end;
 
 end.

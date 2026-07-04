@@ -1,9 +1,9 @@
-inherited PGFormsFrame: TPGFormsFrame
+﻿inherited PGFormsFrame: TPGFormsFrame
   Height = 310
   ExplicitHeight = 310
   inherited grbAbout: TGroupBox
-    Top = 236
-    Height = 64
+    Top = 256
+    Height = 44
     ExplicitTop = 236
     ExplicitHeight = 64
     inherited mmoAbout: TMemoEx

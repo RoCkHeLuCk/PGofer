@@ -9,22 +9,24 @@ uses
 
 type
   {$M+}
-  [TPGArgs('Text, Mode, Speed, Delay')]
+  [TPGClassReg('Defines', 'AutoFillDef', True)]
   TPGAutoFill = class( TPGItemTrigger )
   private
     FDelay : Cardinal;
     FSpeed : Cardinal;
     FMode : Byte;
     FText : String;
+    procedure SetText(const AValue: string);
   protected
     class function GetFrameType: TPGTriggerFrameType; override;
   public
-    constructor Create(AMirror: TPGItemMirror; AName: string); override;
+    class function OnDropFile(const AItemDad: TPGItem; const AFileName: String ): boolean; override;
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
     destructor Destroy( ); override;
     procedure Triggering( ); override;
-    procedure ExecuteAction(AMode: Byte = 255; ASpeed: Cardinal = 0; ADelay: Cardinal = 0);
+    procedure ExecuteAction(const AMode: Byte = 255; const ASpeed: Cardinal = 0; const ADelay: Cardinal = 0);
   published
-    property Text: string read FText write FText;
+    property Text: string read FText write SetText;
     [TPGAbout('0:Write; 1:Send Point; 2:Copy; 3:Copy and Paste; 4:Script;')]
     property Mode: Byte read FMode write FMode;
     [TPGAbout('Value in milliseconds;')]
@@ -34,32 +36,36 @@ type
   end;
   {$TYPEINFO ON}
 
-  TPGAutoFillMirror = class( TPGItemMirror )
-  protected
-    class function GetTriggerType: TPGItemTriggerType; override;
-  public
-    class function OnDropFile( AItemDad: TPGItem; AFileName: String ): boolean; override;
-  end;
+  procedure Initialize();
+  procedure Finalize();
 
 implementation
 
 uses
   Winapi.Windows,
   System.SysUtils, System.StrUtils,
-
-
   PGofer.Files.Controls,
   PGofer.Key.Post,
   PGofer.ClipBoards.Controls,
   PGofer.Process.Controls,
-  PGofer.Triggers.AutoFills.Frame,
-  PGofer.Key.Controls;
+  PGofer.Triggers.AutoFills.Frame;
+
+procedure Initialize();
+begin
+  TriggersCollect.RegisterClass( TPGAutoFill );
+end;
+
+procedure Finalize();
+begin
+  {$IFDEF DEBUG}
+  {$ENDIF}
+end;
 
 { TPGAutoFill }
 
-constructor TPGAutoFill.Create(AMirror: TPGItemMirror; AName: string);
+constructor TPGAutoFill.Create(const AItemDad: TPGItem; const AName: string);
 begin
-  inherited Create( AMirror, AName );
+  inherited Create( AItemDad, AName );
   FText := '';
   FSpeed := 10;
   FDelay := 200;
@@ -75,9 +81,16 @@ begin
   inherited Destroy( );
 end;
 
-class function TPGAutoFill.GetFrameType: TPGTriggerFrameType;
+class function TPGAutoFill.GetFrameType(): TPGTriggerFrameType;
 begin
   Result := TPGAutoFillsFrame;
+end;
+
+procedure TPGAutoFill.SetText(const AValue: string);
+begin
+  if FText = AValue then Exit;
+  FText := AValue;
+  Self.Invalid := FText.IsEmpty;
 end;
 
 procedure TPGAutoFill.Triggering( );
@@ -85,22 +98,23 @@ begin
   Self.ExecuteAction(FMode, FSpeed, FDelay);
 end;
 
-procedure TPGAutoFill.ExecuteAction(AMode: Byte; ASpeed, ADelay: Cardinal);
+procedure TPGAutoFill.ExecuteAction(const AMode: Byte; const ASpeed, ADelay: Cardinal);
 var
-  KeyPost: TKeyPost;
+  LKeyPost: TKeyPost;
+  LMode: Byte;
+  LSpeed, LDelay: Cardinal;
 begin
-  // Fallbacks: Se o usuário não informou no script (ou passou valor padrão), usa o da instância
-  if AMode > 4  then AMode := FMode;
-  if ASpeed = 0 then ASpeed := FSpeed;
-  if ADelay = 0 then ADelay := FDelay;
 
-  Sleep(ADelay);
+  if AMode > 4  then LMode := FMode else LMode := AMode;
+  if ASpeed = 0 then LSpeed := FSpeed else LSpeed := ASpeed;
+  if ADelay = 0 then LDelay := FDelay else LDelay := ADelay;
+  Sleep(LDelay);
 
-  case AMode of
+  case LMode of
      0:begin
-        KeyPost := TKeyPost.Create( FText, ASpeed);
-        KeyPost.WaitFor( );
-        KeyPost.Free( );
+        LKeyPost := TKeyPost.Create( FText, LSpeed);
+        LKeyPost.WaitFor( );
+        LKeyPost.Free( );
      end;
 
      1:begin
@@ -118,13 +132,13 @@ begin
 
      3:begin
        ClipBoardCopyFromText(FText);
-       Sleep(ASpeed*2);
+       Sleep(LSpeed*2);
        keybd_event( VK_CONTROL, 0, KEYEVENTF_EXTENDEDKEY, 0 );
-       Sleep(ASpeed);
+       Sleep(LSpeed);
        keybd_event( 86, 0, KEYEVENTF_EXTENDEDKEY, 0 ); //v
-       Sleep(ASpeed);
+       Sleep(LSpeed);
        keybd_event( 86, 0, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 ); //v
-       Sleep(ASpeed);
+       Sleep(LSpeed);
        keybd_event( VK_CONTROL, 0, KEYEVENTF_EXTENDEDKEY or KEYEVENTF_KEYUP, 0 );
      end;
 
@@ -134,19 +148,12 @@ begin
   end;
 end;
 
-{ TPGAutoFillMirror }
-
-class function TPGAutoFillMirror.GetTriggerType: TPGItemTriggerType;
-begin
-  Result := TPGAutoFill;
-end;
-
-class function TPGAutoFillMirror.OnDropFile(AItemDad: TPGItem; AFileName: string): Boolean;
+class function TPGAutoFill.OnDropFile(const AItemDad: TPGItem; const AFileName: string): Boolean;
 var
   LList: TStringList;
   LRow, LUrl, LUser, LPass, LHost, LUserFolder: string;
   LParts: TArray<string>;
-  LMainFolder, LHostFolder, LFinalFolder: TPGItem;
+  LMainFolder, LHostFolder, LFinalFolder: TPGTriggerFolder;
   I: Integer;
 begin
   Result := SameText(ExtractFileExt(AFileName), '.csv');
@@ -157,12 +164,12 @@ begin
     LList.LoadFromFile(AFileName);
     if LList.Count <= 1 then Exit;
 
-    LMainFolder := TPGFolderMirror.Create(AItemDad, FileExtractOnlyFileName(AFileName));
+    LMainFolder := TPGTriggerFolder.Create(AItemDad, FileExtractOnlyFileName(AFileName));
 
     for I := 0 to LList.Count - 1 do
     begin
       LRow := LList[I].Trim;
-      if (LRow = '') or (I = 0) and (ContainsText(LRow, 'url')) then Continue;
+      if (LRow = '') or ((I = 0) and ContainsText(LRow, 'url')) then Continue;
 
       LParts := LRow.Split([',', ';', #9]);
       if Length(LParts) >= 3 then
@@ -173,50 +180,35 @@ begin
 
         if LPass = '' then Continue;
 
-        // 1. Extração do Host (Sanitização equilibrada)
         LHost := LUrl;
         if ContainsText(LHost, '://') then LHost := LHost.Split(['://'])[1];
         LHost := LHost.Split(['/', ':', '?'])[0];
         LHost := ReplaceStr(LHost, 'www.', '');
 
-        // Troca pontos por underscores antes de sanitizar (google.com -> google_com)
-        LHost := ReplaceStr(LHost, '.', '_');
-        LHost := RemoveCharSpecial(LHost, True);
-
-        // 2. Localização Robusta
-        LHostFolder := LMainFolder.FindName(LHost);
+        LHostFolder := TPGTriggerFolder(LMainFolder.FindName(LHost));
         if LHostFolder = nil then
         begin
-          LHostFolder := TPGFolderMirror.Create(LMainFolder, LHost);
-          TPGFolderMirror(LHostFolder).Namespace := True;
+          LHostFolder := TPGTriggerFolder.Create(LMainFolder, LHost);
+          LHostFolder.Namespace := True;
         end;
 
-        // 3. Pasta do Usuário (Shadowing)
-        LUserFolder := LUser;
-        if LUserFolder = '' then LUserFolder := 'default';
-        LUserFolder := RemoveCharSpecial(LUserFolder, True);
-
-        LFinalFolder := LHostFolder.FindName(LUserFolder);
+        LUserFolder := IfThen(LUser = '', 'default', LUser);
+        LFinalFolder := TPGTriggerFolder(LHostFolder.FindName(LUserFolder));
         if LFinalFolder = nil then
         begin
-          LFinalFolder := TPGFolderMirror.Create(LHostFolder, LUserFolder);
-          TPGFolderMirror(LFinalFolder).Namespace := True;
-
-          // Itens de preenchimento
-          TPGAutoFill(TPGAutoFillMirror.Create(LFinalFolder, 'user').ItemOriginal).Text := LUser;
-          TPGAutoFill(TPGAutoFillMirror.Create(LFinalFolder, 'pass').ItemOriginal).Text := LPass;
+          LFinalFolder := TPGTriggerFolder.Create(LHostFolder, LUserFolder);
+          LFinalFolder.Namespace := True;
+          with TPGAutoFill.Create(LFinalFolder, 'user') do Text := LUser;
+          with TPGAutoFill.Create(LFinalFolder, 'pass') do Text := LPass;
         end;
       end;
     end;
-    TriggersCollect.XMLSaveToFile();
   finally
     LList.Free;
   end;
 end;
 
 initialization
-  TPGItemDef.Create(TPGAutoFill, 'AutoFillDef');
-  TriggersCollect.RegisterClass( TPGAutoFillMirror );
 
 finalization
 

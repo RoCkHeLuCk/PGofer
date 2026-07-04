@@ -3,12 +3,13 @@
 interface
 
 uses
-  PGofer.Runtime;
+  PGofer.Core, PGofer.Runtime;
 
 type
   // ????????? Arrumar o Deg, RAD, GRA do Math
 
   {$M+}
+  [TPGClassReg('Commands')]
   TPGMath = class( TPGItemClass )
   private
   public
@@ -38,9 +39,6 @@ type
     function Tan( Valor: Extended ): Extended;
   end;
   {$TYPEINFO ON}
-
-var
-  PGMath: TPGMath;
 
 implementation
 
@@ -168,10 +166,6 @@ end;
 
 initialization
 
-  PGMath := TPGMath.Create( GlobalItemCommand );
-
 finalization
-
-  PGMath := nil;
 
 end.

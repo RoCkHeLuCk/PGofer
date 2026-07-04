@@ -4,8 +4,8 @@ interface
 
 uses
   System.Generics.Collections, System.Rtti, System.SysUtils,
-  Vcl.Comctrls,
-  PGofer.Classes, PGofer.Sintatico;
+
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico;
 
 type
   TPGItemClassType = class of TPGItemClass;
@@ -26,12 +26,13 @@ type
     procedure ExecuteMember(const AGrammar: TPGGrammar);
     procedure ExecuteDefault(const AGrammar: TPGGrammar); virtual;
     function GetAbout: string; override;
-    procedure SetNode(AValue: TTreeNode); override;
-    class function GetClassArgsMap(AClass: TClass): TArray<TRttiProperty>;
-    class function ExecuteRttiMethod(const AGrammar: TPGGrammar; AMethod: TRttiMethod; ATarget: TValue): Boolean;
-    class function GetMethodSignature(AMethod: TRttiMethod; const ACustomName: string = ''): string;
+    class function GetClassArgsMap(const AClass: TClass): TArray<TRttiProperty>;
+    class function ExecuteRttiMethod(const AGrammar: TPGGrammar; const AMethod: TRttiMethod; const ATarget: TValue): Boolean;
+    class function GetMethodSignature(const AMethod: TRttiMethod; const ACustomName: string = ''): string;
   public
-    constructor Create(AItemDad: TPGItem; const AName: string = ''); reintroduce; virtual;
+    class function GetDefaultRoot(): TPGItem; virtual;
+
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
     procedure BeforeAccess; override;
   end;
@@ -41,14 +42,14 @@ type
     FMember: TRttiMember;
     FTargetClass: TClass;
   public
-    constructor Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass = nil); virtual;
+    constructor Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass = nil); reintroduce; virtual;
   end;
 
   TPGItemProperty = class(TPGItemMember)
   protected
     function GetAbout: string; override;
   public
-    constructor Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass = nil); override;
+    constructor Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass = nil); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
@@ -68,7 +69,7 @@ type
     function GetAbout: string; override;
     function GetIconIndex: Integer; override;
   public
-    constructor Create(AClass: TPGItemClassType; const AName: string = ''); reintroduce;
+    constructor Create(const AItemDad: TPGItem; const AClass: TPGItemClassType; const AName: string = ''); reintroduce;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
@@ -76,41 +77,125 @@ type
   {$M+}
   TPGFolder = class(TPGItemClass)
   private
-    FExpanded: Boolean;
-    FLocked: Boolean;
   protected
-    procedure SetExpanded(const AValue: Boolean); virtual;
-    procedure SetLocked(const AValue: Boolean); virtual;
-    procedure SetLockedForced(const AValue: Boolean);
+    function GetMaxOverlayFlag(): TPGItemFlag; override;
   public
-    constructor Create(AOwner: TPGItem; const AName: string); override;
-    procedure ExecuteAction(AExpanded: Boolean = True; ALocked: Boolean = False);
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
+    procedure ExecuteAction(const AExpanded: Boolean = True; const ALocked: Boolean = False);
   published
-    property _Expanded: Boolean read FExpanded write SetExpanded;
-    property _Locked: Boolean read FLocked write SetLocked;
+    property _Expanded: Boolean read GetExpanded write SetExpanded;
   end;
   {$TYPEINFO ON}
 
+  procedure Initialize();
+  procedure Finalize();
+  procedure DiscoverAndRegisterClasses();
+
   { Funções Globais de Execução }
-  procedure ScriptExec(const AName, AScript: string; ANivel: TPGItem = nil; AWaitFor: Boolean = False);
-  function FileScriptExec(const AFileName: string; AWait: Boolean): Boolean;
+  procedure ScriptExec(const AName, AScript: string; const ANivel: TPGItem = nil; const AWaitFor: Boolean = False);
+  function FileScriptExec(const AFileName: string; const AWait: Boolean): Boolean;
 
 var
   GlobalCollection: TPGItemCollect;
-  GlobalItemCommand: TPGFolder;
-  GlobalItemDefines: TPGFolder;
 
 implementation
 
 uses
   System.Classes, System.TypInfo,
-  PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls;
+  PGofer.Lexico, PGofer.Sintatico.Controls;
+
+procedure Initialize();
+begin
+  GlobalCollection := TPGItemCollect.Create(nil, 'Globals');
+  DiscoverAndRegisterClasses();
+end;
+
+procedure Finalize();
+begin
+  GlobalCollection.Free;
+  GlobalCollection := nil;
+  {$IFDEF DEBUG}
+  {$ENDIF}
+end;
+
+procedure DiscoverAndRegisterClasses();
+var
+  LType: TRttiType;
+  LAttr: TCustomAttribute;
+  LRegAttr: TPGClassRegAttribute;
+
+  function GetOrCreateFolder(const APath: string): TPGItem;
+  var
+    LParts: TArray<string>;
+    LPart: string;
+    LCurrent, LNext: TPGItem;
+  begin
+    LCurrent := GlobalCollection; // Ponto de partida
+    if APath = '' then Exit(LCurrent);
+
+    // Divide o caminho por pontos (ex: 'Commands.Net.Socket')
+    LParts := APath.Split(['.']);
+    for LPart in LParts do
+    begin
+      // Procura a pasta no nível atual
+      LNext := LCurrent.FindName(LPart);
+
+      // Se não existe, cria agora!
+      if LNext = nil then
+      begin
+        LNext := TPGFolder.Create(LCurrent, LPart);
+        // Opcional: Configurar flags padrão para pastas criadas automaticamente
+        LNext.Namespace := False;
+      end;
+
+      LCurrent := LNext;
+    end;
+    Result := LCurrent;
+  end;
+
+var
+  LTargetFolder: TPGItem;
+  LClassName: string;
+  LClass: TClass;
+begin
+  for LType in TPGKernel.RttiContext.GetTypes do
+  begin
+    // Apenas herdeiros de TPGItemClass
+    if not (LType.IsInstance and LType.AsInstance.MetaclassType.InheritsFrom(TPGItemClass)) then
+       Continue;
+
+    for LAttr in LType.GetAttributes do
+    begin
+      // Apenas TPGClassRegAttribute
+      if not (LAttr is TPGClassRegAttribute) then
+        Continue;
+
+      LRegAttr := TPGClassRegAttribute(LAttr);
+
+      // Obtem ou Cria a Pasta
+      LTargetFolder := GetOrCreateFolder(LRegAttr.Path);
+
+      // Obtem o nome
+      LClassName := LRegAttr.Name;
+      if LClassName = '' then
+        LClassName := TPGItemClassType(LType.AsInstance.MetaclassType).ClassNameEx;
+
+      // Cria o Objeto/Define
+      LClass := LType.AsInstance.MetaclassType;
+      if LRegAttr.Factory then
+        TPGItemDef.Create(LTargetFolder, TPGItemClassType(LClass), LClassName)
+      else
+        TPGItemClassType(LClass).Create(LTargetFolder, LClassName);
+    end;
+  end;
+end;
 
 { TPGItemExecute }
 
-procedure TPGItemExecute.BeforeAccess;
+procedure TPGItemExecute.BeforeAccess();
 begin
-
+  if Self.Count = 0 then
+     Self.HasChildren := False;
 end;
 
 { TPGItemClass }
@@ -131,9 +216,11 @@ begin
   inherited BeforeAccess;
 end;
 
-constructor TPGItemClass.Create(AItemDad: TPGItem; const AName: string);
+constructor TPGItemClass.Create(const AItemDad: TPGItem; const AName: string);
 begin
-  inherited Create(AItemDad, TPGKernel.IfThen<String>(AName = '', Self.ClassNameEx, AName));
+  inherited Create(AItemDad, AName);
+  Self.Namespace := True;
+  Self.HasChildren := True;
 end;
 
 procedure TPGItemClass.RttiCreateChildren();
@@ -144,31 +231,27 @@ var
 begin
   LType := TPGKernel.RttiContext.GetType(Self.ClassType);
 
-  if Self.CollectDad = GlobalCollection then
+  for LProp in LType.GetProperties do
   begin
-    for LProp in LType.GetProperties do
+    if (LProp.Visibility = mvPublished)
+    and (not Assigned(Self.FindName(LProp.Name))) then
     begin
-      if (LProp.Visibility = mvPublished)
-      and (not LProp.Name.StartsWith('_'))
-      and (not Assigned(Self.FindName(LProp.Name))) then
-      begin
-        if (LProp.PropertyType.IsInstance)
-        and(LProp.PropertyType.AsInstance.MetaclassType.InheritsFrom(TPGItemClass)) then
-          TPGItemClassType(LProp.PropertyType.AsInstance.MetaclassType).Create(Self, LProp.Name)
-        else
-          TPGItemProperty.Create(Self, LProp);
-      end;
-    end;
-
-    for LMethod in LType.GetMethods do
-    begin
-      if (LMethod.Visibility = mvPublished)
-      and (not LMethod.Name.StartsWith('_'))
-      and (not LMethod.IsClassMethod)
-      and (not Assigned(Self.FindName(LMethod.Name))) then
-        TPGItemMethod.Create(Self, LMethod);
+      if (LProp.PropertyType.IsInstance)
+      and(LProp.PropertyType.AsInstance.MetaclassType.InheritsFrom(TPGItemClass)) then
+        TPGItemClassType(LProp.PropertyType.AsInstance.MetaclassType).Create(Self, LProp.Name)
+      else
+        TPGItemProperty.Create(Self, LProp);
     end;
   end;
+
+  for LMethod in LType.GetMethods do
+  begin
+    if (LMethod.Visibility = mvPublished)
+    and (not LMethod.IsClassMethod)
+    and (not Assigned(Self.FindName(LMethod.Name))) then
+      TPGItemMethod.Create(Self, LMethod);
+  end;
+
 end;
 
 procedure TPGItemClass.RttiCreateDefaultAction();
@@ -180,13 +263,6 @@ begin
     LType := TPGKernel.RttiContext.GetType(Self.ClassType);
     FDefaultAction := LType.GetMethod('ExecuteAction');
   end;
-end;
-
-procedure TPGItemClass.SetNode(AValue: TTreeNode);
-begin
-  inherited SetNode(AValue);
-  if Assigned(AValue) then
-    AValue.HasChildren := True;
 end;
 
 procedure TPGItemClass.Execute(const AGrammar: TPGGrammar);
@@ -232,7 +308,7 @@ begin
   // Ação padrão quando apenas o nome do objeto é citado
 end;
 
-class function TPGItemClass.ExecuteRttiMethod(const AGrammar: TPGGrammar; AMethod: TRttiMethod; ATarget: TValue): Boolean;
+class function TPGItemClass.ExecuteRttiMethod(const AGrammar: TPGGrammar; const AMethod: TRttiMethod; const ATarget: TValue): Boolean;
 var
   LParams: TArray<TRttiParameter>;
   LValues: array of TValue;
@@ -248,7 +324,7 @@ begin
 
   if not AGrammar.HasError then
   begin
-    if ATarget.IsObject and (not TPGItem(ATarget.AsObject).Enabled) then
+    if ATarget.IsObject and (pgfDisabled in TPGItem(ATarget.AsObject).Flags) then
     begin
       for I := 0 to LCount - 1 do AGrammar.Stack.Pop;
       Exit(True);
@@ -278,7 +354,7 @@ begin
   end;
 end;
 
-class function TPGItemClass.GetClassArgsMap(AClass: TClass): TArray<TRttiProperty>;
+class function TPGItemClass.GetClassArgsMap(const AClass: TClass): TArray<TRttiProperty>;
 var
   LArgNames: TArray<string>;
   LType: TRttiType;
@@ -293,9 +369,7 @@ begin
     SetLength(Result, Length(LArgNames));
     for I := 0 to High(LArgNames) do
       Result[I] := LType.GetProperty(LArgNames[I]);
-  end
-  else
-  begin
+  end else begin
     for LProp in LType.GetProperties do
       if (LProp.Visibility = mvPublished) and LProp.IsWritable then
       begin
@@ -305,7 +379,12 @@ begin
   end;
 end;
 
-class function TPGItemClass.GetMethodSignature(AMethod: TRttiMethod; const ACustomName: string = ''): string;
+class function TPGItemClass.GetDefaultRoot(): TPGItem;
+begin
+  Result := GlobalCollection;
+end;
+
+class function TPGItemClass.GetMethodSignature(const AMethod: TRttiMethod; const ACustomName: string = ''): string;
 var
   LParams: TArray<TRttiParameter>;
   LIndex: Integer;
@@ -375,19 +454,20 @@ end;
 
 { TPGItemMember }
 
-constructor TPGItemMember.Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass);
+constructor TPGItemMember.Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass);
 begin
-  inherited Create(AOwner, AMember.Name);
+  inherited Create(AItemDad, AMember.Name);
   FMember := AMember;
   FTargetClass := ATargetClass;
 end;
 
 { TPGItemProperty }
 
-constructor TPGItemProperty.Create(AOwner: TPGItem; AMember: TRttiMember; ATargetClass: TClass);
+constructor TPGItemProperty.Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass);
 begin
   inherited;
-  Self.ReadOnly := not TRttiProperty(FMember).IsWritable;
+  if not TRttiProperty(FMember).IsWritable then
+     Self.ReadOnly := True;
 end;
 
 procedure TPGItemProperty.Execute(const AGrammar: TPGGrammar);
@@ -421,7 +501,7 @@ begin
   end;
 end;
 
-function TPGItemProperty.GetAbout: string;
+function TPGItemProperty.GetAbout(): string;
 var
   LClassAbout: TDictionary<string, string>;
   LProp: TRttiProperty;
@@ -476,7 +556,7 @@ begin
   TPGItemClass.ExecuteRttiMethod(AGrammar, TRttiMethod(FMember), LTarget);
 end;
 
-function TPGItemMethod.GetAbout: string;
+function TPGItemMethod.GetAbout(): string;
 var
   LClassAbout: TDictionary<string, string>;
   LTargetClass: TClass;
@@ -507,10 +587,10 @@ end;
 
 { TPGItemDef }
 
-constructor TPGItemDef.Create(AClass: TPGItemClassType; const AName: string);
+constructor TPGItemDef.Create(const AItemDad: TPGItem; const AClass: TPGItemClassType; const AName: string);
 begin
   FTargetClass := AClass;
-  inherited Create(GlobalItemDefines, TPGKernel.IfThen<string>(AName = '', AClass.ClassNameEx + 'Def', AName));
+  inherited Create(AItemDad, AName);
 end;
 
 procedure TPGItemDef.RttiCreateChildren();
@@ -534,6 +614,7 @@ var
   LParams: TArray<TValue>;
   LName: string;
   LNewObj: TPGItemClass;
+  LTargetRoot: TPGItem;
 begin
   Self.BeforeAccess();
   AGrammar.TokenList.Next;
@@ -548,9 +629,11 @@ begin
       for I := High(LParams) downto 0 do LParams[I] := AGrammar.Stack.Pop;
       LName := AGrammar.Stack.Pop.ToString;
 
-      LNewObj := TPGItemClass(FindID(GlobalCollection, LName));
+      LTargetRoot := FTargetClass.GetDefaultRoot;
+      LNewObj := TPGItemClass(FindID(LTargetRoot, LName));
+
       if not Assigned(LNewObj) then
-        LNewObj := FTargetClass.Create(nil, LName);
+        LNewObj := FTargetClass.Create(LTargetRoot, LName);
 
       for I := 0 to High(LParams) do
         if Assigned(FArgsMap[I]) then
@@ -563,7 +646,7 @@ begin
     AGrammar.Error('Error_Interpreter_Unrecog', []);
 end;
 
-function TPGItemDef.GetAbout: string;
+function TPGItemDef.GetAbout(): string;
 begin
   Result := 'Factory for ' + FTargetClass.ClassNameEx + #13 + TPGAboutAttribute.GetFromClass(FTargetClass);
 end;
@@ -578,43 +661,27 @@ end;
 
 { TPGFolder }
 
-constructor TPGFolder.Create(AOwner: TPGItem; const AName: string);
+constructor TPGFolder.Create(const AItemDad: TPGItem; const AName: string);
 begin
-  inherited;
-  FLocked := False;
-  FExpanded := False;
+  inherited Create(AItemDad, AName);
+  Self.Namespace := False;
+  Self.HasChildren := False;
 end;
 
-procedure TPGFolder.ExecuteAction(AExpanded, ALocked: Boolean);
+procedure TPGFolder.ExecuteAction(const AExpanded, ALocked: Boolean);
 begin
-  SetLocked(ALocked);
-  SetExpanded(AExpanded);
+  Self.Expanded := AExpanded;
+  Self.Locked := ALocked;
 end;
 
-procedure TPGFolder.SetExpanded(const AValue: Boolean);
+function TPGFolder.GetMaxOverlayFlag(): TPGItemFlag;
 begin
-  if not FLocked then
-  begin
-    FExpanded := AValue;
-    if Assigned(Node) then Node.Expanded := FExpanded;
-  end;
-end;
-
-procedure TPGFolder.SetLocked(const AValue: Boolean);
-begin
-  if AValue = FLocked then Exit;
-  FLocked := AValue;
-  if FLocked then SetExpanded(False);
-end;
-
-procedure TPGFolder.SetLockedForced(const AValue: Boolean);
-begin
-  FLocked := AValue;
+  Result := pgfNamespace;
 end;
 
 { Execução de Scripts }
 
-procedure ScriptExec(const AName, AScript: string; ANivel: TPGItem; AWaitFor: Boolean);
+procedure ScriptExec(const AName, AScript: string; const ANivel: TPGItem; const AWaitFor: Boolean);
 var
   LGrammar: TPGGrammar;
 begin
@@ -628,7 +695,7 @@ begin
   end;
 end;
 
-function FileScriptExec(const AFileName: string; AWait: Boolean): Boolean;
+function FileScriptExec(const AFileName: string; const AWait: Boolean): Boolean;
 var
   LContent: TStringList;
 begin
@@ -645,13 +712,8 @@ begin
   end;
 end;
 
-
 initialization
-  GlobalCollection := TPGItemCollect.Create('Globals');
-  GlobalItemCommand := TPGFolder.Create(GlobalCollection, 'Commands');
-  GlobalItemDefines := TPGFolder.Create(GlobalCollection, 'Defines');
 
 finalization
-  GlobalCollection.Free;
 
 end.

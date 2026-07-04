@@ -3,11 +3,12 @@
 interface
 
 uses
-  PGofer.Runtime;
+  PGofer.Core, PGofer.Runtime;
 
 type
 
   {$M+}
+  [TPGClassReg('Commands')]
   TPGKey = class( TPGItemClass )
   private
   public
@@ -21,9 +22,6 @@ type
     function ToChar( Key: SmallInt ): Char;
   end;
   {$TYPEINFO ON}
-
-var
-  PGKey: TPGKey;
 
 implementation
 
@@ -73,10 +71,7 @@ end;
 
 initialization
 
-  PGKey := TPGKey.Create( GlobalItemCommand );
-
 finalization
 
-  PGKey := nil;
 
 end.

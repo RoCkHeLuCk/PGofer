@@ -5,136 +5,189 @@ interface
 uses
   System.SyncObjs, System.Generics.Collections,
   Vcl.ImgList, Vcl.Comctrls,
-  PGofer.Component.Form, PGofer.Component.TreeView;
-
+  PGofer.Component.Form, PGofer.Component.TreeView, PGofer.Core;
+{$M+}
 type
   TPGItemCollect = class;
   TPGItemType = class of TPGItem;
 
+  TPGItemFlag = (
+    pgfInvalid,
+    pgfLocked,
+    pgfDisabled,
+    pgfReadOnly,
+    pgfNamespace,
+    pgfInternal,
+    pgfExpanded,
+    pgfHasChildren
+  );
+  TPGItemFlags = set of TPGItemFlag;
+
   TPGItem = class(TObjectList<TPGItem>)
   private
     FName: string;
-    FEnabled: Boolean;
-    FReadOnly: Boolean;
-    FSystemNode: Boolean;
     FDestroying: Boolean;
+    FFlags: TPGItemFlags;
     FParent: TPGItem;
+    FCollectDad: TPGItemCollect;
     FNode: TTreeNode;
-    function GetCollectDad(): TPGItemCollect;
+    FisUpdate: Boolean;
+    function GetFlags: TPGItemFlags;
+    function IsCanHaveNode(): Boolean;
+    procedure SetNode(const AValue: TTreeNode);
+
     class var FIconCache: TDictionary<TClass, Integer>;
+    class var FOverlayCache: TDictionary<TPGItemFlag, Integer>;
     class var FIconList: TCustomImageList;
-    class var FStateCache: TDictionary<String, Integer>;
-    class var FStateList: TCustomImageList;
-    procedure SetSystemNode(const Value: Boolean);
-    procedure SetReadOnly(const Value: Boolean);
   protected
     class var FAbout: TObjectDictionary<TClass, TDictionary<string, string>>;
+
     function GetAbout(): String; virtual;
-    function GetIsValid(): Boolean; virtual;
     function GetName(): String; virtual;
     function GetIconIndex(): Integer; virtual;
-    function GetStateIndex: Integer; virtual;
-    procedure SetName(AName: string); virtual;
-    procedure SetNameForced(AName: string); virtual;
-    procedure SetEnabled(AValue: Boolean); virtual;
-    procedure SetParent(AParent: TPGItem); virtual;
-    procedure SetNode(AValue: TTreeNode); virtual;
-    procedure UpdateStateIcon();
+    function GetMaxOverlayFlag(): TPGItemFlag; virtual;
+    function GetOverlayIndex(): Integer; virtual;
+
+    procedure SetName(const AName: string); virtual;
+    procedure SetParent(const AParent: TPGItem); virtual;
+    procedure UpdateFlag(const AFlag: TPGItemFlag; const AValue: Boolean); virtual;
+
+    function GetDisabled: Boolean;
+    function GetExpanded: Boolean;
+    function GetHasChildren: Boolean;
+    function GetInvalid: Boolean;
+    function GetLocked: Boolean;
+    function GetNamespace: Boolean;
+    function GetReadOnly: Boolean;
+    function GetInternal: Boolean;
+
+    procedure SetDisabled(const AValue: Boolean);
+    procedure SetExpanded(const AValue: Boolean);
+    procedure SetHasChildren(const AValue: Boolean);
+    procedure SetInvalid(const AValue: Boolean);
+    procedure SetNamespace(const AValue: Boolean); virtual;
+    procedure SetLocked(const AValue: Boolean); virtual;
+    procedure SetReadOnly(const AValue: Boolean);
+    procedure SetInternal(const AValue: Boolean);
+
+    procedure Notify(const Value: TPGItem; Action: TCollectionNotification); override;
   public
-    class constructor Create();
-    class destructor Destroy();
     class function ClassNameEx(): String; virtual;
     class function ClassIconIndex(): Integer;
-    class function ClassStateIconIndex(AStateName: String): Integer;
+    class function ClassOverlayIndex(const AFlag: TPGItemFlag): Integer;
+    class property IconList: TCustomImageList read FIconList;
 
-    constructor Create(AParent: TPGItem; AName: string); overload; virtual;
-    destructor Destroy(); override;
+    class function FindName(const AScope: TPGItem; const AName: string): TPGItem; overload;
+    class function FindNameList(const AScope: TPGItem; const AName: string): TArray<TPGItem>; overload;
+
+    constructor Create(const AParent: TPGItem; const AName: string  = ''); reintroduce; virtual;
     procedure BeforeDestruction(); override;
+    destructor Destroy(); override;
+
     property Destroying: Boolean read FDestroying;
 
     property Name: string read GetName write SetName;
     property About: string read GetAbout;
 
-    property SystemNode: Boolean read FSystemNode write SetSystemNode;
-    property ReadOnly: Boolean read FReadOnly write SetReadOnly;
-    property Enabled: Boolean read FEnabled write SetEnabled;
-    property IsValid: Boolean read GetIsValid;
+    property Flags: TPGItemFlags read GetFlags;
+    property Invalid: Boolean read GetInvalid write SetInvalid;
+    property Locked: Boolean read GetLocked write SetLocked;
+    property Disabled: Boolean read GetDisabled write SetDisabled;
+    property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
+    property Namespace: Boolean read GetNamespace write SetNamespace;
+    property Internal: Boolean read GetInternal write SetInternal;
+    property Expanded: Boolean read GetExpanded write SetExpanded;
+    property HasChildren: Boolean read GetHasChildren write SetHasChildren;
 
     property IconIndex: Integer read GetIconIndex;
-    property StateIndex: Integer read GetStateIndex;
+    property OverlayIndex: Integer read GetOverlayIndex;
+    property MaxOverlayIndex: TPGItemFlag read GetMaxOverlayFlag;
 
     property Parent: TPGItem read FParent write SetParent;
-    property Node: TTreeNode read FNode write SetNode;
-    property CollectDad: TPGItemCollect read GetCollectDad;
-    procedure Frame(AParent: TObject); virtual;
-    function FindName(AName: string): TPGItem;
-    function FindNameList(AName: string; APartial: Boolean): TArray<TPGItem>;
+    property Node: TTreeNode read FNode;
+    property CollectDad: TPGItemCollect read FCollectDad;
+
+    procedure UpdateNode();
+    procedure Frame(const AParent: TObject); virtual;
+
+    function FindName(const AName: string): TPGItem; overload;
+    function FindNameList(const AName: string): TArray<TPGItem>; overload;
   end;
 
   TPGItemCollect = class(TPGItem)
   private
     FAttached: Boolean;
+    FHiddeInternal: Boolean;
     FCollectLock: TCriticalSection;
+    FUpdateList: TList<TPGItem>;
+    FUpdateCount: Integer;
     FTreeView: TTreeViewEx;
     FForm: TFormEx;
-    class function GetImageList(): TCustomImageList;
-    class function GetStateImageList(): TCustomImageList;
+
+    class var FCollectList: TList<TPGItemCollect>;
   protected
-    procedure SetTreeView(AValue: TTreeViewEx);
-    procedure SetForm(AValue: TFormEx);
-  public
-    constructor Create(AName: string); overload;
-    destructor Destroy(); override;
-    property ImageList: TCustomImageList read GetImageList;
-    property StateImageList: TCustomImageList read GetStateImageList;
-    property TreeView: TTreeViewEx read FTreeView;
-    property Form: TFormEx read FForm;
-    property Attached: Boolean read FAttached;
-    procedure FormCreate(); virtual;
-    procedure FormShow();
-    procedure TreeViewAttach();
-    procedure TreeViewDetach(AItem: TPGItem = nil);
+    procedure SetParent(const AParent: TPGItem); override;
+    procedure SetForm(const AValue: TFormEx); virtual;
     procedure CollectLocked();
     procedure CollectUnlocked();
+  public
+    constructor Create(const AParent: TPGItem; const AName: string); override;
+    destructor Destroy(); override;
+
+    property Form: TFormEx read FForm write SetForm;
+    property TreeView: TTreeViewEx read FTreeView;
+    property Attached: Boolean read FAttached;
+    property HiddeInternal: Boolean read FHiddeInternal write FHiddeInternal;
+
+    procedure BeginUpdate();
+    function BlockUpdate():Boolean;
+    procedure EndUpdate();
+    procedure TreeViewAttach();
+    procedure TreeViewDetach(const AItem: TPGItem = nil);
+    procedure FormShow();
   end;
+
+  procedure Initialize();
+  procedure Finalize();
 
 implementation
 
 uses
-  System.Classes, System.SysUtils,
-  Vcl.Graphics,
-  PGofer.Core, PGofer.Item.Frame, PGofer.Forms.Controller;
+  System.Classes, System.SysUtils, System.TypInfo,
+  Vcl.Forms, Vcl.Graphics,
+  PGofer.Item.Frame, PGofer.Forms.Controller;
+
+procedure Initialize();
+begin
+  TPGItemCollect.FCollectList := TList<TPGItemCollect>.Create;
+  TPGItem.FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
+  TPGItem.FIconCache := TDictionary<TClass, Integer>.Create;
+  TPGItem.FOverlayCache := TDictionary<TPGItemFlag, Integer>.Create;
+
+  TPGItem.FIconList := TCustomImageList.Create(nil);
+  TPGItem.FIconList.ColorDepth := cd32bit;
+  TPGItem.FIconList.Width := 16;
+  TPGItem.FIconList.Height := 16;
+end;
+
+procedure Finalize();
+begin
+  TPGItem.FIconList.Free;
+  TPGItem.FIconList := nil;
+  TPGItem.FOverlayCache.Free;
+  TPGItem.FOverlayCache := nil;
+  TPGItem.FIconCache.Free;
+  TPGItem.FIconCache := nil;
+  TPGItem.FAbout.Free;
+  TPGItem.FAbout := nil;
+  TPGItemCollect.FCollectList.Free;
+  TPGItemCollect.FCollectList := nil;
+
+  {$IFDEF DEBUG}
+  {$ENDIF}
+end;
 
 { TPGItem }
-
-class constructor TPGItem.Create();
-begin
-  FAbout := TObjectDictionary<TClass, TDictionary<string, string>>.Create([doOwnsValues]);
-  FIconCache := TDictionary<TClass, Integer>.Create;
-  FStateCache := TDictionary<String, Integer>.Create;
-
-  FIconList := TCustomImageList.Create(nil);
-  FIconList.Width := 16;
-  FIconList.Height := 16;
-
-  FStateList := TCustomImageList.Create(nil);
-  FStateList.Width := 16;
-  FStateList.Height := 16;
-end;
-
-class destructor TPGItem.Destroy();
-begin
-  FStateList.Free;
-  FStateList := nil;
-  FIconList.Free;
-  FIconList := nil;
-  FStateCache.Free;
-  FStateCache := nil;
-  FIconCache.Free;
-  FIconCache := nil;
-  FAbout.Free;
-  FAbout := nil;
-end;
 
 class function TPGItem.ClassIconIndex(): Integer;
 var
@@ -146,7 +199,6 @@ var
     LIconFileName: string;
   begin
     Result := 0;
-
     LCurrentClass := LClass;
     while (LCurrentClass <> nil) and (LCurrentClass.InheritsFrom(TPGItem)) do
     begin
@@ -166,36 +218,45 @@ var
     end;
   end;
 begin
+  if TPGKernel.Finalized
+  or (not Assigned(TPGItem.FIconCache)) then
+    Exit(-1);
+
   LClass := Self;
-  if not FIconCache.TryGetValue( LClass, Result ) then
+  if not TPGItem.FIconCache.TryGetValue( LClass, Result ) then
   begin
     Result := LLoadForClass();
-    FIconCache.Add( LClass , Result);
+    TPGItem.FIconCache.Add( LClass , Result);
   end;
 end;
 
-class function TPGItem.ClassStateIconIndex(AStateName: String): Integer;
+class function TPGItem.ClassOverlayIndex(const AFlag: TPGItemFlag): Integer;
 var
   LIcon: TIcon;
-  LFileName: string;
+  LIconFileName: string;
 begin
-  if not FStateCache.TryGetValue(AStateName, Result) then
-  begin
-    Result := -1;
-    LFileName := TPGKernel.PathIcon + 'state\' + AStateName + '.ico';
+  if TPGKernel.Finalized
+  or (not Assigned(TPGItem.FOverlayCache)) then
+    Exit(-1);
 
-    if FileExists(LFileName) then
-    begin
-      LIcon := TIcon.Create;
-      try
-        LIcon.LoadFromFile(LFileName);
-        Result := FStateList.AddIcon(LIcon);
-        FStateCache.Add(AStateName, Result);
-      finally
-        LIcon.Free;
-      end;
+  if TPGItem.FOverlayCache.TryGetValue(AFlag, Result) then
+    Exit(Result);
+
+  Result := -1;
+  LIconFileName := GetEnumName(TypeInfo(TPGItemFlag), Ord(AFlag)).Substring(3);
+  LIconFileName := TPGKernel.PathIcon + 'State\' + LIconFileName + '.ico';
+  if FileExists(LIconFileName) then
+  begin
+    LIcon := TIcon.Create( );
+    try
+      LIcon.LoadFromFile( LIconFileName );
+      Result := TPGItem.FOverlayCache.Count + 1;
+      TPGItem.FIconList.Overlay( TPGItem.FIconList.AddIcon(LIcon) , Result);
+    finally
+      LIcon.Free( );
     end;
   end;
+  TPGItem.FOverlayCache.Add(AFlag, Result);
 end;
 
 class function TPGItem.ClassNameEx(): String;
@@ -208,16 +269,86 @@ begin
   end;
 end;
 
-constructor TPGItem.Create(AParent: TPGItem; AName: string);
+class function TPGItem.FindName(const AScope: TPGItem; const AName: string): TPGItem;
+var
+  LItem: TPGItem;
+  LRoot: TPGItemCollect;
+begin
+  Result := nil;
+  if AName = '' then Exit;
+
+  if AScope = nil then
+  begin
+    if Assigned(TPGItemCollect.FCollectList) then
+      for LRoot in TPGItemCollect.FCollectList do
+      begin
+        Result := FindName(LRoot, AName);
+        if Assigned(Result) then Exit;
+      end;
+    Exit;
+  end;
+
+  for LItem in AScope do
+    if SameText(LItem.Name, AName) then
+      Exit(LItem);
+
+  for LItem in AScope do
+    if (LItem.Count > 0) and (not LItem.Namespace) then
+    begin
+      Result := FindName(LItem, AName);
+      if Assigned(Result) then Exit;
+    end;
+end;
+
+class function TPGItem.FindNameList(const AScope: TPGItem; const AName: string): TArray<TPGItem>;
+var
+  LItem: TPGItem;
+  LRoot: TPGItemCollect;
+  LSubList: TArray<TPGItem>;
+  LSearch: string;
+begin
+  SetLength(Result, 0);
+  LSearch := LowerCase(AName);
+
+  if AScope = nil then
+  begin
+    if Assigned(TPGItemCollect.FCollectList) then
+      for LRoot in TPGItemCollect.FCollectList do
+      begin
+        LSubList := FindNameList(LRoot, AName);
+        Result := Result + LSubList;
+      end;
+    Exit;
+  end;
+
+  for LItem in AScope do
+  begin
+    if (LSearch = '') or (Pos(LSearch, LowerCase(LItem.Name)) > 0) then
+      Result := Result + [LItem];
+
+    if (LItem.Count > 0) and (not LItem.Namespace) then
+    begin
+      LSubList := FindNameList(LItem, AName);
+      Result := Result + LSubList;
+    end;
+  end;
+end;
+
+constructor TPGItem.Create(const AParent: TPGItem; const AName: string);
 begin
   FDestroying := False;
   inherited Create(True);
-  FName := AName;
-  FEnabled := True;
-  FReadOnly := False;
-  FSystemNode := True;
+  FFlags := [pgfInternal];
   FNode := nil;
+  FisUpdate := False;
   FParent := nil;
+  FCollectDad := nil;
+
+  if AName = '' then
+    FName := Self.ClassNameEx
+  else
+    FName := AName;
+
   Self.Parent := AParent;
 end;
 
@@ -227,148 +358,252 @@ begin
   inherited BeforeDestruction();
 end;
 
-destructor TPGItem.Destroy;
-var
-  LCollectDad: TPGItemCollect;
+destructor TPGItem.Destroy();
 begin
-  FDestroying := True;
-  LCollectDad := GetCollectDad();
-
-  if Assigned(LCollectDad) and (FParent <> nil) and (not FParent.Destroying) then
-    LCollectDad.TreeViewDetach(Self);
-
-  if Assigned(FParent) and (not FParent.Destroying) then
+  if Assigned(FCollectDad) and Assigned(FParent) and (not FParent.Destroying) then
+  begin
+    FCollectDad.TreeViewDetach(Self);
     FParent.Extract(Self);
+  end;
+  FParent := nil;
+  FCollectDad := nil;
 
+  if Assigned(FNode) then
+  begin
+    FNode.Data := nil;
+    FNode := nil;
+  end;
+
+  FisUpdate := False;
   FName := '';
-  FEnabled := False;
-  FReadOnly := False;
-  FSystemNode := False;
+  FFlags := [];
 
   inherited Destroy();
 end;
 
 function TPGItem.GetAbout(): String;
 begin
-  Result := '';
+  Result := Self.ClassNameEx;
 end;
 
-procedure TPGItem.SetEnabled(AValue: Boolean);
+function TPGItem.IsCanHaveNode(): Boolean;
 begin
-  FEnabled := AValue;
-  Self.UpdateStateIcon();
+  if FName.StartsWith('_') then
+    Exit(False);
+  Result := not (Self.Internal and FCollectDad.HiddeInternal);
 end;
 
-procedure TPGItem.SetNode(AValue: TTreeNode);
+procedure TPGItem.SetNode(const AValue: TTreeNode);
 var
   LIndex : Integer;
 begin
-  if FNode = AValue then Exit;
-  
+  if (FNode = AValue) then
+    Exit;
+
   FNode := AValue;
   if Assigned(FNode) then
   begin
-    FNode.Text := FName;
     FNode.Data := Self;
     LIndex := Self.IconIndex;
     FNode.ImageIndex := LIndex;
     FNode.SelectedIndex := LIndex;
     FNode.ExpandedImageIndex := LIndex;
-    FNode.StateIndex := Self.StateIndex;
+
+    Self.UpdateNode;
   end;
 end;
 
-procedure TPGItem.SetParent(AParent: TPGItem);
+procedure TPGItem.SetParent(const AParent: TPGItem);
 var
-  LNewCollectDad: TPGItemCollect;
+  LNodeParent: TTreeNode;
 begin
-  if (FParent = AParent) or (FSystemNode and Assigned(FParent)) then Exit;
+  if (FParent = AParent) or (Self.Internal and Assigned(FParent)) then
+    Exit;
 
-  LNewCollectDad := nil;
-  if Assigned(AParent) then LNewCollectDad := AParent.CollectDad;
+  if Assigned(FParent) then FParent.Extract(Self);
+  if Assigned(AParent) then
+  begin
+    FCollectDad := AParent.FCollectDad; //antes no notify
+    AParent.Add(Self);
+  end else
+    FCollectDad := nil;
 
-  try
-    if Assigned(FParent) then FParent.Extract(Self);
-    if Assigned(AParent) then AParent.Add(Self);
-  finally
-    FParent := AParent;
+  FParent := AParent;
+
+  if (not Assigned(FCollectDad))
+  or (not FCollectDad.Attached)
+  or (not Self.IsCanHaveNode)
+  or TPGKernel.Finalized then
+  begin
+    FNode := nil;
+    Exit;
   end;
+
+  if FParent = FCollectDad then
+    LNodeParent := nil
+  else
+    LNodeParent := FParent.Node;
 
   RunInMainThread(
     procedure
-    var
-      LTreeView: TTreeView;
-      LNodeParent: TTreeNode;
+      procedure LRefreshBranch(AItem: TPGItem);
+      var LChild: TPGItem;
+      begin
+        AItem.UpdateNode();
+        for LChild in AItem do
+          LRefreshBranch(LChild);
+      end;
     begin
-      if not Assigned(FParent) then Exit;
-      if not Assigned(LNewCollectDad) or not LNewCollectDad.Attached then Exit;
-
-      LTreeView := LNewCollectDad.TreeView;
-      if not Assigned(LTreeView) then Exit;
-
-      if FParent is TPGItemCollect then
-         LNodeParent := nil
-      else
-         LNodeParent := FParent.Node;
-
       if not Assigned(FNode) then
-        Self.Node := LTreeView.Items.AddChild(LNodeParent, FName)
-      else
+        Self.SetNode( FCollectDad.TreeView.Items.AddChild(LNodeParent, Self.Name) )
+      else begin
         FNode.MoveTo(LNodeParent, naAddChild);
+        LRefreshBranch( Self );
+      end;
     end,
-    True
-  );
+  True);
 end;
 
-procedure TPGItem.SetReadOnly(const Value: Boolean);
+procedure TPGItem.UpdateNode();
 begin
-  FReadOnly := Value;
-  Self.UpdateStateIcon();
+  if not Assigned(FNode) then
+    Exit;
+
+  if FCollectDad.BlockUpdate then
+  begin
+    if not FisUpdate then
+    begin
+       FisUpdate := True;
+       FCollectDad.FUpdateList.Add(Self);
+    end;
+    Exit;
+  end;
+
+  FNode.Text := Self.Name;
+  FNode.OverlayIndex := -1; //força atualizar
+  FNode.OverlayIndex := Self.OverlayIndex;
+  FNode.HasChildren := Self.HasChildren;
+  FNode.Expanded := Self.Expanded;
 end;
 
-procedure TPGItem.SetSystemNode(const Value: Boolean);
+procedure TPGItem.SetDisabled(const AValue: Boolean);
 begin
-  FSystemNode := Value;
-  Self.UpdateStateIcon();
+  Self.UpdateFlag(pgfDisabled, AValue);
 end;
 
-procedure TPGItem.SetName(AName: string);
+procedure TPGItem.SetInvalid(const AValue: Boolean);
 begin
-  if FSystemNode then Exit;
-  Self.SetNameForced(AName);
+  Self.UpdateFlag(pgfInvalid, AValue);
 end;
 
-procedure TPGItem.SetNameForced(AName: string);
+procedure TPGItem.SetReadOnly(const AValue: Boolean);
+begin
+  Self.UpdateFlag(pgfReadOnly, AValue);
+end;
+
+procedure TPGItem.SetInternal(const AValue: Boolean);
+begin
+  Self.UpdateFlag(pgfInternal, AValue);
+end;
+
+procedure TPGItem.SetLocked(const AValue: Boolean);
+begin
+  if (pgfLocked in FFlags) = AValue then Exit;
+
+  if AValue then
+    FFlags := FFlags - [pgfExpanded, pgfHasChildren]
+  else if (Self.Count > 0) then
+    Include(FFlags, pgfHasChildren);
+
+  Self.UpdateFlag(pgfLocked, AValue);
+end;
+
+procedure TPGItem.SetExpanded(const AValue: Boolean);
+begin
+  if AValue and (pgfHasChildren in FFlags) and (not (pgfLocked in FFlags)) then
+    Self.UpdateFlag(pgfExpanded, True)
+  else
+    Self.UpdateFlag(pgfExpanded, False);
+end;
+
+procedure TPGItem.SetHasChildren(const AValue: Boolean);
+begin
+  if not AValue then
+    Exclude(FFlags, pgfExpanded);
+  Self.UpdateFlag(pgfHasChildren, AValue);
+end;
+
+procedure TPGItem.SetNamespace(const AValue: Boolean);
+begin
+  if (pgfNamespace in FFlags) = AValue then Exit;
+  Self.UpdateFlag(pgfNamespace, AValue);
+end;
+
+procedure TPGItem.SetName(const AName: string);
 begin
   if FName = AName then Exit;
   FName := AName;
-  if Assigned(FNode) then
-    FNode.Text := FName;
+  Self.UpdateNode;
 end;
 
-procedure TPGItem.Frame(AParent: TObject);
+procedure TPGItem.Frame(const AParent: TObject);
 begin
   TPGItemFrame.Create(Self, AParent);
 end;
 
-function TPGItem.GetCollectDad: TPGItemCollect;
-begin
-  if Assigned(Self.Parent) then
-    Result := Self.Parent.CollectDad
-  else if Self is TPGItemCollect then
-    Result := TPGItemCollect(Self)
-  else
-    Result := nil;
-end;
-
-function TPGItem.GetIconIndex: Integer;
+function TPGItem.GetIconIndex(): Integer;
 begin
   Result := TPGItemType(Self.ClassType).ClassIconIndex();
 end;
 
-function TPGItem.GetIsValid(): Boolean;
+function TPGItem.GetFlags(): TPGItemFlags;
 begin
-  Result := True;
+  Result := FFlags;
+end;
+
+function TPGItem.GetDisabled(): Boolean;
+begin
+  Result := (pgfDisabled in FFlags);
+end;
+
+function TPGItem.GetExpanded(): Boolean;
+begin
+  Result := (pgfExpanded in FFlags);
+end;
+
+function TPGItem.GetHasChildren(): Boolean;
+begin
+  Result := (pgfHasChildren in FFlags);
+end;
+
+function TPGItem.GetInvalid(): Boolean;
+begin
+  Result := (pgfInvalid in FFlags);
+end;
+
+function TPGItem.GetLocked(): Boolean;
+begin
+  Result := (pgfLocked in FFlags);
+end;
+
+function TPGItem.GetMaxOverlayFlag(): TPGItemFlag;
+begin
+  Result := pgfInternal;
+end;
+
+function TPGItem.GetNamespace(): Boolean;
+begin
+  Result := (pgfNamespace in FFlags);
+end;
+
+function TPGItem.GetReadOnly(): Boolean;
+begin
+  Result := (pgfReadOnly in FFlags);
+end;
+
+function TPGItem.GetInternal(): Boolean;
+begin
+  Result := (pgfInternal in FFlags);
 end;
 
 function TPGItem.GetName(): String;
@@ -376,124 +611,202 @@ begin
    Result := FName;
 end;
 
-function TPGItem.GetStateIndex: Integer;
+function TPGItem.GetOverlayIndex(): Integer;
+var
+  LFlag: TPGItemFlag;
+  LMax: TPGItemFlag;
 begin
   Result := -1;
-end;
-
-procedure TPGItem.UpdateStateIcon();
-begin
-  if Assigned(FNode) then
-    FNode.StateIndex := Self.StateIndex;
-end;
-
-function TPGItem.FindName(AName: string): TPGItem;
-var
-  LItem : TPGItem;
-begin
-  Result := nil;
-  for LItem in Self do
+  LMax := Self.GetMaxOverlayFlag;
+  for LFlag := Low(TPGItemFlag) to LMax do
   begin
-    if SameText(AName, LItem.Name) then
-      Exit(LItem);
-  end;
-end;
-
-function TPGItem.FindNameList(AName: string; APartial: Boolean): TArray<TPGItem>;
-var
-  LItem: TPGItem;
-begin
-  SetLength(Result, 0);
-  for LItem in Self do
-  begin
-    if (APartial and (Pos(LowerCase(AName), LowerCase(LItem.Name)) > 0)) or
-      (not APartial and SameText(AName, LItem.Name)) or (AName = '') then
+    if LFlag in FFlags then
     begin
-      Result := Result + [LItem];
+      Result := TPGItem.ClassOverlayIndex(LFlag);
+      Break;
     end;
   end;
 end;
 
+procedure TPGItem.Notify(const Value: TPGItem; Action: TCollectionNotification);
+begin
+  inherited;
+  case Action of
+    cnAdded:
+    begin
+      if Value.IsCanHaveNode and (not Self.HasChildren) then
+        Self.HasChildren := True;
+    end;
+    cnRemoved:
+    begin
+      if Count = 0 then
+        Self.HasChildren := False;
+    end;
+  end;
+end;
+
+procedure TPGItem.UpdateFlag(const AFlag: TPGItemFlag; const AValue: Boolean);
+begin
+  if ((AFlag in FFlags) = AValue) then Exit;
+
+  if AValue then
+    Include(FFlags, AFlag)
+  else
+    Exclude(FFlags, AFlag);
+
+  Self.UpdateNode();
+end;
+
+function TPGItem.FindName(const AName: string): TPGItem;
+begin
+  Result := TPGItem.FindName(Self, AName);
+end;
+
+function TPGItem.FindNameList(const AName: string): TArray<TPGItem>;
+begin
+  Result := TPGItem.FindNameList(Self, AName);
+end;
+
 { TPGCollectItem }
 
-class function TPGItemCollect.GetImageList(): TCustomImageList;
+constructor TPGItemCollect.Create(const AParent: TPGItem; const AName: string);
 begin
-   Result := TPGItem.FIconList;
-end;
+  Self.FCollectDad := Self; //antes de tudo para ele ja ser ele!
+  inherited Create(AParent, AName);
+  FAttached := False;
+  FHiddeInternal := False;
+  FTreeView := nil;
+  FForm := nil;
 
-class function TPGItemCollect.GetStateImageList(): TCustomImageList;
-begin
-   Result := TPGItem.FStateList;
-end;
 
-constructor TPGItemCollect.Create(AName: string);
-begin
-  inherited Create(nil, AName);
+  FUpdateList := TList<TPGItem>.Create();
+  FUpdateCount:= 0;
+
   FCollectLock := TCriticalSection.Create;
+  TPGItemCollect.FCollectList.Add(Self);
 end;
 
 destructor TPGItemCollect.Destroy();
 begin
-  if FAttached then
-    Self.TreeViewDetach();
+  TPGItemCollect.FCollectList.Remove(Self);
+  FUpdateCount:= 9999;
+  FUpdateList.Free;
+  FUpdateList := nil;
+  FAttached := False;
+  FHiddeInternal := False;
   FTreeView := nil;
-
-  if Assigned(FForm) then
-    FForm.Free();
   FForm := nil;
-
   FCollectLock.Free;
   FCollectLock := nil;
-
   inherited Destroy();
 end;
 
-procedure TPGItemCollect.CollectLocked;
+procedure TPGItemCollect.BeginUpdate();
 begin
-  FCollectLock.Acquire;
+  if (FUpdateCount <= 0) and Self.Attached then
+    Self.TreeView.Items.BeginUpdate;
+  Inc(FUpdateCount);
 end;
 
-procedure TPGItemCollect.CollectUnlocked;
+function TPGItemCollect.BlockUpdate(): Boolean;
 begin
-  FCollectLock.Release;
+  Result := FUpdateCount > 0;
 end;
 
-procedure TPGItemCollect.FormCreate();
+procedure TPGItemCollect.EndUpdate();
+var
+  LItem: TPGItem;
 begin
-  if not Assigned(FForm) then
+  if FUpdateCount > 0 then
   begin
-    FForm := TFrmController.Create(Self);
-    FTreeView := TFrmController(FForm).TrvController;
+    Dec(FUpdateCount);
+    if (FUpdateCount <= 0) then
+    begin
+      try
+        for LItem in FUpdateList do
+        begin
+          LItem.FisUpdate := False;
+          LItem.UpdateNode();
+        end;
+      finally
+        FUpdateList.Clear;
+        if Self.Attached then
+          Self.TreeView.Items.EndUpdate;
+      end;
+    end;
   end;
+end;
+
+procedure TPGItemCollect.CollectLocked();
+begin
+  if TPGKernel.Finalized
+  or (not Assigned(Self.FCollectLock)) then
+    Exit;
+
+  Self.FCollectLock.Acquire;
+end;
+
+procedure TPGItemCollect.CollectUnlocked();
+begin
+  if TPGKernel.Finalized
+  or (not Assigned(Self.FCollectLock)) then
+    Exit;
+
+  Self.FCollectLock.Release;
 end;
 
 procedure TPGItemCollect.FormShow();
 begin
-  FForm.ForceShow(True);
+  if Assigned(FForm) then
+    FForm.ForceShow(True);
 end;
 
-procedure TPGItemCollect.SetForm(AValue: TFormEx);
+procedure TPGItemCollect.SetForm(const AValue: TFormEx);
 begin
-  FForm := AValue;
+  if TPGKernel.Finalized then
+    Exit;
+
+  if AValue <> nil then
+  begin
+    FForm := AValue;
+    FTreeView := TFrmController(AValue).TrvController;
+    FTreeView.Images := TPGItem.FIconList;
+  end else begin
+    try
+      if Assigned(FForm) and FAttached and (not FDestroying) then
+        Self.TreeViewDetach();
+    finally
+      FAttached := False;
+      FTreeView := nil;
+      FForm := nil;
+    end;
+  end;
 end;
 
-procedure TPGItemCollect.SetTreeView(AValue: TTreeViewEx);
+procedure TPGItemCollect.SetParent(const AParent: TPGItem);
 begin
-  FTreeView := AValue;
+  //sem frescura
+  FCollectDad := Self;
+  //FParent := nil;
+  //sem processo
+  //inherited;
 end;
 
 procedure TPGItemCollect.TreeViewAttach();
-  procedure LNodeAttach(AItem: TPGItem);
+  procedure LNodeAttach(const AItem: TPGItem);
   var
-    LNode: TTreeNode;
+    LNodeParent: TTreeNode;
     LItemChild: TPGItem;
   begin
-    if Assigned(AItem.Parent) then
-      LNode := AItem.Parent.Node
-    else
-      LNode := nil;
+    if (not AItem.IsCanHaveNode) then
+      Exit;
 
-    AItem.Node := FTreeView.Items.AddChild(LNode, AItem.Name);
+    if Assigned(AItem.Parent) then
+      LNodeParent := AItem.Parent.Node
+    else
+      LNodeParent := nil;
+
+    AItem.SetNode( FTreeView.Items.AddChild(LNodeParent, AItem.Name));
 
     for LItemChild in AItem do
       LNodeAttach(LItemChild);
@@ -502,39 +815,51 @@ procedure TPGItemCollect.TreeViewAttach();
 var
   LItem: TPGItem;
 begin
-  if not Assigned(FTreeView) or not FTreeView.HandleAllocated or FAttached then Exit;
+  if TPGKernel.Finalized
+  or (not Assigned(FTreeView))
+  or (not FTreeView.HandleAllocated)
+  or FAttached then
+    Exit;
 
   Self.CollectLocked;
-  FTreeView.Items.BeginUpdate;
+  Self.BeginUpdate;
   try
     FTreeView.Items.Clear;
+    FAttached := True;
     for LItem in Self do
       LNodeAttach(LItem);
   finally
-    FAttached := True;
-    FTreeView.Items.EndUpdate;
+    Self.EndUpdate;
     Self.CollectUnlocked;
   end;
 end;
 
-procedure TPGItemCollect.TreeViewDetach(AItem: TPGItem = nil);
-  procedure LNodeDetach(Item: TPGItem);
+procedure TPGItemCollect.TreeViewDetach(const AItem: TPGItem = nil);
+  procedure LNodeDetach(const ASubItem: TPGItem);
   var
     LChild: TPGItem;
   begin
-    if not Assigned(Item) then Exit;
-    for LChild in Item do
+    if not Assigned(ASubItem) then Exit;
+    for LChild in ASubItem do
       LNodeDetach(LChild);
-    if Assigned(Item.Node) then
-      Item.Node.Data := nil;
-    Item.Node := nil;
+
+    if Assigned(ASubItem.FNode) then
+    begin
+      ASubItem.FNode.Data := nil;
+      ASubItem.FNode := nil;
+      FUpdateList.Remove(ASubItem);
+    end;
   end;
 var
   LItem : TPGItem;
   LNode : TTreeNode;
   LIsFullClear: Boolean;
 begin
-  if not Assigned(FTreeView) or not FAttached then Exit;
+  if TPGKernel.Finalized
+  or (not Assigned(FTreeView))
+  or (not FTreeView.HandleAllocated)
+  or not FAttached then
+    Exit;
 
   if Assigned(AItem) then
   begin
@@ -579,7 +904,7 @@ begin
   );
 end;
 
-initialization
+initialization
 
 finalization
 

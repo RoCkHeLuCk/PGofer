@@ -41,6 +41,8 @@
   "Error_Interpreter_Variable": "Variavel esperada.",
   "Error_Interpreter_MemberNotFound": "não contem em '%s'",
 
+
+  "Warning_Interpreter_AutoRename": "O item '%s', foi renomeado para '%s'.",
   "Warning_Interpreter_Stack": "Pilha '%s' terminou com: %d",
   "Warning_Interpreter_StackChild": "Pilha Filhos '%s' terminou com: %d",
   "Warning_Interpreter_Redeclare": "'%s' Identificador Redeclarado.",

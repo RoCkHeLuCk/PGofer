@@ -5,9 +5,9 @@ interface
 uses
   System.Classes, System.Types,
   Vcl.Forms, Vcl.Controls, Vcl.ComCtrls, Vcl.StdCtrls, Vcl.ExtCtrls,
-  Vcl.Menus, Vcl.Graphics,
-  PGofer.Classes, PGofer.Runtime, PGofer.Forms, PGofer.Component.TreeView,
-  PGofer.Component.Form;
+  Vcl.Menus,
+  PGofer.Component.TreeView, PGofer.Component.Form,
+  PGofer.Core, PGofer.Classes;
 
 type
   TFrmController = class( TFormEx )
@@ -30,6 +30,8 @@ type
     MniUnExpand: TMenuItem;
     PpmConttroler: TPopupMenu;
     PnlFrame: TScrollBox;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormShow( Sender: TObject );
     procedure FormResize( Sender: TObject );
@@ -72,20 +74,25 @@ type
     procedure IniConfigLoad( ); override;
     function GetTargetWorking( Node: TTreeNode ): TPGItem;
     property AlphaSortFolder: Boolean read FAlphaSortFolder;
-  public
-    constructor Create( ACollectItem: TPGItemCollect ); reintroduce;
-    destructor Destroy( ); override;
 
+    procedure SetCollectItem(const Value: TPGItemCollect); virtual;
+    function GetCollectItem: TPGItemCollect; virtual;
+    property CollectItem: TPGItemCollect read GetCollectItem write SetCollectItem;
+  public
   end;
+
+var
+  FrmController: TFrmController;
 
 implementation
 
 {$R *.dfm}
 
 uses
-  System.UITypes, Vcl.Themes,
+  System.UITypes,
   WinApi.Windows,
-  PGofer.Component.Memo;
+  PGofer.Component.Memo,
+  PGofer.Runtime;
 
 { TFrmController }
 
@@ -95,37 +102,37 @@ begin
   Self.ForceResizable := True;
 end;
 
-constructor TFrmController.Create( ACollectItem: TPGItemCollect );
+procedure TFrmController.FormCreate(Sender: TObject);
 begin
-  inherited Create( nil );
-  FCollectItem := ACollectItem;
   FAlphaSort := True;
   FAlphaSortFolder := True;
   FSelectedItem := nil;
   FFrameWidth := PnlFrame.Width;
   FTreeViewWidth := PnlTreeView.Width;
-  Self.Name := 'Frm' + FCollectItem.Name;
-  Self.Caption := FCollectItem.Name;
-  TPGForm.Create( Self );
-  TrvController.Images := ACollectItem.ImageList;
-  TrvController.StateImages := ACollectItem.StateImageList;
-  PpmConttroler.Images := ACollectItem.ImageList;
+
+  if (not Assigned(FCollectItem)) then
+    Self.CollectItem := GlobalCollection;
 end;
 
-destructor TFrmController.Destroy( );
+procedure TFrmController.FormDestroy(Sender: TObject);
 begin
+  try
+    if Assigned(FCollectItem) then
+      Self.CollectItem.Form := nil;
+  finally
+    Self.CollectItem := nil;
+  end;
+
   FTreeViewWidth := 0;
   FFrameWidth := 0;
   FSelectedItem := nil;
   FAlphaSort := False;
   FAlphaSortFolder := False;
-  FCollectItem := nil;
-  inherited Destroy( );
 end;
 
 procedure TFrmController.FormShow( Sender: TObject );
 begin
-  FCollectItem.TreeViewAttach( );
+  Self.CollectItem.TreeViewAttach( );
   TrvController.AlphaSort( True );
   if not TrvController.isSelectWork then
     Self.FrameHide( );
@@ -136,7 +143,7 @@ end;
 
 procedure TFrmController.FormClose( Sender: TObject; var Action: TCloseAction );
 begin
-  FCollectItem.TreeViewDetach( );
+  Self.CollectItem.TreeViewDetach( );
   Self.FrameHide( );
 end;
 
@@ -164,6 +171,11 @@ begin
   IniFile.WriteBool( Self.Name, 'AlphaSort', FAlphaSort );
   IniFile.WriteBool( Self.Name, 'AlphaSortFolder', FAlphaSortFolder );
   inherited IniConfigSave( );
+end;
+
+function TFrmController.GetCollectItem(): TPGItemCollect;
+begin
+  Result := FCollectItem;
 end;
 
 function TFrmController.GetTargetWorking( Node: TTreeNode ): TPGItem;
@@ -202,6 +214,21 @@ end;
 procedure TFrmController.PnlTreeViewResize(Sender: TObject);
 begin
   FTreeViewWidth := PnlTreeView.ClientWidth;
+end;
+
+procedure TFrmController.SetCollectItem(const Value: TPGItemCollect);
+begin
+  if FCollectItem = Value then
+    Exit;
+
+  FCollectItem := Value;
+  if Assigned(FCollectItem) then
+  begin
+    FCollectItem.Form := Self;
+    Self.Name := 'Frm' + FCollectItem.Name;
+    Self.Caption := FCollectItem.Name;
+    PpmConttroler.Images := TrvController.Images;
+  end;
 end;
 
 procedure TFrmController.FormResize( Sender: TObject );
@@ -362,7 +389,7 @@ begin
   if PnlFrame.Visible then
   begin
     Item := GetTargetWorking(TrvController.Selected);
-    if Assigned(Item) then
+    if Assigned(Item) and (not Item.Destroying) then
     begin
       if ( Item <> FSelectedItem ) then
       begin

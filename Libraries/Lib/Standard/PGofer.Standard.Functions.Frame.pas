@@ -7,7 +7,7 @@ uses
   Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Controls,
   PGofer.Classes, PGofer.Item.Frame,
   PGofer.Standard.Functions,
-  PGofer.Component.Memo, PGofer.Component.Edit, Vcl.ComCtrls;
+  PGofer.Component.Memo, PGofer.Component.Edit;
 
 type
   TPGFunctionFrame = class( TPGItemFrame )

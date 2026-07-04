@@ -70,16 +70,13 @@ begin
     end;
   finally
     if FKBHook <> 0 then
-    begin
       UnHookWindowsHookEx(FKBHook);
-      FKBHook := 0;
-    end;
 
     if FMBHook <> 0 then
-    begin
       UnHookWindowsHookEx(FMBHook);
-      FMBHook := 0;
-    end;
+
+    FKBHook := 0;
+    FMBHook := 0;
   end;
 end;
 

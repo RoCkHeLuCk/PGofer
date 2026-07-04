@@ -2,7 +2,7 @@ object PGItemFrame: TPGItemFrame
   Left = 0
   Top = 0
   Width = 400
-  Height = 105
+  Height = 150
   Margins.Left = 0
   Margins.Top = 0
   Margins.Right = 0
@@ -14,19 +14,18 @@ object PGItemFrame: TPGItemFrame
   object grbAbout: TGroupBox
     AlignWithMargins = True
     Left = 3
-    Top = 35
+    Top = 36
     Width = 394
-    Height = 60
+    Height = 104
     Align = alClient
     Caption = 'About'
     Constraints.MinHeight = 60
     TabOrder = 2
-    ExplicitTop = 38
     object mmoAbout: TMemoEx
       Left = 2
-      Top = 15
+      Top = 35
       Width = 390
-      Height = 43
+      Height = 67
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -43,14 +42,34 @@ object PGItemFrame: TPGItemFrame
       ParentColor = True
       ParentFont = False
       ReadOnly = True
+      ScrollBars = ssVertical
       TabOrder = 0
+    end
+    object PnlStatus: TFlowPanel
+      Left = 2
+      Top = 15
+      Width = 390
+      Height = 20
+      Align = alTop
+      BevelOuter = bvNone
+      ParentColor = True
+      TabOrder = 1
+      object Label1: TLabel
+        Left = 0
+        Top = 0
+        Width = 381
+        Height = 14
+        Align = alTop
+        AutoSize = False
+        Caption = 'Label1'
+      end
     end
   end
   object pnlItem: TPanel
     Left = 0
     Top = 0
     Width = 400
-    Height = 32
+    Height = 33
     Align = alTop
     BevelOuter = bvNone
     Constraints.MinWidth = 400
@@ -59,7 +78,7 @@ object PGItemFrame: TPGItemFrame
     TabOrder = 0
     DesignSize = (
       400
-      32)
+      33)
     object LblName: TLabel
       Left = 3
       Top = 9
@@ -78,7 +97,7 @@ object PGItemFrame: TPGItemFrame
       AutoSize = False
       Color = clSilver
       Font.Charset = DEFAULT_CHARSET
-      Font.Color = clSilver
+      Font.Color = clBlack
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
@@ -87,11 +106,12 @@ object PGItemFrame: TPGItemFrame
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'
       OnAfterValidate = EdtNameAfterValidate
+      OnBeforeValidate = EdtNameBeforeValidate
     end
   end
   object sptAbout: TPanel
     Left = 0
-    Top = 98
+    Top = 143
     Width = 400
     Height = 7
     Cursor = crVSplit

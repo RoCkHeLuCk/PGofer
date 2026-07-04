@@ -4,10 +4,9 @@ interface
 
 uses
   System.SysUtils, System.Rtti, System.Generics.Collections,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
-  { Variável de Script moderna com suporte a Array }
   TPGVariant = class(TPGItemClass)
   strict private
     FValue: TValue;
@@ -17,11 +16,11 @@ type
   public
     class var GlobList: TPGItem;
 
-    constructor Create(AOwner: TPGItem; const AName: string; const AValue: TValue; AIsConstant: Boolean); reintroduce; overload;
+    constructor Create(const AOwner: TPGItem; const AName: string; const AValue: TValue; const AIsConstant: Boolean); reintroduce; overload;
     destructor Destroy; override;
 
     procedure Execute(const AGrammar: TPGGrammar); override;
-    procedure Frame(AParent: TObject); override;
+    procedure Frame(const AParent: TObject); override;
 
     class function GetOrCreate(const AGrammar: TPGGrammar): TPGVariant;
 
@@ -29,29 +28,46 @@ type
     property Value: TValue read FValue write FValue;
   end;
 
-  { Declarador de Variáveis e Constantes (Var, Const) }
+  [TPGClassReg('Defines', 'Const')]
+  [TPGClassReg('Defines', 'Var')]
   TPGVariantDeclare = class(TPGItemClass)
   strict private
-    class procedure InternalDeclare(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
+    class procedure InternalDeclare(const AGrammar: TPGGrammar; const ANivel: TPGItem; const AIsConstant: Boolean);
   public
-    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
+    constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
-    class procedure ExecuteEx(const AGrammar: TPGGrammar; ANivel: TPGItem);
+    class procedure ExecuteEx(const AGrammar: TPGGrammar; const ANivel: TPGItem);
   end;
+
+  procedure Initialize();
+  procedure Finalize();
 
 implementation
 
 uses
-  PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Standard.Variants.Frame;
+  PGofer.Lexico, PGofer.Sintatico.Controls, PGofer.Standard.Variants.Frame;
+
+procedure Initialize();
+begin
+  TPGVariant.GlobList := TPGFolder.Create(GlobalCollection, 'Variants');
+end;
+
+procedure Finalize();
+begin
+  TPGVariant.GlobList.Free;
+  {$IFDEF DEBUG}
+     TPGVariant.GlobList := nil;
+  {$ENDIF}
+end;
 
 { TPGVariant }
 
-constructor TPGVariant.Create(AOwner: TPGItem; const AName: string; const AValue: TValue; AIsConstant: Boolean);
+constructor TPGVariant.Create(const AOwner: TPGItem; const AName: string; const AValue: TValue; const AIsConstant: Boolean);
 begin
   inherited Create(AOwner, AName);
-  Self.SystemNode := False;
-  FIsConstant := AIsConstant;
+  Self.Internal := False;
   Self.ReadOnly := AIsConstant;
+  FIsConstant := AIsConstant;
   FValue := AValue;
 end;
 
@@ -143,21 +159,20 @@ begin
     AGrammar.Stack.Push(FValue);
 end;
 
-procedure TPGVariant.Frame(AParent: TObject);
+procedure TPGVariant.Frame(const AParent: TObject);
 begin
   TPGVariantsFrame.Create(Self, AParent);
 end;
 
 { TPGVariantDeclare }
 
-constructor TPGVariantDeclare.Create(AOwner: TPGItem; const AName: string);
+constructor TPGVariantDeclare.Create(const AOwner: TPGItem; const AName: string);
 begin
-  inherited;
-  // Registra a palavra reservada necessária para esta classe
+  inherited Create(AOwner, AName);
   TPGLexicalRegistry.RegisterKeyword('global', pgkKeyword, 'global');
 end;
 
-class procedure TPGVariantDeclare.InternalDeclare(const AGrammar: TPGGrammar; ANivel: TPGItem; AIsConstant: Boolean);
+class procedure TPGVariantDeclare.InternalDeclare(const AGrammar: TPGGrammar; const ANivel: TPGItem; const AIsConstant: Boolean);
 var
   LTitle: string;
   LID: TPGItem;
@@ -215,14 +230,13 @@ begin
     InternalDeclare(AGrammar, AGrammar.Local, LIsConstant);
 end;
 
-class procedure TPGVariantDeclare.ExecuteEx(const AGrammar: TPGGrammar; ANivel: TPGItem);
+class procedure TPGVariantDeclare.ExecuteEx(const AGrammar: TPGGrammar; const ANivel: TPGItem);
 begin
   InternalDeclare(AGrammar, ANivel, False);
 end;
 
 initialization
-  TPGVariantDeclare.Create(GlobalItemCommand, 'Const');
-  TPGVariantDeclare.Create(GlobalItemCommand, 'Var');
-  TPGVariant.GlobList := TPGFolder.Create(GlobalCollection, 'Variants');
+
+finalization
 
 end.

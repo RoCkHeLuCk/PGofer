@@ -20,6 +20,8 @@ object FrmController: TFrmController
   ShowHint = True
   StyleElements = [seFont, seClient]
   OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96
@@ -55,7 +57,7 @@ object FrmController: TFrmController
       Left = 0
       Top = 0
       Width = 180
-      Height = 28
+      Height = 26
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -69,7 +71,7 @@ object FrmController: TFrmController
         Left = 3
         Top = 3
         Width = 147
-        Height = 24
+        Height = 22
         Margins.Right = 2
         Margins.Bottom = 1
         Align = alClient
@@ -96,7 +98,7 @@ object FrmController: TFrmController
         Left = 153
         Top = 2
         Width = 25
-        Height = 25
+        Height = 23
         Margins.Left = 1
         Margins.Top = 2
         Margins.Right = 2
@@ -165,9 +167,9 @@ object FrmController: TFrmController
     object TrvController: TTreeViewEx
       AlignWithMargins = True
       Left = 1
-      Top = 29
+      Top = 27
       Width = 178
-      Height = 195
+      Height = 197
       Margins.Left = 1
       Margins.Top = 1
       Margins.Right = 1

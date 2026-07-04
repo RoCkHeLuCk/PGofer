@@ -7,6 +7,7 @@ uses
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   TPGEnvironment = class( TPGItemClass )
   private
     function GetPathCurrent( ): string;
@@ -30,13 +31,9 @@ type
   end;
   {$TYPEINFO ON}
 
-var
-  PGEnvironment: TPGEnvironment;
-
 implementation
 
 uses
-
   System.SysUtils;
 
 { TPGEnvironment }
@@ -93,10 +90,6 @@ end;
 
 initialization
 
-  PGEnvironment := TPGEnvironment.Create( GlobalItemCommand );
-
 finalization
-
-  PGEnvironment := nil;
 
 end.

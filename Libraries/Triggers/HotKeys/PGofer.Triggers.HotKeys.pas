@@ -10,49 +10,49 @@ uses
 
 type
   {$M+}
-  [TPGArgs('HotKeysHex, Inhibit, Detect, Script')]
+  [TPGClassReg('Defines', 'HotKeyDef', True)]
   TPGHotKey = class(TPGItemTrigger)
   private
     FKeys: TList<Word>;
     FDetect: Byte;
     FInhibit: Boolean;
     FScript: TStrings;
+
     function GetKeysHex(): string;
+    procedure SetKeysHex(const AValue: string);
+    procedure SetInhibit(const AValue: Boolean);
     function GetScript: string;
-    procedure SetKeysHex(AValue: string);
     procedure SetScript(const AValue: string);
-    procedure SetInhibit(AValue: Boolean);
+
     class var FInputLock: TCriticalSection;
     class var FHotKeyList: TList<TPGHotKey>;
     class var FShootKeys: TList<Word>;
     class var FOnProcessKeys: TProcessKeys;
     class var FTypeInput: TThread;
     class var FTypeIndex: Byte;
-    class function LocateHotKeys(Keys: TList<Word>): TPGHotKey;
-    class function DefaultOnProcessKeys(AParamInput: TParamInput): Boolean;
-    //class procedure SetInput(AType: Byte);
+    class function LocateHotKeys(const AKeys: TList<Word>): TPGHotKey;
+    class function DefaultOnProcessKeys(const AParamInput: TParamInput): Boolean;
   protected
     class function GetFrameType: TPGTriggerFrameType; override;
   public
-    class constructor Create();
-    class destructor Destroy();
-    class function OnProcessKeys(AParamInput: TParamInput): Boolean;
-    class procedure SetProcessKeys(ProcessKeys: TProcessKeys = nil);
-    constructor Create(AMirror: TPGItemMirror; AName: string); override;
+    class function OnProcessKeys(const AParamInput: TParamInput): Boolean;
+    class procedure SetProcessKeys(const ProcessKeys: TProcessKeys = nil);
+
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
     destructor Destroy(); override;
     procedure Triggering(); override;
     function GetKeysName(): string;
     property Keys: TList<Word> read FKeys;
   published
-    property Enabled;
     property HotKeysHex: string read GetKeysHex write SetKeysHex;
-    [TPGAbout('0:Press; 1:Down; 2:Up; 3:Wheel;')]
+    [TPGAbout('0:Down; 1:Press; 2:Up; 3:Wheel;')]
     property Detect: Byte read FDetect write FDetect;
     property Inhibit: Boolean read FInhibit write SetInhibit;
     property Script: string read GetScript write SetScript;
+    property Disabled;
 
     [TPGAbout('0:None; 1:AsyncInput; 2:THookInput;')]
-    class procedure SetInputType(AType: Byte);
+    class procedure SetInputType(const AType: Byte);
     class function  GetInputType(): Byte;
     class procedure InputRestart();
     class procedure ShootKeysList();
@@ -60,55 +60,60 @@ type
   end;
   {$TYPEINFO ON}
 
-  TPGHotKeyMirror = class(TPGItemMirror)
-  protected
-    class function GetTriggerType: TPGItemTriggerType; override;
-  end;
+  procedure Initialize();
+  procedure Finalize();
 
 implementation
 
 uses
   System.SysUtils,
   Winapi.Windows,
-
-
   PGofer.Key.Controls,
   PGofer.Triggers.HotKeys.Frame,
-  PGofer.Triggers.HotKeys.Async,
-  PGofer.Triggers.HotKeys.Hook;
+  {$IFNDEF DEBUG}
+    PGofer.Triggers.HotKeys.Hook,
+  {$ENDIF}
+  PGofer.Triggers.HotKeys.Async;
 
 { TPGHotKey }
 
-class constructor TPGHotKey.Create;
+procedure Initialize();
 begin
-  FInputLock := TCriticalSection.Create();
-  FHotKeyList := TList<TPGHotKey>.Create();
-  FShootKeys := TList<Word>.Create();
-  FOnProcessKeys := nil;
-  FTypeIndex := 0;
+  TPGHotKey.FInputLock := TCriticalSection.Create();
+  TPGHotKey.FHotKeyList := TList<TPGHotKey>.Create();
+  TPGHotKey.FShootKeys := TList<Word>.Create();
+  TPGHotKey.FOnProcessKeys := nil;
+  TPGHotKey.FTypeIndex := 0;
+  TriggersCollect.RegisterClass(TPGHotKey);
   TPGHotKey.SetInputType(2);
 end;
 
-class destructor TPGHotKey.Destroy;
+procedure Finalize();
 begin
   TPGHotKey.SetInputType(0);
-  FOnProcessKeys := nil;
-  FShootKeys.Free();
-  FShootKeys := nil;
-  FHotKeyList.Free();
-  FHotKeyList := nil;
-  FInputLock.Free;
-  FInputLock := nil;
+  TPGHotKey.FOnProcessKeys := nil;
+
+  TPGHotKey.FShootKeys.Free();
+  TPGHotKey.FShootKeys := nil;
+
+  TPGHotKey.FHotKeyList.Free();
+  TPGHotKey.FHotKeyList := nil;
+
+  TPGHotKey.FInputLock.Free;
+  TPGHotKey.FInputLock := nil;
+
+  {$IFDEF DEBUG}
+  {$ENDIF}
 end;
 
-constructor TPGHotKey.Create(AMirror: TPGItemMirror; AName: string);
+constructor TPGHotKey.Create(const AItemDad: TPGItem; const AName: string);
 begin
   FKeys := TList<Word>.Create;
   FKeys.Capacity := 20;
   FDetect := 0;
   FInhibit := False;
   FScript := TStringList.Create;
-  inherited Create(AMirror, AName);
+  inherited Create(AItemDad, AName);
   FHotKeyList.Add(Self);
 end;
 
@@ -150,19 +155,21 @@ begin
     Result := Result + IntToHex(Key, 3);
 end;
 
-procedure TPGHotKey.SetKeysHex(AValue: string);
+procedure TPGHotKey.SetKeysHex(const AValue: string);
 var
   Count, Key: Word;
 begin
   FKeys.Clear;
   Count := low(AValue);
-  while Count + 2 <= high(AValue) do
+  while Count + 2 <= Length(AValue) do
   begin
     Key := StrToInt('$' + copy(AValue, Count, 3));
-    if not FKeys.Contains(Key) then
+    if (Key > 0) and (not FKeys.Contains(Key)) then
       FKeys.Add(Key);
     inc(Count, 3);
   end;
+
+  Self.Invalid := (FScript.Text.IsEmpty or (FKeys.Count = 0));
 end;
 
 function TPGHotKey.GetScript: string;
@@ -173,9 +180,10 @@ end;
 procedure TPGHotKey.SetScript(const AValue: string);
 begin
   FScript.Text := AValue;
+  Self.Invalid := (FScript.Text.IsEmpty or (FKeys.Count = 0));
 end;
 
-procedure TPGHotKey.SetInhibit(AValue: Boolean);
+procedure TPGHotKey.SetInhibit(const AValue: Boolean);
 begin
   if FTypeIndex = 2 then
     FInhibit := AValue
@@ -197,30 +205,29 @@ begin
   end;
 end;
 
-class function TPGHotKey.LocateHotKeys(Keys: TList<Word>): TPGHotKey;
+class function TPGHotKey.LocateHotKeys(const AKeys: TList<Word>): TPGHotKey;
 var
-  LKeysCount, LListCount, LCount1, LCount2: Word;
-  LAuxHotKeys: TPGHotKey;
+  LKeysCount: Word;
+  LHotKeys: TPGHotKey;
+  LKeys: Word;
   LFind: Boolean;
 begin
   Result := nil;
-  if not Assigned(Keys) then Exit;
+  if not Assigned(AKeys) then Exit(nil);
 
-  LKeysCount := Keys.Count;
-  if LKeysCount <= 1 then Exit;
+  LKeysCount := AKeys.Count;
+  if LKeysCount < 1 then Exit(nil);
 
-  LListCount := FHotKeyList.Count;
-  if LListCount < 1 then Exit;
-
-  for LCount1 := 0 to LListCount - 1 do
+  for LHotKeys in FHotKeyList do
   begin
-    LAuxHotKeys := TPGHotKey(FHotKeyList[LCount1]);
-    if LAuxHotKeys.Enabled and (LAuxHotKeys.FKeys.Count = LKeysCount) then
+    if (not LHotKeys.Disabled)
+    and (not LHotKeys.Invalid)
+    and (LHotKeys.FKeys.Count = LKeysCount) then
     begin
       LFind := True;
-      for LCount2 := 0 to LKeysCount - 1 do
+      for LKeys in AKeys do
       begin
-        if LAuxHotKeys.FKeys[LCount2] <> Keys[LCount2] then
+        if not LHotKeys.FKeys.Contains(LKeys) then
         begin
           LFind := False;
           Break;
@@ -228,15 +235,12 @@ begin
       end;
 
       if LFind then
-      begin
-        Result := LAuxHotKeys;
-        Break;
-      end;
+        Exit(LHotKeys);
     end;
   end;
 end;
 
-class function TPGHotKey.OnProcessKeys(AParamInput: TParamInput): Boolean;
+class function TPGHotKey.OnProcessKeys(const AParamInput: TParamInput): Boolean;
 begin
   if Assigned(TPGHotKey.FOnProcessKeys) then
     Result := TPGHotKey.FOnProcessKeys(AParamInput)
@@ -244,33 +248,29 @@ begin
     Result := TPGHotKey.DefaultOnProcessKeys(AParamInput);
 end;
 
-class function TPGHotKey.DefaultOnProcessKeys(AParamInput: TParamInput): Boolean;
+class function TPGHotKey.DefaultOnProcessKeys(const AParamInput: TParamInput): Boolean;
 var
   LKey: TKey;
   LHotKey: TPGHotKey;
-  I: Integer;
+  LIndex: Integer;
 begin
   Result := False;
   LKey := TKey.CalcVirtualKey(AParamInput);
-  if LKey.wKey <= 0 then Exit;
+  if LKey.wKey < 1 then
+    Exit(False);
 
-  for i := FShootKeys.Count - 1 downto 0 do
+  for LIndex := FShootKeys.Count - 1 downto 0 do
   begin
-    if (GetAsyncKeyState(FShootKeys[i]) and $8000) = 0 then
-      FShootKeys.Delete(i); // Exorciza o fantasma!
+    if (GetAsyncKeyState(FShootKeys[LIndex]) and $8000) = 0 then
+      FShootKeys.Delete(LIndex); // Exorciza o fantasma!
   end;
 
   if LKey.bDetect in [kd_Down, kd_Wheel] then
   begin
-    if (FShootKeys.Contains(LKey.wKey)) then
-      LKey.bDetect := kd_Press
+    if (not FShootKeys.Contains(LKey.wKey)) then
+      TPGHotKey.FShootKeys.Add(LKey.wKey)
     else
-      TPGHotKey.FShootKeys.Add(LKey.wKey);
-  end else begin
-    if (LKey.bDetect = kd_Up) and (not FShootKeys.Contains(LKey.wKey)) then
-    begin
-      TPGHotKey.FShootKeys.Add(LKey.wKey);
-    end;
+      LKey.bDetect := kd_Press;
   end;
 
   try
@@ -280,7 +280,8 @@ begin
       if LHotKey.Inhibit and (FTypeIndex = 2) then
         Result := True;
 
-      if ((LKey.bDetect = kd_Wheel) or (LHotKey.Detect = Byte(LKey.bDetect))) then
+      if (LKey.bDetect in [kd_Wheel])
+      or (LHotKey.Detect = Byte(LKey.bDetect)) then
       begin
         TThread.Queue(nil,
           procedure
@@ -296,7 +297,7 @@ begin
   end;
 end;
 
-class procedure TPGHotKey.SetProcessKeys(ProcessKeys: TProcessKeys);
+class procedure TPGHotKey.SetProcessKeys(const ProcessKeys: TProcessKeys);
 begin
   if Assigned(ProcessKeys) then
     TPGHotKey.FOnProcessKeys := ProcessKeys
@@ -304,13 +305,16 @@ begin
     TPGHotKey.FOnProcessKeys := nil;
 end;
 
-class procedure TPGHotKey.SetInputType(AType: Byte);
+class procedure TPGHotKey.SetInputType(const AType: Byte);
 begin
   FInputLock.Enter;
   try
     FTypeIndex := AType;
     if Assigned(TPGHotKey.FTypeInput) then
     begin
+      TPGHotKey.FTypeInput.Terminate;
+      PostThreadMessage(TPGHotKey.FTypeInput.ThreadID, 0, 0, 0);
+      TPGHotKey.FTypeInput.WaitFor;
       TPGHotKey.FTypeInput.Free();
       TPGHotKey.FTypeInput := nil;
       TPGHotKey.FShootKeys.Clear;
@@ -363,16 +367,8 @@ begin
 end;
 
 
-{ TPGHotKeyMirror }
-
-class function TPGHotKeyMirror.GetTriggerType: TPGItemTriggerType;
-begin
-  Result := TPGHotKey;
-end;
-
 initialization
-  TPGItemDef.Create(TPGHotKey);
-  TriggersCollect.RegisterClass(TPGHotKeyMirror);
+
 
 finalization
 

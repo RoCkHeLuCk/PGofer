@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.IniFiles,
-  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   PGofer.Classes, PGofer.Component.Edit, PGofer.Component.IniFile, PGofer.Component.Memo;
 
 type
@@ -15,6 +15,8 @@ type
     LblName: TLabel;
     EdtName: TEditEx;
     sptAbout: TPanel;
+    PnlStatus: TFlowPanel;
+    Label1: TLabel;
     procedure sptAboutMouseDown( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer );
     procedure sptAboutMouseMove( Sender: TObject; Shift: TShiftState;
@@ -22,6 +24,7 @@ type
     procedure sptAboutMouseUp( Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer );
     procedure EdtNameAfterValidate(Sender: TObject);
+    procedure EdtNameBeforeValidate(ASender: TObject; var AIsValid: Boolean);
   private
     FAboutSplitter: Boolean;
     FItem: TPGItem;
@@ -34,9 +37,10 @@ type
     property Item: TPGItem read GetItem;
     property Loading: Boolean read FLoading;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce; virtual;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); reintroduce; virtual;
     destructor Destroy( ); override;
     procedure AfterConstruction(); override;
+    procedure UpdateStatusBadges();
     property IniFile: TMemIniFileEx read GetIniFile;
   end;
 
@@ -45,9 +49,9 @@ implementation
 {$R *.dfm}
 
 uses
-  PGofer.Component.Form;
+  System.SysUtils, System.TypInfo, PGofer.Component.Form;
 
-constructor TPGItemFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGItemFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   FLoading := True;
   inherited Create( nil );
@@ -55,10 +59,10 @@ begin
   Self.Parent := TWinControl( AParent );
   Self.Width := TControl( AParent ).Width - 16;
   FAboutSplitter := False;
-  EdtName.SetTextSilent( FItem.Name );
-  EdtName.ReadOnly := FItem.SystemNode;
+  EdtName.ReadOnly := (pgfInternal in FItem.Flags);
   mmoAbout.Lines.Text := FItem.About;
   Self.IniConfigLoad( );
+  EdtName.SetTextSilent( FItem.Name );
 end;
 
 destructor TPGItemFrame.Destroy( );
@@ -68,9 +72,10 @@ begin
   inherited Destroy( );
 end;
 
-procedure TPGItemFrame.AfterConstruction;
+procedure TPGItemFrame.AfterConstruction();
 begin
-  inherited AfterConstruction;
+  inherited AfterConstruction();
+  Self.UpdateStatusBadges();
   FLoading := False;
 end;
 
@@ -117,6 +122,17 @@ begin
   FItem.Name := EdtName.Text;
 end;
 
+procedure TPGItemFrame.EdtNameBeforeValidate(ASender: TObject; var AIsValid: Boolean);
+var
+  LCollision: TPGItem;
+begin
+  if Assigned(FItem.Parent) then
+  begin
+    LCollision := FItem.Parent.FindName(EdtName.Text);
+    AIsValid := (LCollision = nil) or (LCollision = FItem);
+  end;
+end;
+
 function TPGItemFrame.GetItem( ): TPGItem;
 begin
    Result := FItem;
@@ -126,5 +142,30 @@ function TPGItemFrame.GetIniFile: TMemIniFileEx;
 begin
   Result := TFormEx.IniFile;
 end;
+
+procedure TPGItemFrame.UpdateStatusBadges();
+var
+  LFlag: TPGItemFlag;
+  LMax: TPGItemFlag;
+  LName: String;
+begin
+  Label1.Caption := '';
+  LMax := Item.MaxOverlayIndex;
+  for LFlag := Low(TPGItemFlag) to LMax do
+  begin
+    if (LFlag in FItem.Flags) then
+    begin
+      LName := GetEnumName(TypeInfo(TPGItemFlag), Ord(LFlag)).Substring(3);
+      if Label1.Caption = '' then
+         Label1.Caption := '[ ' + LName
+      else
+         Label1.Caption := Label1.Caption + ', ' + LName;
+    end;
+  end;
+  if Label1.Caption = '' then
+     Label1.Caption := '[ ';
+  Label1.Caption := Label1.Caption + ' ]';
+end;
+
 
 end.

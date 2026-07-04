@@ -4,7 +4,8 @@ interface
 
 uses
  System.Classes, System.Generics.Collections,
- PGofer.Classes;
+ Pgofer.Component.Form,
+ PGofer.Core, PGofer.Classes;
 
 type
   TClassItem = record
@@ -17,26 +18,26 @@ type
   protected
   public
     destructor Destroy(); override;
-    procedure AddClass( AValue: TClass );
+    procedure AddClass(const AValue: TClass );
     function TryGetClass(const AName: string; out OValue: TClass): Boolean;
-    function TryGetName(AValue: TClass; out OName: string): Boolean;
+    function TryGetName(const AValue: TClass; out OName: string): Boolean;
   end;
 
   TPGItemCollectTrigger = class(TPGItemCollect)
-    constructor Create(AName: string); overload;
-    destructor Destroy(); override;
   private
     FClassList: TClassList;
     FFileName: string;
   protected
+    procedure SetForm(const AForm: TFormEx); override;
   public
-    procedure XMLLoadFromStream(AItemDad: TPGItem; AXMLStream: TStream);
+    constructor Create(const AParent: TPGItem; const AName: string); override;
+    destructor Destroy(); override;
+    procedure XMLLoadFromStream(const AItemDad: TPGItem; const AXMLStream: TStream);
     procedure XMLLoadFromFile();
-    procedure XMLSaveToStream(AItemDad: TPGItem; AXMLStream: TStream);
+    procedure XMLSaveToStream(const AItemDad: TPGItem; const AXMLStream: TStream);
     procedure XMLSaveToFile();
     property ClassList: TClassList read FClassList;
-    procedure RegisterClass(AClass: TClass);
-    procedure FormCreate(); override;
+    procedure RegisterClass(const AClass: TClass);
   end;
 
 implementation
@@ -44,7 +45,7 @@ implementation
 uses
    System.SysUtils, System.IOUtils, System.RTTI, System.TypInfo,
    XML.XMLIntf, XML.XMLDoc,
-   PGofer.Core, PGofer.Triggers, PGofer.Triggers.Form,
+   PGofer.Triggers, PGofer.Triggers.Form,
    PGofer.Key.Controls, PGofer.Files.Controls;
 
 { TClassList }
@@ -55,14 +56,14 @@ begin
   inherited Destroy();
 end;
 
-procedure TClassList.AddClass(AValue: TClass);
+procedure TClassList.AddClass(const AValue: TClass);
 type
-  TPGItemMirrorType = class of TPGItemMirror;
+  TPGTriggerFolderType = class of TPGTriggerFolder;
 var
   LItem: TClassItem;
 begin
   LItem.ClassType := AValue;
-  LItem.Name      := TPGItemMirrorType(AValue).ClassNameEx;
+  LItem.Name      := TPGTriggerFolderType(AValue).ClassNameEx;
   Self.Add(LItem);
 end;
 
@@ -82,7 +83,7 @@ begin
   end;
 end;
 
-function TClassList.TryGetName(AValue: TClass; out OName: string): Boolean;
+function TClassList.TryGetName(const AValue: TClass; out OName: string): Boolean;
 var
   LItem: TClassItem;
 begin
@@ -100,9 +101,9 @@ end;
 
 { TPGItemCollectTrigger }
 
-constructor TPGItemCollectTrigger.Create(AName: string);
+constructor TPGItemCollectTrigger.Create(const AParent: TPGItem; const AName: string);
 begin
-  inherited Create(AName);
+  inherited Create(AParent, AName);
   FClassList := TClassList.Create();
   FFileName := TPGKernel.PathData + AName + '.xml';
 end;
@@ -114,98 +115,86 @@ begin
   inherited Destroy();
 end;
 
-procedure TPGItemCollectTrigger.FormCreate();
-begin
-  if not Assigned(Self.Form) then
-  begin
-    SetForm( TFrmTriggerController.Create(Self) );
-    SetTreeView( TFrmTriggerController(Self.Form).TrvController);
-  end;
-
-  Self.XMLLoadFromFile();
-end;
-
-procedure TPGItemCollectTrigger.RegisterClass(AClass: TClass);
+procedure TPGItemCollectTrigger.RegisterClass(const AClass: TClass);
 begin
   FClassList.AddClass( AClass );
 end;
 
-procedure TPGItemCollectTrigger.XMLSaveToStream(AItemDad: TPGItem; AXMLStream: TStream);
-  procedure CreateNode(Item: TPGItem; XMLNodeDad: IXMLNode);
+procedure TPGItemCollectTrigger.SetForm(const AForm: TFormEx);
+begin
+  inherited SetForm(AForm);
+  if Assigned(AForm) then
+    Self.XMLLoadFromFile();
+end;
+
+procedure TPGItemCollectTrigger.XMLSaveToStream(const AItemDad: TPGItem; const AXMLStream: TStream);
+  procedure CreateNode(const AItem: TPGItem; const AXMLNodeDad: IXMLNode);
   var
-    RttiType: TRttiType;
-    RttiProperty: TRttiProperty;
-    XMLNodeProperty: IXMLNode;
-    XMLNode: IXMLNode;
-    ItemChild: TPGItem;
-    ItemOriginal: TPGItem;
-    ClassName, LPropValue: string;
+    LRttiType: TRttiType;
+    LRttiProperty: TRttiProperty;
+    LXMLNodeProperty: IXMLNode;
+    LXMLNode: IXMLNode;
+    LItemChild: TPGItem;
+    LClassName, LPropValue: string;
   begin
-    if not FClassList.TryGetName(Item.ClassType, ClassName) then
+    if not FClassList.TryGetName(AItem.ClassType, LClassName) then
       Exit;
 
-    if (Item is TPGItemMirror) and (Assigned(TPGItemMirror(Item).ItemOriginal)) then
-      ItemOriginal := TPGItemMirror(Item).ItemOriginal
-    else
-      ItemOriginal := Item;
+    LXMLNode := AXMLNodeDad.AddChild(LClassName);
+    LXMLNode.Attributes['Name'] := SanitizeText( AItem.Name );
 
-    XMLNode := XMLNodeDad.AddChild(ClassName);
-    XMLNode.Attributes['Name'] := SanitizeText( ItemOriginal.Name );
-    XMLNode.Attributes['Enabled'] := ItemOriginal.Enabled;
-    XMLNode.Attributes['ReadOnly'] := ItemOriginal.ReadOnly;
+    LRttiType := TPGKernel.RttiContext.GetType(AItem.ClassType);
 
-    RttiType := TPGKernel.RttiContext.GetType(ItemOriginal.ClassType);
-
-    for RttiProperty in RttiType.GetProperties do
+    for LRttiProperty in LRttiType.GetProperties do
     begin
-      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and
-        (RttiProperty.IsWritable) then
+      if (LRttiProperty.Visibility in [mvPublished]) and (LRttiProperty.IsReadable) and
+        (LRttiProperty.IsWritable) then
       begin
-        XMLNodeProperty := XMLNode.AddChild(RttiProperty.Name);
-        XMLNodeProperty.Attributes['Type'] := RttiProperty.PropertyType.ToString;
-        LPropValue := TValue(RttiProperty.GetValue(ItemOriginal)).ToString;
-        XMLNodeProperty.NodeValue := SanitizeText(LPropValue);
+        LXMLNodeProperty := LXMLNode.AddChild(LRttiProperty.Name);
+        LXMLNodeProperty.Attributes['Type'] := LRttiProperty.PropertyType.ToString;
+        LPropValue := TValue(LRttiProperty.GetValue(AItem)).ToString;
+        LXMLNodeProperty.NodeValue := SanitizeText(LPropValue);
       end;
     end;
 
-    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item).BeforeXMLSave(Self)) then
-      for ItemChild in Item do
-        CreateNode(ItemChild, XMLNode);
+    if (AItem is TPGTriggerFolder) and (TPGTriggerFolder(AItem).BeforeXMLSave(Self)) then
+      for LItemChild in AItem do
+        CreateNode(LItemChild, LXMLNode);
   end;
 
 var
-  XMLDocument: IXMLDocument;
-  XMLRoot: IXMLNode;
-  Item: TPGItem;
+  LXMLDocument: IXMLDocument;
+  LXMLRoot: IXMLNode;
+  LItem: TPGItem;
 begin
   if not Assigned(AXMLStream) or not Assigned(Self.TreeView) then Exit;
   Self.CollectLocked;
   try
-    XMLDocument := NewXMLDocument;
-    XMLDocument.Encoding := 'utf-8';
-    XMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
-    XMLDocument.Active := True;
-    XMLRoot := XMLDocument.AddChild(AItemDad.Name);
-    XMLRoot.Attributes['Version'] := '1.0';
-    for Item in AItemDad do
+    LXMLDocument := NewXMLDocument;
+    LXMLDocument.Encoding := 'utf-8';
+    LXMLDocument.Options := [doNodeAutoCreate, doNodeAutoIndent];
+    LXMLDocument.Active := True;
+    LXMLRoot := LXMLDocument.AddChild(AItemDad.Name);
+    LXMLRoot.Attributes['Version'] := '1.0';
+    for LItem in AItemDad do
     begin
-      CreateNode(Item, XMLRoot);
+      CreateNode(LItem, LXMLRoot);
     end;
     AXMLStream.Position := 0;
-    XMLDocument.SaveToStream(AXMLStream);
+    LXMLDocument.SaveToStream(AXMLStream);
   finally
-    XMLDocument.Active := False;
+    LXMLDocument.Active := False;
     Self.CollectUnlocked;
   end;
 end;
 
 procedure TPGItemCollectTrigger.XMLSaveToFile();
-  function SaveToFile(AFileName: String): Boolean;
+  function SaveToFile(const AFileName: String): Boolean;
   var
     LFileStream: TFileStream;
     LMemStream: TMemoryStream;
   begin
-    Result := False; // Agora o compilador sabe que isso pode ser retornado!
+    Result := False;
     LMemStream := TMemoryStream.Create;
     try
       try
@@ -214,27 +203,23 @@ procedure TPGItemCollectTrigger.XMLSaveToFile();
         on E: Exception do
         begin
           TPGKernel.ConsoleTr('Error_XML_Save', [FFileName, E.Message]);
-          Exit; // Se o XML falhou, vaza daqui retornando o False imediatamente
+          Exit;
         end;
       end;
 
       LMemStream.Position := 0;
 
-      // Envolvemos a criação do arquivo para não estourar Exception solta
       try
         LFileStream := TFileStream.Create(AFileName, fmCreate);
         try
           LFileStream.CopyFrom(LMemStream, 0);
-          Result := True; // Tudo perfeito, devolve True
+          Result := True;
         finally
           LFileStream.Free;
         end;
       except
         on E: Exception do
-        begin
-          // Se der pau no disco (acesso negado, etc), avisa o console e devolve o Result False
           TPGKernel.ConsoleTr('Error_XML_Save', [AFileName, E.Message]);
-        end;
       end;
     finally
       LMemStream.Free;
@@ -254,141 +239,113 @@ begin
   FileCommitWithBackup(FFileName);
 end;
 
-procedure TPGItemCollectTrigger.XMLLoadFromStream(AItemDad: TPGItem; AXMLStream: TStream);
+procedure TPGItemCollectTrigger.XMLLoadFromStream(const AItemDad: TPGItem; const AXMLStream: TStream);
 
-  procedure CreateItem(ItemDad: TPGItem; XMLNode: IXMLNode);
+  procedure CreateItem(const AItemDad: TPGItem; const AXMLNode: IXMLNode);
   var
-    RttiType: TRttiType;
-    RttiProperty: TRttiProperty;
-    XMLNodeChild: IXMLNode;
-    ClassRegister: TClass;
-    Value: TValue;
-    Item: TPGItem;
-    ItemOriginal: TPGItem;
-    NodeName: string;
+    LRttiType: TRttiType;
+    LRttiProperty: TRttiProperty;
+    LXMLNodeChild: IXMLNode;
+    LClassRegister: TClass;
+    LValue: TValue;
+    LItem: TPGItem;
+    LNodeName: string;
 
     procedure LAssignProperty(AProp: TRttiProperty);
     var
       XMLNodeProperty: IXMLNode;
     begin
-      XMLNodeProperty := XMLNode.ChildNodes.FindNode(AProp.Name);
+      XMLNodeProperty := AXMLNode.ChildNodes.FindNode(AProp.Name);
       if Assigned(XMLNodeProperty) then
       begin
         try
           case AProp.PropertyType.TypeKind of
             tkInteger, tkInt64:
-              AProp.SetValue(ItemOriginal, StrToInt64Def(XMLNodeProperty.Text, 0));
+              AProp.SetValue(LItem, StrToInt64Def(XMLNodeProperty.Text, 0));
             tkEnumeration:
-              AProp.SetValue(ItemOriginal, StrToBoolDef(XMLNodeProperty.Text, False));
+              AProp.SetValue(LItem, StrToBoolDef(XMLNodeProperty.Text, False));
             tkFloat:
-              AProp.SetValue(ItemOriginal, StrToFloatDef(XMLNodeProperty.Text, 0));
+              AProp.SetValue(LItem, StrToFloatDef(XMLNodeProperty.Text, 0));
             tkString, tkLString, tkWString, tkUString:
-              AProp.SetValue(ItemOriginal, UnicodeString(XMLNodeProperty.Text));
+              AProp.SetValue(LItem, UnicodeString(XMLNodeProperty.Text));
           end;
         except
-          TPGKernel.ConsoleTr('Error_XML_LoadValue', [XMLNode.NodeName, AProp.Name, FFileName]);
+          TPGKernel.ConsoleTr('Error_XML_LoadValue', [AXMLNode.NodeName, AProp.Name, FFileName]);
         end;
       end;
     end;
   begin
-    if (not FClassList.TryGetClass(XMLNode.NodeName, ClassRegister)) or
-      (not XMLNode.HasAttribute('Name')) then
+    if (not FClassList.TryGetClass(AXMLNode.NodeName, LClassRegister)) or
+      (not AXMLNode.HasAttribute('Name')) then
       Exit;
 
-    NodeName := XMLNode.Attributes['Name'];
-    RttiType := TPGKernel.RttiContext.GetType(ClassRegister);
-    Value := RttiType.GetMethod('Create').Invoke(ClassRegister, [ItemDad, NodeName]);
-    Item := TPGItem(Value.AsObject);
+    LNodeName := AXMLNode.Attributes['Name'];
+    LRttiType := TPGKernel.RttiContext.GetType(LClassRegister);
+    LValue := LRttiType.GetMethod('Create').Invoke(LClassRegister, [AItemDad, LNodeName]);
+    LItem := TPGItem(LValue.AsObject);
+    LRttiType := TPGKernel.RttiContext.GetType(LItem.ClassType);
 
-    if (Item is TPGItemMirror) and (Assigned(TPGItemMirror(Item).ItemOriginal)) then
+    for LRttiProperty in LRttiType.GetProperties do
+      if (LRttiProperty.Visibility in [mvPublished]) and (LRttiProperty.IsReadable) and (LRttiProperty.IsWritable) then
+        LAssignProperty(LRttiProperty);
+
+    if (LItem is TPGTriggerFolder) and (TPGTriggerFolder(LItem).BeforeXMLLoad(Self)) then
     begin
-      ItemOriginal := TPGItemMirror(Item).ItemOriginal;
-      RttiType := TPGKernel.RttiContext.GetType(ItemOriginal.ClassType);
-    end else begin
-      ItemOriginal := Item;
-    end;
-
-    if XMLNode.HasAttribute('Enabled') then
-      ItemOriginal.Enabled := XMLNode.Attributes['Enabled'];
-
-    if XMLNode.HasAttribute('ReadOnly') then
-      ItemOriginal.ReadOnly := XMLNode.Attributes['ReadOnly'];
-
-    for RttiProperty in RttiType.GetProperties do
-    begin
-      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and (RttiProperty.IsWritable) then
+      LXMLNodeChild := AXMLNode.ChildNodes.First();
+      while Assigned(LXMLNodeChild) do
       begin
-        if not RttiProperty.Name.StartsWith('_') then
-          LAssignProperty(RttiProperty);
-      end;
-    end;
-
-    for RttiProperty in RttiType.GetProperties do
-    begin
-      if (RttiProperty.Visibility in [mvPublished]) and (RttiProperty.IsReadable) and (RttiProperty.IsWritable) then
-      begin
-        if RttiProperty.Name.StartsWith('_') then
-          LAssignProperty(RttiProperty);
-      end;
-    end;
-
-    if (Item is TPGFolderMirror) and (TPGFolderMirror(Item).BeforeXMLLoad(Self)) then
-    begin
-      XMLNodeChild := XMLNode.ChildNodes.First();
-      while Assigned(XMLNodeChild) do
-      begin
-        CreateItem(Item, XMLNodeChild);
-        XMLNodeChild := XMLNodeChild.NextSibling();
+        CreateItem(LItem, LXMLNodeChild);
+        LXMLNodeChild := LXMLNodeChild.NextSibling();
       end;
     end;
   end;
 
 var
-  XMLDocument: IXMLDocument;
-  XMLRoot, XMLNode: IXMLNode;
+  LXMLDocument: IXMLDocument;
+  LXMLRoot, LXMLNode: IXMLNode;
 begin
   if not Assigned(AXMLStream) or not Assigned(Self.TreeView) then Exit;
-  Self.TreeView.Items.BeginUpdate;
 
-  AItemDad.Clear;
-  XMLDocument := NewXMLDocument;
+  Self.BeginUpdate;
+  LXMLDocument := NewXMLDocument;
   try
+    AItemDad.Clear;
     AXMLStream.Position := 0;
     try
-      XMLDocument.LoadFromStream(AXMLStream);
-      XMLDocument.Active := True;
-      XMLRoot := XMLDocument.DocumentElement;
+      LXMLDocument.LoadFromStream(AXMLStream);
+      LXMLDocument.Active := True;
+      LXMLRoot := LXMLDocument.DocumentElement;
     except
       TPGKernel.ConsoleTr('Error_XML_Load',[FFileName]);
     end;
-    if Assigned(XMLRoot) then
+    if Assigned(LXMLRoot) then
     begin
-      XMLNode := XMLRoot.ChildNodes.First;
-      while Assigned(XMLNode) do
+      LXMLNode := LXMLRoot.ChildNodes.First;
+      while Assigned(LXMLNode) do
       begin
-        CreateItem(AItemDad, XMLNode);
-        XMLNode := XMLNode.NextSibling;
+        CreateItem(AItemDad, LXMLNode);
+        LXMLNode := LXMLNode.NextSibling;
       end;
     end;
   finally
-    XMLDocument.Active := False;
-    Self.TreeView.Items.EndUpdate;
+    LXMLDocument.Active := False;
+    Self.EndUpdate;
   end;
 end;
 
 procedure TPGItemCollectTrigger.XMLLoadFromFile();
-  function LoadFromFile(AFileName: String): Boolean;
+  function LoadFromFile(const AFileName: String): Boolean;
   var
-    Stream: TStream;
+    LStream: TStream;
   begin
     Result := False;
     if TFile.Exists(AFileName) and (PGofer.Files.Controls.FileGetSize(AFileName) > 0) then
     begin
-      Stream := TFileStream.Create(AFileName, fmOpenRead);
+      LStream := TFileStream.Create(AFileName, fmOpenRead);
       try
-        Self.XMLLoadFromStream(Self, Stream);
+        Self.XMLLoadFromStream(Self, LStream);
       finally
-        Stream.Free;
+        LStream.Free;
         Result := True;
       end;
     end;
@@ -401,11 +358,9 @@ var
 begin
   LBackupFile := FFileName;
 
-  // Tenta o arquivo principal primeiro
   LLoaded := LoadFromFile(LBackupFile);
   LCount := 1;
 
-  // Se falhou, caça nos backups do 1 ao 10
   while (not LLoaded) and (LCount <= 10) do
   begin
     LBackupFile := FFileName + '.bak' + IntToStr(LCount);
@@ -413,7 +368,6 @@ begin
     Inc(LCount);
   end;
 
-  // Só sobreescreve o arquivo principal se achou um backup saudável!
   if LLoaded and (LBackupFile <> FFileName) then
   begin
     if TFile.Exists(FFileName) then
@@ -422,6 +376,5 @@ begin
     TPGKernel.ConsoleTr('Warning_RestoreBackup', [LBackupFile]);
   end;
 end;
-
 
 end.

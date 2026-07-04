@@ -4,17 +4,17 @@ interface
 
 uses
   System.Classes, System.SyncObjs, System.Generics.Collections, System.Rtti,
-  PGofer.Classes, PGofer.Lexico;
+  PGofer.Core, PGofer.Classes, PGofer.Lexico;
 
 type
   { Pilha de Execução Moderna usando TValue }
   TPGStack = class(TPGItem)
-  strict private
+  private
     FValues: TStack<TValue>;
   private
     function GetCount: Integer;
   public
-    constructor Create(AOwner: TPGItem);
+    constructor Create(const AParent: TPGItem; const AName: string); override;
     destructor Destroy; override;
     procedure Push(const AValue: TValue);
     function Pop: TValue;
@@ -23,7 +23,7 @@ type
 
   { Classe Base da Gramática / Interpretador }
   TPGGrammar = class(TThread)
-  strict private
+  private
     FError: Boolean;
     FShowMessages: Boolean;
     FParent: TPGItem;
@@ -41,8 +41,6 @@ type
   protected
     procedure Execute; override;
   public
-    class constructor Create;
-    class destructor Destroy;
     class procedure WaitForAll(ATimeoutMS: Cardinal);
 
     constructor Create(const AName: string; AParent: TPGItem; ATerminate: Boolean);
@@ -74,24 +72,47 @@ type
     function IsStartOfCommand: Boolean;
   end;
 
+  procedure Initialize();
+  procedure Finalize();
+
 implementation
 
 uses
   System.SysUtils, System.TypInfo, Vcl.Forms,
-  PGofer.Core, PGofer.Sintatico.Controls, PGofer.Runtime;
+  PGofer.Sintatico.Controls, PGofer.Runtime;
+
+
+procedure Initialize();
+begin
+  TPGGrammar.FGrammarList := TList<TPGGrammar>.Create;
+  TPGGrammar.FGrammarLock := TObject.Create;
+end;
+
+procedure Finalize();
+begin
+  TPGGrammar.FGrammarList.Free;
+  TPGGrammar.FGrammarList := nil;
+  TPGGrammar.FGrammarLock.Free;
+  TPGGrammar.FGrammarLock := nil;
+
+  {$IFDEF DEBUG}
+  {$ENDIF}
+end;
+
 
 { TPGStack }
 
-constructor TPGStack.Create(AOwner: TPGItem);
+constructor TPGStack.Create(const AParent: TPGItem; const AName: string);
 begin
-  inherited Create(AOwner, '$Stack');
+  inherited Create(AParent, '$Stack_'+AName);
   FValues := TStack<TValue>.Create;
 end;
 
 destructor TPGStack.Destroy;
 begin
   FValues.Free;
-  inherited;
+  FValues := nil;
+  inherited Destroy();
 end;
 
 function TPGStack.GetCount: Integer;
@@ -113,18 +134,6 @@ begin
 end;
 
 { TPGGrammar }
-
-class constructor TPGGrammar.Create;
-begin
-  FGrammarList := TList<TPGGrammar>.Create;
-  FGrammarLock := TObject.Create;
-end;
-
-class destructor TPGGrammar.Destroy;
-begin
-  FGrammarList.Free;
-  FGrammarLock.Free;
-end;
 
 class procedure TPGGrammar.WaitForAll(ATimeoutMS: Cardinal);
 var
@@ -161,7 +170,7 @@ begin
     FParent := GlobalCollection;
 
   FLocal := TPGItem.Create(FParent, AName);
-  FStack := TPGStack.Create(FLocal);
+  FStack := TPGStack.Create(FLocal, AName);
   FTokenList := TPGTokenList.Create;
   FBreakpointEvent := TEvent.Create(nil, True, False, ''); // Manual Reset
 

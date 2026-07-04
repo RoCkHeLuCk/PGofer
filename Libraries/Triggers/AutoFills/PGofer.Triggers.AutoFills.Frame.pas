@@ -36,7 +36,7 @@ type
     function GetItem( ): TPGAutoFill; reintroduce;
     property Item: TPGAutoFill read GetItem;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); override;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -48,7 +48,7 @@ uses
 {$R *.dfm}
 
 { TPGAutoFillsFrame }
-constructor TPGAutoFillsFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGAutoFillsFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   EdtText.SetTextSilent( Item.Text );
@@ -63,7 +63,7 @@ begin
   inherited Destroy( );
 end;
 
-function TPGAutoFillsFrame.GetItem: TPGAutoFill;
+function TPGAutoFillsFrame.GetItem(): TPGAutoFill;
 begin
   Result := TPGAutoFill(inherited Item);
 end;

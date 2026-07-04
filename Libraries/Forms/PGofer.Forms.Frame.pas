@@ -58,7 +58,7 @@ type
 implementation
 
 uses
-  System.SysUtils, Vcl.Graphics;
+  System.SysUtils;
 
 {$R *.dfm}
 { TPGFrame1 }
@@ -68,7 +68,7 @@ begin
   inherited Create( AItem, AParent );
   CkbAlphaBlend.SetCheckedSilent( Self.Item.AlphaBlend );
   EdtAlphaBlendValue.SetTextSilent( Self.Item.AlphaBlendValue.ToString() );
-  CkbEnabled.SetCheckedSilent( Self.Item.Enabled );
+  CkbEnabled.SetCheckedSilent( not (pgfDisabled in Self.Item.Flags) );
   EdtHeigth.SetTextSilent( Self.Item.Heigth.ToString() );
   EdtLeft.SetTextSilent( Self.Item.Left.ToString() );
   EdtTop.SetTextSilent( Self.Item.Top.ToString() );
@@ -103,7 +103,7 @@ end;
 procedure TPGFormsFrame.CkbEnabledClick( Sender: TObject );
 begin
   if Self.Loading then Exit;
-  Self.Item.Enabled := CkbEnabled.Checked;
+  Self.Item.Disabled := not CkbEnabled.Checked;
 end;
 
 procedure TPGFormsFrame.CkbTransparentClick( Sender: TObject );

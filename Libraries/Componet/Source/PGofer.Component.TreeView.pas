@@ -75,6 +75,9 @@ var
   Node: TTreeNode;
   NodeAttach: TNodeAttachMode;
 begin
+  if Length(FSelectionsDrag) = 0 then
+    Exit;
+
   if Assigned( FTargetDrag ) then
     NodeAttach := FAttachMode
   else
@@ -89,17 +92,23 @@ end;
 procedure TTreeViewEx.DragOver( Source: TObject; X, Y: Integer;
   State: TDragState; var Accept: Boolean );
 var
-  C: Integer;
+  C, LCount: Integer;
 begin
-  inherited DragOver( Source, X, Y, State, Accept );
-  try
-    FTargetDrag := Self.GetNodeAt( X, Y );
-    SetLength( FSelectionsDrag, 0 );
-    for C := 0 to Self.SelectionCount - 1 do
-      FSelectionsDrag := FSelectionsDrag + [ Self.Selections[ C ] ];
-  except
-    Accept := False;
+  inherited DragOver(Source, X, Y, State, Accept);
+
+  if (State = dsDragEnter) or (Length(FSelectionsDrag) = 0) then
+  begin
+    LCount := Self.SelectionCount;
+    if LCount > 0 then
+    begin
+      SetLength(FSelectionsDrag, LCount);
+      for C := 0 to LCount - 1 do
+        FSelectionsDrag[C] := Self.Selections[C];
+    end else
+      SetLength(FSelectionsDrag, 0);
   end;
+
+  FTargetDrag := Self.GetNodeAt(X, Y);
 end;
 
 procedure TTreeViewEx.SetDropFileAccept( AValue: Boolean );
@@ -107,12 +116,16 @@ var i: integer;
 begin
   FDropFileAccept := AValue;
   DragAcceptFiles( Self.Handle, AValue );
-  //ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
-  //ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
-  //ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
-  for I := 0 to WM_DROPFILES do
+
+  if AValue then
   begin
-     ChangeWindowMessageFilter (i, MSGFLT_ADD);
+//    ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+//    ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
+//    ChangeWindowMessageFilter(WM_COPYGLOBALDATA, MSGFLT_ADD);
+    for I := 0 to WM_DROPFILES do
+    begin
+       ChangeWindowMessageFilter (i, MSGFLT_ADD);
+    end;
   end;
 end;
 

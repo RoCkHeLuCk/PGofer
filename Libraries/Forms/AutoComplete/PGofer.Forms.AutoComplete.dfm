@@ -1,4 +1,4 @@
-object FrmAutoComplete: TFrmAutoComplete
+﻿object FrmAutoComplete: TFrmAutoComplete
   Left = 960
   Top = 154
   Margins.Left = 0
@@ -32,6 +32,7 @@ object FrmAutoComplete: TFrmAutoComplete
   OnKeyDown = FormKeyDown
   OnKeyPress = FormKeyPress
   OnKeyUp = FormKeyUp
+  OnMouseUp = FormMouseUp
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13

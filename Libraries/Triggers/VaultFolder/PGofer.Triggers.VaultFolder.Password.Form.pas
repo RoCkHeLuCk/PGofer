@@ -1,4 +1,4 @@
-unit PGofer.Triggers.VaultFolder.Password.Form;
+﻿unit PGofer.Triggers.VaultFolder.Password.Form;
 
 interface
 

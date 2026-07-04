@@ -34,6 +34,8 @@ procedure FormAfterInitialize();
 var
   LParam: string;
 begin
+  SetPriorityClass( GetCurrentProcess, REALTIME_PRIORITY_CLASS );
+  SetProcessPriorityBoost( GetCurrentProcess, False );
   PresetMessageFilter( Application.MainForm.Handle );
 
   if FindCmdLineSwitch('script', LParam, True) then

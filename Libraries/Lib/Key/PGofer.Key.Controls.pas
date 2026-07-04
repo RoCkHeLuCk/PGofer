@@ -7,7 +7,9 @@ procedure KeySetPress( Key: Word; Push: Boolean );
 function CharToKey( Key: Char ): SmallInt;
 function KeyGetPress( Key: Word ): Boolean;
 function KeyVirtualToStr( KeyCode: Word ): string;
-function RemoveCharSpecial( Nome: string; Todos: Boolean ): string;
+function RemoveAccent(const AName: string): string;
+function RemoveCharSpecial(const AName: string; const AReplace: Char = #0): string;
+function NormalizeID(const AName: string): string;
 function PassWordGenerator( Up, Number, CharEsp: Boolean; Size: Word ): string;
 function StrInSet( const S: string; const StringSet: array of string): Boolean;
 function SanitizeText(const AText: string): string;
@@ -365,27 +367,49 @@ begin
   end;
 end;
 
-function RemoveCharSpecial( Nome: string; Todos: Boolean ): string;
+function RemoveAccent(const AName: string): string;
 const
-  ComAcento = ' �����������������������������������������������������������';
-  SemAcento = '_SZszYAAAAAACEEEEIIIIDNOOOOOUUUUYaaaaaaceeeeiiiinooooouuuuyy';
+  LWithAccent = 'àáâãäèéêëìíîïòóôõöùúûüçñýÀÁÂÃÄÈÉÊËÌÍÎÏÒÓÔÕÖÙÚÛÜÇÑÝŠŽšžŸ';
+  LWOutAccent = 'aaaaaeeeeiiiiooooouuuucnyAAAAAEEEEIIIIOOOOOUUUUCNYSZszY';
 var
-  c, d: Integer;
+  Count, Position: Integer;
 begin
-  c := length( Nome );
-  while c > 0 do
+  Result := AName;
+  Count := length( Result );
+  while Count > 0 do
   begin
-    d := pos( Nome[ c ], ComAcento );
-    if d > 0 then
-      Nome[ c ] := SemAcento[ d ];
-
-    if Todos
-    and (not CharInSet(Nome[c],['0'..'9','A'..'Z','_','a'..'z'])) then
-       Delete( Nome, c, 1 );
-    dec( c );
+    Position := Pos( Result[ Count ], LWithAccent );
+    if Position > 0 then
+      Result[ Count ] := LWOutAccent[ Position ];
+    Dec( Count );
   end;
+end;
 
-  Result := Nome;
+function RemoveCharSpecial(const AName: string; const AReplace: Char = #0): string;
+var
+  Count: Integer;
+begin
+  Result := AName;
+  Count := length( Result );
+  while Count > 0 do
+  begin
+    if (not CharInSet(Result[Count], ['0'..'9','A'..'Z','_','a'..'z'])) then
+    begin
+      if AReplace <> '' then
+        Result[Count] := AReplace
+      else
+        Delete( Result, Count, 1 );
+    end;
+    Dec( Count );
+  end;
+end;
+
+function NormalizeID(const AName: string): string;
+begin
+  Result := RemoveAccent(AName);
+  Result := RemoveCharSpecial(Result,'_');
+  if (Result <> '') and ( CharInSet(Result[1], ['0'..'9'])) then
+    Result := '_' + Result;
 end;
 
 function PassWordGenerator( Up, Number, CharEsp: Boolean; Size: Word ): string;
@@ -473,36 +497,5 @@ begin
     Inc(I);
   end;
 end;
-
-//function SanitizeText(const AText: string): string;
-//var
-//  I: Integer;
-//  C: Char;
-//  W: Word;
-//begin
-//  Exit(AText);
-//  //teste
-//  Result := '';
-//  if AText = '' then Exit;
-//
-//  for I := 1 to Length(AText) do
-//  begin
-//    C := AText[I];
-//    W := Ord(C);
-//    // 1. Mant�m caracteres b�sicos de formata��o (Tab, LF, CR)
-//    // 2. Mant�m o intervalo imprim�vel padr�o (Space at� o fim do ANSI/Unicode padr�o)
-//    if ( CharInSet(C,[#9, #10, #13])) or (C >= #32) then
-//    begin
-//      // 3. Bloqueio espec�fico de caracteres invis�veis/fantasmas (Unicode Zero-Width e Markings)
-//      // $200B: Zero Width Space | $200C..$200F: Formatters | $FEFF: BOM
-//      if not (
-//         ((W >= $200B) and (W <= $200F)) or // Zero Width e Formatters
-//         (W = $FEFF) or                     // Byte Order Mark
-//         ((W >= $202A) and (W <= $202E))    // Direcionais de texto
-//      ) then
-//        Result := Result + C;
-//    end;
-//  end;
-//end;
 
 end.

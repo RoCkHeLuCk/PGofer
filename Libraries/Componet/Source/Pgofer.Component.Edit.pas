@@ -394,8 +394,8 @@ begin
     end;
   end;
 
-  if FSilent then
-    Exit;
+  //if FSilent then
+  //  Exit;
 
   { Custom Event Before }
   if Assigned(FOnBeforeValidate) then
@@ -410,14 +410,11 @@ end;
 
 procedure TEditEx.SetValidationIsValid(AValue: Boolean);
 begin
-  if FValidationIsValid <> AValue then
-  begin
-    FValidationIsValid := AValue;
-    if FValidationIsValid then
-      Self.Font.Color := FValidationColorNormal
-    else begin
-      Self.Font.Color := FValidationColorError;
-    end;
+  FValidationIsValid := AValue;
+  if FValidationIsValid then
+    Self.Font.Color := FValidationColorNormal
+  else begin
+    Self.Font.Color := FValidationColorError;
   end;
 end;
 
@@ -436,4 +433,4 @@ end;
 
 
 end.
-
+

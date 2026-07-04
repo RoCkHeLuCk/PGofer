@@ -1,9 +1,9 @@
-unit PGofer.Scheduler.Controls;
+﻿unit PGofer.Scheduler.Controls;
 
 interface
 
 uses
-  System.SysUtils, System.Classes, System.Win.ComObj, System.Masks, System.IOUtils,
+  System.SysUtils, System.Win.ComObj, System.Masks,
   Winapi.ActiveX, Winapi.Windows, System.Variants;
 
 function SchedulerGetLastErrorMessage: string;

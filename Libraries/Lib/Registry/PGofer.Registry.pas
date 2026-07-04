@@ -7,6 +7,7 @@ uses
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   TPGRegistry = class( TPGItemClass )
   private
     FEnvironment: TPGRegistryEnvironment;
@@ -19,9 +20,6 @@ type
     function Write( RootKey: NativeUInt; OpenKey, Key, Value: string ): Boolean;
   end;
   {$TYPEINFO ON}
-
-var
-  PGRegistry: TPGRegistry;
 
 implementation
 
@@ -59,10 +57,6 @@ end;
 
 initialization
 
-  PGRegistry := TPGRegistry.Create( GlobalItemCommand );
-
 finalization
-
-  PGRegistry := nil;
 
 end.

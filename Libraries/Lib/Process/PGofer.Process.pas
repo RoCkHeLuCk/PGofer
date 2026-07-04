@@ -3,10 +3,11 @@
 interface
 
 uses
-  PGofer.Runtime;
+  PGofer.Core, PGofer.Runtime;
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   TPGProcess = class( TPGItemClass )
   private
   public
@@ -20,9 +21,6 @@ type
     function SetPriority( PID: string; Priority: Byte ): Boolean;
   end;
   {$TYPEINFO ON}
-
-var
-  PGProcess: TPGProcess;
 
 implementation
 
@@ -84,10 +82,7 @@ end;
 
 initialization
 
-  PGProcess := TPGProcess.Create( GlobalItemCommand );
-
 finalization
 
-  PGProcess := nil;
 
 end.

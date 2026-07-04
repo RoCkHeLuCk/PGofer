@@ -3,10 +3,11 @@
 interface
 
 uses
-  PGofer.Runtime;
+  PGofer.Core, PGofer.Runtime;
 
 type
   {$M+}
+  [TPGClassReg('Commands')]
   TPGClipBoard = class( TPGItemClass )
   private
   public
@@ -19,9 +20,6 @@ type
     function SaveToFile( FileName: string ): Boolean;
   end;
   {$TYPEINFO ON}
-
-var
-  PGClipBoard : TPGClipBoard;
 
 implementation
 
@@ -62,10 +60,6 @@ end;
 
 initialization
 
-  PGClipBoard := TPGClipBoard.Create( GlobalItemCommand );
-
 finalization
-
-  PGClipBoard := nil;
 
 end.

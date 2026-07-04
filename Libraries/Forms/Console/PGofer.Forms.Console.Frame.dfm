@@ -1,15 +1,15 @@
-inherited PGConsoleFrame: TPGConsoleFrame
+﻿inherited PGConsoleFrame: TPGConsoleFrame
   Height = 337
   ExplicitHeight = 337
   inherited grbAbout: TGroupBox
-    Top = 267
-    Height = 60
-    Constraints.MinHeight = 44
-    ExplicitTop = 267
-    ExplicitHeight = 60
+    Top = 287
+    Height = 40
+    Constraints.MinHeight = 40
+    ExplicitTop = 287
+    ExplicitHeight = 40
     inherited mmoAbout: TMemoEx
-      Height = 43
-      ExplicitHeight = 43
+      Height = 23
+      ExplicitHeight = 23
     end
   end
   inherited pnlItem: TPanel

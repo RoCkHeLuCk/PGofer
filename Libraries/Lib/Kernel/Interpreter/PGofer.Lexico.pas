@@ -1,5 +1,6 @@
 ﻿unit PGofer.Lexico;
-
+
+
 interface
 
 uses
@@ -21,7 +22,7 @@ type
 
   { Coordenada com suporte a Offset absoluto para o "Retrato" do script }
   TPGCoordinate = record
-  strict private
+  private
     FLine: Integer;
     FColumn: Integer;
     FOffset: Integer;
@@ -48,11 +49,9 @@ type
 
   { Registro Global de Vocabulário }
   TPGLexicalRegistry = class
-  strict private
+  private
     class var FKeywords: TDictionary<string, TPGTokenKind>;
     class var FTokenInfos: TDictionary<TPGTokenKind, TPGTokenInfo>;
-    class constructor Create;
-    class destructor Destroy;
   public
     class function GetKind(const AIdentifier: string): TPGTokenKind;
     class function GetFriendlyName(const AKind: TPGTokenKind): string;
@@ -62,7 +61,7 @@ type
 
   { Representação de um Token individual }
   TPGToken = class
-  strict private
+  private
     FKind: TPGTokenKind;
     FValue: TValue;
     FCoordinate: TPGCoordinate;
@@ -101,7 +100,7 @@ type
 
   { O Motor Léxico (Lexer) }
   TPGLexer = class
-  strict private
+  private
     FScript: string;
     FCurrent: PChar;
     FStart: PChar;
@@ -120,10 +119,74 @@ type
     procedure Tokenize(const AScript: string; ATokenList: TPGTokenList);
   end;
 
+  procedure Initialize();
+  procedure Finalize();
+
 implementation
 
 uses
   PGofer.Math.Controls;
+
+procedure Initialize();
+begin
+  TPGLexicalRegistry.FKeywords := TDictionary<string, TPGTokenKind>.Create(
+    TEqualityComparer<string>.Construct(
+      function(const L, R: string): Boolean
+      begin
+        Result := SameText(L, R);
+      end,
+      function(const V: string): Integer
+      begin
+        if V = '' then Exit(0);
+        Result := THashBobJenkins.GetHashValue(Pointer(LowerCase(V))^, Length(V) * SizeOf(Char));
+      end
+    )
+  );
+
+  TPGLexicalRegistry.FTokenInfos := TDictionary<TPGTokenKind, TPGTokenInfo>.Create;
+
+  // 1. Delimitadores de Bloco (Pilar Central)
+  TPGLexicalRegistry.RegisterKeyword('begin', pgkBegin, 'begin');
+  TPGLexicalRegistry.RegisterKeyword('end',   pgkEnd,   'end');
+  TPGLexicalRegistry.RegisterKeyword('and',   pgkAnd,   'and');
+  TPGLexicalRegistry.RegisterKeyword('or',    pgkOr,    'or');
+  TPGLexicalRegistry.RegisterKeyword('xor',   pgkXor,   'xor');
+  TPGLexicalRegistry.RegisterKeyword('not',   pgkNot,   'not');
+  TPGLexicalRegistry.RegisterKeyword('mod',   pgkMod,   'mod');
+  TPGLexicalRegistry.RegisterKeyword('root',  pgkRoot,  'root');
+
+  // Registro de Símbolos para Erros Amigáveis
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkSemiColon,    TPGTokenInfo.Create(pgkSemiColon,    ';', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkLPar,         TPGTokenInfo.Create(pgkLPar,         '(', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkRPar,         TPGTokenInfo.Create(pgkRPar,         ')', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkLBrack,       TPGTokenInfo.Create(pgkLBrack,       '[', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkRBrack,       TPGTokenInfo.Create(pgkRBrack,       ']', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkAssign,       TPGTokenInfo.Create(pgkAssign,       ':=', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkDot,          TPGTokenInfo.Create(pgkDot,          '.', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkComma,        TPGTokenInfo.Create(pgkComma,        ',', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkEqual,        TPGTokenInfo.Create(pgkEqual,        '=', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkNotEqual,     TPGTokenInfo.Create(pgkNotEqual,     '<>', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkGreater,      TPGTokenInfo.Create(pgkGreater,      '>', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkLess,         TPGTokenInfo.Create(pgkLess,         '<', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkGreaterEqual, TPGTokenInfo.Create(pgkGreaterEqual, '>=', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkLessEqual,    TPGTokenInfo.Create(pgkLessEqual,    '<=', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkAdd,          TPGTokenInfo.Create(pgkAdd,          '+', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkSub,          TPGTokenInfo.Create(pgkSub,          '-', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkMult,         TPGTokenInfo.Create(pgkMult,         '*', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkDiv,          TPGTokenInfo.Create(pgkDiv,          '/', False));
+  TPGLexicalRegistry.FTokenInfos.AddOrSetValue(pgkPower,        TPGTokenInfo.Create(pgkPower,        '^', False));
+end;
+
+procedure Finalize();
+begin
+  TPGLexicalRegistry.FKeywords.Free;
+  TPGLexicalRegistry.FKeywords := nil;
+  TPGLexicalRegistry.FTokenInfos.Free;
+  TPGLexicalRegistry.FTokenInfos := nil;
+
+  {$IFDEF DEBUG}
+  {$ENDIF}
+end;
 
 { TPGCoordinate }
 
@@ -162,63 +225,6 @@ begin
 end;
 
 { TPGLexicalRegistry }
-
-class constructor TPGLexicalRegistry.Create;
-begin
-  FKeywords := TDictionary<string, TPGTokenKind>.Create(
-    TEqualityComparer<string>.Construct(
-      function(const L, R: string): Boolean
-      begin
-        Result := SameText(L, R); // Case Insensitive perfeito
-      end,
-      function(const V: string): Integer
-      begin
-        if V = '' then Exit(0);
-        // Passamos o endereço do primeiro caractere (Pointer) e o tamanho total em bytes
-        Result := THashBobJenkins.GetHashValue(Pointer(LowerCase(V))^, Length(V) * SizeOf(Char));
-      end
-    )
-  );
-
-  FTokenInfos := TDictionary<TPGTokenKind, TPGTokenInfo>.Create;
-
-  // 1. Delimitadores de Bloco (Pilar Central)
-  RegisterKeyword('begin', pgkBegin, 'begin');
-  RegisterKeyword('end',   pgkEnd,   'end');
-  RegisterKeyword('and',   pgkAnd,   'and');
-  RegisterKeyword('or',    pgkOr,    'or');
-  RegisterKeyword('xor',   pgkXor,   'xor');
-  RegisterKeyword('not',   pgkNot,   'not');
-  RegisterKeyword('mod',   pgkMod,   'mod');
-  RegisterKeyword('root',  pgkRoot,  'root');
-
-  // Registro de Símbolos para Erros Amigáveis
-  FTokenInfos.AddOrSetValue(pgkSemiColon,    TPGTokenInfo.Create(pgkSemiColon,    ';', False));
-  FTokenInfos.AddOrSetValue(pgkLPar,         TPGTokenInfo.Create(pgkLPar,         '(', False));
-  FTokenInfos.AddOrSetValue(pgkRPar,         TPGTokenInfo.Create(pgkRPar,         ')', False));
-  FTokenInfos.AddOrSetValue(pgkLBrack,       TPGTokenInfo.Create(pgkLBrack,       '[', False));
-  FTokenInfos.AddOrSetValue(pgkRBrack,       TPGTokenInfo.Create(pgkRBrack,       ']', False));
-  FTokenInfos.AddOrSetValue(pgkAssign,       TPGTokenInfo.Create(pgkAssign,       ':=', False));
-  FTokenInfos.AddOrSetValue(pgkDot,          TPGTokenInfo.Create(pgkDot,          '.', False));
-  FTokenInfos.AddOrSetValue(pgkComma,        TPGTokenInfo.Create(pgkComma,        ',', False));
-  FTokenInfos.AddOrSetValue(pgkEqual,        TPGTokenInfo.Create(pgkEqual,        '=', False));
-  FTokenInfos.AddOrSetValue(pgkNotEqual,     TPGTokenInfo.Create(pgkNotEqual,     '<>', False));
-  FTokenInfos.AddOrSetValue(pgkGreater,      TPGTokenInfo.Create(pgkGreater,      '>', False));
-  FTokenInfos.AddOrSetValue(pgkLess,         TPGTokenInfo.Create(pgkLess,         '<', False));
-  FTokenInfos.AddOrSetValue(pgkGreaterEqual, TPGTokenInfo.Create(pgkGreaterEqual, '>=', False));
-  FTokenInfos.AddOrSetValue(pgkLessEqual,    TPGTokenInfo.Create(pgkLessEqual,    '<=', False));
-  FTokenInfos.AddOrSetValue(pgkAdd,          TPGTokenInfo.Create(pgkAdd,          '+', False));
-  FTokenInfos.AddOrSetValue(pgkSub,          TPGTokenInfo.Create(pgkSub,          '-', False));
-  FTokenInfos.AddOrSetValue(pgkMult,         TPGTokenInfo.Create(pgkMult,         '*', False));
-  FTokenInfos.AddOrSetValue(pgkDiv,          TPGTokenInfo.Create(pgkDiv,          '/', False));
-  FTokenInfos.AddOrSetValue(pgkPower,        TPGTokenInfo.Create(pgkPower,        '^', False));
-end;
-
-class destructor TPGLexicalRegistry.Destroy;
-begin
-  FKeywords.Free;
-  FTokenInfos.Free;
-end;
 
 class procedure TPGLexicalRegistry.RegisterKeyword(const AWord: string; const AKind: TPGTokenKind; const AFriendlyName: string);
 begin
@@ -566,4 +572,4 @@ initialization
 finalization
 
 end.
-
+

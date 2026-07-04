@@ -4,79 +4,93 @@ interface
 
 uses
   System.SysUtils, System.Rtti,
-  PGofer.Sintatico, PGofer.Classes, PGofer.Runtime;
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime;
 
 type
   { Utilitários de String }
+  [TPGClassReg('Commands')]
   TPGCopy = class(TPGItemClass)
   public
-    function ExecuteAction(AValue: string; AStart, ACount: Integer): string;
+    function ExecuteAction(const AValue: string; const AStart, ACount: Integer): string;
   end;
 
+  [TPGClassReg('Commands')]
   TPGDelete = class(TPGItemClass)
   public
-    function ExecuteAction(AValue: string; AStart, ACount: Integer): string;
+    function ExecuteAction(const AValue: string; const AStart, ACount: Integer): string;
   end;
 
+  [TPGClassReg('Commands')]
   TPGInsert = class(TPGItemClass)
   public
-    function ExecuteAction(const ATarget, AValue: string; AStart: Integer): string;
+    function ExecuteAction(const ATarget, AValue: string; const AStart: Integer): string;
   end;
 
   { Sistema }
+  [TPGClassReg('Commands')]
   TPGDelay = class(TPGItemClass)
   public
-    procedure ExecuteAction(ADelayMS: Cardinal);
+    procedure ExecuteAction(const ADelayMS: Cardinal);
   end;
 
+  [TPGClassReg('Commands')]
   TPGRead = class(TPGItemClass)
   public
     function ExecuteAction(const ATitle, ADefault: string): string;
   end;
 
   { Controle de Fluxo }
+
+  [TPGClassReg('Commands')]
   TPGIf = class(TPGItemClass)
   public
-    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
-    function ExecuteAction(ACondition: Boolean; const ATrueValue, AFalseValue: TValue): TValue;
+    constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
+    function ExecuteAction(const ACondition: Boolean; const ATrueValue, AFalseValue: TValue): TValue;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
+  [TPGClassReg('Commands')]
   TPGFor = class(TPGItemClass)
   public
-    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
+    constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
+  [TPGClassReg('Commands')]
   TPGWhile = class(TPGItemClass)
   public
-    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
+    constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
+  [TPGClassReg('Commands')]
   TPGRepeat = class(TPGItemClass)
   public
-    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
+    constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
   { Gestão de Memória }
+  [TPGClassReg('Commands')]
   TPGIsDef = class(TPGItemClass)
   public
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
+  [TPGClassReg('Commands')]
   TPGUnDef = class(TPGItemClass)
   public
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
   { Saída de Console }
+  [TPGClassReg('Commands')]
   TPGWrite = class(TPGItemClass)
   public
-    procedure ExecuteAction(const AText: string; ANewLine: Boolean = False);
+    procedure ExecuteAction(const AText: string; const ANewLine: Boolean = False);
   end;
 
+  [TPGClassReg('Commands')]
   TPGWriteLN = class(TPGWrite)
   public
     procedure ExecuteAction(const AText: string); overload;
@@ -86,24 +100,27 @@ implementation
 
 uses
   Vcl.Dialogs,
-  PGofer.Core, PGofer.Lexico, PGofer.Sintatico.Controls,
+  PGofer.Lexico, PGofer.Sintatico.Controls,
   PGofer.Standard.Variants;
 
 { TPGCopy }
-function TPGCopy.ExecuteAction(AValue: string; AStart, ACount: Integer): string;
+function TPGCopy.ExecuteAction(const AValue: string; const AStart, ACount: Integer): string;
 begin
   Result := System.Copy(AValue, AStart, ACount);
 end;
 
 { TPGDelete }
-function TPGDelete.ExecuteAction(AValue: string; AStart, ACount: Integer): string;
+function TPGDelete.ExecuteAction(const AValue: string; const AStart, ACount: Integer): string;
+var
+  LValue : String;
 begin
-  System.Delete(AValue, AStart, ACount);
-  Result := AValue;
+  LValue := AValue;
+  System.Delete(LValue, AStart, ACount);
+  Result := LValue;
 end;
 
 { TPGInsert }
-function TPGInsert.ExecuteAction(const ATarget, AValue: string; AStart: Integer): string;
+function TPGInsert.ExecuteAction(const ATarget, AValue: string; const AStart: Integer): string;
 var LTemp: string;
 begin
   LTemp := ATarget;
@@ -112,7 +129,7 @@ begin
 end;
 
 { TPGDelay }
-procedure TPGDelay.ExecuteAction(ADelayMS: Cardinal);
+procedure TPGDelay.ExecuteAction(const ADelayMS: Cardinal);
 begin
   Sleep(ADelayMS);
 end;
@@ -129,14 +146,14 @@ begin
 end;
 
 { TPGIf }
-constructor TPGIf.Create(AOwner: TPGItem; const AName: string);
+constructor TPGIf.Create(const AOwner: TPGItem; const AName: string);
 begin
   inherited;
   TPGLexicalRegistry.RegisterKeyword('then', pgkKeyword, 'then');
   TPGLexicalRegistry.RegisterKeyword('else', pgkKeyword, 'else');
 end;
 
-function TPGIf.ExecuteAction(ACondition: Boolean; const ATrueValue, AFalseValue: TValue): TValue;
+function TPGIf.ExecuteAction(const ACondition: Boolean; const ATrueValue, AFalseValue: TValue): TValue;
 begin
   if ACondition then Result := ATrueValue else Result := AFalseValue;
 end;
@@ -190,7 +207,7 @@ begin
 end;
 
 { TPGFor }
-constructor TPGFor.Create(AOwner: TPGItem; const AName: string);
+constructor TPGFor.Create(const AOwner: TPGItem; const AName: string);
 begin
   inherited;
   TPGLexicalRegistry.RegisterKeyword('to', pgkKeyword, 'to');
@@ -250,7 +267,7 @@ begin
 end;
 
 { TPGWhile }
-constructor TPGWhile.Create(AOwner: TPGItem; const AName: string);
+constructor TPGWhile.Create(const AOwner: TPGItem; const AName: string);
 begin
   inherited;
   TPGLexicalRegistry.RegisterKeyword('do', pgkKeyword, 'do');
@@ -289,7 +306,7 @@ begin
 end;
 
 { TPGRepeat }
-constructor TPGRepeat.Create(AOwner: TPGItem; const AName: string);
+constructor TPGRepeat.Create(const AOwner: TPGItem; const AName: string);
 begin
   inherited;
   TPGLexicalRegistry.RegisterKeyword('until', pgkKeyword, 'until');
@@ -343,7 +360,7 @@ begin
   begin
     LName := ValueToString(AGrammar.Stack.Pop);
     LItem := FindID(AGrammar.Local, LName);
-    if Assigned(LItem) and (not LItem.SystemNode) then
+    if Assigned(LItem) and not (pgfInternal in Self.Flags) then
     begin
       LItem.Free;
       AGrammar.Stack.Push(True);
@@ -353,7 +370,7 @@ begin
 end;
 
 { TPGWrite }
-procedure TPGWrite.ExecuteAction(const AText: string; ANewLine: Boolean);
+procedure TPGWrite.ExecuteAction(const AText: string; const ANewLine: Boolean);
 begin
   TPGKernel.Console(AText, ANewLine, TPGKernel.ConsoleMessage);
 end;
@@ -365,18 +382,5 @@ begin
 end;
 
 initialization
-  TPGCopy.Create(GlobalItemCommand);
-  TPGDelete.Create(GlobalItemCommand);
-  TPGInsert.Create(GlobalItemCommand);
-  TPGDelay.Create(GlobalItemCommand);
-  TPGRead.Create(GlobalItemCommand);
-  TPGIf.Create(GlobalItemCommand);
-  TPGFor.Create(GlobalItemCommand);
-  TPGWhile.Create(GlobalItemCommand);
-  TPGRepeat.Create(GlobalItemCommand);
-  TPGIsDef.Create(GlobalItemCommand);
-  TPGUnDef.Create(GlobalItemCommand);
-  TPGWrite.Create(GlobalItemCommand);
-  TPGWriteLN.Create(GlobalItemCommand);
 
 end.

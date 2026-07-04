@@ -3,32 +3,34 @@
 interface
 
 uses
-  PGofer.Classes, PGofer.Runtime, PGofer.Net.Socket;
+  PGofer.Core, PGofer.Classes, PGofer.Runtime, PGofer.Net.Socket;
 
 type
 
   {$M+}
+  [TPGClassReg('Commands')]
   TPGNet = class( TPGItemClass )
   private
     FServer: TPGNetServer;
     FClient: TPGNetClient;
-    FLogFileName: String;
-    FLogMaxSize: Cardinal;
+    function GetLogFileName: String;
+    function GetLogMaxSize: Cardinal;
+    procedure SetLogFileName(const AValue: String);
+    procedure SetLogMaxSize(const AValue: Cardinal);
   protected
   public
-    constructor Create( AItemDad: TPGItem; const AName: string = ''); override;
+    class var FLogFileName: String;
+    class var FLogMaxSize: Cardinal;
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
   published
-    property LogMaxSize: Cardinal read FLogMaxSize write FLogMaxSize;
+    property LogMaxSize: Cardinal read GetLogMaxSize write SetLogMaxSize;
+    property LogFileName: String read GetLogFileName write SetLogFileName;
     property Server: TPGNetServer read FServer;
     property Client: TPGNetClient read FClient;
-    property LogFileName: String read FLogFileName write FLogFileName;
-    function SetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
-    function GetTCPIP( ANetworkCard: string ): string;
+    function SetTCPIP(const ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
+    function GetTCPIP(const ANetworkCard: string ): string;
   end;
   {$TYPEINFO ON}
-
-var
-  PGNet: TPGNet;
 
 implementation
 
@@ -37,18 +39,38 @@ uses
 
 { TPGNet }
 
-constructor TPGNet.Create(AItemDad: TPGItem; const AName: string = '');
+constructor TPGNet.Create(const AItemDad: TPGItem; const AName: string = '');
 begin
    inherited Create(AItemDad, 'Net');
    FLogMaxSize := 1000000;
 end;
 
-function TPGNet.SetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
+procedure TPGNet.SetLogFileName(const AValue: String);
+begin
+  FLogFileName := AValue;
+end;
+
+procedure TPGNet.SetLogMaxSize(const AValue: Cardinal);
+begin
+  FLogMaxSize := AValue;
+end;
+
+function TPGNet.SetTCPIP(const ANetworkCard, AIPAddress, AMask, AGateWay: string ): Integer;
 begin
   Result := NetSetTCPIP( ANetworkCard, AIPAddress, AMask, AGateWay );
 end;
 
-function TPGNet.GetTCPIP( ANetworkCard: string ): string;
+function TPGNet.GetLogFileName(): String;
+begin
+  Result := FLogFileName;
+end;
+
+function TPGNet.GetLogMaxSize(): Cardinal;
+begin
+  Result := FLogMaxSize;
+end;
+
+function TPGNet.GetTCPIP(const ANetworkCard: string ): string;
 begin
   // ?????????????
   Result := 'Ainda nao implementado';
@@ -56,10 +78,6 @@ end;
 
 initialization
 
-  PGNet := TPGNet.Create( GlobalItemCommand );
-
 finalization
-
-  PGNet := nil;
 
 end.

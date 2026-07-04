@@ -1,13 +1,17 @@
-unit PGofer.Component.Memo;
+﻿unit PGofer.Component.Memo;
 
 interface
 
 uses
   System.Classes, System.Types, System.SysUtils,
   WinApi.Windows, WinApi.Messages, WinApi.ShellApi,
-  Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms;
+  Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls;
 
 type
+  TOnKeyDownUP = procedure( Sender: TObject; var Key: Word; Shift: TShiftState )
+    of object;
+  TOnKeyPress = procedure( Sender: TObject; var Key: Char ) of object;
+  TOnExit = procedure( Sender: TObject ) of object;
   TOnDropFile = procedure(Sender: TObject; AFiles: TStrings) of object;
 
   TMemoEx = class(TMemo)

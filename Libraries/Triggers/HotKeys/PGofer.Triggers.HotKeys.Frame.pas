@@ -9,8 +9,8 @@ uses
   PGofer.Triggers.Frame, PGofer.Triggers.HotKeys,
   PGofer.Component.Memo,
   PGofer.Triggers.HotKeys.Controls, PGofer.Item.Frame,
-  PGofer.Classes, Pgofer.Component.Checkbox, Pgofer.Component.ComboBox, PGofer.Component.Edit,
-  Vcl.ComCtrls;
+  PGofer.Classes, Pgofer.Component.Checkbox, Pgofer.Component.ComboBox, Vcl.ComCtrls,
+  PGofer.Component.Edit;
 
 type
   TPGHotKeyFrame = class( TPGTriggerFrame )
@@ -23,7 +23,7 @@ type
     GrbScript: TGroupBox;
     EdtScript: TMemoEx;
     sptScript: TSplitter;
-    CkbEnable: TCheckBoxEx;
+    CkbDisabled: TCheckBoxEx;
     procedure CkbInhibitClick( Sender: TObject );
     procedure CmbDetectChange( Sender: TObject );
     procedure MmoHotKeysEnter( Sender: TObject );
@@ -31,7 +31,7 @@ type
     procedure BtnCleanClick( Sender: TObject );
     procedure EdtScriptKeyUp( Sender: TObject; var Key: Word;
       Shift: TShiftState );
-    procedure CkbEnableClick(Sender: TObject);
+    procedure CkbDisabledClick(Sender: TObject);
   private
     {$HINTS OFF}
     function OnProcessKeys(AParamInput: TParamInput): Boolean;
@@ -43,7 +43,7 @@ type
     property Item: TPGHotKey read GetItem;
     procedure InhibitToogle();
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); override;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
   end;
 
@@ -60,12 +60,12 @@ uses
 {$R *.dfm}
 { TPGFrameHotKey }
 
-constructor TPGHotKeyFrame.Create( AItem: TPGItem; AParent: TObject );
+constructor TPGHotKeyFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
   CmbDetect.SetIndexSilent( Item.Detect );
   CkbInhibit.SetCheckedSilent( Item.Inhibit );
-  CkbEnable.SetCheckedSilent( Item.Enabled );
+  CkbDisabled.SetCheckedSilent( Item.Disabled );
   EdtScript.SetTextSilent( Item.Script );
   MmoHotKeys.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
@@ -85,8 +85,7 @@ begin
   Result := TPGHotKey(inherited Item);
 end;
 
-procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
-  Shift: TShiftState );
+procedure TPGHotKeyFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word; Shift: TShiftState );
 begin
   if Self.Loading then
     Exit;
@@ -98,7 +97,7 @@ procedure TPGHotKeyFrame.InhibitToogle();
 var
   LVisible: Boolean;
 begin
-  LVisible := ((TPGHotKey.GetInputType = 2) and (Item.Detect = 1));
+  LVisible := ((TPGHotKey.GetInputType = 2) and (Item.Detect = 0));
   CkbInhibit.Checked := LVisible;
   CkbInhibit.Enabled := LVisible;
   CkbInhibit.ShowHint := not LVisible;
@@ -124,12 +123,13 @@ begin
   MmoHotKeys.Clear;
 end;
 
-procedure TPGHotKeyFrame.CkbEnableClick(Sender: TObject);
+procedure TPGHotKeyFrame.CkbDisabledClick(Sender: TObject);
 begin
   if Self.Loading then
     Exit;
 
-  Item.Enabled := CkbEnable.Checked;
+  Item.Disabled := CkbDisabled.Checked;
+  Self.UpdateStatusBadges();
 end;
 
 procedure TPGHotKeyFrame.CkbInhibitClick( Sender: TObject );
@@ -160,6 +160,7 @@ procedure TPGHotKeyFrame.MmoHotKeysExit( Sender: TObject );
 begin
   MmoHotKeys.Color := clSilver;
   TPGHotKey.SetProcessKeys( nil );
+  Self.UpdateStatusBadges();
 end;
 
 function TPGHotKeyFrame.OnProcessKeys( AParamInput: TParamInput ): Boolean;

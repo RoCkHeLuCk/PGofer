@@ -1,4 +1,4 @@
-object FormEx: TFormEx
+﻿object FormEx: TFormEx
   Left = 0
   Top = 0
   Caption = 'FormEx'

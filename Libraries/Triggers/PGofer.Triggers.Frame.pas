@@ -5,7 +5,7 @@ interface
 uses
   System.Classes,
   Vcl.Forms, Vcl.Controls,
-  PGofer.Component.Edit, PGofer.Classes, PGofer.Item.Frame, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  PGofer.Component.Edit, PGofer.Classes, PGofer.Item.Frame, Vcl.ExtCtrls, Vcl.StdCtrls,
   PGofer.Component.Memo;
 
 type
@@ -16,7 +16,7 @@ type
     function GetItem( ): TPGItem; reintroduce;
     property Item: TPGItem read GetItem;
   public
-    constructor Create( AItem: TPGItem; AParent: TObject ); override;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
   end;
 
 implementation
@@ -26,7 +26,7 @@ implementation
 uses
   PGofer.Runtime, PGofer.Triggers, PGofer.Sintatico.Controls;
 
-constructor TPGTriggerFrame.Create(AItem: TPGItem; AParent: TObject);
+constructor TPGTriggerFrame.Create(const AItem: TPGItem; const AParent: TObject);
 begin
    inherited Create( AItem, AParent );
 end;
@@ -38,8 +38,7 @@ begin
   if Self.Loading then
     Exit;
 
-  // 1. Regra herdada do FolderMirror: Se for pasta e N�O for namespace, n�o precisa validar colis�o
-  if (Item is TPGFolderMirror) and (not TPGFolderMirror(Item).Namespace) then
+  if (Item is TPGTriggerFolder) and (not TPGTriggerFolder(Item).Namespace) then
   begin
     AIsValid := True;
     Exit;

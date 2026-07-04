@@ -5,7 +5,7 @@ interface
 uses
 
   System.SysUtils, System.Classes,
-  Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.Forms,
+  Vcl.StdCtrls, Vcl.Controls, Vcl.Forms,
   Vcl.Dialogs, Vcl.Menus, Vcl.ComCtrls,
   Pgofer.Component.TreeView, PGofer.Forms.Controller,
   PGofer.Classes, PGofer.Triggers.Collections, Vcl.ExtCtrls;
@@ -16,6 +16,8 @@ type
     MniDelete: TMenuItem;
     BtnCreate: TButton;
     PpmCreate: TPopupMenu;
+    procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure MniDeleteClick( Sender: TObject );
     procedure TrvControllerCompare( Sender: TObject; Node1, Node2: TTreeNode;
       Data: Integer; var Compare: Integer );
@@ -23,16 +25,17 @@ type
       State: TDragState; var Accept: Boolean );
     procedure TrvControllerDragDrop( Sender, Source: TObject; X, Y: Integer );
     procedure TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
-    FCollectItem: TPGItemCollectTrigger;
-    function GetFolderWorking( Node: TTreeNode ): TPGItem;
+    function GetFolderWorking(const Node: TTreeNode ): TPGItem;
   protected
     procedure CreatePopups( ); override;
     procedure onCreateItemPopUpClick( Sender: TObject );
+    procedure IniConfigSave( ); override;
+    procedure IniConfigLoad( ); override;
+    function GetCollectItem( ): TPGItemCollectTrigger; reintroduce;
+    procedure SetCollectItem(const AValue: TPGItemCollectTrigger); reintroduce;
+    property CollectItem: TPGItemCollectTrigger read GetCollectItem write SetCollectItem;
   public
-    constructor Create( ACollectItem: TPGItemCollectTrigger ); reintroduce;
-    destructor Destroy( ); override;
   end;
 
 var
@@ -46,40 +49,48 @@ uses
   System.UITypes, System.RTTI,
   PGofer.Triggers;
 
-constructor TFrmTriggerController.Create( ACollectItem: TPGItemCollectTrigger );
+procedure TFrmTriggerController.FormCreate(Sender: TObject);
 begin
-  FCollectItem := ACollectItem;
-  inherited Create( ACollectItem );
-  PpmCreate.Images := ACollectItem.ImageList;
-end;
-
-destructor TFrmTriggerController.Destroy( );
-begin
-  FCollectItem := nil;
-  inherited Destroy( );
+  Self.CollectItem := TriggersCollect;
+  inherited FormCreate(Sender);
 end;
 
 procedure TFrmTriggerController.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  FCollectItem.XMLSaveToFile( );
+  Self.CollectItem.XMLSaveToFile( );
   inherited FormClose(Sender,Action);
 end;
 
-function TFrmTriggerController.GetFolderWorking( Node: TTreeNode ): TPGItem;
+function TFrmTriggerController.GetCollectItem: TPGItemCollectTrigger;
+begin
+  Result := TPGItemCollectTrigger(inherited CollectItem);
+end;
+
+function TFrmTriggerController.GetFolderWorking(const Node: TTreeNode ): TPGItem;
 begin
   Result := GetTargetWorking( Node );
   if Assigned(Result) then
   begin
-    if not (Result is TPGFolderMirror ) then
+    if not (Result is TPGTriggerFolder ) then
     begin
       Result := Result.Parent;
     end else begin
-      if TPGFolderMirror(Result)._Locked then
+      if (pgfLocked in Result.Flags) then
         Result := nil;
     end;
   end else begin
-    Result := FCollectItem;
+    Result := Self.CollectItem;
   end;
+end;
+
+procedure TFrmTriggerController.IniConfigLoad();
+begin
+  inherited IniConfigLoad();
+end;
+
+procedure TFrmTriggerController.IniConfigSave();
+begin
+  inherited IniConfigSave();
 end;
 
 procedure TFrmTriggerController.TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
@@ -95,28 +106,33 @@ begin
   LItemDad := GetFolderWorking(TrvController.TargetDrag);
   if not Assigned(LItemDad) then Exit;
 
-  LRttiContext := TRttiContext.Create;
-  LModified := False;
-  for LFileName in AFiles do
-  begin
-    for LClassItem in FCollectItem.ClassList do
+  TriggersCollect.BeginUpdate;
+  try
+    LRttiContext := TRttiContext.Create;
+    LModified := False;
+    for LFileName in AFiles do
     begin
-      LRttiType := LRttiContext.GetType( LClassItem.ClassType );
-      LMethod := LRttiType.GetMethod( 'OnDropFile' );
-      if Assigned(LMethod) then
+      for LClassItem in Self.CollectItem.ClassList do
       begin
-        if LMethod.Invoke( LClassItem.ClassType , [LItemDad, LFileName]).AsBoolean then
+        LRttiType := LRttiContext.GetType( LClassItem.ClassType );
+        LMethod := LRttiType.GetMethod( 'OnDropFile' );
+        if Assigned(LMethod) then
         begin
-          LModified := True;
-          Break;
+          if LMethod.Invoke( LClassItem.ClassType , [LItemDad, LFileName]).AsBoolean then
+          begin
+            LModified := True;
+            Break;
+          end;
         end;
       end;
     end;
+    LRttiContext.Free;
+  finally
+    TriggersCollect.EndUpdate;
   end;
-  LRttiContext.Free;
 
   if LModified then
-    FCollectItem.XMLSaveToFile();
+    Self.CollectItem.XMLSaveToFile();
 end;
 
 procedure TFrmTriggerController.TrvControllerDragDrop( Sender, Source: TObject;
@@ -129,14 +145,17 @@ begin
 
   if Assigned(ItemDad) then
   begin
-    for Node in TrvController.SelectionsDrag do
-    begin
-      if Assigned( Node.Data ) and ( TPGItem( Node.Data ) is TPGItem ) then
+    try
+      for Node in TrvController.SelectionsDrag do
       begin
-        TPGItem( Node.Data ).Parent := ItemDad;
+        if Assigned( Node.Data ) and ( TPGItem( Node.Data ) is TPGItem ) then
+        begin
+          TPGItem( Node.Data ).Parent := ItemDad;
+        end;
       end;
+    finally
+      Self.CollectItem.XMLSaveToFile( );
     end;
-    FCollectItem.XMLSaveToFile( );
   end;
 end;
 
@@ -151,13 +170,12 @@ begin
     Item := GetTargetWorking(TrvController.TargetDrag);
     if Assigned(Item) then
     begin
-      if ( Item is TPGFolderMirror ) and (not TPGFolderMirror(Item)._Locked ) then
-      begin
-        Accept := True;
-        TrvController.AttachMode := naInsert;
-      end else begin
+      if ( Item is TPGTriggerFolder ) and (not Item.Locked) then
+        TrvController.AttachMode := naInsert
+      else if (not Item.Locked) then
+        TrvController.AttachMode := naAdd
+      else
         Accept := False;
-      end;
     end else begin
       Accept := True;
       TrvController.AttachMode := naAdd;
@@ -170,17 +188,16 @@ begin
   if Vcl.Dialogs.MessageDlg( 'Delete Selected Item?', mtConfirmation,
     [ mbYes, mbNo ], 0, mbNo ) = mrYes then
   begin
-    TrvController.Items.BeginUpdate();
+    TrvController.Items.BeginUpdate;
     try
       TrvController.DeleteSelect();
     finally
-      TrvController.Items.EndUpdate(); // Desenha tudo pronto de uma vez só
+      TrvController.Items.EndUpdate;
     end;
   end;
   BtnEdit.Caption := MniDelete.Caption;
   BtnEdit.OnClick := MniDelete.OnClick;
 end;
-
 
 procedure TFrmTriggerController.TrvControllerCompare( Sender: TObject;
   Node1, Node2: TTreeNode; Data: Integer; var Compare: Integer );
@@ -191,9 +208,9 @@ begin
   if AlphaSortFolder then
   begin
     FolderNode1 := Assigned( Node1.Data ) and
-      ( TPGItem( Node1.Data ) is TPGFolderMirror );
+      ( TPGItem( Node1.Data ) is TPGTriggerFolder );
     FolderNode2 := Assigned( Node2.Data ) and
-      ( TPGItem( Node2.Data ) is TPGFolderMirror );
+      ( TPGItem( Node2.Data ) is TPGTriggerFolder );
 
     if ( FolderNode1 ) and ( not FolderNode2 ) then
     begin
@@ -214,7 +231,7 @@ var
 begin
   inherited CreatePopups();
 
-  LClassLength := FCollectItem.ClassList.Count;
+  LClassLength := Self.CollectItem.ClassList.Count;
   if LClassLength > 0 then
   begin
     BtnCreate.Visible := True;
@@ -224,8 +241,8 @@ begin
     begin
       LPopUpItem := TMenuItem.Create( PpmCreate );
       PpmCreate.Items.Add( LPopUpItem );
-      LPopUpItem.Caption := FCollectItem.ClassList[ LIndex ].Name;
-      LPopUpItem.ImageIndex := TPGItemType(FCollectItem.ClassList[ LIndex ].ClassType).ClassIconIndex;
+      LPopUpItem.Caption := Self.CollectItem.ClassList[ LIndex ].Name;
+      LPopUpItem.ImageIndex := TPGItemType(Self.CollectItem.ClassList[ LIndex ].ClassType).ClassIconIndex;
       LPopUpItem.ShortCut := TextToShortCut( 'ALT+' + IntToStr( LIndex + 1 ) );
       LPopUpItem.Tag := LIndex;
       LPopUpItem.OnClick := onCreateItemPopUpClick;
@@ -280,7 +297,7 @@ begin
   end;
 
   LIndex := TComponent( Sender ).Tag;
-  LClass := FCollectItem.ClassList[ LIndex ].ClassType;
+  LClass := Self.CollectItem.ClassList[ LIndex ].ClassType;
   LRttiContext := TRttiContext.Create( );
   LRttiType := LRttiContext.GetType( LClass );
   LValue := LRttiType.GetMethod( 'Create' ).Invoke( LClass, [ LItemDad, '' ] );
@@ -288,4 +305,11 @@ begin
   LRttiContext.Free;
 end;
 
-end.
+
+procedure TFrmTriggerController.SetCollectItem(const AValue: TPGItemCollectTrigger);
+begin
+  inherited SetCollectItem(AValue);
+  PpmCreate.Images := TrvController.Images;
+end;
+
+end.

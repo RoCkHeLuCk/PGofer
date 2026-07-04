@@ -4,7 +4,7 @@ interface
 
 uses
   System.Classes, System.SysUtils, System.Rtti,
-  PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
+  PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico,
   PGofer.Runtime, PGofer.Standard.Variants;
 
 type
@@ -17,11 +17,11 @@ type
     procedure SetScript(const AValue: string);
   public
     class var GlobList: TPGItem;
-    constructor Create(AOwner: TPGItem; const AName: string); override;
+    constructor Create(const AOwner: TPGItem; const AName: string); override;
     destructor Destroy; override;
 
     procedure Execute(const AGrammar: TPGGrammar); override;
-    procedure Frame(AParent: TObject); override;
+    procedure Frame(const AParent: TObject); override;
     procedure Compile();
 
     property Script: string read FScriptSource write SetScript;
@@ -31,25 +31,42 @@ type
   end;
   {$TYPEINFO ON}
 
+  [TPGClassReg('Defines', 'Function')]
   TPGFunctionDeclare = class(TPGItemClass)
   strict private
     procedure DeclareInternal(const AGrammar: TPGGrammar; ANivel: TPGItem; AStartPos: Integer);
   public
-    constructor Create(AOwner: TPGItem; const AName: string = ''); override;
+    constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
+
+  procedure Initialize();
+  procedure Finalize();
 
 implementation
 
 uses
   PGofer.Sintatico.Controls, PGofer.Standard.Functions.Frame;
 
+procedure Initialize();
+begin
+  TPGFunction.GlobList := TPGFolder.Create(GlobalCollection, 'Functions');
+end;
+
+procedure Finalize();
+begin
+  TPGFunction.GlobList.Free;
+  {$IFDEF DEBUG}
+    TPGFunction.GlobList := nil;
+  {$ENDIF}
+end;
+
 { TPGFunction }
 
-constructor TPGFunction.Create(AOwner: TPGItem; const AName: string);
+constructor TPGFunction.Create(const AOwner: TPGItem; const AName: string);
 begin
   inherited Create(AOwner, AName);
-  Self.SystemNode := False;
+  Self.Internal := False;
   FTokenList := TPGTokenList.Create;
   FParamsList := TPGItem.Create(nil, 'Params');
   FScriptSource := '';
@@ -103,7 +120,7 @@ begin
   end;
 end;
 
-procedure TPGFunction.Frame(AParent: TObject);
+procedure TPGFunction.Frame(const AParent: TObject);
 begin
   TPGFunctionFrame.Create(Self, AParent);
 end;
@@ -138,7 +155,7 @@ end;
 
 { TPGFunctionDeclare }
 
-constructor TPGFunctionDeclare.Create(AOwner: TPGItem; const AName: string);
+constructor TPGFunctionDeclare.Create(const AOwner: TPGItem; const AName: string);
 begin
   inherited;
   TPGLexicalRegistry.RegisterKeyword('global', pgkKeyword, 'global');
@@ -209,7 +226,7 @@ begin
 end;
 
 initialization
-  TPGFunctionDeclare.Create(GlobalItemCommand, 'Function');
-  TPGFunction.GlobList := TPGFolder.Create(GlobalCollection, 'Functions');
+
+finalization
 
 end.

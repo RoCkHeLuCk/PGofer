@@ -1,9 +1,9 @@
-inherited PGFunctionFrame: TPGFunctionFrame
-  Height = 196
-  ExplicitHeight = 196
+﻿inherited PGFunctionFrame: TPGFunctionFrame
+  Height = 217
+  ExplicitHeight = 217
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 118
+    Top = 139
     Width = 400
     Height = 5
     Cursor = crVSplit
@@ -15,13 +15,13 @@ inherited PGFunctionFrame: TPGFunctionFrame
   object GrbScript: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
-    Top = 35
+    Top = 56
     Width = 394
     Height = 80
     Align = alTop
     Caption = 'Script (Run = F9)'
     Constraints.MinHeight = 60
-    TabOrder = 2
+    TabOrder = 4
     object EdtScript: TMemoEx
       Left = 2
       Top = 15
@@ -43,9 +43,12 @@ inherited PGFunctionFrame: TPGFunctionFrame
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 126
-    TabOrder = 3
-    ExplicitTop = 126
+    Top = 147
+    Height = 60
+    ExplicitTop = 147
+    inherited mmoAbout: TMemoEx
+      Height = 43
+    end
   end
   inherited pnlItem: TPanel
     inherited EdtName: TEditEx
@@ -53,7 +56,7 @@ inherited PGFunctionFrame: TPGFunctionFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 189
+    Top = 210
     ExplicitTop = 189
   end
 end

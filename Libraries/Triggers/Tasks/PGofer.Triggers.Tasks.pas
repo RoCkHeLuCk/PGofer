@@ -9,6 +9,7 @@ uses
 
 type
   {$M+}
+  [TPGClassReg('Defines', 'TaskDef', True)]
   [TPGArgs('Script, Trigger, Repeats')]
   TPGTask = class( TPGItemTrigger )
   private
@@ -22,48 +23,46 @@ type
   protected
     class function GetFrameType: TPGTriggerFrameType; override;
   public
-    class constructor Create();
-    class destructor Destroy();
     class procedure Working( AType: Byte; AWaitFor: Boolean = False );
-    constructor Create( AMirror: TPGItemMirror; AName: string ); override;
+    constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
     destructor Destroy( ); override;
     procedure Triggering( ); override;
     procedure ExecuteAction(AScript: string = '');
   published
-    property Enabled;
     property Occurrence: Cardinal read FOccurrence;
     property Repeats: Cardinal read FRepeat write FRepeat;
     property Script: string read GetScript write SetScript;
+    property Disabled;
 
     [TPGAbout('Trigger: 0=Initializing, 1=Finishing, 2=Shutdown;')]
     property Trigger: Byte read FTrigger write FTrigger;
   end;
   {$TYPEINFO ON}
 
-  TPGTaskMirror = class( TPGItemMirror )
-  protected
-    class function GetTriggerType: TPGItemTriggerType; override;
-  end;
+  procedure Initialize();
+  procedure Finalize();
 
 implementation
 
 uses
   System.SysUtils, System.IniFiles,
-
   PGofer.Triggers.Tasks.Frame;
 
+procedure Initialize();
+begin
+  TPGTask.FTaskList := TThreadList<TPGTask>.Create;
+  TriggersCollect.RegisterClass( TPGTask );
+end;
+
+procedure Finalize();
+begin
+  TPGTask.FTaskList.Free();
+  {$IFDEF DEBUG}
+    TPGTask.FTaskList := nil;
+  {$ENDIF}
+end;
+
 { TPGTask }
-
-class constructor TPGTask.Create;
-begin
-   FTaskList := TThreadList<TPGTask>.Create;
-end;
-
-class destructor TPGTask.Destroy;
-begin
-  FTaskList.Free();
-  FTaskList := nil;
-end;
 
 class function TPGTask.GetFrameType: TPGTriggerFrameType;
 begin
@@ -86,10 +85,10 @@ begin
     try
       for LItem in LList do
       begin
-        if (LItem.Trigger = AType) and (LItem.Enabled) and
+        if (LItem.Trigger = AType) and (not LItem.Disabled) and
            ((LItem.Repeats = 0) or (LItem.Occurrence < LItem.Repeats)) then
         begin
-          ScriptExec('Task: ' + LItem.Name, LItem.Script, nil, AWaitFor);
+          ScriptExec('Task_' + LItem.Name, LItem.Script, nil, AWaitFor);
           LItem.FOccurrence := LItem.Occurrence + 1;
 
           // Grava na RAM do MemIniFile
@@ -110,7 +109,7 @@ begin
   end;
 end;
 
-constructor TPGTask.Create( AMirror: TPGItemMirror; AName: string );
+constructor TPGTask.Create(const AItemDad: TPGItem; const AName: string);
 var
   LIni: TMemIniFile;
 begin
@@ -118,7 +117,7 @@ begin
   FOccurrence := 0;
   FRepeat := 0;
   FTrigger := 0;
-  inherited Create( AMirror, AName );
+  inherited Create( AItemDad, AName );
   FTaskList.Add(Self);
 
   LIni := TMemIniFile.Create(TPGKernel.PathData + 'TaskStates.ini');
@@ -146,7 +145,9 @@ end;
 
 procedure TPGTask.SetScript( AValue: string );
 begin
+  if FScript.Text = AValue then Exit;
   FScript.Text := AValue;
+  Self.Invalid := FScript.Text.IsEmpty;
 end;
 
 procedure TPGTask.Triggering( );
@@ -162,16 +163,7 @@ begin
     ScriptExec( 'Task: ' + Self.Name, AScript, nil, False );
 end;
 
-{ TPGTaskMirror }
-
-class function TPGTaskMirror.GetTriggerType: TPGItemTriggerType;
-begin
-  Result := TPGTask;
-end;
-
 initialization
-  TPGItemDef.Create(TPGTask, 'TaskDef');
-  TriggersCollect.RegisterClass( TPGTaskMirror );
 
 finalization
 

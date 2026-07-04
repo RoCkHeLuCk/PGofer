@@ -110,8 +110,8 @@ var
   LArquivo: TStringList;
   LLimit: Integer;
 begin
-  LFileName:= PGNet.LogFileName;
-  LLimit := PGNet.LogMaxSize;
+  LFileName:= TPGNet.FLogFileName;
+  LLimit := TPGNet.FLogMaxSize;
   LArquivo := TStringList.Create;
   if FileExists( LFileName ) then
     LArquivo.LoadFromFile( LFileName );

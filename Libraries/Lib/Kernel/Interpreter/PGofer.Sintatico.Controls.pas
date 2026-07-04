@@ -1,10 +1,10 @@
 ﻿unit PGofer.Sintatico.Controls;
-
+
 interface
 
 uses
   System.SysUtils, System.Rtti, System.Math,
-  PGofer.Classes, PGofer.Lexico, PGofer.Sintatico;
+  PGofer.Core, PGofer.Classes, PGofer.Lexico, PGofer.Sintatico;
 
 { Estruturas de Controle e Sentenças }
 procedure Statements(const AGrammar: TPGGrammar);
@@ -30,7 +30,7 @@ function FindID(const AItem: TPGItem; const AName: string): TPGItem;
 implementation
 
 uses
-  PGofer.Core, PGofer.Runtime;
+   PGofer.Runtime;
 
 { --- Auxiliares de Execução --- }
 
@@ -134,7 +134,7 @@ begin
     if LItem is TPGItemClass then
     begin
       // Lógica de "Engolir" se desabilitado
-      if not LItem.Enabled then
+      if (pgfDisabled in LItem.Flags) then
       begin
         AGrammar.TokenList.Next;
         if AGrammar.Match(pgkLPar) then ReadParameters(AGrammar, 0, 255);
@@ -365,18 +365,21 @@ begin
 end;
 
 function FindID(const AItem: TPGItem; const AName: string): TPGItem;
-var LChild: TPGItem;
+var
+  LCurrentScope: TPGItem;
 begin
   Result := nil;
-  if not Assigned(AItem) then Exit;
-  Result := AItem.FindName(AName);
-  if (Result = nil) and (AItem.Parent <> nil) then Result := FindID(AItem.Parent, AName);
-  if (Result = nil) and (AItem = GlobalCollection) then
-    for LChild in GlobalCollection do begin
-       Result := LChild.FindName(AName);
-       if Assigned(Result) then Break;
-    end;
+  if AName = '' then Exit;
+
+  LCurrentScope := AItem;
+  while Assigned(LCurrentScope) do
+  begin
+    Result := LCurrentScope.FindName(AName);
+    if Assigned(Result) then Exit;
+    LCurrentScope := LCurrentScope.Parent;
+  end;
+  Result := TPGItem.FindName(nil, AName);
 end;
 
 end.
-
+

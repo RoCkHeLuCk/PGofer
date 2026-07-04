@@ -353,7 +353,8 @@ end;
 
 initialization
 
-finalization
+
+finalization
   if Assigned(TFormEx.FIniFile) then
     TFormEx.FIniFile.Free;
   TFormEx.FIniFile:= nil;

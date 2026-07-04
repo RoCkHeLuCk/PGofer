@@ -1,4 +1,5 @@
 inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
+  AutoSize = True
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'Vault Folder Password'
@@ -37,6 +38,12 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       Width = 190
       Height = 19
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       PasswordChar = '*'
       TabOrder = 0
       OnKeyDown = EdtCurrentPasswordKeyDown
@@ -70,6 +77,12 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       Width = 190
       Height = 19
       Color = clSilver
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
       PasswordChar = '*'
       TabOrder = 0
       OnKeyDown = EdtNewPasswordKeyDown
