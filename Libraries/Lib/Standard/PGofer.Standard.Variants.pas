@@ -56,8 +56,8 @@ end;
 procedure Finalize();
 begin
   TPGVariant.GlobList.Free;
+  TPGVariant.GlobList := nil;
   {$IFDEF DEBUG}
-     TPGVariant.GlobList := nil;
   {$ENDIF}
 end;
 

@@ -156,8 +156,13 @@ begin
 end;
 
 procedure TPGItemTrigger.SetName(const AName: string);
+var
+  LNewName: String;
 begin
-  inherited SetName( TPGItemTrigger.CalculateUniqueName(Self, AName) );
+  LNewName := TPGItemTrigger.CalculateUniqueName(Self, AName);
+  if AName <> LNewName then
+     TPGKernel.ConsoleTr('Warning_Interpreter_AutoRename',[AName,LNewName]);
+  inherited SetName( LNewName );
 end;
 
 procedure TPGItemTrigger.SetNamespace(const AValue: Boolean);
@@ -230,8 +235,13 @@ begin
 end;
 
 procedure TPGTriggerFolder.SetName(const AName: string);
+var
+  LNewName: String;
 begin
-  inherited SetName( TPGItemTrigger.CalculateUniqueName(Self, AName) );
+  LNewName := TPGItemTrigger.CalculateUniqueName(Self, AName);
+  if AName <> LNewName then
+     TPGKernel.ConsoleTr('Warning_Interpreter_AutoRename',[AName,LNewName]);
+  inherited SetName( LNewName );
 end;
 
 procedure TPGTriggerFolder.SetNamespace(const AValue: Boolean);
@@ -359,7 +369,7 @@ begin
       if Assigned(LTargetParent) then
       begin
         // Busca se já existe na raiz
-        LExisting := TPGItem.FindName(nil, LName);
+        LExisting := LTargetParent.FindName(LName);
 
         if Assigned(LExisting) then
         begin

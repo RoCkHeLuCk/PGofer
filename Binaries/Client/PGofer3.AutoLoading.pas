@@ -44,6 +44,7 @@ uses
 
   { Triggers System }
   PGofer.Triggers.Collections,
+  PGofer.Triggers.Form,
   PGofer.Triggers,
   PGofer.Triggers.VaultFolder,
   PGofer.Triggers.AutoFills,
@@ -53,6 +54,7 @@ uses
 
   { Forms & UI Management }
   PGofer.Forms,
+  PGofer.Forms.Controller,
   PGofer.Forms.Console,
   PGofer.Forms.AutoComplete,
   PGofer.Forms.Controls;
@@ -99,6 +101,10 @@ procedure AfterInitialize();
 begin
   PGofer.Triggers.Tasks.TPGTask.Working( 0, False );
   PGofer.Forms.Controls.FormAfterInitialize( );
+  {$IFDEF DEBUG}
+    FrmController.Visible := True;
+    FrmTriggerController.Visible := True;
+  {$ENDIF}
 end;
 
 procedure BeforeFinalize();

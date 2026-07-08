@@ -160,6 +160,7 @@ end;
 constructor TPGItemClass.Create(const AItemDad: TPGItem; const AName: string);
 begin
   inherited Create(AItemDad, AName);
+  Self.Namespace := True;
   Self.HasChildren := Self.RttiSyncChildren(True);
 end;
 
@@ -533,6 +534,9 @@ class function TPGFolder.FindPath(const APath: string; const AFolderCreate: Bool
       const ATargetRoot: TPGItem; const AFolderClass: TPGFolderClass): TPGItem;
   procedure Error(const AAPath: string);
   begin
+    if (not Assigned(AFolderClass)) then
+      Exit;
+
     if AFolderCreate then
       TPGKernel.ConsoleTr('Error_Folder_NoCreate', [AAPath])
     else
@@ -554,11 +558,11 @@ begin
   Result := TPGItem.FindName(nil, LParts[0]);
 
   // Se não achou e temos uma raiz de destino, cria o primeiro nível lá
-  if (Result = nil) and Assigned(ATargetRoot)
+  if (not Assigned(Result)) and Assigned(ATargetRoot)
   and AFolderCreate and Assigned(AFolderClass) then
     Result := AFolderClass.Create(ATargetRoot, LParts[0]);
 
-  if Result = nil then
+  if (not Assigned(Result)) or ( AFolderCreate and (not (Result is TPGFolder)) ) then
   begin
     Error(LParts[0]);
     Exit(nil);
@@ -567,15 +571,14 @@ begin
   // 2. NAVEGAÇÃO E CRIAÇÃO EM CASCATA
   for LIndex := 1 to High(LParts) do
   begin
-    if Result is TPGItemExecute then
-      TPGItemExecute(Result).BeforeAccess;
+    TPGItemExecute(Result).BeforeAccess;
     LNext := Result.FindName(LParts[LIndex]);
 
-    if (LNext = nil) and Assigned(ATargetRoot)
+    if (not Assigned(LNext)) and Assigned(ATargetRoot)
     and AFolderCreate and Assigned(AFolderClass) then
-      Result := AFolderClass.Create(Result, LPart);
+      Result := AFolderClass.Create(Result, LParts[LIndex]);
 
-    if Result = nil then
+    if (not Assigned(Result)) or ( AFolderCreate and (not (Result is TPGFolder))) then
     begin
       Error(LParts[LIndex]);
       Exit(nil);
@@ -586,6 +589,7 @@ end;
 constructor TPGFolder.Create(const AItemDad: TPGItem; const AName: string);
 begin
   inherited Create(AItemDad, AName);
+  Self.Namespace := False;
   Self.HasChildren := False;
 end;
 

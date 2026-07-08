@@ -354,9 +354,9 @@ begin
   FCollectDad := nil;
 
   if AName = '' then
-    FName := Self.ClassNameEx
+    Self.Name := Self.ClassNameEx
   else
-    FName := AName;
+    Self.Name := AName;
 
   Self.Parent := AParent;
 end;

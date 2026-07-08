@@ -348,13 +348,17 @@ end;
 
 { TPGIsDef }
 procedure TPGIsDef.Execute(const AGrammar: TPGGrammar);
-var LName: string;
+var
+  LName: string;
+  LItem: TPGItem;
 begin
   AGrammar.Next; // Pula nome
   if ReadParameters(AGrammar, 1, 1) = 1 then
   begin
+    //carrega o parametro
     LName := ValueToString(AGrammar.Stack.Pop);
-    AGrammar.Stack.Push(Assigned(TPGFolder.FindPath(LName, False, nil, nil)));
+    LItem := TPGFolder.FindPath(LName, False, nil, nil);
+    AGrammar.Stack.Push( Assigned( LItem ) );
   end;
 end;
 
