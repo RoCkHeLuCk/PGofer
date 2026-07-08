@@ -9,7 +9,7 @@ uses
 
 type
   {$M+}
-  [TPGClassReg('Defines', 'LinkDef', True)]
+  [TPGClassReg('Defines', 'LinkDef')]
   TPGLink = class( TPGItemTrigger )
   private
     FFileName: string;
@@ -84,7 +84,6 @@ uses
 procedure Initialize();
 begin
   TPGLink.FLinkList := TList<TPGLink>.Create;
-  TriggersCollect.RegisterClass(TPGLink);
 end;
 
 procedure Finalize();

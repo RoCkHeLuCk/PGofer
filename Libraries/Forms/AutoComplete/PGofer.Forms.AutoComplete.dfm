@@ -1,4 +1,4 @@
-﻿object FrmAutoComplete: TFrmAutoComplete
+object FrmAutoComplete: TFrmAutoComplete
   Left = 960
   Top = 154
   Margins.Left = 0
@@ -104,6 +104,7 @@
     ParentFont = False
     ReadOnly = True
     TabOrder = 1
+    WantReturns = False
     OnClick = mmoAboutDblClick
   end
   object ppmAutoComplete: TPopupMenu

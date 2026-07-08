@@ -8,11 +8,12 @@ uses
 
 type
   TPGVariant = class(TPGItemClass)
-  strict private
+  private
     FValue: TValue;
     FIsConstant: Boolean;
     function GetValueAsArray: TArray<TValue>;
     procedure SetValueAsArray(const AArray: TArray<TValue>);
+  protected
   public
     class var GlobList: TPGItem;
 
@@ -31,7 +32,7 @@ type
   [TPGClassReg('Defines', 'Const')]
   [TPGClassReg('Defines', 'Var')]
   TPGVariantDeclare = class(TPGItemClass)
-  strict private
+  private
     class procedure InternalDeclare(const AGrammar: TPGGrammar; const ANivel: TPGItem; const AIsConstant: Boolean);
   public
     constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
@@ -112,12 +113,12 @@ var
   LArray: TArray<TValue>;
   LNewVal: TValue;
 begin
-  AGrammar.TokenList.Next; // Pula o nome da variável
+  AGrammar.Next; // Pula o nome da variável
 
   // --- INDEXAÇÃO: Variavel[n] ---
   if AGrammar.Match(pgkLBrack) then
   begin
-    AGrammar.TokenList.Next; // Pula '['
+    AGrammar.Next; // Pula '['
     Expression(AGrammar);
     // Usa ValueToInt64 para aceitar arr[1.0] sem erro
     LIndex := ValueToInt64(AGrammar.Stack.Pop);
@@ -126,10 +127,10 @@ begin
 
     LArray := GetValueAsArray;
 
-    if AGrammar.Match(pgkAssign) then
+    if AGrammar.Match(pgkAssign) or AGrammar.Match(pgkEqual) then
     begin
       if FIsConstant then begin AGrammar.Error('Error_Interpreter_Const', []); Exit; end;
-      AGrammar.TokenList.Next;
+      AGrammar.Next;
       Expression(AGrammar);
       LNewVal := AGrammar.Stack.Pop;
 
@@ -150,7 +151,7 @@ begin
   begin
     if FIsConstant then AGrammar.Error('Error_Interpreter_Const', [])
     else begin
-      AGrammar.TokenList.Next;
+      AGrammar.Next;
       Expression(AGrammar);
       FValue := AGrammar.Stack.Pop;
     end;
@@ -183,11 +184,11 @@ begin
 
   if (LID = nil) or (LID is TPGVariant) then
   begin
-    AGrammar.TokenList.Next;
+    AGrammar.Next;
 
-    if AGrammar.Match(pgkAssign) then
+    if AGrammar.Match(pgkAssign) or AGrammar.Match(pgkEqual) then
     begin
-      AGrammar.TokenList.Next;
+      AGrammar.Next;
       Expression(AGrammar);
       if not AGrammar.HasError then LValue := AGrammar.Stack.Pop else Exit;
     end
@@ -204,7 +205,7 @@ begin
 
     if AGrammar.Match(pgkComma) then
     begin
-      AGrammar.TokenList.Next;
+      AGrammar.Next;
       InternalDeclare(AGrammar, ANivel, AIsConstant);
     end;
   end
@@ -218,12 +219,12 @@ var
 begin
   // Identifica se é Var ou Const pelo nome da instância
   LIsConstant := SameText(Self.Name, 'Const');
-  AGrammar.TokenList.Next; // Pula 'var' ou 'const'
+  AGrammar.Next; // Pula 'var' ou 'const'
 
   // Verifica se o modificador 'global' está presente
   if AGrammar.MatchKeyword('global') then
   begin
-    AGrammar.TokenList.Next; // Pula 'global'
+    AGrammar.Next; // Pula 'global'
     InternalDeclare(AGrammar, TPGVariant.GlobList, LIsConstant);
   end
   else

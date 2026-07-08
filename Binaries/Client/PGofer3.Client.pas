@@ -133,9 +133,7 @@ procedure TFrmPGofer.OnEndSession(var Msg: TWMEndSession);
 begin
   if not PGWindows.CanOff then Exit;
   if Msg.EndSession then
-  begin
     Self.CloseAllForms();
-  end;
 end;
 
 procedure TFrmPGofer.FormCreate( Sender: TObject );

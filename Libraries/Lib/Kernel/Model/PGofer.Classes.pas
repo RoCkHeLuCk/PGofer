@@ -150,6 +150,9 @@ type
   procedure Initialize();
   procedure Finalize();
 
+var
+  GlobalCollection: TPGItemCollect;
+
 implementation
 
 uses
@@ -168,10 +171,15 @@ begin
   TPGItem.FIconList.ColorDepth := cd32bit;
   TPGItem.FIconList.Width := 16;
   TPGItem.FIconList.Height := 16;
+
+  GlobalCollection := TPGItemCollect.Create(nil, 'Globals');
 end;
 
 procedure Finalize();
 begin
+  GlobalCollection.Free;
+  GlobalCollection := nil;
+
   TPGItem.FIconList.Free;
   TPGItem.FIconList := nil;
   TPGItem.FOverlayCache.Free;
@@ -274,9 +282,10 @@ var
   LItem: TPGItem;
   LRoot: TPGItemCollect;
 begin
-  Result := nil;
-  if AName = '' then Exit;
+  if AName = '' then
+    Exit(nil);
 
+  Result := nil;
   if AScope = nil then
   begin
     if Assigned(TPGItemCollect.FCollectList) then
@@ -423,6 +432,9 @@ begin
   if Assigned(FParent) then FParent.Extract(Self);
   if Assigned(AParent) then
   begin
+    if not Assigned(AParent.FCollectDad) then
+       raise Exception.Create('Error: CollectDad no Fount in Parent.');
+
     FCollectDad := AParent.FCollectDad; //antes no notify
     AParent.Add(Self);
   end else
@@ -588,7 +600,7 @@ end;
 
 function TPGItem.GetMaxOverlayFlag(): TPGItemFlag;
 begin
-  Result := pgfInternal;
+  Result := pgfReadOnly;
 end;
 
 function TPGItem.GetNamespace(): Boolean;

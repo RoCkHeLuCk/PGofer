@@ -162,46 +162,46 @@ procedure TPGIf.Execute(const AGrammar: TPGGrammar);
 var
   LCondition: Boolean;
 begin
-  if AGrammar.TokenList.Peek(1).Kind = pgkLPar then
+  if (AGrammar.TokenList.Peek(1).Kind = pgkLPar) then
   begin
-    inherited Execute(AGrammar); // Chama TPGItemClass.Execute (RTTI Funcional)
+    inherited Execute(AGrammar);
     Exit;
   end;
 
-  AGrammar.TokenList.Next; // Pula 'if'
-  Expression(AGrammar);    // Avalia a condição
+  AGrammar.Next; // Pula 'if'
+  Expression(AGrammar);  // exetuca até o 'then'
 
-  if not AGrammar.HasError then
+  if AGrammar.HasError then
+    Exit;
+
+  LCondition := ValueToBoolean(AGrammar.Stack.Pop);
+
+  if AGrammar.ConsumeKeyword('then') then
   begin
-    LCondition := ValueToBoolean(AGrammar.Stack.Pop);
+    // --- BLOCO THEN ---
+    if LCondition then
+      Commands(AGrammar)
+    else
+      FindEnd(AGrammar, AGrammar.Match(pgkBegin));
 
-    if AGrammar.ConsumeKeyword('then') then
+    if AGrammar.HasError then
+      Exit;
+
+    // --- TRATAMENTO DO ELSE ---
+    // Se houver um ";" entre o comando do THEN e o ELSE, pulamos ele para checar o ELSE
+    if AGrammar.Match(pgkSemiColon)
+    and SameText(AGrammar.TokenList.Peek(1).Value.ToString, 'else') then
+        AGrammar.Next; // Pula o ";" apenas se o próximo for o ELSE
+
+    if AGrammar.MatchKeyword('else') then
     begin
-      // --- BLOCO THEN ---
-      if LCondition then
+      AGrammar.Next; // Pula 'else'
+
+      // --- BLOCO ELSE ---
+      if not LCondition then
         Commands(AGrammar)
       else
         FindEnd(AGrammar, AGrammar.Match(pgkBegin));
-
-      // --- TRATAMENTO DO ELSE ---
-      // Se houver um ";" entre o comando do THEN e o ELSE, pulamos ele para checar o ELSE
-      if AGrammar.Match(pgkSemiColon) then
-      begin
-        // Espia o próximo token sem avançar o ponteiro principal
-        if SameText(AGrammar.TokenList.Items[AGrammar.TokenList.Position + 1].Value.ToString, 'else') then
-          AGrammar.TokenList.Next; // Pula o ";" apenas se o próximo for o ELSE
-      end;
-
-      if (not AGrammar.HasError) and AGrammar.MatchKeyword('else') then
-      begin
-        AGrammar.TokenList.Next; // Pula 'else'
-
-        // --- BLOCO ELSE ---
-        if not LCondition then
-          Commands(AGrammar)
-        else
-          FindEnd(AGrammar, AGrammar.Match(pgkBegin));
-      end;
     end;
   end;
 end;
@@ -218,13 +218,13 @@ end;
 procedure TPGFor.Execute(const AGrammar: TPGGrammar);
 var
   LVar: TPGVariant;
-  LStart, LLimit: Int64;
+  LStart, LStackLevel, LLimit: Int64;
   LCounter, LLoopLimit: Cardinal;
   LIsDownTo: Boolean;
   LStartPos: Integer;
 begin
   LLoopLimit := TPGKernel.LoopLimit;
-  AGrammar.TokenList.Next; // Pula 'for'
+  AGrammar.Next; // Pula 'for'
 
   LVar := TPGVariant.GetOrCreate(AGrammar);
   if Assigned(LVar) then
@@ -235,13 +235,14 @@ begin
     LIsDownTo := AGrammar.MatchKeyword('downto');
     if AGrammar.MatchKeyword('to') or LIsDownTo then
     begin
-      AGrammar.TokenList.Next; // Pula 'to'/'downto'
+      AGrammar.Next; // Pula 'to'/'downto'
       Expression(AGrammar);
       LLimit := ValueToInt64(AGrammar.Stack.Pop);
 
       if AGrammar.ConsumeKeyword('do') then
       begin
         if AGrammar.HasError then Exit;
+        LStackLevel := AGrammar.NestingLevel;
         LStartPos := AGrammar.TokenList.Position;
         LCounter := 0;
 
@@ -249,6 +250,7 @@ begin
               (((not LIsDownTo) and (LStart <= LLimit)) or
                (LIsDownTo and (LStart >= LLimit))) do
         begin
+          AGrammar.SetNestingLevel(LStackLevel);
           AGrammar.TokenList.Position := LStartPos;
           Commands(AGrammar);
           if LIsDownTo then Dec(LStart) else Inc(LStart);
@@ -256,6 +258,7 @@ begin
           LVar.Value := LStart;
         end;
 
+        AGrammar.SetNestingLevel(LStackLevel);
         AGrammar.TokenList.Position := LStartPos;
         FindEnd(AGrammar, AGrammar.Match(pgkBegin));
 
@@ -275,17 +278,20 @@ end;
 
 procedure TPGWhile.Execute(const AGrammar: TPGGrammar);
 var
-  LStartPos: Integer;
+  LStartPos, LStackLevel: Integer;
   LLoopLimit: Cardinal;
   LCounter: Cardinal;
 begin
   LLoopLimit := TPGKernel.LoopLimit;
   LCounter := 0;
-  AGrammar.TokenList.Next; // Pula 'while'
+  AGrammar.Next; // Pula 'while'
+
+  LStackLevel := AGrammar.NestingLevel;
   LStartPos := AGrammar.TokenList.Position;
 
   while (not AGrammar.HasError) and (LCounter < LLoopLimit) do
   begin
+    AGrammar.SetNestingLevel(LStackLevel);
     AGrammar.TokenList.Position := LStartPos;
     Expression(AGrammar);
 
@@ -314,16 +320,19 @@ end;
 
 procedure TPGRepeat.Execute(const AGrammar: TPGGrammar);
 var
-  LStartPos: Integer;
+  LStartPos, LStackLevel: Integer;
   LLoopLimit: Cardinal;
   LCounter: Cardinal;
 begin
   LLoopLimit := TPGKernel.LoopLimit;
   LCounter := 0;
-  AGrammar.TokenList.Next; // Pula 'repeat'
+  AGrammar.Next; // Pula 'repeat'
+
+  LStackLevel := AGrammar.NestingLevel;
   LStartPos := AGrammar.TokenList.Position;
 
   repeat
+    AGrammar.SetNestingLevel(LStackLevel);
     AGrammar.TokenList.Position := LStartPos;
     Statements(AGrammar);
 
@@ -341,11 +350,11 @@ end;
 procedure TPGIsDef.Execute(const AGrammar: TPGGrammar);
 var LName: string;
 begin
-  AGrammar.TokenList.Next; // Pula nome
+  AGrammar.Next; // Pula nome
   if ReadParameters(AGrammar, 1, 1) = 1 then
   begin
     LName := ValueToString(AGrammar.Stack.Pop);
-    AGrammar.Stack.Push(Assigned(FindID(AGrammar.Local, LName)));
+    AGrammar.Stack.Push(Assigned(TPGFolder.FindPath(LName, False, nil, nil)));
   end;
 end;
 
@@ -355,7 +364,7 @@ var
   LName: string;
   LItem: TPGItem;
 begin
-  AGrammar.TokenList.Next; // Pula nome
+  AGrammar.Next; // Pula nome
   if ReadParameters(AGrammar, 1, 1) = 1 then
   begin
     LName := ValueToString(AGrammar.Stack.Pop);

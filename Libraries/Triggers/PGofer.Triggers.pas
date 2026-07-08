@@ -4,22 +4,24 @@ interface
 
 uses
   System.Generics.Collections,
-  PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Runtime,
   PGofer.Triggers.Collections, PGofer.Triggers.Frame;
 
 type
   TPGTriggerFrameType = class of TPGTriggerFrame;
 
   TPGItemTrigger = class(TPGItemClass)
+  private
   protected
-    function GetMaxOverlayFlag(): TPGItemFlag; override;
+    function RttiSyncChildren(const AHaveChildren:Boolean): Boolean; override;
     procedure SetName(const AName: string); override;
     procedure SetParent(const AParent: TPGItem); override;
     procedure SetNamespace(const AValue: Boolean); override;
     procedure ExecuteDefault(const AGrammar: TPGGrammar); override;
     class function GetFrameType: TPGTriggerFrameType; virtual;
   public
-    class function GetDefaultRoot(): TPGItem; override;
+    class procedure AutoRegister(const AAttr: TPGClassRegAttribute); override;
+    class function CalculateUniqueName(AItem: TPGItem; const AOriginName: string): string;
     class function OnDropFile(const AItemDad: TPGItem; const AFileName: string): Boolean; virtual;
 
     constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
@@ -27,12 +29,15 @@ type
     procedure Triggering(); virtual; abstract;
   end;
 
+  [TPGClassReg('Defines', 'FolderDef')]
   TPGTriggerFolder = class(TPGFolder)
+  private
   protected
     procedure SetName(const AName: string); override;
     procedure SetParent(const AParent: TPGItem); override;
     procedure SetNamespace(const AValue: Boolean); override;
   public
+    class procedure AutoRegister(const AAttr: TPGClassRegAttribute); override;
     class function OnDropFile(const AItemDad: TPGItem; const AFileName: string): Boolean; virtual;
     class function ClassNameEx(): string; override;
 
@@ -44,9 +49,26 @@ type
     property _Namespace: Boolean read GetNamespace write SetNamespace;
   end;
 
+  TPGTriggerDef = class(TPGItemClass)
+  private
+    FTargetClass: TPGItemClassType;
+  protected
+    function RttiSyncChildren(const AHaveChildren:Boolean): Boolean; override;
+    function GetAbout: string; override;
+    function GetIconIndex: Integer; override;
+  public
+    constructor Create(const AItemDad: TPGItem; const AClass: TPGItemClassType; const AName: string = ''); reintroduce;
+    procedure Execute(const AGrammar: TPGGrammar); override;
+  end;
+
+  [TPGClassReg('Commands')]
+  TPGMove = class(TPGItemClass)
+  public
+    procedure ExecuteAction(const AItemPath, ATargetPath: string);
+  end;
+
   procedure Initialize();
   procedure Finalize();
-  function CalculateUniqueName(AItem: TPGItem; const AOriginName: string): string;
 
 var
   TriggersCollect: TPGItemCollectTrigger;
@@ -54,13 +76,14 @@ var
 implementation
 
 uses
-  System.SysUtils, PGofer.Key.Controls, PGofer.Triggers.Folder.Frame;
+  System.SysUtils, System.Rtti, System.TypInfo,
+  PGofer.Lexico, PGofer.Sintatico.Controls,
+  PGofer.Key.Controls, PGofer.Triggers.Folder.Frame;
 
 procedure Initialize();
 begin
   TriggersCollect := TPGItemCollectTrigger.Create(nil, 'Triggers');
   TriggersCollect.HiddeInternal := True;
-  TriggersCollect.RegisterClass(TPGTriggerFolder);
 end;
 
 procedure Finalize();
@@ -71,7 +94,9 @@ begin
   {$ENDIF}
 end;
 
-function CalculateUniqueName(AItem: TPGItem; const AOriginName: string): string;
+{ TPGItemTrigger }
+
+class function TPGItemTrigger.CalculateUniqueName(AItem: TPGItem; const AOriginName: string): string;
 var
   LBaseName, ResultName: string;
   LCount: Integer;
@@ -102,19 +127,37 @@ begin
   Result := ResultName;
 end;
 
-{ TPGItemTrigger }
+class procedure TPGItemTrigger.AutoRegister(const AAttr: TPGClassRegAttribute);
+var
+  LTargetFolder: TPGItem;
+  LClassName: string;
+begin
+  // 1. Resolve o nome
+  if (AAttr.Name <> '') then
+    LClassName := AAttr.Name
+  else
+    LClassName := Self.ClassNameEx;
+
+  // 2. Resolve a pasta
+  LTargetFolder := TPGFolder.FindPath(AAttr.Path, True, GlobalCollection, TPGFolder);
+
+  if Assigned(LTargetFolder) then
+     TPGTriggerDef.Create(LTargetFolder, Self, LClassName);
+
+  // Registra automaticamente para o menu de "Novo" e XML
+  TriggersCollect.RegisterClass(Self);
+end;
 
 constructor TPGItemTrigger.Create(const AItemDad: TPGItem; const AName: string);
 begin
   inherited Create(AItemDad, AName);
   Self.Internal := False;
   Self.Invalid := True;
-  Self.HasChildren := False;
 end;
 
 procedure TPGItemTrigger.SetName(const AName: string);
 begin
-  inherited SetName( CalculateUniqueName(Self, AName) );
+  inherited SetName( TPGItemTrigger.CalculateUniqueName(Self, AName) );
 end;
 
 procedure TPGItemTrigger.SetNamespace(const AValue: Boolean);
@@ -132,7 +175,7 @@ begin
     Exit;
 
   //aqui atualiza para ele aparecer na lista
-  Self.Internal := False; //mas que achado!!!!
+  Self.Internal := False;
 
   inherited SetParent(AParent);
   Self.SetName( Self.Name );
@@ -143,24 +186,22 @@ begin
   Self.Triggering();
 end;
 
-class function TPGItemTrigger.GetDefaultRoot: TPGItem;
-begin
-  Result := TriggersCollect;
-end;
-
 class function TPGItemTrigger.GetFrameType: TPGTriggerFrameType;
 begin
   Result := TPGTriggerFrame;
 end;
 
-function TPGItemTrigger.GetMaxOverlayFlag(): TPGItemFlag;
-begin
-  Result := pgfReadOnly;
-end;
-
 class function TPGItemTrigger.OnDropFile(const AItemDad: TPGItem; const AFileName: string): Boolean;
 begin
   Result := False;
+end;
+
+function TPGItemTrigger.RttiSyncChildren(const AHaveChildren: Boolean): Boolean;
+begin
+  if TriggersCollect.HiddeInternal and AHaveChildren then
+    Exit(False);
+
+  Result := inherited RttiSyncChildren(False);
 end;
 
 procedure TPGItemTrigger.Frame(const AParent: TObject);
@@ -190,7 +231,7 @@ end;
 
 procedure TPGTriggerFolder.SetName(const AName: string);
 begin
-  inherited SetName( CalculateUniqueName(Self, AName) );
+  inherited SetName( TPGItemTrigger.CalculateUniqueName(Self, AName) );
 end;
 
 procedure TPGTriggerFolder.SetNamespace(const AValue: Boolean);
@@ -208,7 +249,7 @@ begin
     Exit;
 
   //aqui atualiza para ele aparecer na lista
-  Self.Internal := False; //mas que achado!!!!
+  Self.Internal := False;
 
   inherited SetParent(AParent);
   Self.SetName(Self.Name);
@@ -219,6 +260,27 @@ begin
   Result := True;
 end;
 
+class procedure TPGTriggerFolder.AutoRegister(const AAttr: TPGClassRegAttribute);
+var
+  LTargetFolder: TPGItem;
+  LClassName: string;
+begin
+  // 1. Resolve o nome
+  if (AAttr.Name <> '') then
+    LClassName := AAttr.Name
+  else
+    LClassName := Self.ClassNameEx;
+
+  // 2. Resolve a pasta
+  LTargetFolder := TPGFolder.FindPath(AAttr.Path, True, GlobalCollection, TPGFolder);
+
+  if Assigned(LTargetFolder) then
+     TPGTriggerDef.Create(LTargetFolder, Self, LClassName);
+
+  // Registra automaticamente para o menu de "Novo" e XML
+  TriggersCollect.RegisterClass(Self);
+end;
+
 function TPGTriggerFolder.BeforeXMLLoad(const ItemCollect: TPGItemCollectTrigger): Boolean;
 begin
   Result := True;
@@ -227,6 +289,161 @@ end;
 procedure TPGTriggerFolder.Frame(const AParent: TObject);
 begin
   TPGFolderFrame.Create(Self, AParent);
+end;
+
+{ TPGTriggerDef }
+
+constructor TPGTriggerDef.Create(const AItemDad: TPGItem; const AClass: TPGItemClassType; const AName: string);
+begin
+  FTargetClass := AClass;
+  inherited Create(AItemDad, AName);
+end;
+
+function TPGTriggerDef.RttiSyncChildren(const AHaveChildren:Boolean): Boolean;
+var
+  LType: TRttiType;
+  LMethod: TRttiMethod;
+begin
+  Result := False;
+  if (not Assigned(FTargetClass)) then
+    Exit(False);
+
+  LType := TPGKernel.RttiContext.GetType(FTargetClass);
+  for LMethod in LType.GetMethods do
+    if (LMethod.Visibility = mvPublished) and LMethod.IsClassMethod then
+    begin
+      if AHaveChildren then
+        Exit(True);
+      TPGItemMethod.Create(Self, LMethod, FTargetClass);
+    end;
+
+  inherited RttiSyncChildren(AHaveChildren);
+end;
+
+procedure TPGTriggerDef.Execute(const AGrammar: TPGGrammar);
+var
+  LPath, LName, LParentPath: string;
+  LDots: Integer;
+  LTargetParent: TPGItem;
+  LExisting: TPGItem;
+  LNewObj: TPGItemClass;
+begin
+  if (not Assigned(FTargetClass)) then
+    Exit;
+
+  AGrammar.Next;
+  if AGrammar.Match(pgkLPar) then
+  begin
+    if (ReadParameters(AGrammar, 1, 1) = 1) and (not AGrammar.HasError) then
+    begin
+      //carrega o parametro
+      LPath := ValueToString(AGrammar.Stack.Pop);
+
+      //resolve o escopo e o nome
+      LDots := LastDelimiter('.', LPath);
+
+      if LDots > 0 then
+      begin
+        // LParentPath: Do início até antes do ponto
+        LParentPath := Copy(LPath, 1, LDots - 1);
+        // LName: Do caractere após o ponto até o fim
+        LName := Copy(LPath, LDots + 1, MaxInt);
+      end else begin
+        LParentPath := '';
+        LName := LPath;
+      end;
+
+      //localiza e cria o escopo
+      LTargetParent := TPGFolder.FindPath(LParentPath, True, TriggersCollect, TPGTriggerFolder);
+
+      if Assigned(LTargetParent) then
+      begin
+        // Busca se já existe na raiz
+        LExisting := TPGItem.FindName(nil, LName);
+
+        if Assigned(LExisting) then
+        begin
+          if not (LExisting is FTargetClass) then
+          begin
+            AGrammar.Error('Error_Interpreter_TypeMismatch', [LName, FTargetClass.ClassNameEx]);
+            Exit;
+          end;
+
+          LNewObj := TPGItemClass(LExisting);
+          // Se mudou de pasta, move
+          if LNewObj.Parent <> LTargetParent then
+          begin
+             LNewObj.Parent := LTargetParent;
+             AGrammar.Msg('Warning_Interpreter_Moved', [LName, LTargetParent.Name]);
+          end;
+        end else
+          FTargetClass.Create(LTargetParent, LName);
+
+        // salvar
+        TriggersCollect.XMLSaveToFile();
+      end;
+    end;
+  end else begin
+    if AGrammar.Match(pgkDot) then
+      Self.ExecuteMember(AGrammar)
+    else
+      AGrammar.Error('Error_Interpreter_Unrecog', []);
+  end;
+end;
+
+function TPGTriggerDef.GetAbout(): string;
+var
+  LType: TRttiType;
+  LMethod: TRttiMethod;
+  AText, AAux: string;
+begin
+  if (not Assigned(FTargetClass)) then
+    Exit('');
+
+  Result := 'Factory Class: ' + FTargetClass.ClassNameEx + ';';
+
+  AText := TPGAboutAttribute.GetFromClass(FTargetClass);
+  if AText <> '' then
+    Result := Result  + sLineBreak + AText;
+
+  // 1. Assinatura do construtor
+  Result := Result + sLineBreak + '[Create]'
+    + sLineBreak + '  ' + Self.Name + '("Path.Name");';
+
+  // 2. Ferramentas estáticas
+  Result := Result + sLineBreak + '[Class Tools]';
+  LType := TPGKernel.RttiContext.GetType(FTargetClass);
+  for LMethod in LType.GetMethods do
+  begin
+    if LMethod.IsClassMethod and (LMethod.Visibility = mvPublished) then
+    begin
+      AText := TPGItemClass.GetMethodSignature(LMethod);
+      AAux := TPGAboutAttribute.GetFromMethod(LMethod);
+      if AAux <> '' then
+        Result := Result + sLineBreak + '  //' + AAux + sLineBreak + '  '+ AText;
+    end;
+  end;
+end;
+
+function TPGTriggerDef.GetIconIndex(): Integer;
+begin
+  if Assigned(FTargetClass) then
+    Result := TPGItemType(FTargetClass).ClassIconIndex
+  else
+    Result := inherited GetIconIndex;
+end;
+
+{ TPGMove }
+
+procedure TPGMove.ExecuteAction(const AItemPath, ATargetPath: string);
+var
+  LItem, LTarget: TPGItem;
+begin
+  LItem := TPGFolder.FindPath(AItemPath, False, TriggersCollect, TPGTriggerFolder);
+  LTarget := TPGFolder.FindPath(ATargetPath, True, TriggersCollect, TPGTriggerFolder);
+
+  if Assigned(LItem) and Assigned(LTarget) then
+    LItem.Parent := LTarget;
 end;
 
 initialization

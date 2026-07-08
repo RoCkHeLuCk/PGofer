@@ -222,7 +222,7 @@ begin
   if (not Assigned(Self.Form)) then
     Exit;
 
-  AGrammar.TokenList.Next;
+  AGrammar.Next;
   RunInMainThread(
     procedure
     begin

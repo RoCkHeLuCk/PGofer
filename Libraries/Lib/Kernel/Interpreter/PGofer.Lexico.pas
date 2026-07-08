@@ -20,6 +20,8 @@ type
     pgkBegin, pgkEnd
   );
 
+  TPGTokenKinds = set of TPGTokenKind;
+
   { Coordenada com suporte a Offset absoluto para o "Retrato" do script }
   TPGCoordinate = record
   private

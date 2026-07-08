@@ -59,7 +59,7 @@ begin
   Self.Parent := TWinControl( AParent );
   Self.Width := TControl( AParent ).Width - 16;
   FAboutSplitter := False;
-  EdtName.ReadOnly := (pgfInternal in FItem.Flags);
+  EdtName.ReadOnly := FItem.Internal;
   mmoAbout.Lines.Text := FItem.About;
   Self.IniConfigLoad( );
   EdtName.SetTextSilent( FItem.Name );
@@ -157,13 +157,13 @@ begin
     begin
       LName := GetEnumName(TypeInfo(TPGItemFlag), Ord(LFlag)).Substring(3);
       if Label1.Caption = '' then
-         Label1.Caption := '[ ' + LName
+         Label1.Caption := 'Flags: [ ' + LName
       else
          Label1.Caption := Label1.Caption + ', ' + LName;
     end;
   end;
   if Label1.Caption = '' then
-     Label1.Caption := '[ ';
+     Label1.Caption := 'Flags: [ ';
   Label1.Caption := Label1.Caption + ' ]';
 end;
 

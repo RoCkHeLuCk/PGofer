@@ -9,7 +9,7 @@ uses
 
 type
   {$M+}
-  [TPGClassReg('Defines', 'AutoFillDef', True)]
+  [TPGClassReg('Defines', 'AutoFillDef')]
   TPGAutoFill = class( TPGItemTrigger )
   private
     FDelay : Cardinal;
@@ -52,7 +52,6 @@ uses
 
 procedure Initialize();
 begin
-  TriggersCollect.RegisterClass( TPGAutoFill );
 end;
 
 procedure Finalize();

@@ -9,8 +9,7 @@ uses
 
 type
   {$M+}
-  [TPGClassReg('Defines', 'TaskDef', True)]
-  [TPGArgs('Script, Trigger, Repeats')]
+  [TPGClassReg('Defines', 'TaskDef')]
   TPGTask = class( TPGItemTrigger )
   private
     FOccurrence: Cardinal;
@@ -51,14 +50,13 @@ uses
 procedure Initialize();
 begin
   TPGTask.FTaskList := TThreadList<TPGTask>.Create;
-  TriggersCollect.RegisterClass( TPGTask );
 end;
 
 procedure Finalize();
 begin
   TPGTask.FTaskList.Free();
+  TPGTask.FTaskList := nil;
   {$IFDEF DEBUG}
-    TPGTask.FTaskList := nil;
   {$ENDIF}
 end;
 

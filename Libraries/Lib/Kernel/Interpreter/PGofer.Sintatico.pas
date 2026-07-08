@@ -36,6 +36,10 @@ type
     FBreakpointEvent: TEvent;
     FIsDebugging: Boolean;
 
+    // controle de aninhamento
+    FBracketStack: TStack<TPGTokenKind>;
+    function GetNestingLevel: Integer;
+
     class var FGrammarList: TList<TPGGrammar>;
     class var FGrammarLock: TObject;
   protected
@@ -49,6 +53,7 @@ type
     { Gerenciamento de Script }
     procedure SetScript(const AScript: string);
     procedure SetTokens(ASource: TPGTokenList);
+    procedure Next;
 
     { Helpers Sintáticos }
     function Match(const AKind: TPGTokenKind): Boolean;
@@ -70,6 +75,14 @@ type
     property Script: string read FScript;
     property IsDebugging: Boolean read FIsDebugging;
     function IsStartOfCommand: Boolean;
+
+
+    { Controle de Aninhamento }
+    function IsOpener(const AKind: TPGTokenKind): Boolean; inline;
+    function IsCloser(const AKind: TPGTokenKind): Boolean; inline;
+    property NestingLevel: Integer read GetNestingLevel;
+    procedure SetNestingLevel(AValue: Integer);
+
   end;
 
   procedure Initialize();
@@ -78,7 +91,9 @@ type
 implementation
 
 uses
-  System.SysUtils, System.TypInfo, Vcl.Forms,
+  System.SysUtils, System.StrUtils, System.TypInfo,
+  Winapi.ActiveX,
+  Vcl.Forms,
   PGofer.Sintatico.Controls, PGofer.Runtime;
 
 
@@ -98,7 +113,6 @@ begin
   {$IFDEF DEBUG}
   {$ENDIF}
 end;
-
 
 { TPGStack }
 
@@ -171,6 +185,7 @@ begin
 
   FLocal := TPGItem.Create(FParent, AName);
   FStack := TPGStack.Create(FLocal, AName);
+  FBracketStack := TStack<TPGTokenKind>.Create;
   FTokenList := TPGTokenList.Create;
   FBreakpointEvent := TEvent.Create(nil, True, False, ''); // Manual Reset
 
@@ -200,6 +215,7 @@ begin
 
   FLocal.Free;
   FTokenList.Free;
+  FBracketStack.Free;
   FBreakpointEvent.Free;
   inherited;
 end;
@@ -255,7 +271,8 @@ function TPGGrammar.IsStartOfCommand: Boolean;
 var
   LKind: TPGTokenKind;
 begin
-  if (TokenList.Current = nil) then Exit(False);
+  if (TokenList.Current = nil) then
+    Exit(False);
   LKind := TokenList.Current.Kind;
 
   // Um comando pode começar com:
@@ -263,7 +280,18 @@ begin
   // 2. Begin (Início de bloco)
   // 3. "=" (Modo calculadora)
   // 4. ";" (Comando vazio)
-  Result := LKind in [pgkIdentifier, pgkBegin, pgkEqual, pgkSemiColon];
+  if LKind in [pgkIdentifier, pgkBegin, pgkEqual, pgkSemiColon] then
+    Exit(True);
+
+  if LKind = pgkKeyword then
+  begin
+    // 'until', 'else', 'end', 'then', 'do' NÃO entram aqui,
+    // pois eles marcam o FIM ou a DIVISÃO de um comando.
+    Result := MatchText(TokenList.Current.Value.ToString,
+      ['if', 'for', 'while', 'repeat', 'var', 'const', 'function', 'global', 'Debug']);
+  end
+  else
+    Result := False;
 end;
 
 function TPGGrammar.Consume(const AKind: TPGTokenKind; const AErrorMessageKey: string): Boolean;
@@ -351,9 +379,11 @@ var
 begin
   LDir := TPGKernel.PathCurrent;
   SetCurrentDir(LDir);
+  CoInitialize(nil); //ActiveX
 
   // Início da Análise Sintática
   PGofer.Sintatico.Controls.Statements(Self);
+
 end;
 
 procedure TPGGrammar.DumpTokens;
@@ -378,6 +408,64 @@ begin
   TPGKernel.Console('--- END DUMP ---', True, True);
 end;
 
+function TPGGrammar.IsOpener(const AKind: TPGTokenKind): Boolean;
+begin
+  Result := AKind in [pgkLPar, pgkLBrack, pgkBegin];
+end;
+
+function TPGGrammar.IsCloser(const AKind: TPGTokenKind): Boolean;
+begin
+  Result := AKind in [pgkRPar, pgkRBrack, pgkEnd];
+end;
+
+procedure TPGGrammar.SetNestingLevel(AValue: Integer);
+begin
+  // Remove itens da pilha até voltar ao nível desejado
+  while FBracketStack.Count > AValue do
+    FBracketStack.Pop;
+end;
+
+procedure TPGGrammar.Next;
+var
+  LCurrentKind, LOpenKind: TPGTokenKind;
+begin
+  if FError
+  or (FTokenList.Current.Kind = pgkEOF) then
+    Exit;
+
+  LCurrentKind := FTokenList.Current.Kind;
+
+  // 1. MONITORAMENTO DE ABERTURA: Empilha o que abriu
+  if IsOpener(LCurrentKind) then
+    FBracketStack.Push(LCurrentKind);
+
+  // 2. MONITORAMENTO DE FECHAMENTO: Valida o par correto
+  if IsCloser(LCurrentKind) then
+  begin
+    if FBracketStack.Count > 0 then
+    begin
+      LOpenKind := FBracketStack.Pop;
+      // Validação de paridade (A criança não chora mais!)
+      case LCurrentKind of
+        pgkRPar:   if LOpenKind <> pgkLPar   then Error('Error_Expected', [')']);
+        pgkRBrack: if LOpenKind <> pgkLBrack then Error('Error_Expected', [']']);
+        pgkEnd:    if LOpenKind <> pgkBegin  then Error('Error_Expected', ['end']);
+      end;
+    end
+    else
+      // Tentativa de fechar o que nunca foi aberto
+      Error('Error_Extra_Closer', [TPGLexicalRegistry.GetFriendlyName(LCurrentKind)]);
+  end;
+
+  // Só avança o ponteiro se não houver erro de mismatch detectado
+  if not FError then
+    FTokenList.Next;
+end;
+
+function TPGGrammar.GetNestingLevel: Integer;
+begin
+  Result := FBracketStack.Count;
+end;
 
 initialization
 

@@ -10,7 +10,7 @@ uses
 
 type
   {$M+}
-  [TPGClassReg('Defines', 'HotKeyDef', True)]
+  [TPGClassReg('Defines', 'HotKeyDef')]
   TPGHotKey = class(TPGItemTrigger)
   private
     FKeys: TList<Word>;
@@ -84,7 +84,6 @@ begin
   TPGHotKey.FShootKeys := TList<Word>.Create();
   TPGHotKey.FOnProcessKeys := nil;
   TPGHotKey.FTypeIndex := 0;
-  TriggersCollect.RegisterClass(TPGHotKey);
   TPGHotKey.SetInputType(2);
 end;
 

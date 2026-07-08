@@ -62,6 +62,12 @@ object PGItemFrame: TPGItemFrame
         Align = alTop
         AutoSize = False
         Caption = 'Label1'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
     end
   end
@@ -90,18 +96,12 @@ object PGItemFrame: TPGItemFrame
     end
     object EdtName: TEditEx
       Left = 70
-      Top = 6
+      Top = 9
       Width = 325
       Height = 21
       Anchors = [akLeft, akTop, akRight]
       AutoSize = False
       Color = clSilver
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 0
       RegExBlockInvalidKeys = True
       RegExExpression = '^[A-Za-z_][A-Za-z0-9_]*$'

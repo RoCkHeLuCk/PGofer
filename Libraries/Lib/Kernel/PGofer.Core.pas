@@ -83,12 +83,10 @@ type
   private
     FPath: string;
     FName: string;
-    FFactory: Boolean;
   public
-    constructor Create(const APath: string; const AName: string = ''; const AFactory: Boolean = False);
+    constructor Create(const APath: string; const AName: string = '');
     property Path: string read FPath;
     property Name: string read FName;
-    property Factory: Boolean read FFactory;
   end;
 
   TPGAboutAttribute = class(TCustomAttribute)
@@ -413,11 +411,10 @@ end;
 
 { TPGClassRegAttribute }
 
-constructor TPGClassRegAttribute.Create(const APath: string; const AName: string; const AFactory: Boolean);
+constructor TPGClassRegAttribute.Create(const APath: string; const AName: string);
 begin
   FPath := APath;
   FName := AName;
-  FFactory := AFactory;
 end;
 
 { TPGAboutAttribute }
@@ -430,19 +427,24 @@ end;
 
 class function TPGAboutAttribute.GetFromRtti(ARttiObject: TRttiObject): string;
 var
-  LAttrib: TArray<TCustomAttribute>;
-  LIndex: Integer;
+  LAttrib: TCustomAttribute;
+  LText: string;
 begin
   Result := '';
   if Assigned(ARttiObject) then
   begin
-    LAttrib := ARttiObject.GetAttributes;
-    for LIndex := Low(LAttrib) to High(LAttrib) do
+    for LAttrib in ARttiObject.GetAttributes do
     begin
-      if LAttrib[LIndex] is TPGAboutAttribute then
-        Result := Result + TPGAboutAttribute(LAttrib[LIndex]).Text;
-      if LIndex < High(LAttrib) then
-        Result := Result + #13;
+      if LAttrib is TPGAboutAttribute then
+      begin
+        LText := TPGAboutAttribute(LAttrib).Text;
+        if LText <> '' then
+        begin
+          if Result <> '' then
+            Result := Result + sLineBreak;
+          Result := Result + LText;
+        end;
+      end;
     end;
   end;
 end;

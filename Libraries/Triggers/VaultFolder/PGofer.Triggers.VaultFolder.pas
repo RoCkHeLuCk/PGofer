@@ -10,6 +10,7 @@ uses
 
 type
   {$M+}
+  [TPGClassReg('Defines', 'VaultDef')]
   TPGVaultFolder = class(TPGTriggerFolder)
   private
     FFileName: string;
@@ -82,8 +83,6 @@ begin
   TPGVaultFolder.FTimer.Interval := 30000;
   TPGVaultFolder.FTimer.OnTimer := TPGVaultFolder.OnTimerTick;
   TPGVaultFolder.FTimer.Enabled := False;
-
-  TriggersCollect.RegisterClass( TPGVaultFolder );
 end;
 
 procedure Finalize();

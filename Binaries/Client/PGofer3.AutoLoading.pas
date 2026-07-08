@@ -79,19 +79,20 @@ begin
   // Gramatica
   PGofer.Lexico.Initialize;
   PGofer.Sintatico.Initialize;
-  PGofer.Runtime.Initialize;
 
   // Standard
   PGofer.Standard.Variants.Initialize;
   PGofer.Standard.Functions.Initialize;
 
   // Triggers
-  PGofer.Triggers.Initialize;
   PGofer.Triggers.VaultFolder.Initialize;
   PGofer.Triggers.AutoFills.Initialize;
   PGofer.Triggers.HotKeys.Initialize;
   PGofer.Triggers.Links.Initialize;
   PGofer.Triggers.Tasks.Initialize;
+
+  PGofer.Triggers.Initialize;
+  PGofer.Runtime.Initialize;
 end;
 
 procedure AfterInitialize();

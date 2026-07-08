@@ -10,11 +10,12 @@ uses
 type
   {$M+}
   TPGFunction = class(TPGItemClass)
-  strict private
+  private
     FTokenList: TPGTokenList;
     FParamsList: TPGItem;
     FScriptSource: string;
     procedure SetScript(const AValue: string);
+  protected
   public
     class var GlobList: TPGItem;
     constructor Create(const AOwner: TPGItem; const AName: string); override;
@@ -33,7 +34,7 @@ type
 
   [TPGClassReg('Defines', 'Function')]
   TPGFunctionDeclare = class(TPGItemClass)
-  strict private
+  private
     procedure DeclareInternal(const AGrammar: TPGGrammar; ANivel: TPGItem; AStartPos: Integer);
   public
     constructor Create(const AOwner: TPGItem; const AName: string = ''); override;
@@ -87,7 +88,7 @@ var
   LParamValue: TValue;
   LResultVar: TPGVariant;
 begin
-  AGrammar.TokenList.Next; // Pula o nome da função (ex: 'teste')
+  AGrammar.Next; // Pula o nome da função (ex: 'teste')
 
   LParamCount := ReadParameters(AGrammar, 0, FParamsList.Count);
 
@@ -167,11 +168,11 @@ var
   LTargetNivel: TPGItem;
 begin
   LStartPos := AGrammar.TokenList.Current.Coordinate.Offset;
-  AGrammar.TokenList.Next; // Pula 'Function'
+  AGrammar.Next; // Pula 'Function'
 
   if AGrammar.MatchKeyword('global') then
   begin
-    AGrammar.TokenList.Next;
+    AGrammar.Next;
     LTargetNivel := TPGFunction.GlobList;
   end
   else
@@ -199,7 +200,7 @@ begin
   if Assigned(LID) then LID.Free;
   LFunc := TPGFunction.Create(ANivel, LName);
 
-  AGrammar.TokenList.Next; // Pula o nome da função
+  AGrammar.Next; // Pula o nome da função
 
   if AGrammar.Consume(pgkLPar) then
   begin

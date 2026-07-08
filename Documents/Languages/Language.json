@@ -40,12 +40,15 @@
   "Error_Interpreter_Unrecog": "Comando ou valor não reconhecido.",
   "Error_Interpreter_Variable": "Variavel esperada.",
   "Error_Interpreter_MemberNotFound": "não contem em '%s'",
+  "Error_Interpreter_TypeMismatch": "Identificador existente '%s', tipos Incompatível '%s'",
 
+  "Error_Folder_NoCreate": "Erro: Não foi possivel criar a pasta '%S'",
+  "Error_Folder_NoFound": "Erro: Pasta não encontrada '%S'",
 
   "Warning_Interpreter_AutoRename": "O item '%s', foi renomeado para '%s'.",
-  "Warning_Interpreter_Stack": "Pilha '%s' terminou com: %d",
-  "Warning_Interpreter_StackChild": "Pilha Filhos '%s' terminou com: %d",
+  "Warning_Interpreter_Stack": "Vazamento de Memoria na linha '%d' terminou com: %d",
   "Warning_Interpreter_Redeclare": "'%s' Identificador Redeclarado.",
+  "Warning_Interpreter_Moved": "'%s' Identificador Redeclarado e movido para '%s'.",
 
   "Ok_ShellExecute_Executed": "OK: Executado com exito.",
 

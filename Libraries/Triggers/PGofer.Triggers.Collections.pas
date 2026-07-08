@@ -104,6 +104,7 @@ end;
 constructor TPGItemCollectTrigger.Create(const AParent: TPGItem; const AName: string);
 begin
   inherited Create(AParent, AName);
+  Self.Internal := False;
   FClassList := TClassList.Create();
   FFileName := TPGKernel.PathData + AName + '.xml';
 end;

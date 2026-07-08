@@ -801,11 +801,11 @@ end;
 
 procedure TFrmAutoComplete.About();
 begin
-  mmoAbout.Text := '';
+  mmoAbout.Clear;
 
   if Assigned(ltvAutoComplete.ItemFocused)
   and Assigned(ltvAutoComplete.ItemFocused.Data) then
-    mmoAbout.Text := TPGItem(ltvAutoComplete.ItemFocused.Data).About;
+    mmoAbout.Lines.Text := TPGItem(ltvAutoComplete.ItemFocused.Data).About;
 end;
 
 procedure TFrmAutoComplete.SetCommandCompare(const AValue: string);
