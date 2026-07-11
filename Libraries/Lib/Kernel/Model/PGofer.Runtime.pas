@@ -4,16 +4,23 @@ interface
 
 uses
   System.Generics.Collections, System.Rtti, System.SysUtils,
-
-  PGofer.Core, PGofer.Classes, PGofer.Sintatico;
+  Vcl.Forms,
+  PGofer.Core, PGofer.Classes, PGofer.Sintatico, PGofer.Item.Frame;
 
 type
   TPGItemClassType = class of TPGItemClass;
+  TPGItemFrameClass = class of TPGItemFrame;
 
   TPGItemExecute = class(TPGItem)
+  private
+    FFrame: TFrame;
+  protected
+    class function GetFrameClass(): TPGItemFrameClass; virtual;
   public
     procedure Execute(const AGrammar: TPGGrammar); virtual; abstract;
     procedure BeforeAccess(); virtual;
+    procedure UpdateNode(); override;
+    procedure Frame(const AParent: TObject);
   end;
 
   TPGItemClass = class(TPGItemExecute)
@@ -49,6 +56,7 @@ type
   protected
     function GetAbout: string; override;
   public
+    class function ClassNameEx(): string; override;
     constructor Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass = nil); override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
@@ -57,6 +65,7 @@ type
   protected
     function GetAbout: string; override;
   public
+    class function ClassNameEx(): string; override;
     procedure Execute(const AGrammar: TPGGrammar); override;
   end;
 
@@ -114,10 +123,30 @@ end;
 
 { TPGItemExecute }
 
+class function TPGItemExecute.GetFrameClass(): TPGItemFrameClass;
+begin
+  Result := TPGItemFrame;
+end;
+
+procedure TPGItemExecute.UpdateNode();
+begin
+  inherited UpdateNode();
+  if Assigned(FFrame) then
+    TPGItemFrame(FFrame).SyncData;
+end;
+
 procedure TPGItemExecute.BeforeAccess();
 begin
   if Self.Count = 0 then
      Self.HasChildren := False;
+end;
+
+procedure TPGItemExecute.Frame(const AParent: TObject);
+begin
+  if Assigned(AParent) then
+    FFrame := Self.GetFrameClass.Create(Self, AParent)
+  else
+    FFrame := nil;
 end;
 
 { TPGItemClass }
@@ -400,16 +429,21 @@ end;
 
 constructor TPGItemMember.Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass);
 begin
-  inherited Create(AItemDad, AMember.Name);
   FMember := AMember;
   FTargetClass := ATargetClass;
+  inherited Create(AItemDad, AMember.Name);
 end;
 
 { TPGItemProperty }
 
+class function TPGItemProperty.ClassNameEx: string;
+begin
+  Result := 'Property';
+end;
+
 constructor TPGItemProperty.Create(const AItemDad: TPGItem; const AMember: TRttiMember; const ATargetClass: TClass);
 begin
-  inherited;
+  inherited Create(AItemDad, AMember, ATargetClass);
   if not TRttiProperty(FMember).IsWritable then
      Self.ReadOnly := True;
 end;
@@ -438,6 +472,8 @@ begin
     try
       LVal := ValueAlign(LVal, LProp.PropertyType);
       LProp.SetValue(LTarget.AsObject, LVal);
+      if (LTarget.AsObject is TPGItem) then
+        TPGItem(LTarget.AsObject).UpdateNode();
     except
       on E: Exception do
         AGrammar.Error('Error_Runtime_Typecast', [LProp.Name, E.Message]);
@@ -468,7 +504,8 @@ begin
   if not LClassAbout.TryGetValue(Self.Name, Result) then
   begin
     LProp := TRttiProperty(FMember);
-    Result := 'Property ' + LProp.Name + ': ' + LProp.PropertyType.Name + '; {';
+    Result := 'Class ' + Self.ClassNameEx + ';' + sLineBreak;
+    Result := Result + 'Property ' + LProp.Name + ': ' + LProp.PropertyType.Name + '; {';
 
     if LProp.IsReadable then
       Result := Result + 'R';
@@ -490,6 +527,11 @@ begin
 end;
 
 { TPGItemMethod }
+
+class function TPGItemMethod.ClassNameEx: string;
+begin
+  Result := 'Method';
+end;
 
 procedure TPGItemMethod.Execute(const AGrammar: TPGGrammar);
 var
@@ -520,7 +562,8 @@ begin
 
   if not LClassAbout.TryGetValue(Self.Name, Result) then
   begin
-    Result := TPGItemClass.GetMethodSignature(TRttiMethod(FMember));
+    Result := 'Class ' + Self.ClassNameEx + ';' + sLineBreak;
+    Result := Result + TPGItemClass.GetMethodSignature(TRttiMethod(FMember));
     LAux := TPGAboutAttribute.GetFromMethod(TRttiMethod(FMember));
     if LAux <> '' then
       Result := Result + sLineBreak + LAux;
@@ -545,7 +588,6 @@ class function TPGFolder.FindPath(const APath: string; const AFolderCreate: Bool
 
 var
   LParts: TArray<string>;
-  LPart: string;
   LNext: TPGItem;
   LIndex: Integer;
 begin
@@ -589,6 +631,7 @@ end;
 constructor TPGFolder.Create(const AItemDad: TPGItem; const AName: string);
 begin
   inherited Create(AItemDad, AName);
+  Self.Internal := True;
   Self.Namespace := False;
   Self.HasChildren := False;
 end;

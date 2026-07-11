@@ -91,7 +91,6 @@ type
     function GetForm( ): TFrmAutoComplete; reintroduce;
     property Form: TFrmAutoComplete read GetForm;
   public
-    procedure Frame(const AParent: TObject ); override;
   published
     property FileListMax: Cardinal read GetFileListMax write SetFileListMax;
   end;
@@ -373,15 +372,18 @@ begin
     Exit;
   end;
 
-  if Shift = [ ] then
+  if (Shift = [ ]) or (Shift = [ssShift]) then
     case Key of
       8 { bcks } , // backspace
       48 { 0 } .. 57 { 9 } , // numero
       65 { A } .. 92 { Z } , // letra
       96 { 0 } .. 105 { 9 } , // numpad
-      106 { * } , 107 { + } , 109 { - } , 110 { . } , 111 { / } , 187 { = } ,
-        186 { ; } , 188 { , } , 189 { - } , 190 { . } , 191 { / } , 219 { [ } ,
-        220 { \ } , 221 { ] } , 222 { ' } , 226 { \ } :
+      106 { * } , 107 { + } ,
+      109 { - } , 110 { . } , 111 { / } ,
+      186 { ; } .. 191 { _ } , //187 { = } , //186 { ; } , 188 { , } ,
+      //189 { - } , 190 { . } , 191 { / } ,
+      219 { [ } .. 222 { ' },  //219 { [ } , 220 { \ } , 221 { ] } , 222 { ' } ,
+      226 { \ } :
         begin
           if FEditCtrl.Text <> '' then
             Self.FindCMD( )
@@ -576,6 +578,61 @@ begin
   end;
 end;
 
+//procedure TFrmAutoComplete.ProcurarComandos(const ACommand: string);
+//var
+//  LSubCMD: TArray<string>;
+//  LSearchText: string;
+//  LItem, LFound: TPGItem;
+//  LCandidates: TArray<TPGItem>;
+//  LKeyword: string;
+//begin
+//  LSubCMD := ACommand.Split(['.']);
+//  if Length(LSubCMD) = 0 then Exit;
+//
+//  LSearchText := LSubCMD[High(LSubCMD)];
+//  CommandCompare := LSearchText;
+//
+//  ltvAutoComplete.Items.BeginUpdate;
+//  try
+//    // 1. LÓGICA DE KEYWORDS (Apenas no primeiro nível e se não começar com _)
+//    if (Length(LSubCMD) <= 1) and (not LSearchText.StartsWith('_')) then
+//    begin
+//      for LKeyword in TPGLexicalRegistry.Keywords.Keys do
+//        if (LSearchText = '') or (Pos(LowerCase(LSearchText), LowerCase(LKeyword)) > 0) then
+//          ListViewAdd(LKeyword, 'Keyword');
+//    end;
+//
+//    // 2. BUSCA DE ITENS
+//    // Primeiro resolve o escopo (LRoot ou Pasta específica)
+//    if Length(LSubCMD) <= 1 then LFound := nil else
+//    begin
+//      LFound := TPGItem.FindName(nil, LSubCMD[0]);
+//      for var I := 1 to High(LSubCMD) - 1 do
+//        if Assigned(LFound) then LFound := LFound.FindName(LSubCMD[I]);
+//    end;
+//
+//    // Obtém todos os candidatos do motor de busca
+//    LCandidates := TPGItem.FindNameList(LFound, LSearchText);
+//
+//    for LItem in LCandidates do
+//    begin
+//      // --- REGRA NINJA DE EXIBIÇÃO ---
+//      // Se o item é um Alias (começa com '_')
+//      if LItem.Name.StartsWith('_') then
+//      begin
+//        // SÓ adiciona na lista visual se o usuário explicitamente digitou o '_'
+//        if LSearchText.StartsWith('_') then
+//          ListViewAdd(LItem);
+//      end
+//      else
+//        // Itens normais aparecem sempre que combinarem com a busca
+//        ListViewAdd(LItem);
+//    end;
+//  finally
+//    ltvAutoComplete.Items.EndUpdate;
+//  end;
+//end;
+
 procedure TFrmAutoComplete.ProcurarComandos(const ACommand: string);
 var
   LSubCMD: TArray<string>;
@@ -591,33 +648,37 @@ begin
   LSearchText := LSubCMD[High(LSubCMD)];
   CommandCompare := LSearchText;
 
-  ltvAutoComplete.Items.BeginUpdate;
-  try
-    if Length(LSubCMD) <= 1 then
+  if Length(LSubCMD) <= 1 then
+  begin
+    for LKeyword in TPGLexicalRegistry.Keywords.Keys do
     begin
-      for LKeyword in TPGLexicalRegistry.Keywords.Keys do
-      begin
-        if (LSearchText = '') or (Pos(LowerCase(LSearchText), LowerCase(LKeyword)) > 0) then
-          ListViewAdd(LKeyword, 'Keyword');
-      end;
+      if (LSearchText = '') or (Pos(LowerCase(LSearchText), LowerCase(LKeyword)) > 0) then
+        ListViewAdd(LKeyword, 'Keyword');
+    end;
 
-      for LItem in TPGItem.FindNameList(nil, LSearchText) do
-        ListViewAdd(LItem);
+    for LItem in TPGItem.FindNameList(nil, LSearchText) do
+      ListViewAdd(LItem);
 
-    end else begin
-      LFound := TPGItem.FindName(nil, LSubCMD[0]);
-      for Index := 1 to High(LSubCMD) - 1 do
-        if Assigned(LFound) then LFound := LFound.FindName(LSubCMD[Index]);
-
+  end else begin
+    LFound := TPGItem.FindName(nil, LSubCMD[0]);
+    for Index := 1 to High(LSubCMD) - 1 do
       if Assigned(LFound) then
       begin
-        if LFound is TPGItemExecute then TPGItemExecute(LFound).BeforeAccess;
-        for LItem in LFound.FindNameList(LSearchText) do
+        if LFound is TPGItemExecute then
+          TPGItemExecute(LFound).BeforeAccess;
+        LFound := LFound.FindName(LSubCMD[Index]);
+      end;
+
+    if Assigned(LFound) then
+    begin
+      if (LFound is TPGItemExecute) and (not LSearchText.StartsWith('_')) then
+        TPGItemExecute(LFound).BeforeAccess;
+      for LItem in LFound.FindNameList(LSearchText) do
+      begin
+        if LSearchText.StartsWith('_') or (not LItem.Name.StartsWith('_'))  then
           ListViewAdd(LItem);
       end;
     end;
-  finally
-    ltvAutoComplete.Items.EndUpdate;
   end;
 end;
 
@@ -844,11 +905,6 @@ begin
     until (FindNext(LSearchRec) <> 0) or (LCount >= FFileListMax);
     FindClose(LSearchRec);
   end;
-end;
-
-procedure TPGFrmAutoComplete.Frame(const AParent: TObject );
-begin
-  TPGFormsFrame.Create( Self, AParent );
 end;
 
 function TPGFrmAutoComplete.GetFileListMax(): Cardinal;

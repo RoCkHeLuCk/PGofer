@@ -1,9 +1,9 @@
-﻿inherited PGFunctionFrame: TPGFunctionFrame
+inherited PGFunctionFrame: TPGFunctionFrame
   Height = 217
   ExplicitHeight = 217
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 139
+    Top = 119
     Width = 400
     Height = 5
     Cursor = crVSplit
@@ -15,13 +15,13 @@
   object GrbScript: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
-    Top = 56
+    Top = 36
     Width = 394
     Height = 80
     Align = alTop
     Caption = 'Script (Run = F9)'
     Constraints.MinHeight = 60
-    TabOrder = 4
+    TabOrder = 3
     object EdtScript: TMemoEx
       Left = 2
       Top = 15
@@ -43,11 +43,13 @@
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 147
-    Height = 60
-    ExplicitTop = 147
+    Top = 127
+    Height = 80
+    ExplicitTop = 127
+    ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
       Height = 43
+      ExplicitHeight = 43
     end
   end
   inherited pnlItem: TPanel
@@ -57,6 +59,6 @@
   end
   inherited sptAbout: TPanel
     Top = 210
-    ExplicitTop = 189
+    ExplicitTop = 210
   end
 end

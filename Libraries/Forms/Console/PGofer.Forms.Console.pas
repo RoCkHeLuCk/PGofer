@@ -7,7 +7,7 @@ uses
   Vcl.Forms, Vcl.ExtCtrls, Vcl.Controls, Vcl.Buttons,
   Vcl.StdCtrls,
   PGofer.Component.Memo, PGofer.Component.Form, PGofer.Core,
-  PGofer.Classes, PGofer.Forms, Vcl.Menus;
+  PGofer.Classes, PGofer.Runtime, PGofer.Forms, Vcl.Menus;
 
 type
   TPGFrmConsole = class;
@@ -69,13 +69,13 @@ type
     function GetShowMessage: Boolean;
     procedure SetShowMessage(const AValue: Boolean);
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
     function GetForm( ): TFrmConsole; reintroduce;
     property Form: TFrmConsole read GetForm;
   public
-    procedure Frame(const AParent: TObject ); override;
   published
     property AutoClose: Boolean read GetAutoClose write SetAutoClose;
-    procedure Clear( );
+    procedure Clear( ); reintroduce;
     property Delay: Cardinal read GetDelay write SetDelay;
     property ShowMessage: Boolean read GetShowMessage write SetShowMessage;
   end;
@@ -266,9 +266,10 @@ begin
 end;
 
 { TPGFrmConsole }
-procedure TPGFrmConsole.Frame(const AParent: TObject );
+
+class function TPGFrmConsole.GetFrameClass(): TPGItemFrameClass;
 begin
-  TPGConsoleFrame.Create( Self, AParent );
+  Result := TPGConsoleFrame;
 end;
 
 function TPGFrmConsole.GetAutoClose(): Boolean;

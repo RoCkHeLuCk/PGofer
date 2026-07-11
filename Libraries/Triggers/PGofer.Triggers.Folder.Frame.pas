@@ -18,6 +18,7 @@ type
     property Item: TPGTriggerFolder read GetItem;
   public
     constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
+    procedure SyncData(); override;
   end;
 var
   PGTriggerFrame1: TPGFolderFrame;
@@ -31,7 +32,6 @@ implementation
 constructor TPGFolderFrame.Create(const AItem: TPGItem; const AParent: TObject);
 begin
    inherited Create( AItem, AParent );
-   CkbNamespace.SetCheckedSilent( Self.Item.Namespace );
 end;
 
 function TPGFolderFrame.GetItem(): TPGTriggerFolder;
@@ -39,10 +39,16 @@ begin
   Result := TPGTriggerFolder(inherited Item);
 end;
 
+procedure TPGFolderFrame.SyncData();
+begin
+  inherited SyncData();
+  CkbNamespace.SetCheckedSilent( Self.Item.Namespace );
+end;
+
 procedure TPGFolderFrame.CkbNamespaceClick(Sender: TObject);
 begin
   Self.Item.Namespace := CkbNamespace.Checked;
-  Self.UpdateStatusBadges();
+  Self.SyncData();
 end;
 
 end.

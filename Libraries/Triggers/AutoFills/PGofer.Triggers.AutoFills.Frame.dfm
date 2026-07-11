@@ -1,9 +1,9 @@
-﻿inherited PGAutoFillsFrame: TPGAutoFillsFrame
+inherited PGAutoFillsFrame: TPGAutoFillsFrame
   Height = 283
   ExplicitHeight = 283
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 201
+    Top = 181
     Width = 400
     Height = 6
     Cursor = crVSplit
@@ -14,13 +14,13 @@
   object GrbText: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
-    Top = 113
+    Top = 93
     Width = 394
     Height = 85
     Align = alTop
     Caption = 'Text'
     Constraints.MinHeight = 60
-    TabOrder = 2
+    TabOrder = 1
     object EdtText: TMemoEx
       Left = 2
       Top = 15
@@ -48,11 +48,10 @@
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 210
-    Height = 63
-    TabOrder = 4
-    ExplicitTop = 210
-    ExplicitHeight = 63
+    Top = 190
+    Height = 83
+    ExplicitTop = 190
+    ExplicitHeight = 83
     inherited mmoAbout: TMemoEx
       Height = 46
       ExplicitHeight = 46

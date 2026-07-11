@@ -34,7 +34,6 @@ inherited PGLinkFrame: TPGLinkFrame
     Caption = 'Script After (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 3
-    ExplicitTop = 265
     object EdtScriptAfter: TMemoEx
       Left = 2
       Top = 15
@@ -65,7 +64,6 @@ inherited PGLinkFrame: TPGLinkFrame
     Caption = 'Script Before (Run: F9)'
     Constraints.MinHeight = 60
     TabOrder = 1
-    ExplicitTop = 193
     object EdtScriptBefore: TMemoEx
       Left = 2
       Top = 15
@@ -90,8 +88,8 @@ inherited PGLinkFrame: TPGLinkFrame
     Top = 317
     Height = 80
     TabOrder = 4
-    ExplicitTop = 337
-    ExplicitHeight = 60
+    ExplicitTop = 317
+    ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
       Height = 43
       ExplicitHeight = 43

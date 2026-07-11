@@ -37,21 +37,22 @@ type
     function GetWindowState( ): Byte;
     procedure SetWindowState(const AWindowState: Byte );
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
+
     function GetForm(): TFormEx; virtual;
     property Form: TFormEx read GetForm;
   public
     constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
     destructor Destroy( ); override;
-    procedure Frame(const AParent: TObject ); override;
     procedure Execute(const AGrammar: TPGGrammar ); override;
   published
+    procedure Close(); virtual;
+    procedure Hide();
+    procedure Show(const AFocus: Boolean = true );
     property AlphaBlend: Boolean read GetAlphaBlend write SetAlphaBlend;
     property AlphaBlendValue: Byte read GetAlphaBlendValue write SetAlphaBlendValue;
-    procedure Close(); virtual;
     property Heigth: Integer read GetHeigth write SetHeigth;
-    procedure Hide();
     property Left: Integer read GetLeft write SetLeft;
-    procedure Show(const AFocus: Boolean = true );
     property Top: Integer read GetTop write SetTop;
     property Transparent: Boolean read GetTransparent write SetTransparent;
     property TransparentColor: Integer read GetTransparentColor write SetTransparentColor;
@@ -244,9 +245,9 @@ begin
   );
 end;
 
-procedure TPGForm.Frame(const AParent: TObject );
+class function TPGForm.GetFrameClass: TPGItemFrameClass;
 begin
-  TPGFormsFrame.Create( Self, AParent );
+  Result := TPGFormsFrame;
 end;
 
 initialization

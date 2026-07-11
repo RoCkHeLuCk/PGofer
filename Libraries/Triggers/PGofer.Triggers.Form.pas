@@ -25,6 +25,7 @@ type
       State: TDragState; var Accept: Boolean );
     procedure TrvControllerDragDrop( Sender, Source: TObject; X, Y: Integer );
     procedure TrvControllerDropFiles( Sender: TObject; AFiles: TStrings );
+    procedure TrvControllerDblClick(Sender: TObject);
   private
     function GetFolderWorking(const Node: TTreeNode ): TPGItem;
   protected
@@ -133,6 +134,19 @@ begin
 
   if LModified then
     Self.CollectItem.XMLSaveToFile();
+end;
+
+procedure TFrmTriggerController.TrvControllerDblClick(Sender: TObject);
+var
+  LItemDad: TPGItem;
+begin
+  if TrvController.isSelectWork then
+  begin
+     LItemDad := GetTargetWorking( TrvController.Selected );
+     if Assigned(LItemDad) and (LItemDad is TPGTriggerFolder)
+     and (TPGTriggerFolder(LItemDad).Locked) then
+       TPGTriggerFolder(LItemDad).Locked := False;
+  end;
 end;
 
 procedure TFrmTriggerController.TrvControllerDragDrop( Sender, Source: TObject;

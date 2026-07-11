@@ -30,7 +30,8 @@ type
     function GetItem( ): TPGVaultFolder; reintroduce;
     property Item: TPGVaultFolder read GetItem;
   public
-    constructor Create(const AItem: TPGItem; const AParent: TObject ); reintroduce;
+    constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
+    procedure SyncData(); override;
   end;
 
 var
@@ -44,15 +45,20 @@ implementation
 constructor TPGVaultFolderFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtFile.SetTextSilent( Item._FileName );
-  EdtAutoLock.SetTextSilent( Item._AutoLock.ToString );
-  CkbSavePassword.SetCheckedSilent( Item._SavePassword );
-  ckbLocked.SetCheckedSilent( Item._Locked );
 end;
 
 function TPGVaultFolderFrame.GetItem: TPGVaultFolder;
 begin
   Result := TPGVaultFolder(inherited Item);
+end;
+
+procedure TPGVaultFolderFrame.SyncData();
+begin
+  inherited SyncData();
+  EdtFile.SetTextSilent( Item._FileName );
+  EdtAutoLock.SetTextSilent( Item._AutoLock.ToString );
+  CkbSavePassword.SetCheckedSilent( Item._SavePassword );
+  ckbLocked.SetCheckedSilent( Item._Locked );
 end;
 
 procedure TPGVaultFolderFrame.EdtAutoLockAfterValidate(Sender: TObject);
@@ -65,21 +71,18 @@ procedure TPGVaultFolderFrame.EdtFileAfterValidate(Sender: TObject);
 begin
   if Self.Loading then Exit;
   Item._FileName := EdtFile.Text;
-   Self.UpdateStatusBadges();
 end;
 
 procedure TPGVaultFolderFrame.CkbSavePasswordClick(Sender: TObject);
 begin
   if Self.Loading then Exit;
   Item._SavePassword := CkbSavePassword.Checked;
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGVaultFolderFrame.BtnPasswordClick(Sender: TObject);
 begin
   if Self.Loading then Exit;
   Item.RequestPassword( Item.GetIsPassword );
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGVaultFolderFrame.CkbLockedClick(Sender: TObject);
@@ -90,7 +93,6 @@ begin
   finally
     ckbLocked.SetCheckedSilent( Item._Locked );
   end;
-  Self.UpdateStatusBadges();
 end;
 
 end.

@@ -239,14 +239,13 @@ end;
 
 procedure TFrmController.PanelCleaning( );
 var
-  c: Integer;
+  LIndex: Integer;
 begin
   if Application.Terminated or (csDestroying in Self.ComponentState) then
     Exit;
-  for c := PnlFrame.ControlCount - 1 downto 0 do
-  begin
-    PnlFrame.Controls[ c ].Free( );
-  end;
+
+  for LIndex := PnlFrame.ControlCount - 1 downto 0 do
+    PnlFrame.Controls[ LIndex ].Free( );
   FSelectedItem := nil;
 end;
 
@@ -386,6 +385,9 @@ procedure TFrmController.TrvControllerGetSelectedIndex( Sender: TObject;  Node: 
 var
   Item : TPGItem;
 begin
+  if (not FCollectItem.Attached) or FCollectItem.BlockUpdate then
+    Exit;
+
   if PnlFrame.Visible then
   begin
     Item := GetTargetWorking(TrvController.Selected);
@@ -395,7 +397,7 @@ begin
       begin
         Self.PanelCleaning( );
         FSelectedItem := Item;
-        FSelectedItem.Frame( PnlFrame );
+        TPGItemExecute(FSelectedItem).Frame( PnlFrame );
       end;
     end else begin
       Self.PanelCleaning( );

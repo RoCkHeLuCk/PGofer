@@ -55,6 +55,7 @@ type
   public
     constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 implementation
@@ -70,16 +71,6 @@ uses
 constructor TPGLinkFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtFile.SetTextSilent( Item.FileName );
-  EdtPatameter.SetTextSilent( Item.Parameter );
-  EdtDiretory.SetTextSilent( Item.Directory );
-  CmbState.SetIndexSilent( Item.State );
-  CmbPriority.SetIndexSilent( Item.Priority );
-  ckbAdministrator.SetCheckedSilent( Item.RunAdmin );
-  CkbSingleInstance.SetCheckedSilent( Item.SingleInstance );
-  ckbCapture.SetCheckedSilent( Item.CaptureMsg );
-  EdtScriptBefore.SetTextSilent( Item.ScriptBefor );
-  EdtScriptAfter.SetTextSilent( Item.ScriptAfter );
   FrmAutoComplete.EditCtrlAdd( EdtScriptBefore );
   FrmAutoComplete.EditCtrlAdd( EdtScriptAfter );
 end;
@@ -112,6 +103,21 @@ begin
   Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsBefore', Self.GrbScriptBefore.Height );
   Self.IniFile.WriteInteger( Self.ClassName, 'ScriptsAfter', Self.GrbScriptAfter.Height );
   inherited IniConfigSave( );
+end;
+
+procedure TPGLinkFrame.SyncData;
+begin
+  inherited SyncData();
+  EdtFile.SetTextSilent( Item.FileName );
+  EdtPatameter.SetTextSilent( Item.Parameter );
+  EdtDiretory.SetTextSilent( Item.Directory );
+  CmbState.SetIndexSilent( Item.State );
+  CmbPriority.SetIndexSilent( Item.Priority );
+  ckbAdministrator.SetCheckedSilent( Item.RunAdmin );
+  CkbSingleInstance.SetCheckedSilent( Item.SingleInstance );
+  ckbCapture.SetCheckedSilent( Item.CaptureMsg );
+  EdtScriptBefore.SetTextSilent( Item.ScriptBefor );
+  EdtScriptAfter.SetTextSilent( Item.ScriptAfter );
 end;
 
 procedure TPGLinkFrame.BtnTestClick( Sender: TObject );
@@ -164,14 +170,12 @@ procedure TPGLinkFrame.EdtFileActionButtonClick(Sender: TObject);
 begin
   if Self.Loading then Exit;
   EdtDiretory.Text := FileLimitPathExist( EdtFile.Text );
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGLinkFrame.EdtFileAfterValidate(Sender: TObject);
 begin
   if Self.Loading then Exit;
   Item.FileName := EdtFile.Text;
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGLinkFrame.EdtDiretoryAfterValidate(Sender: TObject);

@@ -19,6 +19,7 @@ type
   public
     property Item: TPGVariant read GetItem;
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
+    procedure SyncData(); override;
   end;
 
 var
@@ -33,13 +34,24 @@ uses System.Rtti;
 { TPGFrameVariants }
 
 constructor TPGVariantsFrame.Create( AItem: TPGItem; AParent: TObject );
+begin
+  inherited Create(AItem, AParent);
+  EdtValue.ReadOnly := Item.IsConstant;
+end;
+
+function TPGVariantsFrame.GetItem(): TPGVariant;
+begin
+  Result := TPGVariant(inherited Item);
+end;
+
+procedure TPGVariantsFrame.SyncData();
 var
   LVal: TValue;
   LArray: TArray<TValue>;
   LStr: string;
   I: Integer;
 begin
-  inherited Create(AItem, AParent);
+  inherited SyncData();
   LVal := Item.Value;
 
   // Se for Array, monta a string representativa
@@ -54,16 +66,8 @@ begin
     end;
     LStr := LStr + ']';
     EdtValue.SetTextSilent(LStr);
-  end
-  else
+  end else
     EdtValue.SetTextSilent(LVal.ToString);
-
-  EdtValue.ReadOnly := Item.IsConstant;
-end;
-
-function TPGVariantsFrame.GetItem(): TPGVariant;
-begin
-  Result := TPGVariant(inherited Item);
 end;
 
 procedure TPGVariantsFrame.EdtValueAfterValidate(Sender: TObject);

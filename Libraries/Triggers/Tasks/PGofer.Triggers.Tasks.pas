@@ -20,7 +20,7 @@ type
     procedure SetScript( AValue: string );
     class var FTaskList: TThreadList<TPGTask>;
   protected
-    class function GetFrameType: TPGTriggerFrameType; override;
+    class function GetFrameClass(): TPGItemFrameClass; override;
   public
     class procedure Working( AType: Byte; AWaitFor: Boolean = False );
     constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
@@ -35,6 +35,8 @@ type
 
     [TPGAbout('Trigger: 0=Initializing, 1=Finishing, 2=Shutdown;')]
     property Trigger: Byte read FTrigger write FTrigger;
+
+    procedure Run();
   end;
   {$TYPEINFO ON}
 
@@ -62,7 +64,7 @@ end;
 
 { TPGTask }
 
-class function TPGTask.GetFrameType: TPGTriggerFrameType;
+class function TPGTask.GetFrameClass(): TPGItemFrameClass;
 begin
   Result := TPGTaskFrame;
 end;
@@ -149,6 +151,11 @@ begin
 end;
 
 procedure TPGTask.Triggering( );
+begin
+  Self.ExecuteAction(FScript.Text);
+end;
+
+procedure TPGTask.Run();
 begin
   Self.ExecuteAction(FScript.Text);
 end;

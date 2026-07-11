@@ -1,33 +1,5 @@
-  try
-    if Assigned(AParent) then
-      LCollect := AParent.GetCollectDad()
-    else
-      LCollect := nil;
 
-    if Assigned(LCollect) and LCollect.Attached
-    and ( (not Self.Internal) or (not LCollect.ChildHidden) ) then
-    begin
-      LTreeView := LCollect.TreeView;
-      if not Assigned(LTreeView) then
-        Exit;
 
-      if (FParent = LCollect) then
-        LNodeParent := nil
-      else
-        LNodeParent := FParent.Node;
 
-      RunInMainThread(
-        procedure
-        begin
-          if not Assigned(FNode) then
-            Self.Node := LTreeView.Items.AddChild(LNodeParent, Self.Name)
-          else
-            FNode.MoveTo(LNodeParent, naAddChild);
-        end,
-        True
-      );
-    end;
-  finally
-    Self.EndUpdate;
-  end;
+
 

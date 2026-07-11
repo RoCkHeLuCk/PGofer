@@ -45,6 +45,7 @@ type
   public
     constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 var
@@ -63,14 +64,7 @@ uses
 constructor TPGHotKeyFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  CmbDetect.SetIndexSilent( Item.Detect );
-  CkbInhibit.SetCheckedSilent( Item.Inhibit );
-  CkbDisabled.SetCheckedSilent( Item.Disabled );
-  EdtScript.SetTextSilent( Item.Script );
-  MmoHotKeys.Text := Item.GetKeysName( );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
-  Self.InhibitToogle();
-  CkbInhibit.Hint := TPGKernel.Translate('Hint_HotKey_InhibitSupport');
 end;
 
 destructor TPGHotKeyFrame.Destroy( );
@@ -129,7 +123,6 @@ begin
     Exit;
 
   Item.Disabled := CkbDisabled.Checked;
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGHotKeyFrame.CkbInhibitClick( Sender: TObject );
@@ -160,7 +153,6 @@ procedure TPGHotKeyFrame.MmoHotKeysExit( Sender: TObject );
 begin
   MmoHotKeys.Color := clSilver;
   TPGHotKey.SetProcessKeys( nil );
-  Self.UpdateStatusBadges();
 end;
 
 function TPGHotKeyFrame.OnProcessKeys( AParamInput: TParamInput ): Boolean;
@@ -183,6 +175,18 @@ begin
     PGHotKeyFrame.MmoHotKeys.Text := PGHotKeyFrame.Item.GetKeysName( );
     Result := True;
   end;
+end;
+
+procedure TPGHotKeyFrame.SyncData;
+begin
+  inherited SyncData();
+  CmbDetect.SetIndexSilent( Item.Detect );
+  CkbInhibit.SetCheckedSilent( Item.Inhibit );
+  CkbDisabled.SetCheckedSilent( Item.Disabled );
+  EdtScript.SetTextSilent( Item.Script );
+  MmoHotKeys.Text := Item.GetKeysName( );
+  Self.InhibitToogle();
+  CkbInhibit.Hint := TPGKernel.Translate('Hint_HotKey_InhibitSupport');
 end;
 
 end.

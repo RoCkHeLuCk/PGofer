@@ -65,7 +65,6 @@ type
     function GetForm( ): TFrmPGofer; reintroduce;
     property Form: TFrmPGofer read GetForm;
   public
-    procedure Frame(const AParent: TObject ); override;
   published
     procedure Close(); override;
     property CanClose: Boolean read GetCanClose write SetCanClose;
@@ -302,11 +301,6 @@ begin
       );
     end
   ).Start;
-end;
-
-procedure TPGFrmPGofer.Frame(const AParent: TObject );
-begin
-  TPGFormsFrame.Create( Self, AParent );
 end;
 
 function TPGFrmPGofer.GetCanClose: Boolean;

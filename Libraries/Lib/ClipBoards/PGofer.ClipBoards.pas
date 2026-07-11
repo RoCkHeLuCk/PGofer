@@ -12,7 +12,7 @@ type
   private
   public
   published
-    procedure Clear( );
+    procedure Clear( ); reintroduce;
     procedure CopyFromText( Text: string );
     function GetFormat( ): string;
     function LoadFromFile( FileName: string ): Boolean;

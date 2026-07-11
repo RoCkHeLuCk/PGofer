@@ -4,20 +4,20 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
   BorderStyle = bsDialog
   Caption = 'Vault Folder Password'
   ClientHeight = 130
-  ClientWidth = 340
+  ClientWidth = 314
   Color = clGray
   FormStyle = fsStayOnTop
   KeyPreview = True
   Position = poScreenCenter
   OnKeyDown = FormKeyDown
-  ExplicitWidth = 346
+  ExplicitWidth = 320
   ExplicitHeight = 159
   PixelsPerInch = 96
   TextHeight = 13
   object PnlCurrentPassword: TPanel
     Left = 0
     Top = 0
-    Width = 340
+    Width = 314
     Height = 27
     Align = alTop
     BevelOuter = bvNone
@@ -56,7 +56,7 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
   object PnlNewPassword: TPanel
     Left = 0
     Top = 27
-    Width = 340
+    Width = 314
     Height = 65
     Align = alTop
     BevelOuter = bvNone
@@ -94,10 +94,11 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
       AlignWithMargins = True
       Left = 5
       Top = 31
-      Width = 330
+      Width = 304
       Height = 31
       Margins.Left = 5
       Margins.Right = 5
+      TabStop = False
       Align = alBottom
       Alignment = taCenter
       BorderStyle = bsNone
@@ -113,12 +114,13 @@ inherited FrmVaultFolderPassword: TFrmVaultFolderPassword
   object PnlButtons: TPanel
     Left = 0
     Top = 92
-    Width = 340
+    Width = 314
     Height = 38
     Align = alTop
     BevelOuter = bvNone
     ParentColor = True
     TabOrder = 2
+    ExplicitWidth = 297
     object BtnOk: TButton
       Left = 64
       Top = 6

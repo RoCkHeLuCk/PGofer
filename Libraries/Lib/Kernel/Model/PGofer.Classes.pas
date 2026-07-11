@@ -11,6 +11,7 @@ type
   TPGItemCollect = class;
   TPGItemType = class of TPGItem;
 
+
   TPGItemFlag = (
     pgfInvalid,
     pgfLocked,
@@ -107,8 +108,8 @@ type
     property Node: TTreeNode read FNode;
     property CollectDad: TPGItemCollect read FCollectDad;
 
-    procedure UpdateNode();
-    procedure Frame(const AParent: TObject); virtual;
+    procedure Clear; reintroduce; virtual;
+    procedure UpdateNode(); virtual;
 
     function FindName(const AName: string): TPGItem; overload;
     function FindNameList(const AName: string): TArray<TPGItem>; overload;
@@ -157,7 +158,7 @@ implementation
 
 uses
   System.Classes, System.SysUtils, System.TypInfo,
-  Vcl.Forms, Vcl.Graphics,
+  Vcl.Graphics,
   PGofer.Item.Frame, PGofer.Forms.Controller;
 
 procedure Initialize();
@@ -265,6 +266,11 @@ begin
     end;
   end;
   TPGItem.FOverlayCache.Add(AFlag, Result);
+end;
+
+procedure TPGItem.Clear();
+begin
+  inherited Clear();
 end;
 
 class function TPGItem.ClassNameEx(): String;
@@ -556,11 +562,6 @@ begin
   if FName = AName then Exit;
   FName := AName;
   Self.UpdateNode;
-end;
-
-procedure TPGItem.Frame(const AParent: TObject);
-begin
-  TPGItemFrame.Create(Self, AParent);
 end;
 
 function TPGItem.GetIconIndex(): Integer;

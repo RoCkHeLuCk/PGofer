@@ -61,7 +61,7 @@ begin
     Commands(AGrammar);
 
     // --- PENTE FINO DE LINHA (Check de Saúde) ---
-    if TPGKernel.ReportMemoryLeaks and (AGrammar.Stack.Count > 0) then
+    if TPGKernel.ReportMemoryLeaks and (AGrammar.Stack.Count > 1) then
     begin
 
       // Reporta que esta linha específica "sujou" a pilha
@@ -154,14 +154,7 @@ begin
   begin
     if LItem is TPGItemClass then
     begin
-      // Lógica de "Engolir" se desabilitado
-      if (pgfDisabled in LItem.Flags) then
-      begin
-        AGrammar.Next;
-        if AGrammar.Match(pgkLPar) then
-          ReadParameters(AGrammar, 0, 255);
-      end else
-        TPGItemClass(LItem).Execute(AGrammar);
+      TPGItemClass(LItem).Execute(AGrammar);
     end else begin
       AGrammar.Error('Error_Interpreter_IdUnRec', [LName]);
       AGrammar.Next;

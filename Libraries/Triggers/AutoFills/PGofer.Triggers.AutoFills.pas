@@ -18,7 +18,7 @@ type
     FText : String;
     procedure SetText(const AValue: string);
   protected
-    class function GetFrameType: TPGTriggerFrameType; override;
+    class function GetFrameClass(): TPGItemFrameClass; override;
   public
     class function OnDropFile(const AItemDad: TPGItem; const AFileName: String ): boolean; override;
     constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
@@ -33,6 +33,11 @@ type
     property Speed: Cardinal read FSpeed write FSpeed;
     [TPGAbout('Value in milliseconds;')]
     property Delay: Cardinal read FDelay write FDelay;
+    procedure Write();
+    procedure Send();
+    procedure Copy();
+    procedure CopyPaste();
+    procedure Script();
   end;
   {$TYPEINFO ON}
 
@@ -64,11 +69,11 @@ end;
 
 constructor TPGAutoFill.Create(const AItemDad: TPGItem; const AName: string);
 begin
-  inherited Create( AItemDad, AName );
   FText := '';
   FSpeed := 10;
   FDelay := 200;
   FMode := 0;
+  inherited Create( AItemDad, AName );
 end;
 
 destructor TPGAutoFill.Destroy( );
@@ -80,7 +85,7 @@ begin
   inherited Destroy( );
 end;
 
-class function TPGAutoFill.GetFrameType(): TPGTriggerFrameType;
+class function TPGAutoFill.GetFrameClass(): TPGItemFrameClass;
 begin
   Result := TPGAutoFillsFrame;
 end;
@@ -206,6 +211,32 @@ begin
     LList.Free;
   end;
 end;
+
+procedure TPGAutoFill.Write;
+begin
+  Self.ExecuteAction(0, FSpeed, FDelay);
+end;
+
+procedure TPGAutoFill.Send;
+begin
+  Self.ExecuteAction(1, FSpeed, FDelay);
+end;
+
+procedure TPGAutoFill.Copy;
+begin
+  Self.ExecuteAction(2, FSpeed, FDelay);
+end;
+
+procedure TPGAutoFill.CopyPaste;
+begin
+  Self.ExecuteAction(3, FSpeed, FDelay);
+end;
+
+procedure TPGAutoFill.Script;
+begin
+  Self.ExecuteAction(4, FSpeed, FDelay);
+end;
+
 
 initialization
 

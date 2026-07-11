@@ -37,6 +37,7 @@ type
   public
     constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 implementation
@@ -50,11 +51,6 @@ uses
 constructor TPGTaskFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtScript.SetTextSilent( Item.Script );
-  EdtRepeat.SetTextSilent( Item.Repeats.ToString() );
-  EdtOccurrence.SetTextSilent( Item.Occurrence.ToString() );
-  CmbTrigger.SetIndexSilent( Item.Trigger );
-  CkbDisabled.SetCheckedSilent( Item.Disabled );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
@@ -83,6 +79,16 @@ begin
   inherited IniConfigSave( );
 end;
 
+procedure TPGTaskFrame.SyncData;
+begin
+  inherited SyncData();
+  EdtScript.SetTextSilent( Item.Script );
+  EdtRepeat.SetTextSilent( Item.Repeats.ToString() );
+  EdtOccurrence.SetTextSilent( Item.Occurrence.ToString() );
+  CmbTrigger.SetIndexSilent( Item.Trigger );
+  CkbDisabled.SetCheckedSilent( Item.Disabled );
+end;
+
 procedure TPGTaskFrame.EdtRepeatAfterValidate(Sender: TObject);
 begin
   if Self.Loading then Exit;
@@ -94,14 +100,12 @@ procedure TPGTaskFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;
 begin
   if Self.Loading then Exit;
   Item.Script := EdtScript.Text;
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGTaskFrame.CkbDisabledClick(Sender: TObject);
 begin
   if Self.Loading then  Exit;
   Item.Disabled := CkbDisabled.Checked;
-  Self.UpdateStatusBadges();
 end;
 
 procedure TPGTaskFrame.CmbTriggerChange( Sender: TObject );

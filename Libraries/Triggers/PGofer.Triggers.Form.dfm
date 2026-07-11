@@ -26,6 +26,7 @@ inherited FrmTriggerController: TFrmTriggerController
       end
     end
     inherited TrvController: TTreeViewEx
+      OnDblClick = TrvControllerDblClick
       OnDragDrop = TrvControllerDragDrop
       OnDragOver = TrvControllerDragOver
       OnDropFiles = TrvControllerDropFiles

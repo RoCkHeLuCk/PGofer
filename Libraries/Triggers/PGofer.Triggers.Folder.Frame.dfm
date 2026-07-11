@@ -1,14 +1,14 @@
-﻿inherited PGFolderFrame: TPGFolderFrame
+inherited PGFolderFrame: TPGFolderFrame
   Height = 149
   ExplicitHeight = 149
   inherited grbAbout: TGroupBox
-    Top = 79
-    Height = 60
-    ExplicitTop = 79
-    ExplicitHeight = 60
+    Top = 59
+    Height = 80
+    ExplicitTop = 59
+    ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
       Height = 43
-      ExplicitHeight = 32
+      ExplicitHeight = 43
     end
   end
   inherited pnlItem: TPanel
@@ -29,6 +29,6 @@
   end
   inherited sptAbout: TPanel
     Top = 142
-    ExplicitTop = 131
+    ExplicitTop = 142
   end
 end

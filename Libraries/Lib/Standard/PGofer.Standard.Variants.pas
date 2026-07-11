@@ -13,20 +13,19 @@ type
     FIsConstant: Boolean;
     function GetValueAsArray: TArray<TValue>;
     procedure SetValueAsArray(const AArray: TArray<TValue>);
+    procedure SetValue(const Value: TValue);
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
   public
     class var GlobList: TPGItem;
+    class function GetOrCreate(const AGrammar: TPGGrammar): TPGVariant;
 
     constructor Create(const AOwner: TPGItem; const AName: string; const AValue: TValue; const AIsConstant: Boolean); reintroduce; overload;
     destructor Destroy; override;
 
     procedure Execute(const AGrammar: TPGGrammar); override;
-    procedure Frame(const AParent: TObject); override;
-
-    class function GetOrCreate(const AGrammar: TPGGrammar): TPGVariant;
-
     property IsConstant: Boolean read FIsConstant;
-    property Value: TValue read FValue write FValue;
+    property Value: TValue read FValue write SetValue;
   end;
 
   [TPGClassReg('Defines', 'Const')]
@@ -86,9 +85,15 @@ begin
     SetLength(Result, 0);
 end;
 
+procedure TPGVariant.SetValue(const Value: TValue);
+begin
+  FValue := Value;
+  Self.UpdateNode;
+end;
+
 procedure TPGVariant.SetValueAsArray(const AArray: TArray<TValue>);
 begin
-  FValue := TValue.From<TArray<TValue>>(AArray);
+  Self.Value := TValue.From<TArray<TValue>>(AArray);
 end;
 
 class function TPGVariant.GetOrCreate(const AGrammar: TPGGrammar): TPGVariant;
@@ -136,7 +141,7 @@ begin
 
       if LIndex >= Length(LArray) then SetLength(LArray, LIndex + 1);
       LArray[LIndex] := LNewVal;
-      SetValueAsArray(LArray);
+      Self.SetValueAsArray(LArray);
     end
     else
     begin
@@ -153,16 +158,16 @@ begin
     else begin
       AGrammar.Next;
       Expression(AGrammar);
-      FValue := AGrammar.Stack.Pop;
+      Self.Value := AGrammar.Stack.Pop;
     end;
   end
   else
     AGrammar.Stack.Push(FValue);
 end;
 
-procedure TPGVariant.Frame(const AParent: TObject);
+class function TPGVariant.GetFrameClass: TPGItemFrameClass;
 begin
-  TPGVariantsFrame.Create(Self, AParent);
+  Result := TPGVariantsFrame;
 end;
 
 { TPGVariantDeclare }

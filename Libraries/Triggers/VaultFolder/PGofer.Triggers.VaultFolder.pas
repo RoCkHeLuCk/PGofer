@@ -5,11 +5,10 @@ interface
 uses
   System.Generics.Collections,
   Vcl.ExtCtrls,
-  PGofer.Core, PGofer.Classes,
+  PGofer.Core, PGofer.Classes, PGofer.Runtime,
   PGofer.Triggers.Collections, PGofer.Triggers;
 
 type
-  {$M+}
   [TPGClassReg('Defines', 'VaultDef')]
   TPGVaultFolder = class(TPGTriggerFolder)
   private
@@ -32,6 +31,7 @@ type
     class var FTimer: TTimer;
     class procedure OnTimerTick(Sender: TObject);
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
     procedure SetLocked(const AValue:Boolean); override;
   public
     class function OnDropFile(const AItemDad: TPGItem; const AFileName: String ): boolean; override;
@@ -42,7 +42,8 @@ type
     destructor Destroy(); override;
 
     procedure BeforeAccess(); override;
-    procedure Frame(const AParent: TObject); override;
+    procedure Clear(); override;
+
     function BeforeXMLLoad(const ItemCollect: TPGItemCollectTrigger): Boolean; override;
     function BeforeXMLSave(const ItemCollect: TPGItemCollectTrigger): Boolean; override;
     function RequestPassword(const AChange: Boolean ): Boolean;
@@ -58,7 +59,6 @@ type
     property _AutoLock: Integer read FAutoLock write SetAutoLockMinutes;
     property _Locked: Boolean read GetLocked write SetLocked;
   end;
-  {$TYPEINFO ON}
 
   procedure Initialize();
   procedure Finalize();
@@ -68,7 +68,6 @@ implementation
 uses
   System.Classes, System.SysUtils, System.StrUtils, System.DateUtils,
   Vcl.Forms, Vcl.Controls,
-  PGofer.Runtime,
   PGofer.Files.Controls, PGofer.Triggers.VaultFolder.Frame,
   PGofer.Triggers.VaultFolder.KeyStore,
   PGofer.Triggers.VaultFolder.Password.Form;
@@ -136,17 +135,34 @@ begin
   Result := 'VaultFolder';
 end;
 
+procedure TPGVaultFolder.Clear();
+var
+  I: Integer;
+begin
+  Self.CollectDad.BeginUpdate;
+  try
+    // Varre de trás para frente para não bugar o índice
+    for I := Self.Count - 1 downto 0 do
+    begin
+      // SÓ deleta o que NÃO é interno (ignora _FileName, _Locked, etc.)
+      if not (pgfInternal in Self[I].Flags) then
+        Self.Delete(I);
+    end;
+  finally
+    Self.CollectDad.EndUpdate;
+  end;
+end;
+
 constructor TPGVaultFolder.Create(const AItemDad: TPGItem; const AName: string );
 begin
   FLoading := True;
-  inherited Create(AItemDad, AName);
-  Self.Namespace := True;
-  Self.Invalid := True;
-  inherited SetLocked(True);
   FFileName := '';
   FPassword := '';
   FSavePassword := False;
   FAutoLock := 0;
+  inherited Create(AItemDad, AName);
+  inherited SetLocked(True);
+  Self.Invalid := True;
   FVaultList.Add(Self);
 end;
 
@@ -160,6 +176,11 @@ begin
   FPassword := '';
   FFileName := '';
   inherited Destroy( );
+end;
+
+class function TPGVaultFolder.GetFrameClass: TPGItemFrameClass;
+begin
+  Result := TPGVaultFolderFrame;
 end;
 
 procedure TPGVaultFolder.BeforeAccess();
@@ -235,9 +256,13 @@ begin
   if FLoading then
   begin
     FLoading := False;
-    if (not FSavePassword) or (FAutoLock > 0) then
+
+    if (Self.Locked) or (FAutoLock <> 0)
+    or (not FSavePassword) or (not TryResolvePassword(False)) then
+    begin
       inherited SetLocked(True);
-    Exit;
+      Exit;
+    end;
   end;
 
   if (not Self._Locked) and (Self.GetIsFileReal) then
@@ -250,11 +275,11 @@ begin
 
     XMLStream := KeyStoreXMLFromAES(FFileName, FPassword);
     try
-      if Assigned(XMLStream) then
-      begin
-        ItemCollect.XMLLoadFromStream(Self, XMLStream);
-        FLastAccess := Now;
-      end else begin
+      try
+        Self.BeforeAccess;
+        if Assigned(XMLStream) then
+          ItemCollect.XMLLoadFromStream(Self, XMLStream);
+      except
         TPGKernel.ConsoleTr('Error_VaultLoad',[FFileName]);
         FPassword := '';
         inherited SetLocked(True);
@@ -292,11 +317,6 @@ begin
   end;
 end;
 
-procedure TPGVaultFolder.Frame(const AParent: TObject);
-begin
-  TPGVaultFolderFrame.Create(Self, AParent);
-end;
-
 function TPGVaultFolder.GetIsFileCan(): Boolean;
 begin
   Result := DirectoryExistsFileEx( FFileName );
@@ -326,7 +346,7 @@ end;
 procedure TPGVaultFolder.SetFileName(const Value: string);
 begin
   FFileName := Value;
-  Self.Invalid := not Self.GetIsFileReal();
+  Self.Invalid := not Self.GetIsFileCan();
 end;
 
 function TPGVaultFolder.TryResolvePassword(const AInteractive: Boolean): Boolean;
@@ -397,24 +417,34 @@ end;
 
 procedure TPGVaultFolder.SetSavePassword(const Value: Boolean);
 begin
-  if FSavePassword = Value then Exit;
+  if FSavePassword = Value then
+    Exit;
+
   FSavePassword := Value;
+
+  if FLoading then
+    Exit;
 
   if not FSavePassword then
   begin
     if FFileID <> TGUID.Empty then
        KeyStoreSavePassword(FFileID, '');
+    FPassword := '';
     Exit;
   end;
 
-  if GetIsPassword then
-    Self.SetPassword(FPassword)
-  else
-  if (FFileID = TGUID.Empty) and GetIsFileReal then
+
+  if not TryResolvePassword(True) then
   begin
-    FFileID := KeyStoreIDFromFile(FFileName);
-    FPassword := KeyStoreLoadPassoword(FFileID);
+    FSavePassword := False;
+    Exit;
   end;
+
+  if (FFileID = TGUID.Empty) and GetIsFileReal then
+    FFileID := KeyStoreIDFromFile(FFileName);
+
+  if GetIsPassword then
+    FFileID := KeyStoreSavePassword(FFileID, FPassword);
 end;
 
 initialization

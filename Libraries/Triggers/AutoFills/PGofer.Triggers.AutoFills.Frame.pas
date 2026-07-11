@@ -30,6 +30,7 @@ type
     procedure EdtDelayAfterValidate(Sender: TObject);
     procedure EdtSpeedAfterValidate(Sender: TObject);
   private
+    procedure ModeChange();
   protected
     procedure IniConfigSave( ); override;
     procedure IniConfigLoad( ); override;
@@ -38,6 +39,7 @@ type
   public
     constructor Create(const AItem: TPGItem; const AParent: TObject ); override;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 implementation
@@ -51,10 +53,6 @@ uses
 constructor TPGAutoFillsFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtText.SetTextSilent( Item.Text );
-  CmbMode.SetIndexSilent( Item.Mode );
-  EdtSpeed.SetTextSilent( Item.Speed.ToString() );
-  EdtDelay.SetTextSilent( Item.Delay.ToString() );
 end;
 
 destructor TPGAutoFillsFrame.Destroy( );
@@ -91,12 +89,7 @@ procedure TPGAutoFillsFrame.CmbModeChange(Sender: TObject);
 begin
   if Self.Loading then Exit;
   Item.Mode := CmbMode.ItemIndex;
-  if Item.Mode = 4 then
-  begin
-     FrmAutoComplete.EditCtrlAdd( EdtText );
-  end else begin
-     FrmAutoComplete.EditCtrlRemove( EdtText );
-  end;
+  Self.ModeChange();
 end;
 
 procedure TPGAutoFillsFrame.IniConfigLoad;
@@ -111,6 +104,26 @@ begin
   Self.IniFile.WriteInteger( Self.ClassName, 'TextZoom', EdtText.Zoom );
   Self.IniFile.WriteInteger( Self.ClassName, 'Text', GrbText.Height );
   inherited IniConfigSave( );
+end;
+
+procedure TPGAutoFillsFrame.ModeChange();
+begin
+  if Item.Mode = 4 then
+  begin
+     FrmAutoComplete.EditCtrlAdd( EdtText );
+  end else begin
+     FrmAutoComplete.EditCtrlRemove( EdtText );
+  end;
+end;
+
+procedure TPGAutoFillsFrame.SyncData();
+begin
+  inherited SyncData();
+  EdtText.SetTextSilent( Item.Text );
+  CmbMode.SetIndexSilent( Item.Mode );
+  EdtSpeed.SetTextSilent( Item.Speed.ToString() );
+  EdtDelay.SetTextSilent( Item.Delay.ToString() );
+  Self.ModeChange();
 end;
 
 end.

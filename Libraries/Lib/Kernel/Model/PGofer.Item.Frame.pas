@@ -5,7 +5,8 @@ interface
 uses
   System.Classes, System.IniFiles,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
-  PGofer.Classes, PGofer.Component.Edit, PGofer.Component.IniFile, PGofer.Component.Memo;
+  PGofer.Component.Edit, PGofer.Component.IniFile, PGofer.Component.Memo,
+  PGofer.Classes;
 
 type
   TPGItemFrame = class( TFrame )
@@ -40,7 +41,7 @@ type
     constructor Create(const AItem: TPGItem; const AParent: TObject ); reintroduce; virtual;
     destructor Destroy( ); override;
     procedure AfterConstruction(); override;
-    procedure UpdateStatusBadges();
+    procedure SyncData(); virtual;
     property IniFile: TMemIniFileEx read GetIniFile;
   end;
 
@@ -62,12 +63,13 @@ begin
   EdtName.ReadOnly := FItem.Internal;
   mmoAbout.Lines.Text := FItem.About;
   Self.IniConfigLoad( );
-  EdtName.SetTextSilent( FItem.Name );
+  Self.SyncData;
 end;
 
 destructor TPGItemFrame.Destroy( );
 begin
   Self.IniConfigSave( );
+  //FItem.Frame(nil);
   FItem := nil;
   inherited Destroy( );
 end;
@@ -75,7 +77,7 @@ end;
 procedure TPGItemFrame.AfterConstruction();
 begin
   inherited AfterConstruction();
-  Self.UpdateStatusBadges();
+  Self.SyncData();
   FLoading := False;
 end;
 
@@ -143,7 +145,7 @@ begin
   Result := TFormEx.IniFile;
 end;
 
-procedure TPGItemFrame.UpdateStatusBadges();
+procedure TPGItemFrame.SyncData();
 var
   LFlag: TPGItemFlag;
   LMax: TPGItemFlag;
@@ -165,6 +167,8 @@ begin
   if Label1.Caption = '' then
      Label1.Caption := 'Flags: [ ';
   Label1.Caption := Label1.Caption + ' ]';
+
+  EdtName.SetTextSilent( FItem.Name );
 end;
 
 

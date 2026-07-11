@@ -13,19 +13,19 @@ type
   TPGItemTrigger = class(TPGItemClass)
   private
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
+
     function RttiSyncChildren(const AHaveChildren:Boolean): Boolean; override;
     procedure SetName(const AName: string); override;
     procedure SetParent(const AParent: TPGItem); override;
     procedure SetNamespace(const AValue: Boolean); override;
     procedure ExecuteDefault(const AGrammar: TPGGrammar); override;
-    class function GetFrameType: TPGTriggerFrameType; virtual;
   public
     class procedure AutoRegister(const AAttr: TPGClassRegAttribute); override;
     class function CalculateUniqueName(AItem: TPGItem; const AOriginName: string): string;
     class function OnDropFile(const AItemDad: TPGItem; const AFileName: string): Boolean; virtual;
 
     constructor Create(const AItemDad: TPGItem; const AName: string = ''); override;
-    procedure Frame(const AParent: TObject); override;
     procedure Triggering(); virtual; abstract;
   end;
 
@@ -33,6 +33,8 @@ type
   TPGTriggerFolder = class(TPGFolder)
   private
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
+
     procedure SetName(const AName: string); override;
     procedure SetParent(const AParent: TPGItem); override;
     procedure SetNamespace(const AValue: Boolean); override;
@@ -42,7 +44,7 @@ type
     class function ClassNameEx(): string; override;
 
     constructor Create(const AItemDad: TPGItem; const AName: string); override;
-    procedure Frame(const AParent: TObject); override;
+
     function BeforeXMLSave(const ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
     function BeforeXMLLoad(const ItemCollect: TPGItemCollectTrigger): Boolean; virtual;
   published
@@ -191,7 +193,7 @@ begin
   Self.Triggering();
 end;
 
-class function TPGItemTrigger.GetFrameType: TPGTriggerFrameType;
+class function TPGItemTrigger.GetFrameClass: TPGItemFrameClass;
 begin
   Result := TPGTriggerFrame;
 end;
@@ -209,11 +211,6 @@ begin
   Result := inherited RttiSyncChildren(False);
 end;
 
-procedure TPGItemTrigger.Frame(const AParent: TObject);
-begin
-  Self.GetFrameType.Create(Self, AParent);
-end;
-
 { TPGTriggerFolder }
 
 class function TPGTriggerFolder.ClassNameEx(): string;
@@ -225,6 +222,12 @@ constructor TPGTriggerFolder.Create(const AItemDad: TPGItem; const AName: string
 begin
   inherited Create(AItemDad, AName);
   Self.Internal := False;
+  Self.Namespace := True;
+end;
+
+class function TPGTriggerFolder.GetFrameClass: TPGItemFrameClass;
+begin
+  Result := TPGFolderFrame;
 end;
 
 class function TPGTriggerFolder.OnDropFile(const AItemDad: TPGItem; const AFileName: string): Boolean;
@@ -294,11 +297,6 @@ end;
 function TPGTriggerFolder.BeforeXMLLoad(const ItemCollect: TPGItemCollectTrigger): Boolean;
 begin
   Result := True;
-end;
-
-procedure TPGTriggerFolder.Frame(const AParent: TObject);
-begin
-  TPGFolderFrame.Create(Self, AParent);
 end;
 
 { TPGTriggerDef }

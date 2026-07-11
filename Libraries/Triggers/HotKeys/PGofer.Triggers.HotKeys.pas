@@ -33,7 +33,7 @@ type
     class function LocateHotKeys(const AKeys: TList<Word>): TPGHotKey;
     class function DefaultOnProcessKeys(const AParamInput: TParamInput): Boolean;
   protected
-    class function GetFrameType: TPGTriggerFrameType; override;
+    class function GetFrameClass(): TPGItemFrameClass; override;
   public
     class function OnProcessKeys(const AParamInput: TParamInput): Boolean;
     class procedure SetProcessKeys(const ProcessKeys: TProcessKeys = nil);
@@ -130,7 +130,7 @@ begin
   inherited Destroy();
 end;
 
-class function TPGHotKey.GetFrameType(): TPGTriggerFrameType;
+class function TPGHotKey.GetFrameClass(): TPGItemFrameClass;
 begin
   Result := TPGHotKeyFrame;
 end;

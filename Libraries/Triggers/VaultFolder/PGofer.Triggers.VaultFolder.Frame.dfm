@@ -4,9 +4,6 @@ inherited PGVaultFolderFrame: TPGVaultFolderFrame
   inherited grbAbout: TGroupBox
     Top = 141
     ExplicitTop = 141
-    inherited mmoAbout: TMemoEx
-      ExplicitHeight = 43
-    end
   end
   inherited pnlItem: TPanel
     Height = 138

@@ -25,6 +25,7 @@ type
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 var
@@ -41,7 +42,6 @@ uses
 constructor TPGFunctionFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  EdtScript.SetTextSilent( Item.Script );
   FrmAutoComplete.EditCtrlAdd( EdtScript );
 end;
 
@@ -70,6 +70,12 @@ begin
   Self.IniFile.WriteInteger( Self.ClassName, 'ScritpZoom', EdtScript.Zoom );
   Self.IniFile.WriteInteger( Self.ClassName, 'Scritp', GrbScript.Height );
   inherited IniConfigSave( );
+end;
+
+procedure TPGFunctionFrame.SyncData();
+begin
+  inherited SyncData();
+  EdtScript.SetTextSilent( Item.Script );
 end;
 
 procedure TPGFunctionFrame.EdtScriptKeyUp( Sender: TObject; var Key: Word;

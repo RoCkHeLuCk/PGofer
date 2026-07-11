@@ -36,7 +36,7 @@ type
 
     class var FLinkList: TList<TPGLink>;
   protected
-    class function GetFrameType: TPGTriggerFrameType; override;
+    class function GetFrameClass(): TPGItemFrameClass; override;
   public
     class function OnDropFile(const AItemDad: TPGItem; const AFileName: String ): boolean; override;
 
@@ -49,6 +49,7 @@ type
     class procedure Auto(const ADir: string; const AMask: string);
 
     procedure WaitFor(const AParameter: string = ''; const AState: Byte = 1);
+    procedure RunAsAdmin();
     function KillMe(): Boolean;
     property FileName: string read FFileName write SetFileName;
     property Parameter: string read FParameter write FParameter;
@@ -129,7 +130,7 @@ begin
   inherited Destroy();
 end;
 
-class function TPGLink.GetFrameType(): TPGTriggerFrameType;
+class function TPGLink.GetFrameClass(): TPGItemFrameClass;
 begin
   Result := TPGLinkFrame;
 end;
@@ -332,6 +333,11 @@ begin
     LLink.Directory := FileUnExpandPath(ExtractFilePath(AFileName));
     Result := True;
   end;
+end;
+
+procedure TPGLink.RunAsAdmin;
+begin
+  Self.ExecuteAction(FParameter, False, FState, True, FSingleInstance);
 end;
 
 initialization

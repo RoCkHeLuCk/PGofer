@@ -1,12 +1,14 @@
-﻿inherited PGVariantsFrame: TPGVariantsFrame
+inherited PGVariantsFrame: TPGVariantsFrame
   Height = 153
   ExplicitHeight = 153
   inherited grbAbout: TGroupBox
-    Top = 83
-    Height = 60
-    ExplicitTop = 83
+    Top = 63
+    Height = 80
+    ExplicitTop = 63
+    ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
       Height = 43
+      ExplicitHeight = 43
     end
   end
   inherited pnlItem: TPanel
@@ -41,6 +43,6 @@
   end
   inherited sptAbout: TPanel
     Top = 146
-    ExplicitTop = 126
+    ExplicitTop = 146
   end
 end

@@ -16,13 +16,13 @@ type
     FScriptSource: string;
     procedure SetScript(const AValue: string);
   protected
+    class function GetFrameClass(): TPGItemFrameClass; override;
   public
     class var GlobList: TPGItem;
     constructor Create(const AOwner: TPGItem; const AName: string); override;
     destructor Destroy; override;
 
     procedure Execute(const AGrammar: TPGGrammar); override;
-    procedure Frame(const AParent: TObject); override;
     procedure Compile();
 
     property Script: string read FScriptSource write SetScript;
@@ -121,14 +121,15 @@ begin
   end;
 end;
 
-procedure TPGFunction.Frame(const AParent: TObject);
+class function TPGFunction.GetFrameClass: TPGItemFrameClass;
 begin
-  TPGFunctionFrame.Create(Self, AParent);
+  Result := TPGFunctionFrame;
 end;
 
 procedure TPGFunction.SetScript(const AValue: string);
 begin
   FScriptSource := AValue;
+  Self.UpdateNode;
 end;
 
 procedure TPGFunction.Compile;

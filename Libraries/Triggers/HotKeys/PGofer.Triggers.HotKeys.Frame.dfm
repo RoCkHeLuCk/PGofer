@@ -1,4 +1,4 @@
-﻿inherited PGHotKeyFrame: TPGHotKeyFrame
+inherited PGHotKeyFrame: TPGHotKeyFrame
   Height = 332
   OnExit = MmoHotKeysExit
   ExplicitHeight = 332
@@ -129,7 +129,7 @@
       Style = csExDropDown
       Color = clSilver
       TabOrder = 2
-      Text = 'Down'
+      Text = 'Press'
       OnChange = CmbDetectChange
       ItemIndex = 1
     end
