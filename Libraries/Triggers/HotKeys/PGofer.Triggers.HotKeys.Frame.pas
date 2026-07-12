@@ -92,7 +92,6 @@ var
   LVisible: Boolean;
 begin
   LVisible := ((TPGHotKey.GetInputType = 2) and (Item.Detect = 0));
-  CkbInhibit.Checked := LVisible;
   CkbInhibit.Enabled := LVisible;
   CkbInhibit.ShowHint := not LVisible;
 end;
@@ -177,7 +176,7 @@ begin
   end;
 end;
 
-procedure TPGHotKeyFrame.SyncData;
+procedure TPGHotKeyFrame.SyncData();
 begin
   inherited SyncData();
   CmbDetect.SetIndexSilent( Item.Detect );

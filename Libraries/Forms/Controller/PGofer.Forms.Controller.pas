@@ -246,6 +246,9 @@ begin
 
   for LIndex := PnlFrame.ControlCount - 1 downto 0 do
     PnlFrame.Controls[ LIndex ].Free( );
+
+  if Assigned(FSelectedItem) then
+    TPGItemExecute(FSelectedItem).Frame( nil );
   FSelectedItem := nil;
 end;
 

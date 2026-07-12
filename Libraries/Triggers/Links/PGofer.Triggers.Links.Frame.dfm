@@ -1,9 +1,9 @@
 inherited PGLinkFrame: TPGLinkFrame
-  Height = 407
-  ExplicitHeight = 407
+  Height = 507
+  ExplicitHeight = 507
   object sptScriptBefore: TSplitter [0]
     Left = 0
-    Top = 236
+    Top = 296
     Width = 400
     Height = 6
     Cursor = crVSplit
@@ -14,7 +14,7 @@ inherited PGLinkFrame: TPGLinkFrame
   end
   object sptScriptAfter: TSplitter [1]
     Left = 0
-    Top = 308
+    Top = 428
     Width = 400
     Height = 6
     Cursor = crVSplit
@@ -27,18 +27,18 @@ inherited PGLinkFrame: TPGLinkFrame
   object GrbScriptAfter: TGroupBox [2]
     AlignWithMargins = True
     Left = 3
-    Top = 245
+    Top = 305
     Width = 394
-    Height = 60
+    Height = 120
     Align = alTop
     Caption = 'Script After (Run: F9)'
-    Constraints.MinHeight = 60
+    Constraints.MinHeight = 120
     TabOrder = 3
     object EdtScriptAfter: TMemoEx
       Left = 2
       Top = 15
       Width = 390
-      Height = 43
+      Height = 84
       Align = alClient
       Color = clSilver
       Font.Charset = ANSI_CHARSET
@@ -52,6 +52,9 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 0
       WantTabs = True
       OnKeyUp = EdtScriptAfterKeyUp
+      ShowStatusBar = True
+      ExplicitTop = 14
+      ExplicitHeight = 43
     end
   end
   object GrbScriptBefore: TGroupBox [3]
@@ -59,16 +62,16 @@ inherited PGLinkFrame: TPGLinkFrame
     Left = 3
     Top = 173
     Width = 394
-    Height = 60
+    Height = 120
     Align = alTop
     Caption = 'Script Before (Run: F9)'
-    Constraints.MinHeight = 60
+    Constraints.MinHeight = 120
     TabOrder = 1
     object EdtScriptBefore: TMemoEx
       Left = 2
       Top = 15
       Width = 390
-      Height = 43
+      Height = 84
       Align = alClient
       Color = clSilver
       Font.Charset = ANSI_CHARSET
@@ -82,16 +85,19 @@ inherited PGLinkFrame: TPGLinkFrame
       TabOrder = 0
       WantTabs = True
       OnKeyUp = EdtScriptBeforeKeyUp
+      ShowStatusBar = True
+      ExplicitTop = 14
+      ExplicitHeight = 43
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 317
-    Height = 80
+    Top = 437
+    Height = 60
     TabOrder = 4
     ExplicitTop = 317
     ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
-      Height = 43
+      Height = 23
       ExplicitHeight = 43
     end
   end
@@ -299,7 +305,7 @@ inherited PGLinkFrame: TPGLinkFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 400
+    Top = 500
     TabOrder = 2
     ExplicitTop = 400
   end

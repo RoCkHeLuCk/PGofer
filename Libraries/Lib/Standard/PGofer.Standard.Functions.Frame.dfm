@@ -26,7 +26,7 @@ inherited PGFunctionFrame: TPGFunctionFrame
       Left = 2
       Top = 15
       Width = 390
-      Height = 63
+      Height = 44
       Align = alClient
       Color = clSilver
       Font.Charset = ANSI_CHARSET
@@ -40,6 +40,8 @@ inherited PGFunctionFrame: TPGFunctionFrame
       TabOrder = 0
       WantTabs = True
       OnKeyUp = EdtScriptKeyUp
+      ShowStatusBar = True
+      ExplicitHeight = 63
     end
   end
   inherited grbAbout: TGroupBox

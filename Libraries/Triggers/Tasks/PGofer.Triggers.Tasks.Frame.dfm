@@ -1,30 +1,31 @@
 inherited PGTaskFrame: TPGTaskFrame
-  Height = 275
-  ExplicitHeight = 275
+  Height = 295
+  ExplicitHeight = 295
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 176
+    Top = 216
     Width = 400
     Height = 6
     Cursor = crVSplit
     Align = alTop
     Beveled = True
+    ExplicitTop = 176
   end
   object GrbScript: TGroupBox [1]
     AlignWithMargins = True
     Left = 3
     Top = 93
     Width = 394
-    Height = 80
+    Height = 120
     Align = alTop
     Caption = 'Script (Run: F9)'
-    Constraints.MinHeight = 60
+    Constraints.MinHeight = 120
     TabOrder = 1
     object EdtScript: TMemoEx
       Left = 2
       Top = 15
       Width = 390
-      Height = 63
+      Height = 84
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -42,15 +43,19 @@ inherited PGTaskFrame: TPGTaskFrame
       TabOrder = 0
       WantTabs = True
       OnKeyUp = EdtScriptKeyUp
+      ShowStatusBar = True
+      ExplicitLeft = 4
+      ExplicitTop = 17
+      ExplicitHeight = 63
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 185
-    Height = 80
+    Top = 225
+    Height = 60
     ExplicitTop = 185
     ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
-      Height = 43
+      Height = 23
       ExplicitHeight = 43
     end
   end
@@ -164,7 +169,7 @@ inherited PGTaskFrame: TPGTaskFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 268
+    Top = 288
     TabOrder = 3
     ExplicitTop = 268
   end

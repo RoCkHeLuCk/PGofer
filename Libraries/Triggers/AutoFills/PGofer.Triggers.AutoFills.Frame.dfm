@@ -25,7 +25,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       Left = 2
       Top = 15
       Width = 390
-      Height = 68
+      Height = 49
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -45,6 +45,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       TabOrder = 0
       WantTabs = True
       OnKeyUp = EdtTextKeyUp
+      ShowStatusBar = True
     end
   end
   inherited grbAbout: TGroupBox

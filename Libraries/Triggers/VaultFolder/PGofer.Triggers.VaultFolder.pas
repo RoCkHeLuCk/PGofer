@@ -139,12 +139,16 @@ procedure TPGVaultFolder.Clear();
 var
   I: Integer;
 begin
+  if Destroying then
+  begin
+    inherited Clear();
+    exit;
+  end;
+
   Self.CollectDad.BeginUpdate;
   try
-    // Varre de trás para frente para não bugar o índice
     for I := Self.Count - 1 downto 0 do
     begin
-      // SÓ deleta o que NÃO é interno (ignora _FileName, _Locked, etc.)
       if not (pgfInternal in Self[I].Flags) then
         Self.Delete(I);
     end;

@@ -396,10 +396,10 @@ begin
           ScriptExec( 'Test', FEditCtrl.Lines.Text, nil, False );
         end;
 
-      VK_LEFT, VK_RIGHT:
-        begin
-          Self.FindCMD();
-        end;
+      //VK_LEFT, VK_RIGHT:
+      //  begin
+      //    Self.FindCMD();
+      //  end;
     end; // case
 
   if Key <> 0  then

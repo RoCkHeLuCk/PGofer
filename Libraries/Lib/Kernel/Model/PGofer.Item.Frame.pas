@@ -56,20 +56,16 @@ constructor TPGItemFrame.Create(const AItem: TPGItem; const AParent: TObject );
 begin
   FLoading := True;
   inherited Create( nil );
-  FItem := AItem;
   Self.Parent := TWinControl( AParent );
   Self.Width := TControl( AParent ).Width - 16;
   FAboutSplitter := False;
-  EdtName.ReadOnly := FItem.Internal;
-  mmoAbout.Lines.Text := FItem.About;
   Self.IniConfigLoad( );
-  Self.SyncData;
+  FItem := AItem;
 end;
 
 destructor TPGItemFrame.Destroy( );
 begin
   Self.IniConfigSave( );
-  //FItem.Frame(nil);
   FItem := nil;
   inherited Destroy( );
 end;
@@ -77,7 +73,12 @@ end;
 procedure TPGItemFrame.AfterConstruction();
 begin
   inherited AfterConstruction();
-  Self.SyncData();
+  if Assigned(FItem) then
+  begin
+     EdtName.ReadOnly := FItem.Internal;
+     mmoAbout.Lines.Text := FItem.About;
+     Self.SyncData;
+  end;
   FLoading := False;
 end;
 

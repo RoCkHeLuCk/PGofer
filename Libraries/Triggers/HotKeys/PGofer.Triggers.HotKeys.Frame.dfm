@@ -1,10 +1,10 @@
 inherited PGHotKeyFrame: TPGHotKeyFrame
-  Height = 332
+  Height = 358
   OnExit = MmoHotKeysExit
-  ExplicitHeight = 332
+  ExplicitHeight = 358
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 233
+    Top = 279
     Width = 400
     Height = 6
     Cursor = crVSplit
@@ -13,12 +13,12 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     ExplicitTop = 176
   end
   inherited grbAbout: TGroupBox
-    Top = 242
-    Height = 80
+    Top = 288
+    Height = 60
     ExplicitTop = 242
     ExplicitHeight = 80
     inherited mmoAbout: TMemoEx
-      Height = 43
+      Height = 23
       ExplicitHeight = 43
     end
   end
@@ -27,16 +27,16 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     Left = 3
     Top = 156
     Width = 394
-    Height = 74
+    Height = 120
     Align = alTop
     Caption = 'Script (Run: F9)'
-    Constraints.MinHeight = 60
+    Constraints.MinHeight = 120
     TabOrder = 1
     object EdtScript: TMemoEx
       Left = 2
       Top = 15
       Width = 390
-      Height = 57
+      Height = 84
       Align = alClient
       Color = clSilver
       Font.Charset = ANSI_CHARSET
@@ -50,6 +50,8 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       TabOrder = 0
       WantTabs = True
       OnKeyUp = EdtScriptKeyUp
+      ShowStatusBar = True
+      ExplicitHeight = 38
     end
   end
   inherited pnlItem: TPanel
@@ -154,7 +156,7 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 325
+    Top = 351
     TabOrder = 3
     ExplicitTop = 325
   end

@@ -32,6 +32,7 @@ type
     class var FTypeIndex: Byte;
     class function LocateHotKeys(const AKeys: TList<Word>): TPGHotKey;
     class function DefaultOnProcessKeys(const AParamInput: TParamInput): Boolean;
+    procedure SetDetect(const Value: Byte);
   protected
     class function GetFrameClass(): TPGItemFrameClass; override;
   public
@@ -46,7 +47,7 @@ type
   published
     property HotKeysHex: string read GetKeysHex write SetKeysHex;
     [TPGAbout('0:Down; 1:Press; 2:Up; 3:Wheel;')]
-    property Detect: Byte read FDetect write FDetect;
+    property Detect: Byte read FDetect write SetDetect;
     property Inhibit: Boolean read FInhibit write SetInhibit;
     property Script: string read GetScript write SetScript;
     property Disabled;
@@ -182,9 +183,15 @@ begin
   Self.Invalid := (FScript.Text.IsEmpty or (FKeys.Count = 0));
 end;
 
+procedure TPGHotKey.SetDetect(const Value: Byte);
+begin
+  FDetect := Value;
+  Self.SetInhibit(FInhibit);
+end;
+
 procedure TPGHotKey.SetInhibit(const AValue: Boolean);
 begin
-  if FTypeIndex = 2 then
+  if (FDetect = 0) and (FTypeIndex = 2) then
     FInhibit := AValue
   else
     FInhibit := False;
@@ -276,7 +283,7 @@ begin
     LHotKey := TPGHotKey.LocateHotKeys(FShootKeys);
     if Assigned(LHotKey) then
     begin
-      if LHotKey.Inhibit and (FTypeIndex = 2) then
+      if LHotKey.Inhibit and (LHotKey.Detect = 0) and (FTypeIndex = 2) then
         Result := True;
 
       if (LKey.bDetect in [kd_Wheel])
@@ -332,7 +339,7 @@ begin
           TPGKernel.ConsoleTr('Ok_HotKey_SetHookInput');
         {$ELSE}
           TPGKernel.Console('HotKey: Debug mode, Set AsyncInput.');
-          FTypeIndex := 1;
+          //FTypeIndex := 1;
         {$ENDIF}
       end;
     else

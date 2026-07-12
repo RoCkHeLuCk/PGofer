@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.Types, System.SysUtils,
   WinApi.Windows, WinApi.Messages, WinApi.ShellApi,
-  Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls;
+  Vcl.StdCtrls, Vcl.Graphics, Vcl.Controls, Vcl.ComCtrls;
 
 type
   TOnKeyDownUP = procedure( Sender: TObject; var Key: Word; Shift: TShiftState )
@@ -22,6 +22,11 @@ type
     FBaseFontSize: Integer;
     FZoomValue: Integer;
 
+    //statusbar
+    FStatusBar: TStatusBar;
+    FShowStatusBar: Boolean;
+    FModified: Boolean;
+
     function GetCaretX: Integer;
     procedure SetCaretX(AValue: Integer);
     function GetCaretY: Integer;
@@ -33,6 +38,9 @@ type
     procedure SetDisplayY(const Value: Integer);
     function GetDisplayXY: TPoint;
     procedure SetDisplayXY(const Value: TPoint);
+
+    procedure SetShowStatusBar(const Value: Boolean);
+    procedure UpdateStatusBar;
 
     procedure DoDropFiles(var msg: TWMDropFiles); message WM_DROPFILES;
     procedure SetOnDropFiles(AValue: TOnDropFile);
@@ -50,8 +58,19 @@ type
   protected
     procedure WMMouseWheel(var Message: TWMMouseWheel); message WM_MOUSEWHEEL;
     procedure CreateWnd; override;
+
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+
+    procedure Change(); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure Resize(); override;
+
+    function GetCaretPos: TPoint; override;
+    procedure SetCaretPos(const Value: TPoint); override;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy(); override;
 
     property CaretY: Integer read GetCaretY write SetCaretY;
     property CaretX: Integer read GetCaretX write SetCaretX;
@@ -68,9 +87,12 @@ type
     property VerticalScrollMax: Integer read GetVerticalScrollMax;
 
     procedure SetTextSilent(const AValue: String);
+
+    property Modified: Boolean read FModified write FModified;
   published
     property OnDropFiles: TOnDropFile read FOnDropFiles write SetOnDropFiles;
     property Zoom: Integer read GetZoomValue write SetZoomValue default 100;
+    property ShowStatusBar: Boolean read FShowStatusBar write SetShowStatusBar default False;
   end;
 
 procedure Register;
@@ -84,22 +106,53 @@ end;
 
 { TMemoEx }
 
+procedure TMemoEx.Change();
+begin
+  FModified := True;
+  inherited;
+  UpdateStatusBar;
+end;
+
 constructor TMemoEx.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FZoomValue := 100;
   FBaseFontSize := Font.Size;
+  FShowStatusBar := False;
+  FModified := False;
+  FStatusBar := nil;
+  FShowStatusBar := False;
+end;
+
+destructor TMemoEx.Destroy();
+begin
+  Self.SetShowStatusBar(False);
+  inherited Destroy();
 end;
 
 procedure TMemoEx.CreateWnd;
 begin
   inherited;
   DragAcceptFiles(Handle, Assigned(FOnDropFiles));
+  if FShowStatusBar then
+    SetShowStatusBar(True);
+end;
+
+function TMemoEx.GetCaretPos: TPoint;
+begin
+  Result.X := Self.GetCaretX;
+  Result.Y := Self.GetCaretY;
 end;
 
 function TMemoEx.GetCaretX: Integer;
 begin
   Result := SelStart - Perform(EM_LINEINDEX, WPARAM(-1), 0) + 1;
+end;
+
+procedure TMemoEx.SetCaretPos(const Value: TPoint);
+begin
+  Self.SetCaretX(Value.X);
+  Self.SetCaretY(Value.Y);
 end;
 
 procedure TMemoEx.SetCaretX(AValue: Integer);
@@ -228,6 +281,31 @@ begin
   Result := FZoomValue;
 end;
 
+procedure TMemoEx.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  UpdateStatusBar;
+end;
+
+procedure TMemoEx.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  UpdateStatusBar;
+end;
+
+procedure TMemoEx.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited Notification(AComponent, Operation);
+  if (Operation = opRemove) and (AComponent = FStatusBar) then
+    FStatusBar := nil;
+end;
+
+procedure TMemoEx.Resize();
+begin
+  inherited;
+  UpdateStatusBar;
+end;
+
 procedure TMemoEx.SetZoomValue(AValue: Integer);
 var
   NewSize: Integer;
@@ -247,6 +325,31 @@ begin
 
   if Assigned(Self.OnChange) then
     Self.OnChange(Self);
+  UpdateStatusBar;
+end;
+
+procedure TMemoEx.UpdateStatusBar;
+begin
+  if (csLoading in ComponentState)
+  or (csDestroying in ComponentState)
+  or (not HandleAllocated ) then
+    Exit;
+
+  if Assigned(FStatusBar) and FShowStatusBar and (FStatusBar.Panels.Count >= 3) then
+  begin
+    // Sincroniza a posição da StatusBar logo abaixo do Memo
+    FStatusBar.Left := Self.Left;
+    FStatusBar.Width := Self.Width;
+    FStatusBar.Top := Self.Top + Self.Height;
+
+    FStatusBar.Panels[0].Text := Format('Lin: %d, Col: %d', [Self.CaretY, Self.CaretX]);
+    FStatusBar.Panels[1].Text := Format('Zoom: %d%%', [FZoomValue]);
+
+    if FModified then
+      FStatusBar.Panels[2].Text := 'Modified'
+    else
+      FStatusBar.Panels[2].Text := '';
+  end;
 end;
 
 procedure TMemoEx.SetOnDropFiles(AValue: TOnDropFile);
@@ -254,6 +357,41 @@ begin
   FOnDropFiles := AValue;
   if HandleAllocated then
     DragAcceptFiles(Handle, Assigned(FOnDropFiles));
+end;
+
+procedure TMemoEx.SetShowStatusBar(const Value: Boolean);
+begin
+  if FShowStatusBar = Value then
+    Exit;
+
+  FShowStatusBar := Value;
+
+  if FShowStatusBar then
+  begin
+    if not Assigned(FStatusBar) then
+    begin
+      FStatusBar := TStatusBar.Create(Self);
+      FStatusBar.SetSubComponent(True);
+      FStatusBar.SimplePanel := False;
+
+      if Assigned(Self.Parent) then
+        FStatusBar.Parent := Self.Parent; // Vincula ao mesmo pai do Memo
+      FStatusBar.Panels.Clear;
+      FStatusBar.Panels.Add.Width := 120; // Posicao
+      FStatusBar.Panels.Add.Width := 100; // Zoom
+      FStatusBar.Panels.Add.Width := 200; // Modificado
+    end;
+
+    FStatusBar.Visible := True;
+  end else if Assigned(FStatusBar) then
+  begin
+    FStatusBar.Visible := False;
+    FStatusBar.Parent := nil;
+    FStatusBar.Free;
+    FStatusBar := nil;
+  end;
+
+  UpdateStatusBar;
 end;
 
 procedure TMemoEx.DoDropFiles(var msg: TWMDropFiles);
@@ -289,6 +427,8 @@ begin
   try
     OnChange := nil;
     Text := AValue;
+    FModified := False;
+    UpdateStatusBar;
   finally
     OnChange := OldEvent;
   end;
