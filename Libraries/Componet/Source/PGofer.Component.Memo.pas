@@ -427,6 +427,9 @@ begin
   try
     OnChange := nil;
     Text := AValue;
+    Self.SelStart := Self.GetTextLen;
+    Self.SelLength := 0;
+    Self.Perform(EM_SCROLLCARET, 0, 0);
     FModified := False;
     UpdateStatusBar;
   finally

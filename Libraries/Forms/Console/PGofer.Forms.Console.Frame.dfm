@@ -1,12 +1,12 @@
-﻿inherited PGConsoleFrame: TPGConsoleFrame
+inherited PGConsoleFrame: TPGConsoleFrame
   Height = 337
   ExplicitHeight = 337
   inherited grbAbout: TGroupBox
-    Top = 287
-    Height = 40
+    Top = 267
+    Height = 60
     Constraints.MinHeight = 40
-    ExplicitTop = 287
-    ExplicitHeight = 40
+    ExplicitTop = 267
+    ExplicitHeight = 60
     inherited mmoAbout: TMemoEx
       Height = 23
       ExplicitHeight = 23
@@ -54,7 +54,6 @@
       ParentFont = False
       TabOrder = 4
       Text = '0'
-      ValidationColorNormal = clSilver
       OnAfterValidate = EdtDelayAfterValidate
     end
     object updDelay: TUpDown [19]

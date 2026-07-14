@@ -25,6 +25,7 @@ type
     mniGlobals: TMenuItem;
     mniTriggers: TMenuItem;
     shpDrag: TShape;
+    mniConsole: TMenuItem;
     procedure FormCreate( Sender: TObject );
     procedure FormClose( Sender: TObject; var Action: TCloseAction );
     procedure FormShow( Sender: TObject );
@@ -61,6 +62,8 @@ type
   private
     function GetCanClose: Boolean;
     procedure SetCanClose(const AValue: Boolean);
+    function GetText: String;
+    procedure SetText(const AValue: String);
   protected
     function GetForm( ): TFrmPGofer; reintroduce;
     property Form: TFrmPGofer read GetForm;
@@ -68,6 +71,8 @@ type
   published
     procedure Close(); override;
     property CanClose: Boolean read GetCanClose write SetCanClose;
+    property Text: String read GetText write SetText;
+    procedure Clear(); reintroduce;
     function GetVersion: string;
   end;
   {$TYPEINFO ON}
@@ -305,12 +310,22 @@ end;
 
 function TPGFrmPGofer.GetCanClose: Boolean;
 begin
-  Result := Self.form.CanClose;
+  Result := Self.Form.CanClose;
 end;
 
 function TPGFrmPGofer.GetForm: TFrmPGofer;
 begin
   Result := TFrmPGofer(inherited Form);
+end;
+
+procedure TPGFrmPGofer.Clear;
+begin
+  Self.Form.EdtScript.Clear;
+end;
+
+function TPGFrmPGofer.GetText: String;
+begin
+  Result := Self.Form.EdtScript.Text;
 end;
 
 function TPGFrmPGofer.GetVersion(): string;
@@ -321,6 +336,13 @@ end;
 procedure TPGFrmPGofer.SetCanClose(const AValue: Boolean);
 begin
   Self.Form.CanClose := AValue;
+end;
+
+procedure TPGFrmPGofer.SetText(const AValue: String);
+begin
+  Self.Form.EdtScript.SetTextSilent(AValue);
+  if (AValue <> '') and Self.Form.Visible then
+    FrmAutoComplete.FindCMD(Self.Form.EdtScript);
 end;
 
 end.

@@ -15,11 +15,11 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
   inherited grbAbout: TGroupBox
     Top = 288
     Height = 60
-    ExplicitTop = 242
-    ExplicitHeight = 80
+    ExplicitTop = 288
+    ExplicitHeight = 60
     inherited mmoAbout: TMemoEx
       Height = 23
-      ExplicitHeight = 43
+      ExplicitHeight = 23
     end
   end
   object GrbScript: TGroupBox [2]
@@ -51,7 +51,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
       WantTabs = True
       OnKeyUp = EdtScriptKeyUp
       ShowStatusBar = True
-      ExplicitHeight = 38
     end
   end
   inherited pnlItem: TPanel
@@ -88,9 +87,15 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
         Alignment = taCenter
         BevelInner = bvNone
         BevelOuter = bvNone
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'Courier New'
+        Font.Style = [fsBold]
         Lines.Strings = (
           '')
         ParentColor = True
+        ParentFont = False
         ReadOnly = True
         TabOrder = 0
         WantReturns = False
@@ -158,6 +163,6 @@ inherited PGHotKeyFrame: TPGHotKeyFrame
   inherited sptAbout: TPanel
     Top = 351
     TabOrder = 3
-    ExplicitTop = 325
+    ExplicitTop = 351
   end
 end

@@ -44,19 +44,16 @@ inherited PGTaskFrame: TPGTaskFrame
       WantTabs = True
       OnKeyUp = EdtScriptKeyUp
       ShowStatusBar = True
-      ExplicitLeft = 4
-      ExplicitTop = 17
-      ExplicitHeight = 63
     end
   end
   inherited grbAbout: TGroupBox
     Top = 225
     Height = 60
-    ExplicitTop = 185
-    ExplicitHeight = 80
+    ExplicitTop = 225
+    ExplicitHeight = 60
     inherited mmoAbout: TMemoEx
       Height = 23
-      ExplicitHeight = 43
+      ExplicitHeight = 23
     end
   end
   inherited pnlItem: TPanel
@@ -121,16 +118,9 @@ inherited PGTaskFrame: TPGTaskFrame
       Width = 45
       Height = 21
       Color = clSilver
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       ReadOnly = True
       TabOrder = 1
       Text = '0'
-      ValidationColorNormal = clSilver
     end
     object EdtRepeat: TEditEx [6]
       Left = 70
@@ -138,15 +128,8 @@ inherited PGTaskFrame: TPGTaskFrame
       Width = 45
       Height = 21
       Color = clSilver
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
       TabOrder = 2
       Text = '0'
-      ValidationColorNormal = clSilver
       OnAfterValidate = EdtRepeatAfterValidate
     end
     object UpdRepeat: TUpDown [7]
@@ -171,6 +154,6 @@ inherited PGTaskFrame: TPGTaskFrame
   inherited sptAbout: TPanel
     Top = 288
     TabOrder = 3
-    ExplicitTop = 268
+    ExplicitTop = 288
   end
 end

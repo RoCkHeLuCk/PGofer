@@ -1,14 +1,14 @@
-﻿inherited PGFormsFrame: TPGFormsFrame
+inherited PGFormsFrame: TPGFormsFrame
   Height = 310
   ExplicitHeight = 310
   inherited grbAbout: TGroupBox
-    Top = 256
-    Height = 44
+    Top = 236
+    Height = 64
     ExplicitTop = 236
     ExplicitHeight = 64
     inherited mmoAbout: TMemoEx
-      Height = 47
-      ExplicitHeight = 47
+      Height = 27
+      ExplicitHeight = 27
     end
   end
   inherited pnlItem: TPanel
@@ -199,7 +199,6 @@
       ParentFont = False
       TabOrder = 9
       Text = '0'
-      ValidationColorNormal = clSilver
       OnAfterValidate = EdtAlphaBlendValueAfterValidate
     end
     object EdtHeigth: TEditEx [18]

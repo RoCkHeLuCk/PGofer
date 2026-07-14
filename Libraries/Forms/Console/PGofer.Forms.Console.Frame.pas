@@ -5,7 +5,6 @@ interface
 uses
   System.Classes,
   Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ComCtrls,
-
   PGofer.Classes, PGofer.Forms.Frame, PGofer.Forms.Console,
   PGofer.Component.Edit, PGofer.Item.Frame,
   Pgofer.Component.Checkbox, Vcl.Dialogs, Vcl.ExtCtrls, Pgofer.Component.ComboBox,
@@ -22,10 +21,13 @@ type
     procedure ckbAutoCloseClick( Sender: TObject );
     procedure EdtDelayAfterValidate(Sender: TObject);
   private
-    FItem: TPGFrmConsole;
+  protected
+    function GetItem( ): TPGFrmConsole; reintroduce;
+    property Item: TPGFrmConsole read GetItem;
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 implementation
@@ -39,34 +41,43 @@ uses
 constructor TPGConsoleFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  FItem := TPGFrmConsole( AItem );
-  EdtDelay.SetTextSilent( FItem.Delay.ToString );
-  ckbShowMessage.SetCheckedSilent( FItem.ShowMessage );
-  ckbAutoClose.SetCheckedSilent( FItem.AutoClose );
 end;
 
 destructor TPGConsoleFrame.Destroy;
 begin
-  FItem := nil;
   inherited Destroy;
 end;
 
 procedure TPGConsoleFrame.EdtDelayAfterValidate(Sender: TObject);
 begin
   if Self.Loading then Exit;
-  FItem.Delay := StrToIntDef( EdtDelay.Text, 0);
+  Item.Delay := StrToIntDef( EdtDelay.Text, 0);
+end;
+
+function TPGConsoleFrame.GetItem: TPGFrmConsole;
+begin
+  Result := TPGFrmConsole(inherited Item);
+end;
+
+procedure TPGConsoleFrame.SyncData();
+begin
+  inherited SyncData();
+
+  EdtDelay.SetTextSilent( Item.Delay.ToString );
+  ckbShowMessage.SetCheckedSilent( Item.ShowMessage );
+  ckbAutoClose.SetCheckedSilent( Item.AutoClose );
 end;
 
 procedure TPGConsoleFrame.ckbAutoCloseClick( Sender: TObject );
 begin
   if Self.Loading then Exit;
-  FItem.AutoClose := ckbAutoClose.Checked;
+  Item.AutoClose := ckbAutoClose.Checked;
 end;
 
 procedure TPGConsoleFrame.ckbShowMessageClick( Sender: TObject );
 begin
   if Self.Loading then Exit;
-  FItem.ShowMessage := ckbShowMessage.Checked;
+  Item.ShowMessage := ckbShowMessage.Checked;
 end;
 
 end.

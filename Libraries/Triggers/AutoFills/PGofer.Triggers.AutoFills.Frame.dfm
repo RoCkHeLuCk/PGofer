@@ -1,9 +1,9 @@
 inherited PGAutoFillsFrame: TPGAutoFillsFrame
-  Height = 283
-  ExplicitHeight = 283
+  Height = 295
+  ExplicitHeight = 295
   object sptScript: TSplitter [0]
     Left = 0
-    Top = 181
+    Top = 216
     Width = 400
     Height = 6
     Cursor = crVSplit
@@ -16,16 +16,16 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     Left = 3
     Top = 93
     Width = 394
-    Height = 85
+    Height = 120
     Align = alTop
     Caption = 'Text'
-    Constraints.MinHeight = 60
+    Constraints.MinHeight = 120
     TabOrder = 1
     object EdtText: TMemoEx
       Left = 2
       Top = 15
       Width = 390
-      Height = 49
+      Height = 84
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -46,15 +46,16 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
       WantTabs = True
       OnKeyUp = EdtTextKeyUp
       ShowStatusBar = True
+      ExplicitHeight = 49
     end
   end
   inherited grbAbout: TGroupBox
-    Top = 190
-    Height = 83
+    Top = 225
+    Height = 60
     ExplicitTop = 190
     ExplicitHeight = 83
     inherited mmoAbout: TMemoEx
-      Height = 46
+      Height = 23
       ExplicitHeight = 46
     end
   end
@@ -191,7 +192,7 @@ inherited PGAutoFillsFrame: TPGAutoFillsFrame
     end
   end
   inherited sptAbout: TPanel
-    Top = 276
+    Top = 288
     TabOrder = 3
     ExplicitTop = 276
   end

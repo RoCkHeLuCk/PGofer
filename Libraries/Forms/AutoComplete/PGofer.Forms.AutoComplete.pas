@@ -65,7 +65,6 @@ type
     procedure About();
     procedure ProcurarComandos(const ACommand: string);
     procedure FileNameList(const AFileName: string);
-    procedure FindCMD;
     procedure SelectCMD(ASelected: TSelectCMD);
     procedure SetCommandCompare(const AValue: string);
     property CommandCompare: string read FCommandCompare write SetCommandCompare;
@@ -77,6 +76,7 @@ type
   public
     property MemoryNoCtrl: Boolean read FMemoryNoCtrl write FMemoryNoCtrl;
     property FileListMax: Cardinal read FFileListMax write FFileListMax;
+    procedure FindCMD(AEditCtrl: TMemoEx = nil);
     procedure EditCtrlAdd(AValue: TMemoEx);
     procedure EditCtrlRemove(AValue: TMemoEx);
   end;
@@ -428,7 +428,7 @@ begin
     OnMouseUp(Sender, Button, Shift, X, Y);
 end;
 
-procedure TFrmAutoComplete.FindCMD;
+procedure TFrmAutoComplete.FindCMD(AEditCtrl: TMemoEx = nil);
 var
   LLexer: TPGLexer;
   LTokens: TPGTokenList;
@@ -439,6 +439,9 @@ var
   LKind: TPGTokenKind;
   LPoint: TPoint;
 begin
+  if Assigned(AEditCtrl) then
+    FEditCtrl := AEditCtrl;
+
   if (FEditCtrl = nil) then Exit;
 
   LLineIndex := FEditCtrl.CaretY - 1;
@@ -737,10 +740,12 @@ procedure TFrmAutoComplete.FormShow(Sender: TObject);
 var
   Point: TPoint;
 begin
-  inherited;
-  Point := FEditCtrl.DisplayXY;
-  Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + FEditCtrl.CharHeight + 2;
-  Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
+  if Assigned(FEditCtrl) then
+  begin
+    Point := FEditCtrl.DisplayXY;
+    Self.Top := FEditCtrl.ClientOrigin.Y + Point.Y + FEditCtrl.CharHeight + 2;
+    Self.Left := FEditCtrl.ClientOrigin.X + Point.X + 2;
+  end;
   trmAutoComplete.Enabled := True;
   Self.ForceShow( False );
 end;

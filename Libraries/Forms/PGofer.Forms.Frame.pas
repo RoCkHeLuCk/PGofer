@@ -53,6 +53,7 @@ type
   public
     constructor Create( AItem: TPGItem; AParent: TObject ); reintroduce;
     destructor Destroy( ); override;
+    procedure SyncData(); override;
   end;
 
 implementation
@@ -66,17 +67,6 @@ uses
 constructor TPGFormsFrame.Create( AItem: TPGItem; AParent: TObject );
 begin
   inherited Create( AItem, AParent );
-  CkbAlphaBlend.SetCheckedSilent( Self.Item.AlphaBlend );
-  EdtAlphaBlendValue.SetTextSilent( Self.Item.AlphaBlendValue.ToString() );
-  CkbEnabled.SetCheckedSilent( not (pgfDisabled in Self.Item.Flags) );
-  EdtHeigth.SetTextSilent( Self.Item.Heigth.ToString() );
-  EdtLeft.SetTextSilent( Self.Item.Left.ToString() );
-  EdtTop.SetTextSilent( Self.Item.Top.ToString() );
-  CkbTransparent.SetCheckedSilent( Self.Item.Transparent );
-  PnlTransparentColor.Color := Self.Item.TransparentColor;
-  CkbVisible.SetCheckedSilent( Self.Item.Visible );
-  EdtWidth.SetTextSilent( Self.Item.Width.ToString() );
-  CmbWindowState.SetIndexSilent( Self.Item.WindowState );
 end;
 
 destructor TPGFormsFrame.Destroy;
@@ -167,6 +157,22 @@ begin
     Self.Item.TransparentColor := cldTrasparentColor.Color;
     PnlTransparentColor.Color := cldTrasparentColor.Color;
   end;
+end;
+
+procedure TPGFormsFrame.SyncData();
+begin
+  inherited SyncData();
+  CkbAlphaBlend.SetCheckedSilent( Self.Item.AlphaBlend );
+  EdtAlphaBlendValue.SetTextSilent( Self.Item.AlphaBlendValue.ToString() );
+  CkbEnabled.SetCheckedSilent( not (pgfDisabled in Self.Item.Flags) );
+  EdtHeigth.SetTextSilent( Self.Item.Heigth.ToString() );
+  EdtLeft.SetTextSilent( Self.Item.Left.ToString() );
+  EdtTop.SetTextSilent( Self.Item.Top.ToString() );
+  CkbTransparent.SetCheckedSilent( Self.Item.Transparent );
+  PnlTransparentColor.Color := Self.Item.TransparentColor;
+  CkbVisible.SetCheckedSilent( Self.Item.Visible );
+  EdtWidth.SetTextSilent( Self.Item.Width.ToString() );
+  CmbWindowState.SetIndexSilent( Self.Item.WindowState );
 end;
 
 end.

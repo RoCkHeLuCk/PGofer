@@ -8356,12 +8356,19 @@ object FrmPGofer: TFrmPGofer
     object mniTriggers: TMenuItem
       Caption = 'Triggers'
       Hint = 'FrmTriggers;'
+      ShortCut = 32880
       OnClick = PopUpClick
     end
     object mniGlobals: TMenuItem
       Caption = 'Globals'
       Hint = 'FrmGlobals;'
+      ShortCut = 32881
       OnClick = PopUpClick
+    end
+    object mniConsole: TMenuItem
+      Caption = 'Console Log'
+      Hint = 'FrmConsole;'
+      ShortCut = 32882
     end
     object mniN1: TMenuItem
       Caption = '-'

@@ -60,6 +60,9 @@ begin
 
     Commands(AGrammar);
 
+    if AGrammar.HasError then
+      Exit;
+
     // --- PENTE FINO DE LINHA (Check de Saúde) ---
     if TPGKernel.ReportMemoryLeaks and (AGrammar.Stack.Count > 1) then
     begin
@@ -71,12 +74,15 @@ begin
          AGrammar.Stack.Count]
       );
 
-      // LIMPEZA FORÇADA: Para a próxima linha começar do zero
-      while AGrammar.Stack.Count > 0 do AGrammar.Stack.Pop;
+      AGrammar.Msg('**** MemoryLeaks Start ****',[]);
+      // Lista e limpa
+      while AGrammar.Stack.Count > 0 do
+      begin
+        AGrammar.Msg('Value: "%s":"%d";', [AGrammar.Stack.Pop.ToString, AGrammar.Stack.Count]);
+      end;
+      AGrammar.Msg('**** MemoryLeaks End ****',[]);
     end;
-
-    if AGrammar.HasError then
-      Exit;
+    AGrammar.Stack.Clear;
 
     // Semicolon opcional antes de fechamento de blocos
     if AGrammar.Match(pgkSemiColon) then
